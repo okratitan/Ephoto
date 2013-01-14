@@ -116,6 +116,7 @@ _win_free(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event
 {
    Ephoto *ephoto = data;
    if (ephoto->timer.thumb_regen) ecore_timer_del(ephoto->timer.thumb_regen);
+   ephoto_config_save(ephoto, EINA_TRUE);
    free(ephoto);
 }
 

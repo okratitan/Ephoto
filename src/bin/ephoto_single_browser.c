@@ -846,8 +846,8 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    sb->bar = elm_box_add(sb->main);
    elm_box_horizontal_set(sb->bar, EINA_TRUE);
    elm_box_homogeneous_set(sb->bar, EINA_FALSE);
-   evas_object_size_hint_weight_set(sb->bar, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_align_set(sb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_weight_set(sb->bar, 0.0, 0.0);
+   evas_object_size_hint_align_set(sb->bar, EVAS_HINT_FILL, 0.0);
    evas_object_show(sb->bar);
    elm_box_pack_end(sb->main, sb->bar);
 

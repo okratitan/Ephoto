@@ -1,5 +1,9 @@
 [Desktop Entry]
-Categories=Graphics;Viewer;
+Encoding=UTF-8
+Type=Application
+Name=Ephoto
+Name[eo]=EFoto
+Name[fr]=EPhoto
 Comment=Enlightened Photo Viewer
 Comment[eo]=Foto-vidigilo de Enlightenment
 Comment[es]=Visualizador de fotos de Enlightenment
@@ -8,12 +12,8 @@ Comment[gl]=Visualizador de fotos de Enlightenment
 Comment[it]=Visualizzatore di foto per Enlightenment
 Comment[pt]=Visualizador de fotos do Enlightenment
 Comment[ru]=Просмотр фото
-Encoding=UTF-8
-Exec=ephoto
 Icon=ephoto
-MimeType=inode/directory;image/png;image/jpeg;image/pjpeg;image/x-xpixmap;image/tiff;image/svg+xml;image/svg+xml-compressed;image/gif;image/x-portable-anymap;image/x-portable-bitmap;image/x-portable-graymap;image/x-portable-pixmap;image/bmp;image/x-bmp;image/x-tga;image/vnd.wap.wbmp;image/webp;image/vnd.microsoft.icon;image/ico;image/x-ico;image/x-win-bitmap;image/vnd.adobe.photoshop;image/x-psd;application/pdf;application/x-pdf;image/pdf;application/postscript;image/x-xcf;image/x-compressed-xcf;
-Name=Ephoto
-Name[eo]=EFoto
-Name[fr]=EPhoto
+Exec=ephoto
 Terminal=false
-Type=Application
+MimeType=inode/directory;image/png;image/jpeg;image/pjpeg;image/x-xpixmap;image/tiff;image/svg+xml;image/svg+xml-compressed;image/gif;image/x-portable-anymap;image/x-portable-bitmap;image/x-portable-graymap;image/x-portable-pixmap;image/bmp;image/x-bmp;image/x-tga;image/vnd.wap.wbmp;image/webp;image/vnd.microsoft.icon;image/ico;image/x-ico;image/x-win-bitmap;image/vnd.adobe.photoshop;image/x-psd;application/pdf;application/x-pdf;image/pdf;application/postscript;image/x-xcf;image/x-compressed-xcf;
+Categories=Graphics;Viewer;

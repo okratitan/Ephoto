@@ -42,6 +42,12 @@ elm_main(int argc, char **argv)
    if (!efreet_mime_init())
      ERR("Could not init efreet_mime!");
 
+/*
+ * this isn't valid to assume oan ethumbd is ALWAYS around and ALWAYS
+ * connected - especially on startup. ethumbd may go away (timeout) and
+ * thus the client connection may go. if you want to do this kind of thing,
+ * you will need to extend elm_thumb itself to store these and "implement"
+ * them on connect
    client = elm_thumb_ethumb_client_get();
    if (!client)
      {
@@ -52,7 +58,7 @@ elm_main(int argc, char **argv)
    ethumb_client_crop_align_set(client, 0.5, 0.5);
    ethumb_client_aspect_set(client, ETHUMB_THUMB_CROP);
    ethumb_client_orientation_set(client, ETHUMB_THUMB_ORIENT_ORIGINAL);
-
+ */
    elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
    DBG("Logging initialized");

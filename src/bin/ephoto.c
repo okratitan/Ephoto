@@ -14,7 +14,7 @@ int __log_domain = -1;
 EAPI int
 elm_main(int argc, char **argv)
 {
-   Ethumb_Client *client;
+//   Ethumb_Client *client;
    int r = 0;
 
 #if ENABLE_NLS

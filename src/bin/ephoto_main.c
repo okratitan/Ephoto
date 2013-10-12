@@ -124,7 +124,6 @@ Evas_Object *
 ephoto_window_add(const char *path)
 {
    Ephoto *ephoto = calloc(1, sizeof(Ephoto));
-   Ethumb_Client *client = elm_thumb_ethumb_client_get();
    char buf[PATH_MAX];
    EINA_SAFETY_ON_NULL_RETURN_VAL(ephoto, NULL);
 
@@ -155,9 +154,6 @@ ephoto_window_add(const char *path)
        (ephoto->config->thumb_gen_size != 256) &&
        (ephoto->config->thumb_gen_size != 512))
      ephoto_thumb_size_set(ephoto, ephoto->config->thumb_size);
-   else if (client)
-     ethumb_client_size_set
-       (client, ephoto->config->thumb_gen_size, ephoto->config->thumb_gen_size);
 
    ephoto->bg = elm_bg_add(ephoto->win);
    evas_object_size_hint_weight_set
@@ -381,7 +377,6 @@ static Eina_Bool
 _thumb_gen_size_changed_timer_cb(void *data)
 {
    Ephoto *ephoto = data;
-   Ethumb_Client *client;
    const Eina_List *l;
    Evas_Object *o;
 
@@ -390,16 +385,7 @@ _thumb_gen_size_changed_timer_cb(void *data)
    INF("thumbnail generation size changed from %d to %d",
        ephoto->config->thumb_gen_size, ephoto->thumb_gen_size);
 
-   client = elm_thumb_ethumb_client_get();
-   if (!client)
-     {
-        DBG("no client yet, try again later");
-        return EINA_TRUE;
-     }
-
    ephoto->config->thumb_gen_size = ephoto->thumb_gen_size;
-   ethumb_client_size_set
-     (client, ephoto->thumb_gen_size, ephoto->thumb_gen_size);
 
    EINA_LIST_FOREACH(ephoto->thumbs, l, o)
      {
@@ -407,7 +393,16 @@ _thumb_gen_size_changed_timer_cb(void *data)
         format = (long)evas_object_data_get(o, "ephoto_format");
         if (format)
           {
-             ethumb_client_format_set(client, format);
+             elm_thumb_format_set(o, format);
+             if (format == ETHUMB_THUMB_FDO)
+               {
+                  if (ephoto->config->thumb_gen_size < 256)
+                    elm_thumb_fdo_size_set(o, ETHUMB_THUMB_NORMAL);
+                  else
+                    elm_thumb_fdo_size_set(o, ETHUMB_THUMB_LARGE);
+               }
+             else
+               elm_thumb_size_set(o, ephoto->thumb_gen_size, ephoto->thumb_gen_size);
              elm_thumb_reload(o);
           }
      }
@@ -502,8 +497,11 @@ ephoto_thumb_path_set(Evas_Object *o, const char *path)
              return;
           }
      }
-   ethumb_client_format_set(elm_thumb_ethumb_client_get(), format);
+   elm_thumb_format_set(o, format);
    evas_object_data_set(o, "ephoto_format", (void*)(long)format);
+   elm_thumb_crop_align_set(o, 0.5, 0.5);
+   elm_thumb_aspect_set(o, ETHUMB_THUMB_CROP);
+   elm_thumb_orientation_set(o, ETHUMB_THUMB_ORIENT_ORIGINAL);
    elm_thumb_file_set(o, path, group);
 }
 

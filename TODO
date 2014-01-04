@@ -7,20 +7,22 @@ ________/ /__/      /__/ /__/ /_______/    /_/    /_______/
 
 
 TODO-
+===Config===================
+Make the config system work better loading and saving config.
+Add options to the config.
+Add a config dialog.
 ===Thumb Browser============
 Add a way to view more info
 ============================
 ===Single Image Mode========
-Rotate Images.
-Flip Images.
--Possibly Grayscale, Sepia, etc..?
--Possibly HSV, Brightness, Contrast, RGB, etc..?
--Magnifier and color chooser
+Make rotations and flips work
+Add neat effects like grayscale, sepia, HSV/RGB, etc...
+Save changes made to images
 ============================
 ===Slideshow================
--Slideshow features.
+-Slideshow features such as changing transition and possibly moving images.
 ============================
 ===Other Random Features====
 -Exporting to flickr, facebook, etc..
--Possibly a tag system?
+-Read straight from a camera
 ============================

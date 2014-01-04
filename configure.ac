@@ -84,8 +84,6 @@ AC_SUBST(LTLIBINTL)
 
 PKG_CHECK_MODULES([ELEMENTARY], [elementary ecore-file ethumb_client])
 PKG_CHECK_MODULES([EFREET_MIME], [efreet-mime])
-PKG_CHECK_MODULES([EIO], [eio])
-PKG_CHECK_MODULES([EET], [eet])
 
 AC_ARG_ENABLE([libexif],
    [AC_HELP_STRING([--enable-libexif], [enable libexif support @<:@default=yes@:>@])],
@@ -99,7 +97,6 @@ AC_ARG_ENABLE([libexif],
    [_ephoto_enable_libexif="yes"]
 )
 
-AC_MSG_CHECKING([whether ethumb is built])
 AC_MSG_RESULT([${_ephoto_enable_libexif}])
 
 have_libexif="No"
@@ -112,14 +109,6 @@ if test "x${_ephoto_enable_libexif}" = "xyes" ; then
        have_libexif="No"
     ])
 fi
-
-AC_ARG_WITH([edje-cc],
-   [AC_HELP_STRING([--with-edje-cc=PATH],
-                   [specify a specific path to edje_cc])],
-   [edje_cc=$withval;
-    AC_MSG_NOTICE([edje_cc explicitly set to $edje_cc])
-   ],[edje_cc=$(pkg-config --variable=prefix edje)/bin/edje_cc])
-AC_SUBST(edje_cc)
 
 want_quicklaunch="auto"
 AC_ARG_ENABLE([quicklaunch],
@@ -164,10 +153,6 @@ Makefile
 ephoto.spec
 data/Makefile
 data/desktop/Makefile
-data/images/Makefile
-data/themes/Makefile
-data/themes/default/Makefile
-data/themes/default/images/Makefile
 src/Makefile
 src/bin/Makefile
 $po_makefile_in

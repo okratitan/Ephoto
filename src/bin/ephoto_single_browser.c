@@ -812,7 +812,7 @@ _button_add(Evas_Object *box, const char *image)
    but = elm_button_add(box);
 
    ic = elm_icon_add(but);
-   elm_image_file_set(ic, image, NULL);
+   elm_icon_standard_set(ic, image);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
 
    elm_object_content_set(but, ic);
@@ -851,23 +851,23 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(sb->bar);
    elm_box_pack_end(sb->main, sb->bar);
 
-   but = _button_add(sb->bar, PACKAGE_DATA_DIR "/images/back_grid.png");
+   but = _button_add(sb->bar, "go-home");
    evas_object_smart_callback_add(but, "clicked", _back, sb);
 
    sep = elm_separator_add(sb->bar);
    elm_box_pack_end(sb->bar, sep);
    evas_object_show(sep);
 
-   but = _button_add(sb->bar, PACKAGE_DATA_DIR "/images/zoom-in.png");
+   but = _button_add(sb->bar, "zoom-in");
    evas_object_smart_callback_add(but, "clicked", _zoom_in_cb, sb);
 
-   but = _button_add(sb->bar, PACKAGE_DATA_DIR "/images/zoom-out.png");
+   but = _button_add(sb->bar, "zoom-out");
    evas_object_smart_callback_add(but, "clicked", _zoom_out_cb, sb);
 
-   but = _button_add(sb->bar, PACKAGE_DATA_DIR "/images/zoom-fit.png");
+   but = _button_add(sb->bar, "zoom-fit");
    evas_object_smart_callback_add(but, "clicked", _zoom_fit_cb, sb);
 
-   but = _button_add(sb->bar, PACKAGE_DATA_DIR "/images/zoom-original.png");
+   but = _button_add(sb->bar, "zoom-original");
    evas_object_smart_callback_add(but, "clicked", _zoom_1_cb, sb);
 
    sep = elm_separator_add(sb->bar);
@@ -891,23 +891,23 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_box_pack_end(sb->bar, sep);
    evas_object_show(sep);
 
-   but = _button_add(sb->bar, PACKAGE_DATA_DIR "/images/first.png");
+   but = _button_add(sb->bar, "go-first");
    evas_object_smart_callback_add(but, "clicked", _go_first, sb);
 
-   but = _button_add(sb->bar, PACKAGE_DATA_DIR "/images/back.png");
+   but = _button_add(sb->bar, "go-previous");
    evas_object_smart_callback_add(but, "clicked", _go_prev, sb);
 
-   but = _button_add(sb->bar, PACKAGE_DATA_DIR "/images/forward.png");
+   but = _button_add(sb->bar, "go-next");
    evas_object_smart_callback_add(but, "clicked", _go_next, sb);
 
-   but = _button_add(sb->bar, PACKAGE_DATA_DIR "/images/last.png");
+   but = _button_add(sb->bar, "go-last");
    evas_object_smart_callback_add(but, "clicked", _go_last, sb);
 
    sep = elm_separator_add(sb->bar);
    elm_box_pack_end(sb->bar, sep);
    evas_object_show(sep);
 
-   but = _button_add(sb->bar, PACKAGE_DATA_DIR "/images/slideshow.png");
+   but = _button_add(sb->bar, "media-playback-start");
    evas_object_smart_callback_add(but, "clicked", _slideshow, sb);
 
    sb->handlers = eina_list_append

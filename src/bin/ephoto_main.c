@@ -522,7 +522,6 @@ ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label)
 void
 ephoto_entry_free(Ephoto_Entry *entry)
 {
-   const char *s;
    Ephoto_Entry_Free_Listener *fl;
 
    EINA_LIST_FREE(entry->free_listeners, fl)
@@ -533,7 +532,6 @@ ephoto_entry_free(Ephoto_Entry *entry)
    EINA_SAFETY_ON_NULL_RETURN(entry);
    eina_stringshare_del(entry->path);
    eina_stringshare_del(entry->label);
-   EINA_LIST_FREE(entry->dir_files, s) eina_stringshare_del(s);
    free(entry);
 }
 

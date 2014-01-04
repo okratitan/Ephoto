@@ -37,8 +37,6 @@ elm_main(int argc, char **argv)
         goto end_log_domain;
      }
 
-   elm_theme_extension_add(NULL, PACKAGE_DATA_DIR"/themes/default/ephoto.edj");
-
    if (!efreet_mime_init())
      ERR("Could not init efreet_mime!");
 

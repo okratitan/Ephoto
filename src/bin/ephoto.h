@@ -22,8 +22,6 @@
 #include <string.h>
 #include <dirent.h>
 
-#define THEME_FILE PACKAGE_DATA_DIR"/themes/default/ephoto.edj"
-
 typedef struct _Ephoto_Config Ephoto_Config;
 typedef struct _Ephoto Ephoto;
 typedef struct _Ephoto_Entry Ephoto_Entry;
@@ -57,8 +55,6 @@ void         ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
  /* smart callbacks called:
   * "back" - the user want to go back to the previous screen.
   */
-
-Evas_Object *ephoto_directory_thumb_add(Evas_Object *parent, Ephoto_Entry *e);
 
 Evas_Object *ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent);
 
@@ -143,8 +139,6 @@ struct _Ephoto_Entry
    Ephoto *ephoto;
    Elm_Object_Item *item;
    Eina_List *free_listeners;
-   Eina_List *dir_files; /* if dir, here contain files with preview */
-   Eina_Bool dir_files_checked : 1;
    Eina_Bool is_dir : 1;
    Eina_Bool is_up : 1;
 };

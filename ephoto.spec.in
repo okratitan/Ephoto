@@ -6,8 +6,8 @@ License: BSD
 Group: Applications/Multimedia
 URL: http://www.stephen.3sixty8.com
 Source: %{name}-%{version}.tar.gz
-Packager: %{?_packager:%{_packager}}%{!?_packager:Stephen Houston <Unixtitan@gmail.com>}
-Vendor: %{?_vendorinfo:%{_vendorinfo}}%{!?_vendorinfo:Okra Project (http://www.stephen.3sixty8.com/)}
+Packager: %{?_packager:%{_packager}}%{!?_packager:Stephen Houston <smhouston88@gmail.com>}
+Vendor: %{?_vendorinfo:%{_vendorinfo}}%{!?_vendorinfo:Okra Project (http://www.smhouston.us/)}
 Distribution: %{?_distribution:%{_distribution}}%{!?_distribution:%{_vendor}}
 #BuildSuggests: xorg-x11-devel
 Requires: efl edje ethumb

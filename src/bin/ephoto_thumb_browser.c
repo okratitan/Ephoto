@@ -65,51 +65,27 @@ _ephoto_thumb_item_text_get(void *data, Evas_Object *obj __UNUSED__, const char 
 }
 
 static Evas_Object *
-_ephoto_thumb_dir_icon_get(void *data, Evas_Object *obj, const char *part)
+_ephoto_thumb_up_icon_get(void *data __UNUSED__, Evas_Object *obj, const char *part __UNUSED__)
 {
-   Ephoto_Entry *e = data;
-   const char *f;
-   int n;
+   Evas_Object *ic;
 
-   if (strncmp(part, "elm.swallow.icon.", sizeof("elm.swallow.icon.") - 1) != 0)
-     return NULL;
+   ic = elm_icon_add(obj);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "go-up");
 
-   n = atoi(part + sizeof("elm.swallow.icon.") - 1);
-   if (n < 1)
-     return NULL;
-   n--;
+   return ic;
+}   
 
-   f = eina_list_nth(e->dir_files, n);
-   if (f)
-     {
-        Evas_Object *o;
-        o = ephoto_thumb_add(e->ephoto, obj, f);
-        //elm_object_style_set(o, "default");
-        return o;
-     }
-
-   if (e->dir_files_checked)
-     return NULL;
-
-   return ephoto_directory_thumb_add(obj, e);
-}
-
-static Eina_Bool
-_ephoto_thumb_dir_state_get(void *data, Evas_Object *obj __UNUSED__, const char *part)
+static Evas_Object *
+_ephoto_thumb_dir_icon_get(void *data __UNUSED__, Evas_Object *obj, const char *part __UNUSED__)
 {
-   Ephoto_Entry *e = data;
-   int n;
-
-   if (strcmp(part, "have_files") == 0)
-     return !!e->dir_files;
-
-   if (strncmp(part, "have_file.", sizeof("have_file.") - 1) != 0)
-     return EINA_FALSE;
-
-   n = atoi(part + sizeof("have_file.") - 1);
-   if (n < 1)
-     return EINA_FALSE;
-   return n <= (int)eina_list_count(e->dir_files);
+   Evas_Object *ic;
+ 
+   ic = elm_icon_add(obj);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "folder");
+ 
+   return ic;
 }
 
 static Evas_Object *
@@ -449,7 +425,7 @@ _button_add(Evas_Object *box, const char *image)
    but = elm_button_add(box);
 
    ic = elm_icon_add(but);
-   elm_image_file_set(ic, image, NULL);
+   elm_icon_standard_set(ic, image);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
 
    elm_object_content_set(but, ic);
@@ -472,16 +448,16 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    tb = calloc(1, sizeof(Ephoto_Thumb_Browser));
    EINA_SAFETY_ON_NULL_GOTO(tb, error);
 
-   _ephoto_thumb_up_class.item_style = "ephoto-up";
+   _ephoto_thumb_up_class.item_style = "default";
    _ephoto_thumb_up_class.func.text_get = _ephoto_thumb_item_text_get;
-   _ephoto_thumb_up_class.func.content_get = NULL;
+   _ephoto_thumb_up_class.func.content_get = _ephoto_thumb_up_icon_get;
    _ephoto_thumb_up_class.func.state_get = NULL;
    _ephoto_thumb_up_class.func.del = _ephoto_thumb_item_del;
 
-   _ephoto_thumb_dir_class.item_style = "ephoto-album-preview";
+   _ephoto_thumb_dir_class.item_style = "default";
    _ephoto_thumb_dir_class.func.text_get = _ephoto_thumb_item_text_get;
    _ephoto_thumb_dir_class.func.content_get = _ephoto_thumb_dir_icon_get;
-   _ephoto_thumb_dir_class.func.state_get = _ephoto_thumb_dir_state_get;
+   _ephoto_thumb_dir_class.func.state_get = NULL;
    _ephoto_thumb_dir_class.func.del = _ephoto_thumb_item_del;
 
    _ephoto_thumb_file_class.item_style = "thumb";
@@ -509,10 +485,10 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(tb->bar);
    elm_box_pack_end(tb->main, tb->bar);
 
-   but = _button_add(tb->bar, PACKAGE_DATA_DIR "/images/single.png");
+   but = _button_add(tb->bar, "image-x-generic");
    evas_object_smart_callback_add(but, "clicked", _view_single, tb);
 
-   but = _button_add(tb->bar, PACKAGE_DATA_DIR "/images/slideshow.png");
+   but = _button_add(tb->bar, "media-playback-start");
    evas_object_smart_callback_add(but, "clicked", _slideshow, tb);
 
    tb->entry = elm_entry_add(tb->bar);
@@ -529,11 +505,11 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(tb->entry);
    elm_box_pack_end(tb->bar, tb->entry);
 
-   but = _button_add(tb->bar, PACKAGE_DATA_DIR "/images/zoom-in.png");
+   but = _button_add(tb->bar, "zoom-in.png");
    evas_object_smart_callback_add(but, "clicked", _zoom_in, tb);
    max = but;
 
-   but = _button_add(tb->bar, PACKAGE_DATA_DIR "/images/zoom-out.png");
+   but = _button_add(tb->bar, "zoom-out.png");
    evas_object_smart_callback_add(but, "clicked", _zoom_out, tb);
    min = but;
 

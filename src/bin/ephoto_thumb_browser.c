@@ -241,11 +241,13 @@ _changed_dir_text(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUS
 static void
 _zoom_set(Ephoto_Thumb_Browser *tb, int zoom)
 {
+   double scale = elm_config_scale_get();
+
    if (zoom > ZOOM_MAX) zoom = ZOOM_MAX;
    else if (zoom < ZOOM_MIN) zoom = ZOOM_MIN;
 
    ephoto_thumb_size_set(tb->ephoto, zoom);
-   elm_gengrid_item_size_set(tb->grid, zoom, zoom);
+   elm_gengrid_item_size_set(tb->grid, zoom * scale, zoom * scale);
 }
 
 static void

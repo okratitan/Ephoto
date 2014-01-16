@@ -255,7 +255,7 @@ ephoto_title_set(Ephoto *ephoto, const char *title)
 {
    char buf[1024] = "Ephoto";
 
-   if (title) snprintf(buf, sizeof(buf), "%s - Ephoto", title);
+   if (title) snprintf(buf, sizeof(buf), "Ephoto - %s", title);
    elm_win_title_set(ephoto->win, buf);
 }
 

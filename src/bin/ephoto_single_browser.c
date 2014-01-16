@@ -20,7 +20,7 @@ struct _Ephoto_Single_Browser
    Ephoto *ephoto;
    Evas_Object *main;
    Evas_Object *bar;
-   Evas_Object *sentry;
+   Evas_Object *edje;
    Evas_Object *viewer;
    const char *pending_path;
    Ephoto_Entry *entry;
@@ -491,11 +491,10 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
      {
         const char *bname = ecore_file_file_get(sb->entry->path);
         sb->viewer = _viewer_add(sb->main, sb->entry->path);
-        elm_box_pack_end(sb->main, sb->viewer);
+        elm_layout_box_append(sb->main, "elm.box.content", sb->viewer);
         evas_object_show(sb->viewer);
         evas_object_event_callback_add
           (sb->viewer, EVAS_CALLBACK_MOUSE_WHEEL, _mouse_wheel, sb);
-        elm_entry_entry_set(sb->sentry, bname);
         ephoto_title_set(sb->ephoto, bname);
         sb->orient = ephoto_file_orient_get(sb->entry->path);
         _orient_apply(sb);
@@ -698,11 +697,6 @@ _back(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
 }
 
 static void
-_changed_file_text(void *data __UNUSED__, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
-{
-}
-
-static void
 _key_down(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event_info)
 {
    Ephoto_Single_Browser *sb = data;
@@ -804,111 +798,75 @@ _ephoto_single_entry_create(void *data, int type __UNUSED__, void *event __UNUSE
    return ECORE_CALLBACK_PASS_ON;
 }
 
-static Evas_Object *
-_button_add(Evas_Object *box, const char *image)
-{
-   Evas_Object *but, *ic;
-
-   but = elm_button_add(box);
-
-   ic = elm_icon_add(but);
-   elm_icon_standard_set(ic, image);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-
-   elm_object_content_set(but, ic);
-   evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, but);
-   evas_object_show(but);
-
-   return but;
-}
-
 Evas_Object *
 ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
 {
-   Evas_Object *box = elm_box_add(parent);
-   Evas_Object *but, *sep;
+   Evas_Object *layout = elm_layout_add(parent);
+   Elm_Object_Item *icon;
    Ephoto_Single_Browser *sb;
 
-   EINA_SAFETY_ON_NULL_RETURN_VAL(box, NULL);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(layout, NULL);
 
    sb = calloc(1, sizeof(Ephoto_Single_Browser));
    EINA_SAFETY_ON_NULL_GOTO(sb, error);
    sb->ephoto = ephoto;
-   sb->main = box;
-   elm_box_horizontal_set(sb->main, EINA_FALSE);
-   elm_box_homogeneous_set(sb->main, EINA_FALSE);
+   sb->main = layout;
+   sb->edje = elm_layout_edje_get(layout);
+
    evas_object_event_callback_add(sb->main, EVAS_CALLBACK_DEL, _main_del, sb);
    evas_object_event_callback_add
      (sb->main, EVAS_CALLBACK_KEY_DOWN, _key_down, sb);
    evas_object_data_set(sb->main, "single_browser", sb);
 
-   sb->bar = elm_box_add(sb->main);
-   elm_box_horizontal_set(sb->bar, EINA_TRUE);
-   elm_box_homogeneous_set(sb->bar, EINA_FALSE);
-   evas_object_size_hint_weight_set(sb->bar, 0.0, 0.0);
-   evas_object_size_hint_align_set(sb->bar, EVAS_HINT_FILL, 0.0);
-   evas_object_show(sb->bar);
-   elm_box_pack_end(sb->main, sb->bar);
+   if (!elm_layout_theme_set(sb->main, "layout", "application", "toolbar-vbox"))
+     {
+        ERR("Could not load style 'toolbar-vbox' from theme!");
+        goto error;
+     }
+   sb->bar = edje_object_part_external_object_get(sb->edje, "elm.external.toolbar");
+   if (!sb->bar)
+     {
+        ERR("Could not find toolbar in layout!");
+        goto error;
+     }
+   elm_toolbar_homogeneous_set(sb->bar, EINA_FALSE);
+   elm_toolbar_shrink_mode_set(sb->bar, ELM_TOOLBAR_SHRINK_MENU);
+   elm_toolbar_menu_parent_set(sb->bar, parent);
+   elm_toolbar_select_mode_set(sb->bar, ELM_OBJECT_SELECT_MODE_NONE);
 
-   but = _button_add(sb->bar, "go-home");
-   evas_object_smart_callback_add(but, "clicked", _back, sb);
+   icon = elm_toolbar_item_append(sb->bar, "go-home", "Back", _back, sb);
+   elm_toolbar_item_priority_set(icon, 150);
 
-   sep = elm_separator_add(sb->bar);
-   elm_box_pack_end(sb->bar, sep);
-   evas_object_show(sep);
+   icon = elm_toolbar_item_append(sb->bar, "media-playback-start", "Slideshow", _slideshow, sb);
+   elm_toolbar_item_priority_set(icon, 150);
+   
+   elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
 
-   but = _button_add(sb->bar, "zoom-in");
-   evas_object_smart_callback_add(but, "clicked", _zoom_in_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-in", "In", _zoom_in_cb, sb);
+   elm_toolbar_item_priority_set(icon, 100);
 
-   but = _button_add(sb->bar, "zoom-out");
-   evas_object_smart_callback_add(but, "clicked", _zoom_out_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-out", "Out", _zoom_out_cb, sb);
+   elm_toolbar_item_priority_set(icon, 100);
 
-   but = _button_add(sb->bar, "zoom-fit");
-   evas_object_smart_callback_add(but, "clicked", _zoom_fit_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-fit", "Fit", _zoom_fit_cb, sb);
+   elm_toolbar_item_priority_set(icon, 80);
 
-   but = _button_add(sb->bar, "zoom-original");
-   evas_object_smart_callback_add(but, "clicked", _zoom_1_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-original", "1:1", _zoom_1_cb, sb);
+   elm_toolbar_item_priority_set(icon, 80);
+   
+   elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
 
-   sep = elm_separator_add(sb->bar);
-   elm_box_pack_end(sb->bar, sep);
-   evas_object_show(sep);
+   icon = elm_toolbar_item_append(sb->bar, "go-first", "First", _go_first, sb);
+   elm_toolbar_item_priority_set(icon, 60);
 
-   sb->sentry = elm_entry_add(sb->bar);
-   evas_object_size_hint_weight_set(sb->sentry, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_align_set(sb->sentry, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_entry_single_line_set(sb->sentry, EINA_TRUE);
-   elm_entry_scrollable_set(sb->sentry, EINA_TRUE);
-   elm_scroller_policy_set(sb->sentry, ELM_SCROLLER_POLICY_OFF,
-                                  ELM_SCROLLER_POLICY_OFF);
-   elm_object_disabled_set(sb->sentry, EINA_TRUE);
-   evas_object_smart_callback_add
-     (sb->sentry, "activated", _changed_file_text, sb);
-   elm_box_pack_end(sb->bar, sb->sentry);
-   evas_object_show(sb->sentry);
+   icon = elm_toolbar_item_append(sb->bar, "go-previous", "Previous", _go_prev, sb);
+   elm_toolbar_item_priority_set(icon, 70);
 
-   sep = elm_separator_add(sb->bar);
-   elm_box_pack_end(sb->bar, sep);
-   evas_object_show(sep);
+   icon = elm_toolbar_item_append(sb->bar, "go-next", "Next", _go_next, sb);
+   elm_toolbar_item_priority_set(icon, 70);
 
-   but = _button_add(sb->bar, "go-first");
-   evas_object_smart_callback_add(but, "clicked", _go_first, sb);
-
-   but = _button_add(sb->bar, "go-previous");
-   evas_object_smart_callback_add(but, "clicked", _go_prev, sb);
-
-   but = _button_add(sb->bar, "go-next");
-   evas_object_smart_callback_add(but, "clicked", _go_next, sb);
-
-   but = _button_add(sb->bar, "go-last");
-   evas_object_smart_callback_add(but, "clicked", _go_last, sb);
-
-   sep = elm_separator_add(sb->bar);
-   elm_box_pack_end(sb->bar, sep);
-   evas_object_show(sep);
-
-   but = _button_add(sb->bar, "media-playback-start");
-   evas_object_smart_callback_add(but, "clicked", _slideshow, sb);
+   icon = elm_toolbar_item_append(sb->bar, "go-last", "Last", _go_last, sb);
+   elm_toolbar_item_priority_set(icon, 60);
 
    sb->handlers = eina_list_append
       (sb->handlers, ecore_event_handler_add

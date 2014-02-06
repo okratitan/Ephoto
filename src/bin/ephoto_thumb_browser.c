@@ -238,14 +238,14 @@ _changed_dir(void *data, Evas_Object *o __UNUSED__, void *event_info)
    if (path)
      ephoto_directory_set(tb->ephoto, path);
    else
-     elm_fileselector_entry_path_set(tb->entry, tb->ephoto->config->directory); 
+     elm_fileselector_path_set(tb->entry, tb->ephoto->config->directory); 
 }
 
 static void
 _changed_dir_text(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
 {
    Ephoto_Thumb_Browser *tb = data;
-   const char *path = elm_fileselector_entry_path_get(tb->entry);
+   const char *path = elm_fileselector_path_get(tb->entry);
    if (ecore_file_is_dir(path))
      ephoto_directory_set(tb->ephoto, path);
 }
@@ -388,7 +388,7 @@ _ephoto_thumb_populate_start(void *data, int type __UNUSED__, void *event __UNUS
    _todo_items_free(tb);
    _grid_items_free(tb);
    elm_gengrid_clear(tb->grid);
-   elm_fileselector_entry_path_set(tb->entry, tb->ephoto->config->directory);
+   elm_fileselector_path_set(tb->entry, tb->ephoto->config->directory);
    _up_item_add_if_required(tb);
 
    return ECORE_CALLBACK_PASS_ON;
@@ -509,9 +509,9 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_align_set(tb->entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_object_text_set(tb->entry, "Choose");
    elm_object_part_content_set(tb->entry, "button icon", ic);
-   elm_fileselector_entry_folder_only_set(tb->entry, EINA_TRUE);
+   elm_fileselector_folder_only_set(tb->entry, EINA_TRUE);
    elm_fileselector_entry_inwin_mode_set(tb->entry, EINA_TRUE);
-   elm_fileselector_entry_expandable_set(tb->entry, EINA_FALSE);
+   elm_fileselector_expandable_set(tb->entry, EINA_FALSE);
    evas_object_smart_callback_add
      (tb->entry, "file,chosen", _changed_dir, tb);
    evas_object_smart_callback_add

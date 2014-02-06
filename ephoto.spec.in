@@ -38,7 +38,7 @@ test "x$RPM_BUILD_ROOT" != "x/" && rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-, root, root)
-%doc AUTHORS ChangeLog COPYING COPYING.icons README
+%doc AUTHORS ChangeLog COPYING README
 %{_bindir}/*
 %{_datadir}/*
 %{_libdir}/*.so

@@ -163,17 +163,17 @@ extern int __log_domain;
 static inline Eina_Bool
 _ephoto_eina_file_direct_info_image_useful(const Eina_File_Direct_Info *info)
 {
-   const char /* *type, */ *bname;
+   const char *type, *bname;
 
    bname = info->path + info->name_start;
    if (bname[0] == '.') return EINA_FALSE;
    if ((info->type != EINA_FILE_REG) && (info->type != EINA_FILE_UNKNOWN))
      return EINA_FALSE;
 
-   return evas_object_image_extension_can_load_get(bname);
+   //return evas_object_image_extension_can_load_get(bname);
    /* seems that this does not play nice with threads */
-   //if (!(type = efreet_mime_type_get(info->path))) return EINA_FALSE;
-   //return strncmp(type, "image/", sizeof("image/") - 1) == 0;
+   if (!(type = efreet_mime_type_get(info->path))) return EINA_FALSE;
+   return strncmp(type, "image/", sizeof("image/") - 1) == 0;
 }
 
 extern int EPHOTO_EVENT_ENTRY_CREATE;

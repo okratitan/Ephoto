@@ -163,14 +163,29 @@ extern int __log_domain;
 static inline Eina_Bool
 _ephoto_eina_file_direct_info_image_useful(const Eina_File_Direct_Info *info)
 {
-   const char /* *type, */ *bname;
+   const char *type, *bname;
+   int i = 0;
+
+   const char *filters[] =
+   {
+     "png", "jpeg", "eet", "xpm", "tiff", "gif", "svg", "webp", "pmaps",
+     "bmp", "tga", "wbmp", "ico", "psd", "jp2k", "generic"
+   };
 
    bname = info->path + info->name_start;
    if (bname[0] == '.') return EINA_FALSE;
    if ((info->type != EINA_FILE_REG) && (info->type != EINA_FILE_UNKNOWN))
      return EINA_FALSE;
 
-   return evas_object_image_extension_can_load_get(bname);
+   type = strchr(bname, '.');
+   if(!type) return EINA_FALSE;
+   int count = sizeof(filters)/sizeof(filters[0]);
+   for (i=0; i < count; i++)
+     {
+        if (!strcmp(type+1, filters[i]))
+          return evas_object_image_extension_can_load_get(bname);
+     }
+   return EINA_FALSE;
    /* seems that this does not play nice with threads */
    //if (!(type = efreet_mime_type_get(info->path))) return EINA_FALSE;
    //return strncmp(type, "image/", sizeof("image/") - 1) == 0;

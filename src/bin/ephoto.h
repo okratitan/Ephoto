@@ -177,7 +177,7 @@ _ephoto_eina_file_direct_info_image_useful(const Eina_File_Direct_Info *info)
    if ((info->type != EINA_FILE_REG) && (info->type != EINA_FILE_UNKNOWN))
      return EINA_FALSE;
 
-   type = strchr(bname, '.');
+   type = strrchr(bname, '.');
    if(!type) return EINA_FALSE;
    int count = sizeof(filters)/sizeof(filters[0]);
    for (i=0; i < count; i++)

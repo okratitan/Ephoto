@@ -168,7 +168,7 @@ _ephoto_eina_file_direct_info_image_useful(const Eina_File_Direct_Info *info)
 
    const char *filters[] =
    {
-     "png", "jpeg", "eet", "xpm", "tiff", "gif", "svg", "webp", "pmaps",
+     "png", "jpeg", "jpg", "eet", "xpm", "tiff", "gif", "svg", "webp", "pmaps",
      "bmp", "tga", "wbmp", "ico", "psd", "jp2k", "generic"
    };
 

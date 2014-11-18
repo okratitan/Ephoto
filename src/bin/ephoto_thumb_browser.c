@@ -76,16 +76,54 @@ _ephoto_thumb_item_del(void *data __UNUSED__, Evas_Object *obj __UNUSED__)
 
 static Elm_Gengrid_Item_Class _ephoto_thumb_file_class;
 
+static int
+_entry_cmp(const void *pa, const void *pb)
+{
+   const Elm_Gengrid_Item *ia = pa;
+   const Ephoto_Entry *a, *b = pb;
+
+   a = elm_object_item_data_get(ia);
+
+   return strcoll(a->basename, b->basename);
+}
+
 static void
 _entry_item_add(Ephoto_Thumb_Browser *tb, Ephoto_Entry *e)
 {
    const Elm_Gengrid_Item_Class *ic;
+   int near_cmp;
+   Elm_Object_Item *near_item = NULL;
+   Eina_List *near_node = NULL;
+
+   near_node = eina_list_search_sorted_near_list
+     (tb->grid_items, _entry_cmp, e, &near_cmp);
+   if (near_node)
+     near_item = near_node->data;
 
    ic = &_ephoto_thumb_file_class;
 
-   e->item = elm_gengrid_item_append(tb->grid, ic, e, NULL, NULL);
-   tb->grid_items = eina_list_append(tb->grid_items, e->item);
-
+   if (!near_item)
+     {
+        e->item = elm_gengrid_item_append(tb->grid, ic, e, NULL, NULL);
+        tb->grid_items = eina_list_append(tb->grid_items, e->item);
+     }
+   else
+     {
+        if (near_cmp < 0)
+          {
+             e->item = elm_gengrid_item_insert_after
+               (tb->grid, ic, e, near_item, NULL, NULL);
+             tb->grid_items = eina_list_append_relative
+               (tb->grid_items, e->item, near_item);
+          }
+        else
+          {
+             e->item = elm_gengrid_item_insert_before
+               (tb->grid, ic, e, near_item, NULL, NULL);
+             tb->grid_items = eina_list_prepend_relative
+               (tb->grid_items, e->item, near_item);
+          }
+     }
    if (e->item)
      elm_object_item_data_set(e->item, e);
    else
@@ -363,7 +401,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_align_set(tb->entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_object_text_set(tb->entry, "Choose");
    elm_object_part_content_set(tb->entry, "button icon", ic);
-   elm_fileselector_folder_only_set(tb->entry, EINA_TRUE);
+   elm_fileselector_folder_only_set(tb->entry, EINA_FALSE);
    elm_fileselector_entry_inwin_mode_set(tb->entry, EINA_TRUE);
    elm_fileselector_expandable_set(tb->entry, EINA_FALSE);
    evas_object_smart_callback_add
@@ -405,7 +443,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_panel_orient_set(tb->panel, ELM_PANEL_ORIENT_LEFT);
    evas_object_size_hint_weight_set(tb->panel, 0.0, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->panel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_panel_hidden_set(tb->panel, EINA_TRUE);
+   elm_panel_hidden_set(tb->panel, EINA_FALSE);
    elm_table_pack(tb->table, tb->panel, 0, 0, 1, 1);
    evas_object_show(tb->panel);
 

@@ -259,6 +259,13 @@ ephoto_title_set(Ephoto *ephoto, const char *title)
    elm_win_title_set(ephoto->win, buf);
 }
 
+int
+ephoto_entries_cmp(const void *pa, const void *pb)
+{
+   const Ephoto_Entry *a = pa, *b = pb;
+   return strcoll(a->basename, b->basename);
+}
+
 static void
 _ephoto_populate_main(void *data, Eio_File *handler __UNUSED__, const Eina_File_Direct_Info *info)
 {
@@ -268,7 +275,20 @@ _ephoto_populate_main(void *data, Eio_File *handler __UNUSED__, const Eina_File_
 
    e = ephoto_entry_new(ephoto, info->path, info->path + info->name_start);
 
-   ephoto->entries = eina_list_append(ephoto->entries, e);
+   if (!ephoto->entries)
+     ephoto->entries = eina_list_append(ephoto->entries, e);
+   else
+     {
+        int near_cmp;
+        Eina_List *near_node = eina_list_search_sorted_near_list
+          (ephoto->entries, ephoto_entries_cmp, e, &near_cmp);
+        if (near_cmp < 0)
+          ephoto->entries = eina_list_append_relative_list
+            (ephoto->entries, e, near_node);
+        else
+          ephoto->entries = eina_list_prepend_relative_list
+            (ephoto->entries, e, near_node);
+     }
    ev = calloc(1, sizeof(Ephoto_Event_Entry_Create));
    ev->entry = e;
 

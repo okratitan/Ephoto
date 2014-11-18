@@ -842,16 +842,16 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    
    elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
 
-   icon = elm_toolbar_item_append(sb->bar, "zoom-in", "In", _zoom_in_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-in", "Zoom In", _zoom_in_cb, sb);
    elm_toolbar_item_priority_set(icon, 100);
 
-   icon = elm_toolbar_item_append(sb->bar, "zoom-out", "Out", _zoom_out_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-out", "Zoom Out", _zoom_out_cb, sb);
    elm_toolbar_item_priority_set(icon, 100);
 
-   icon = elm_toolbar_item_append(sb->bar, "zoom-fit", "Fit", _zoom_fit_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-fit", "Zoom Fit", _zoom_fit_cb, sb);
    elm_toolbar_item_priority_set(icon, 80);
 
-   icon = elm_toolbar_item_append(sb->bar, "zoom-original", "1:1", _zoom_1_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-original", "Zoom 1:1", _zoom_1_cb, sb);
    elm_toolbar_item_priority_set(icon, 80);
    
    elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);

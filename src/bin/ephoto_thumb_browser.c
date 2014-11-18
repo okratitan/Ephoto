@@ -379,8 +379,6 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    _ephoto_thumb_file_class.func.state_get = NULL;
    _ephoto_thumb_file_class.func.del = _ephoto_thumb_item_del;
 
-   elm_theme_extension_add(NULL, PACKAGE_DATA_DIR "/themes/default/ephoto.edj");
-
    tb->ephoto = ephoto;
    tb->main = box;
 
@@ -401,7 +399,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_align_set(tb->entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_object_text_set(tb->entry, "Choose");
    elm_object_part_content_set(tb->entry, "button icon", ic);
-   elm_fileselector_folder_only_set(tb->entry, EINA_FALSE);
+   elm_fileselector_folder_only_set(tb->entry, EINA_TRUE);
    elm_fileselector_entry_inwin_mode_set(tb->entry, EINA_TRUE);
    elm_fileselector_expandable_set(tb->entry, EINA_FALSE);
    evas_object_smart_callback_add

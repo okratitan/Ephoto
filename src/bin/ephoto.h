@@ -106,6 +106,7 @@ struct _Ephoto
 {
    Evas_Object *win;
    Evas_Object *bg;
+   Evas_Object *panel;
    Evas_Object *pager;
 
    Evas_Object *thumb_browser;
@@ -139,8 +140,6 @@ struct _Ephoto_Entry
    Ephoto *ephoto;
    Elm_Object_Item *item;
    Eina_List *free_listeners;
-   Eina_Bool is_dir : 1;
-   Eina_Bool is_up : 1;
 };
 
 struct _Ephoto_Event_Entry_Create
@@ -153,7 +152,6 @@ void          ephoto_entry_free(Ephoto_Entry *entry);
 void          ephoto_entry_free_listener_add(Ephoto_Entry *entry, void (*cb)(void *data, const Ephoto_Entry *entry), const void *data);
 void          ephoto_entry_free_listener_del(Ephoto_Entry *entry, void (*cb)(void *data, const Ephoto_Entry *entry), const void *data);
 void          ephoto_entries_free(Ephoto *ephoto);
-int           ephoto_entries_cmp(const void *pa, const void *pb);
 
 extern int __log_domain;
 #define DBG(...) EINA_LOG_DOM_DBG(__log_domain, __VA_ARGS__)

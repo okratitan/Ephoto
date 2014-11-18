@@ -20,7 +20,8 @@ struct _Ephoto_Single_Browser
    Ephoto *ephoto;
    Evas_Object *main;
    Evas_Object *bar;
-   Evas_Object *edje;
+   Evas_Object *table;
+   Evas_Object *panel;
    Evas_Object *viewer;
    const char *pending_path;
    Ephoto_Entry *entry;
@@ -422,25 +423,16 @@ _mouse_wheel(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *ev
 static Ephoto_Entry *
 _first_entry_find(Ephoto_Single_Browser *sb)
 {
-   const Eina_List *l;
-   Ephoto_Entry *entry;
    EINA_SAFETY_ON_NULL_RETURN_VAL(sb->ephoto, NULL);
 
-   EINA_LIST_FOREACH(sb->ephoto->entries, l, entry)
-     if (!entry->is_dir) return entry;
-   return NULL;
+   return eina_list_nth(sb->ephoto->entries, 0);
 }
 
 static Ephoto_Entry *
 _last_entry_find(Ephoto_Single_Browser *sb)
 {
-   const Eina_List *l;
-   Ephoto_Entry *entry;
    EINA_SAFETY_ON_NULL_RETURN_VAL(sb->ephoto, NULL);
-
-   EINA_LIST_REVERSE_FOREACH(sb->ephoto->entries, l, entry)
-     if (!entry->is_dir) return entry;
-   return NULL;
+   return eina_list_last_data_get(sb->ephoto->entries);
 }
 
 Ephoto_Orient
@@ -490,14 +482,19 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
    if (sb->entry)
      {
         const char *bname = ecore_file_file_get(sb->entry->path);
+
+        elm_table_clear(sb->table, EINA_FALSE);
+
         sb->viewer = _viewer_add(sb->main, sb->entry->path);
-        elm_layout_box_append(sb->main, "elm.box.content", sb->viewer);
+        elm_table_pack(sb->table, sb->viewer, 0, 0, 4, 1);
         evas_object_show(sb->viewer);
         evas_object_event_callback_add
           (sb->viewer, EVAS_CALLBACK_MOUSE_WHEEL, _mouse_wheel, sb);
         ephoto_title_set(sb->ephoto, bname);
         sb->orient = ephoto_file_orient_get(sb->entry->path);
         _orient_apply(sb);
+
+        elm_table_pack(sb->table, sb->panel, 0, 0, 1, 1);
      }
 
    elm_object_focus_set(sb->main, EINA_TRUE);
@@ -566,8 +563,7 @@ _next_entry(Ephoto_Single_Browser *sb)
    Eina_List *node;
    EINA_SAFETY_ON_NULL_RETURN(sb->entry);
 
-   node = eina_list_search_sorted_list(sb->ephoto->entries, ephoto_entries_cmp,
-                                       sb->entry);
+   node = eina_list_data_find_list(sb->ephoto->entries, sb->entry);
    if (!node) return;
    if ((node = node->next))
      entry = node->data;
@@ -587,15 +583,10 @@ _prev_entry(Ephoto_Single_Browser *sb)
    Ephoto_Entry *entry = NULL;
    EINA_SAFETY_ON_NULL_RETURN(sb->entry);
 
-   node = eina_list_search_sorted_list(sb->ephoto->entries, ephoto_entries_cmp,
-                                       sb->entry);
+   node = eina_list_data_find_list(sb->ephoto->entries, sb->entry);
    if (!node) return;
    if ((node = node->prev))
-     {
-        entry = node->data;
-        if (entry->is_dir)
-          entry = NULL;
-     }
+     entry = node->data;
    if (!entry)
      entry = _last_entry_find(sb);
    if (entry)
@@ -801,38 +792,47 @@ _ephoto_single_entry_create(void *data, int type __UNUSED__, void *event __UNUSE
 Evas_Object *
 ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
 {
-   Evas_Object *layout = elm_layout_add(parent);
+   Evas_Object *box = elm_box_add(parent);
    Elm_Object_Item *icon;
    Ephoto_Single_Browser *sb;
 
-   EINA_SAFETY_ON_NULL_RETURN_VAL(layout, NULL);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(box, NULL);
 
    sb = calloc(1, sizeof(Ephoto_Single_Browser));
    EINA_SAFETY_ON_NULL_GOTO(sb, error);
-   sb->ephoto = ephoto;
-   sb->main = layout;
-   sb->edje = elm_layout_edje_get(layout);
 
+   sb->ephoto = ephoto;
+   sb->main = box;
+
+   evas_object_size_hint_weight_set(sb->main, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(sb->main, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_event_callback_add(sb->main, EVAS_CALLBACK_DEL, _main_del, sb);
    evas_object_event_callback_add
      (sb->main, EVAS_CALLBACK_KEY_DOWN, _key_down, sb);
    evas_object_data_set(sb->main, "single_browser", sb);
 
-   if (!elm_layout_theme_set(sb->main, "layout", "application", "toolbar-vbox"))
-     {
-        ERR("Could not load style 'toolbar-vbox' from theme!");
-        goto error;
-     }
-   sb->bar = edje_object_part_external_object_get(sb->edje, "elm.external.toolbar");
-   if (!sb->bar)
-     {
-        ERR("Could not find toolbar in layout!");
-        goto error;
-     }
-   elm_toolbar_homogeneous_set(sb->bar, EINA_FALSE);
-   elm_toolbar_shrink_mode_set(sb->bar, ELM_TOOLBAR_SHRINK_MENU);
-   elm_toolbar_menu_parent_set(sb->bar, parent);
+   sb->table = elm_table_add(sb->main);
+   evas_object_size_hint_weight_set(sb->table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(sb->table, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(sb->main, sb->table);
+   evas_object_show(sb->table);
+
+   sb->panel = elm_panel_add(sb->table);
+   EINA_SAFETY_ON_NULL_GOTO(sb->panel, error);
+   elm_panel_orient_set(sb->panel, ELM_PANEL_ORIENT_LEFT);
+   evas_object_size_hint_weight_set(sb->panel, 0.0, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(sb->panel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_panel_hidden_set(sb->panel, EINA_TRUE);
+   elm_table_pack(sb->table, sb->panel, 0, 0, 1, 1);
+   evas_object_show(sb->panel);
+   
+   sb->bar = elm_toolbar_add(sb->panel);
+   EINA_SAFETY_ON_NULL_GOTO(sb->bar, error);
+   elm_toolbar_horizontal_set(sb->bar, EINA_FALSE);
+   elm_toolbar_shrink_mode_set(sb->bar, ELM_TOOLBAR_SHRINK_SCROLL);
    elm_toolbar_select_mode_set(sb->bar, ELM_OBJECT_SELECT_MODE_NONE);
+   evas_object_size_hint_weight_set(sb->bar, 0.0, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(sb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
    icon = elm_toolbar_item_append(sb->bar, "go-home", "Back", _back, sb);
    elm_toolbar_item_priority_set(icon, 150);
@@ -867,6 +867,9 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
 
    icon = elm_toolbar_item_append(sb->bar, "go-last", "Last", _go_last, sb);
    elm_toolbar_item_priority_set(icon, 60);
+
+   elm_object_content_set(sb->panel, sb->bar);
+   evas_object_show(sb->bar);
 
    sb->handlers = eina_list_append
       (sb->handlers, ecore_event_handler_add

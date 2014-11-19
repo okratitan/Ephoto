@@ -116,8 +116,22 @@ _win_free(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event
 {
    Ephoto *ephoto = data;
    if (ephoto->timer.thumb_regen) ecore_timer_del(ephoto->timer.thumb_regen);
-   ephoto_config_save(ephoto, EINA_TRUE);
+   ephoto_config_save(ephoto);
    free(ephoto);
+}
+
+static void
+_resize_cb(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+{
+   Ephoto *ephoto = data;
+   int w, h;
+
+   evas_object_geometry_get(ephoto->win, 0, 0, &w, &h);
+   if (w && h)
+     {
+        ephoto->config->window_width = w;
+        ephoto->config->window_height = h;
+     }
 }
 
 Evas_Object *
@@ -141,6 +155,8 @@ ephoto_window_add(const char *path)
 
    evas_object_event_callback_add
      (ephoto->win, EVAS_CALLBACK_FREE, _win_free, ephoto);
+   evas_object_event_callback_add
+     (ephoto->win, EVAS_CALLBACK_RESIZE, _resize_cb, ephoto);
 
    elm_win_autodel_set(ephoto->win, EINA_TRUE);
 
@@ -244,7 +260,7 @@ ephoto_window_add(const char *path)
      }
 
    /* TODO restore size from last run as well? */
-   evas_object_resize(ephoto->win, 900, 600);
+   evas_object_resize(ephoto->win, ephoto->config->window_width, ephoto->config->window_height);
    evas_object_show(ephoto->win);
 
    return ephoto->win;
@@ -410,7 +426,6 @@ ephoto_thumb_size_set(Ephoto *ephoto, int size)
         INF("thumbnail display size changed from %d to %d",
             ephoto->config->thumb_size, size);
         ephoto->config->thumb_size = size;
-        ephoto_config_save(ephoto, EINA_FALSE);
      }
 
    if (size <= 128)      ephoto->thumb_gen_size = 128;

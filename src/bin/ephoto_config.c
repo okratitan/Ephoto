@@ -1,12 +1,11 @@
 #include "ephoto.h"
 
-#define CONFIG_VERSION 7
+#define CONFIG_VERSION 8
 
 static int _ephoto_config_load(Ephoto *ephoto);
 static Eina_Bool _ephoto_on_config_save(void *data);
 
 static Eet_Data_Descriptor *edd = NULL;
-static Ecore_Timer *save_timer = NULL;
 
 Eina_Bool
 ephoto_config_init(Ephoto *ephoto)
@@ -37,57 +36,36 @@ ephoto_config_init(Ephoto *ephoto)
    C_VAL(D, T, slideshow_timeout, EET_T_DOUBLE);
    C_VAL(D, T, slideshow_transition, EET_T_STRING);
    C_VAL(D, T, editor, EET_T_STRING);
+   C_VAL(D, T, window_width, EET_T_INT);
+   C_VAL(D, T, window_height, EET_T_INT);
+   C_VAL(D, T, thumb_browser_panel, EET_T_INT);
+   C_VAL(D, T, single_browser_panel, EET_T_INT);
 
    switch (_ephoto_config_load(ephoto))
      {
       case 0:
          /* Start a new config */
          ephoto->config->config_version = CONFIG_VERSION;
-         ephoto->config->thumb_size = 256;
-         ephoto->config->thumb_gen_size = 256;
          ephoto->config->slideshow_timeout = 4.0;
          ephoto->config->slideshow_transition = eina_stringshare_add("fade");
          ephoto->config->editor = eina_stringshare_add("gimp %s");
+         ephoto->config->window_width = 900;
+         ephoto->config->window_height = 600;
+         ephoto->config->thumb_browser_panel = 0;
+         ephoto->config->single_browser_panel = 0;
          break;
-
-      case -1:
-         /* Incremental additions */
-         if (ephoto->config->config_version < 2)
-           {
-              ephoto->config->slideshow_timeout = 4.0;
-              ephoto->config->slideshow_transition =
-                 eina_stringshare_add("fade");
-           }
-         if (ephoto->config->config_version < 3)
-           ephoto->config->editor = eina_stringshare_add("gimp %s");
-
-         if (ephoto->config->config_version < 5)
-           ephoto->config->thumb_gen_size = 256;
-
-         ephoto->config->config_version = CONFIG_VERSION;
-         break;
-
       default:
          return EINA_TRUE;
      }
 
-   ephoto_config_save(ephoto, EINA_FALSE);
+   ephoto_config_save(ephoto);
    return EINA_TRUE;
 }
 
 void
-ephoto_config_save(Ephoto *ephoto, Eina_Bool instant)
+ephoto_config_save(Ephoto *ephoto)
 {
-   if (save_timer)
-     {
-        ecore_timer_del(save_timer);
-        save_timer = NULL;
-     }
-
-   if (instant)
-     _ephoto_on_config_save(ephoto);
-   else
-     save_timer = ecore_timer_add(5.0, _ephoto_on_config_save, ephoto);
+   _ephoto_on_config_save(ephoto);
 }
 
 void
@@ -126,8 +104,12 @@ _ephoto_config_load(Ephoto *ephoto)
      }
 
    if (ephoto->config->config_version < CONFIG_VERSION)
-     return -1;
-
+     {
+        ecore_file_unlink(buf);
+        ephoto_config_free(ephoto);
+        ephoto->config = calloc(1, sizeof(Ephoto_Config));
+        return 0;
+     }
    return 1;
 }
 
@@ -153,12 +135,6 @@ _ephoto_on_config_save(void *data)
 
 save_end:
    ecore_file_unlink(buf2);
-
-   if (save_timer)
-     {
-        ecore_timer_del(save_timer);
-        save_timer = NULL;
-     }
 
    return ECORE_CALLBACK_CANCEL;
 }

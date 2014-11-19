@@ -289,6 +289,11 @@ _main_del(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event
    Ephoto_Thumb_Browser *tb = data;
    Ecore_Event_Handler *handler;
 
+   if (elm_panel_hidden_get(tb->panel))
+     tb->ephoto->config->thumb_browser_panel = 1;
+   else
+     tb->ephoto->config->thumb_browser_panel = 0;
+
    _todo_items_free(tb);
    _grid_items_free(tb);
    EINA_LIST_FREE(tb->handlers, handler)
@@ -385,7 +390,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(tb->main, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->main, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_event_callback_add(tb->main, EVAS_CALLBACK_DEL, _main_del, tb);
-    evas_object_event_callback_add
+   evas_object_event_callback_add
      (tb->main, EVAS_CALLBACK_KEY_DOWN, _key_down, tb);
    evas_object_data_set(tb->main, "thumb_browser", tb);
 
@@ -441,10 +446,13 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_panel_orient_set(tb->panel, ELM_PANEL_ORIENT_LEFT);
    evas_object_size_hint_weight_set(tb->panel, 0.0, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->panel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_panel_hidden_set(tb->panel, EINA_FALSE);
+   if (tb->ephoto->config->thumb_browser_panel)
+     elm_panel_hidden_set(tb->panel, EINA_TRUE);
+   else
+     elm_panel_hidden_set(tb->panel, EINA_FALSE);
    elm_table_pack(tb->table, tb->panel, 0, 0, 1, 1);
    evas_object_show(tb->panel);
-
+   
    tb->bar = elm_toolbar_add(tb->panel);
    EINA_SAFETY_ON_NULL_GOTO(tb->bar, error);
    elm_toolbar_horizontal_set(tb->bar, EINA_FALSE);

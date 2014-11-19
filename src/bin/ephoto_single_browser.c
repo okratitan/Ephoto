@@ -754,6 +754,11 @@ _main_del(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event
    Ephoto_Single_Browser *sb = data;
    Ecore_Event_Handler *handler;
 
+   if (elm_panel_hidden_get(sb->panel))
+     sb->ephoto->config->single_browser_panel = 1;
+   else
+     sb->ephoto->config->single_browser_panel = 0;
+
    EINA_LIST_FREE(sb->handlers, handler)
       ecore_event_handler_del(handler);
    if (sb->entry)
@@ -822,7 +827,10 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_panel_orient_set(sb->panel, ELM_PANEL_ORIENT_LEFT);
    evas_object_size_hint_weight_set(sb->panel, 0.0, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(sb->panel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_panel_hidden_set(sb->panel, EINA_FALSE);
+   if (sb->ephoto->config->single_browser_panel)
+     elm_panel_hidden_set(sb->panel, EINA_TRUE);
+   else
+     elm_panel_hidden_set(sb->panel, EINA_FALSE);
    elm_table_pack(sb->table, sb->panel, 0, 0, 1, 1);
    evas_object_show(sb->panel);
    

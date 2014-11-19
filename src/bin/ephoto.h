@@ -40,7 +40,7 @@ void         ephoto_directory_set(Ephoto *ephoto, const char *path);
 Ephoto_Orient ephoto_file_orient_get(const char *path);
 
 Eina_Bool    ephoto_config_init(Ephoto *em);
-void         ephoto_config_save(Ephoto *em, Eina_Bool instant);
+void         ephoto_config_save(Ephoto *em);
 void         ephoto_config_free(Ephoto *em);
 
 Evas_Object *ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent);
@@ -91,15 +91,16 @@ enum _Ephoto_Orient /* matches with exif orientation tag */
 struct _Ephoto_Config
 {
    int config_version;
-   const char *editor;
-   double slideshow_timeout;
-   const char *slideshow_transition;
-
-   /* these should be per-window */
    int thumb_size;
    int thumb_gen_size;
    const char *directory;
-
+   double slideshow_timeout;
+   const char *slideshow_transition;
+   const char *editor;
+   int window_width;
+   int window_height;
+   int thumb_browser_panel;
+   int single_browser_panel;
 };
 
 struct _Ephoto

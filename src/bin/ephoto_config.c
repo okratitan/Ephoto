@@ -75,6 +75,43 @@ ephoto_config_free(Ephoto *ephoto)
    ephoto->config = NULL;
 }
 
+void
+_close(void *data, Evas_Object *obj __UNUSED__, void *event_info __UNUSED__)
+{
+   Evas_Object *o = data;
+
+   evas_object_del(o);
+}
+
+void
+ephoto_config_window(Ephoto *ephoto)
+{
+   Evas_Object *win, *box, *button, *label;
+
+   win = elm_win_inwin_add(ephoto->win);
+   evas_object_show(win);
+
+   box = elm_box_add(win);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_win_resize_object_add(win, box);
+
+   label = elm_label_add(box);
+   elm_object_text_set(label, "Settings Dialog Coming Soon!");
+   elm_box_pack_end(box, label);
+   evas_object_show(label);
+
+   button = elm_button_add(box);
+   elm_object_text_set(button, "Close");
+   evas_object_smart_callback_add(button, "clicked", _close, win);
+   elm_box_pack_end(box, button);
+   evas_object_show(button);
+
+   elm_win_inwin_content_set(win, box);
+   evas_object_show(box);
+}  
+
 static int
 _ephoto_config_load(Ephoto *ephoto)
 {

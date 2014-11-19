@@ -246,6 +246,15 @@ _slideshow(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
 }
 
 static void
+_settings(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+{
+   Ephoto_Thumb_Browser *tb = data;
+
+   if (tb->ephoto)
+     ephoto_config_window(tb->ephoto);
+}
+
+static void
 _key_down(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
@@ -469,6 +478,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    min = elm_object_item_widget_get(icon);
    evas_object_data_set(max, "min", min);
    evas_object_data_set(min, "max", max);
+   elm_toolbar_item_append(tb->bar, "emblem-system", "Settings", _settings, tb);
 
    elm_object_content_set(tb->panel, tb->bar);
    evas_object_show(tb->bar);

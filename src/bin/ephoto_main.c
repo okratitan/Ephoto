@@ -259,7 +259,6 @@ ephoto_window_add(const char *path)
         ephoto->state = EPHOTO_STATE_SINGLE;
      }
 
-   /* TODO restore size from last run as well? */
    evas_object_resize(ephoto->win, ephoto->config->window_width, ephoto->config->window_height);
    evas_object_show(ephoto->win);
 
@@ -342,7 +341,6 @@ _ephoto_populate_error(void *data, Eio_File *handler, int error)
    Ephoto *ephoto = data;
    if (error) ERR("could not populate: %s", strerror(error));
 
-   /* XXX: Perhaps it would be better to _not_ emit POPULATE_END here */
    ecore_event_add(EPHOTO_EVENT_POPULATE_ERROR, NULL, NULL, NULL);
    _ephoto_populate_end(ephoto, handler);
 }
@@ -350,7 +348,6 @@ _ephoto_populate_error(void *data, Eio_File *handler, int error)
 static void
 _ephoto_populate_entries(Ephoto *ephoto)
 {
-   /* Edje_External_Param param; */
    DBG("populate from '%s'", ephoto->config->directory);
 
    ephoto_entries_free(ephoto);

@@ -688,6 +688,15 @@ _back(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
 }
 
 static void
+_settings(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+{
+   Ephoto_Single_Browser *sb = data;
+
+   if (sb->ephoto)
+     ephoto_config_window(sb->ephoto);
+}
+
+static void
 _key_down(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event_info)
 {
    Ephoto_Single_Browser *sb = data;
@@ -875,6 +884,9 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
 
    icon = elm_toolbar_item_append(sb->bar, "go-last", "Last", _go_last, sb);
    elm_toolbar_item_priority_set(icon, 60);
+
+   icon = elm_toolbar_item_append(sb->bar, "emblem-system", "Settings", _settings, sb);
+   elm_toolbar_item_priority_set(icon, 50);
 
    elm_object_content_set(sb->panel, sb->bar);
    evas_object_show(sb->bar);

@@ -28,7 +28,7 @@ _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    ephoto_slideshow_entry_set(ephoto->slideshow, NULL);
    elm_naviframe_item_simple_promote(ephoto->pager, ephoto->thumb_browser);
    _ephoto_state_set(ephoto, EPHOTO_STATE_THUMB);
-   ephoto_title_set(ephoto, ephoto->config->directory);
+   ephoto_title_set(ephoto, NULL);
 
    if ((entry) && (entry->item))
      elm_gengrid_item_bring_in(entry->item, ELM_GENGRID_ITEM_SCROLLTO_IN);
@@ -271,8 +271,13 @@ ephoto_title_set(Ephoto *ephoto, const char *title)
 {
    char buf[1024] = "Ephoto";
 
-   if (title) snprintf(buf, sizeof(buf), "Ephoto - %s", title);
-   elm_win_title_set(ephoto->win, buf);
+   if (title) 
+     {
+        snprintf(buf, sizeof(buf), "Ephoto - %s", title);
+        elm_win_title_set(ephoto->win, buf);
+     }
+   else
+     elm_win_title_set(ephoto->win, "Ephoto");
 }
 
 int
@@ -373,7 +378,7 @@ ephoto_directory_set(Ephoto *ephoto, const char *path)
 {
    EINA_SAFETY_ON_NULL_RETURN(ephoto);
 
-   ephoto_title_set(ephoto, path);
+   ephoto_title_set(ephoto, NULL);
    eina_stringshare_replace(&ephoto->config->directory, path);
    if (ephoto->job.change_dir) ecore_job_del(ephoto->job.change_dir);
    ephoto->job.change_dir = ecore_job_add(_ephoto_change_dir, ephoto);

@@ -79,7 +79,7 @@ static Elm_Gengrid_Item_Class _ephoto_thumb_file_class;
 static int
 _entry_cmp(const void *pa, const void *pb)
 {
-   const Elm_Gengrid_Item *ia = pa;
+   const Elm_Object_Item *ia = pa;
    const Ephoto_Entry *a, *b = pb;
 
    a = elm_object_item_data_get(ia);

@@ -885,10 +885,10 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    icon = elm_toolbar_item_append(sb->bar, "go-first", "First", _go_first, sb);
    elm_toolbar_item_priority_set(icon, 60);
 
-   icon = elm_toolbar_item_append(sb->bar, "go-next", "Previous", _go_prev, sb);
+   icon = elm_toolbar_item_append(sb->bar, "go-previous", "Previous", _go_prev, sb);
    elm_toolbar_item_priority_set(icon, 70);
 
-   icon = elm_toolbar_item_append(sb->bar, "go-previous", "Next", _go_next, sb);
+   icon = elm_toolbar_item_append(sb->bar, "go-next", "Next", _go_next, sb);
    elm_toolbar_item_priority_set(icon, 70);
 
    icon = elm_toolbar_item_append(sb->bar, "go-last", "Last", _go_last, sb);

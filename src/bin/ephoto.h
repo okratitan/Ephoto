@@ -43,6 +43,7 @@ Eina_Bool    ephoto_config_init(Ephoto *em);
 void         ephoto_config_save(Ephoto *em);
 void         ephoto_config_free(Ephoto *em);
 void         ephoto_config_window(Ephoto *em);
+void         ephoto_about_window(Ephoto *em);
 
 Evas_Object *ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent);
 void         ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry);

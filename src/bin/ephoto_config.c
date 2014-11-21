@@ -112,6 +112,57 @@ ephoto_config_window(Ephoto *ephoto)
    evas_object_show(box);
 }  
 
+void
+ephoto_about_window(Ephoto *ephoto)
+{
+   Evas_Object *win, *scroller, *box, *button, *label;
+
+   win = elm_win_inwin_add(ephoto->win);
+   evas_object_show(win);
+
+   box = elm_box_add(win);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_win_resize_object_add(win, box);
+   
+   scroller = elm_scroller_add(win);
+   evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(scroller, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_win_resize_object_add(win, scroller);
+   elm_box_pack_end(box, scroller);
+   evas_object_show(scroller);
+
+   label = elm_label_add(box);
+   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_object_text_set(label,
+     "<b>About Ephoto</b><br/>"
+     "Ephoto is a comprehensive image viewer based on the EFL.<br/>"
+     "For more information, please visit the ephoto project page on the Enlightenment wiki:<br/>"
+     "https://phab.enlightenment.org/w/projects/ephoto<br/>"
+     "Ephoto's source can be found through Enlightenment's git:<br/>"
+     "http://git.enlightenment.org/apps/ephoto.git<br/>"
+     "<br/>"
+     "Authors:<br/>"
+     "Stephen \"okra\" Houston - Project Manager/Lead Developer<br/>"
+     "Gustavo Sverzut Barbieri<br/>"
+     "Otavio Pontes<br/>"
+     "Daniel Juyung Seo<br/>"
+     "And others.<br/>");
+   elm_object_content_set(scroller, label);
+   evas_object_show(label);
+
+   button = elm_button_add(box);
+   elm_object_text_set(button, "Close");
+   evas_object_smart_callback_add(button, "clicked", _close, win);
+   elm_box_pack_end(box, button);
+   evas_object_show(button);
+
+   elm_win_inwin_content_set(win, box);
+   evas_object_show(box);
+}
+
 static int
 _ephoto_config_load(Ephoto *ephoto)
 {

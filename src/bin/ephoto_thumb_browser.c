@@ -255,6 +255,15 @@ _settings(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
 }
 
 static void
+_about(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+{
+   Ephoto_Thumb_Browser *tb = data;
+
+   if (tb->ephoto)
+     ephoto_about_window(tb->ephoto);
+}
+
+static void
 _key_down(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
@@ -471,14 +480,17 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_align_set(tb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
    elm_toolbar_item_append(tb->bar, "image", "View Single", _view_single, tb);
-   elm_toolbar_item_append(tb->bar, "media-playback-start", "Slideshow", _slideshow, tb);
+   elm_toolbar_item_append(tb->bar, "stock_media-play", "Slideshow", _slideshow, tb);
+   elm_toolbar_item_separator_set(elm_toolbar_item_append(tb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
    icon = elm_toolbar_item_append(tb->bar, "zoom-in", "Zoom In", _zoom_in, tb);
    max = elm_object_item_widget_get(icon);
    icon = elm_toolbar_item_append(tb->bar, "zoom-out", "Zoom Out", _zoom_out, tb);
    min = elm_object_item_widget_get(icon);
    evas_object_data_set(max, "min", min);
    evas_object_data_set(min, "max", max);
+   elm_toolbar_item_separator_set(elm_toolbar_item_append(tb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
    elm_toolbar_item_append(tb->bar, "emblem-system", "Settings", _settings, tb);
+   elm_toolbar_item_append(tb->bar, "stock_about", "About", _about, tb);
 
    elm_object_content_set(tb->panel, tb->bar);
    evas_object_show(tb->bar);

@@ -697,6 +697,15 @@ _settings(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
 }
 
 static void
+_about(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+{
+   Ephoto_Single_Browser *sb = data;
+
+   if (sb->ephoto)
+     ephoto_about_window(sb->ephoto);
+}
+
+static void
 _key_down(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event_info)
 {
    Ephoto_Single_Browser *sb = data;
@@ -851,10 +860,10 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(sb->bar, 0.0, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(sb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-   icon = elm_toolbar_item_append(sb->bar, "go-home", "Back", _back, sb);
+   icon = elm_toolbar_item_append(sb->bar, "stock_home", "Back", _back, sb);
    elm_toolbar_item_priority_set(icon, 150);
 
-   icon = elm_toolbar_item_append(sb->bar, "media-playback-start", "Slideshow", _slideshow, sb);
+   icon = elm_toolbar_item_append(sb->bar, "stock_media-play", "Slideshow", _slideshow, sb);
    elm_toolbar_item_priority_set(icon, 150);
    
    elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
@@ -876,17 +885,22 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    icon = elm_toolbar_item_append(sb->bar, "go-first", "First", _go_first, sb);
    elm_toolbar_item_priority_set(icon, 60);
 
-   icon = elm_toolbar_item_append(sb->bar, "go-previous", "Previous", _go_prev, sb);
+   icon = elm_toolbar_item_append(sb->bar, "go-next", "Previous", _go_prev, sb);
    elm_toolbar_item_priority_set(icon, 70);
 
-   icon = elm_toolbar_item_append(sb->bar, "go-next", "Next", _go_next, sb);
+   icon = elm_toolbar_item_append(sb->bar, "go-previous", "Next", _go_next, sb);
    elm_toolbar_item_priority_set(icon, 70);
 
    icon = elm_toolbar_item_append(sb->bar, "go-last", "Last", _go_last, sb);
    elm_toolbar_item_priority_set(icon, 60);
 
+   elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
+
    icon = elm_toolbar_item_append(sb->bar, "emblem-system", "Settings", _settings, sb);
    elm_toolbar_item_priority_set(icon, 50);
+
+   icon = elm_toolbar_item_append(sb->bar, "stock_about", "About", _about, sb);
+   elm_toolbar_item_priority_set(icon, 40);
 
    elm_object_content_set(sb->panel, sb->bar);
    evas_object_show(sb->bar);

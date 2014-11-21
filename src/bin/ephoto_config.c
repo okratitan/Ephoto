@@ -75,7 +75,7 @@ ephoto_config_free(Ephoto *ephoto)
    ephoto->config = NULL;
 }
 
-void
+static void
 _close(void *data, Evas_Object *obj __UNUSED__, void *event_info __UNUSED__)
 {
    Evas_Object *o = data;
@@ -83,10 +83,32 @@ _close(void *data, Evas_Object *obj __UNUSED__, void *event_info __UNUSED__)
    evas_object_del(o);
 }
 
+static void
+_save(void *data, Evas_Object *obj __UNUSED__, void *event_info __UNUSED__)
+{
+   Ephoto *ephoto = data;
+
+   if (elm_spinner_value_get(ephoto->config->slide_time) > 0)
+     ephoto->config->slideshow_timeout = elm_spinner_value_get(ephoto->config->slide_time);
+   if (elm_object_text_get(ephoto->config->slide_trans))
+     eina_stringshare_replace(&ephoto->config->slideshow_transition, elm_object_text_get(ephoto->config->slide_trans));
+
+   if (ephoto->config->window)
+     evas_object_del(ephoto->config->window);
+}
+
+static void
+_hv_select(void *data __UNUSED__, Evas_Object *obj, void *event_info)
+{
+   elm_object_text_set(obj, elm_object_item_text_get(event_info));
+}
+
 void
 ephoto_config_window(Ephoto *ephoto)
 {
-   Evas_Object *win, *box, *button, *label;
+   Evas_Object *win, *scroller, *box, *hbox, *table, *spinner, *hoversel, *ic, *button, *label;
+   const Eina_List *l;
+   const char *transition;
 
    win = elm_win_inwin_add(ephoto->win);
    evas_object_show(win);
@@ -95,19 +117,87 @@ ephoto_config_window(Ephoto *ephoto)
    elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_win_resize_object_add(win, box);
+   
+   scroller = elm_scroller_add(win);
+   evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(scroller, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, scroller);
+   evas_object_show(scroller);
 
-   label = elm_label_add(box);
-   elm_object_text_set(label, "Settings Dialog Coming Soon!");
-   elm_box_pack_end(box, label);
+   table = elm_table_add(scroller);
+   evas_object_size_hint_weight_set(table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(table);
+
+   label = elm_label_add(table);
+   elm_object_text_set(label, "<b>Slideshow Options:</b>");
+   elm_table_pack(table, label, 0, 0, 2, 1);
    evas_object_show(label);
 
-   button = elm_button_add(box);
-   elm_object_text_set(button, "Close");
-   evas_object_smart_callback_add(button, "clicked", _close, win);
-   elm_box_pack_end(box, button);
+   label = elm_label_add(table);
+   elm_object_text_set(label, "<b>Show Each Slide For:   </b>");
+   evas_object_size_hint_align_set(label, 1.0, EVAS_HINT_FILL);
+   elm_table_pack(table, label, 0, 1, 1, 1);
+   evas_object_show(label);
+
+   spinner = elm_spinner_add(table);
+   elm_spinner_editable_set(spinner, EINA_TRUE);
+   elm_spinner_label_format_set(spinner, "%1.0f seconds");
+   elm_spinner_step_set(spinner, 1);
+   elm_spinner_value_set(spinner, ephoto->config->slideshow_timeout);
+   elm_spinner_min_max_set(spinner, 1, 60);
+   elm_table_pack(table, spinner, 1, 1, 1, 1);
+   evas_object_show(spinner);
+   ephoto->config->slide_time = spinner;
+
+   label = elm_label_add(table);
+   elm_object_text_set(label, "<b>Slide Transition:   </b>");
+   evas_object_size_hint_align_set(label, 1.0, EVAS_HINT_FILL);
+   elm_table_pack(table, label, 0, 2, 1, 1);
+   evas_object_show(label);
+
+   hoversel = elm_hoversel_add(table);
+   elm_hoversel_hover_parent_set(hoversel, win);
+   EINA_LIST_FOREACH(elm_slideshow_transitions_get(ephoto->slideshow), l, transition)
+     elm_hoversel_item_add(hoversel, transition, NULL, 0, _hv_select, transition);
+   elm_hoversel_item_add(hoversel, "None", NULL, 0, _hv_select, NULL);
+   elm_object_text_set(hoversel, ephoto->config->slideshow_transition);
+   evas_object_size_hint_weight_set(hoversel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(hoversel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_table_pack(table, hoversel, 1, 2, 1, 1);
+   evas_object_show(hoversel);
+   ephoto->config->slide_trans = hoversel;
+
+   elm_object_content_set(scroller, table);
+
+   hbox = elm_box_add(box);
+   elm_box_horizontal_set(hbox, EINA_TRUE);
+   elm_box_pack_end(box, hbox);
+   evas_object_show(hbox);
+
+   ic = elm_icon_add(box);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "stock_save");   
+
+   button = elm_button_add(hbox);
+   elm_object_text_set(button, "Save");
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _save, ephoto);
+   elm_box_pack_end(hbox, button);
    evas_object_show(button);
 
+   ic = elm_icon_add(box);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "stock_close"); 
+
+   button = elm_button_add(hbox);
+   elm_object_text_set(button, "Cancel");
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _close, win);
+   elm_box_pack_end(hbox, button);
+   evas_object_show(button);
+
+   ephoto->config->window = win;
    elm_win_inwin_content_set(win, box);
    evas_object_show(box);
 }  
@@ -115,7 +205,7 @@ ephoto_config_window(Ephoto *ephoto)
 void
 ephoto_about_window(Ephoto *ephoto)
 {
-   Evas_Object *win, *scroller, *box, *button, *label;
+   Evas_Object *win, *scroller, *box, *ic, *button, *label;
 
    win = elm_win_inwin_add(ephoto->win);
    evas_object_show(win);
@@ -124,12 +214,10 @@ ephoto_about_window(Ephoto *ephoto)
    elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_win_resize_object_add(win, box);
    
    scroller = elm_scroller_add(win);
    evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(scroller, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_win_resize_object_add(win, scroller);
    elm_box_pack_end(box, scroller);
    evas_object_show(scroller);
 
@@ -153,8 +241,13 @@ ephoto_about_window(Ephoto *ephoto)
    elm_object_content_set(scroller, label);
    evas_object_show(label);
 
+   ic = elm_icon_add(box);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "stock_close"); 
+
    button = elm_button_add(box);
    elm_object_text_set(button, "Close");
+   elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _close, win);
    elm_box_pack_end(box, button);
    evas_object_show(button);

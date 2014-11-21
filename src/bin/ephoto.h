@@ -103,6 +103,9 @@ struct _Ephoto_Config
    int window_height;
    int thumb_browser_panel;
    int single_browser_panel;
+   Evas_Object *window;
+   Evas_Object *slide_time;
+   Evas_Object *slide_trans;
 };
 
 struct _Ephoto

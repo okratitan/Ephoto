@@ -85,31 +85,6 @@ AC_SUBST(LTLIBINTL)
 PKG_CHECK_MODULES([ELEMENTARY], [elementary ecore-file ethumb_client])
 PKG_CHECK_MODULES([EFREET_MIME], [efreet-mime])
 
-AC_ARG_ENABLE([libexif],
-   [AC_HELP_STRING([--enable-libexif], [enable libexif support @<:@default=yes@:>@])],
-   [
-    if test "x${enableval}" = "xyes" ; then
-       _ephoto_enable_libexif="yes"
-    else
-       _ephoto_enable_libexif="no"
-    fi
-   ],
-   [_ephoto_enable_libexif="yes"]
-)
-
-AC_MSG_RESULT([${_ephoto_enable_libexif}])
-
-have_libexif="No"
-
-if test "x${_ephoto_enable_libexif}" = "xyes" ; then
-    PKG_CHECK_MODULES(EXIF, libexif, [
-        have_libexif="Yes"
-        AC_DEFINE(HAVE_LIBEXIF, 1, [have libexif support])
-    ],[
-       have_libexif="No"
-    ])
-fi
-
 want_quicklaunch="auto"
 AC_ARG_ENABLE([quicklaunch],
    [AC_HELP_STRING([--disable-quicklaunch],

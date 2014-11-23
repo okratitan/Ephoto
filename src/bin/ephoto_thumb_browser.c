@@ -268,35 +268,22 @@ _key_down(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event
 {
    Ephoto_Thumb_Browser *tb = data;
    Evas_Event_Key_Down *ev = event_info;
-   Eina_Bool alt = evas_key_modifier_is_set(ev->modifiers, "Alt");
    const char *k = ev->keyname;
-
-   if (alt)
-     {
-        if (!strcmp(k, "Up"))
-          {
-             if (strcmp(tb->ephoto->config->directory, "/"))
-               {
-                  char *parent = ecore_file_dir_get
-                    (tb->ephoto->config->directory);
-                  if (parent)
-                    ephoto_directory_set(tb->ephoto, parent);
-                  free(parent);
-               }
-          }
-
-        return;
-     }
 
    if (!strcmp(k, "F5"))
      {
         Elm_Object_Item *it = elm_gengrid_selected_item_get(tb->grid);
         Ephoto_Entry *entry;
         if (it) entry = elm_object_item_data_get(it);
-        else entry = eina_list_nth(tb->grid_items, 0);
+        else entry = eina_list_nth(tb->ephoto->entries, 0);
 
         if (entry)
           evas_object_smart_callback_call(tb->main, "slideshow", entry);
+     }
+   else if (!strcmp(k, "F11"))
+     {
+        Evas_Object *win = tb->ephoto->win;
+        elm_win_fullscreen_set(win, !elm_win_fullscreen_get(win));
      }
 }
 

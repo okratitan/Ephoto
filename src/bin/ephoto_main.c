@@ -27,6 +27,7 @@ _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    ephoto_single_browser_entry_set(ephoto->single_browser, NULL);
    ephoto_slideshow_entry_set(ephoto->slideshow, NULL);
    elm_naviframe_item_simple_promote(ephoto->pager, ephoto->thumb_browser);
+   elm_object_focus_set(ephoto->thumb_browser, EINA_TRUE);
    _ephoto_state_set(ephoto, EPHOTO_STATE_THUMB);
    ephoto_title_set(ephoto, NULL);
 
@@ -40,6 +41,7 @@ _ephoto_single_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    DBG("entry '%s'", entry->path);
    ephoto_single_browser_entry_set(ephoto->single_browser, entry);
    elm_naviframe_item_simple_promote(ephoto->pager, ephoto->single_browser);
+   elm_object_focus_set(ephoto->single_browser, EINA_TRUE);
    _ephoto_state_set(ephoto, EPHOTO_STATE_SINGLE);
 }
 
@@ -49,6 +51,7 @@ _ephoto_slideshow_show(Ephoto *ephoto, Ephoto_Entry *entry)
    DBG("entry '%s'", entry->path);
    ephoto_slideshow_entry_set(ephoto->slideshow, entry);
    elm_naviframe_item_simple_promote(ephoto->pager, ephoto->slideshow);
+   elm_object_focus_set(ephoto->slideshow, EINA_TRUE);
    _ephoto_state_set(ephoto, EPHOTO_STATE_SLIDESHOW);
 }
 
@@ -179,6 +182,7 @@ ephoto_window_add(const char *path)
    evas_object_show(ephoto->bg);
 
    ephoto->pager = elm_naviframe_add(ephoto->win);
+   elm_naviframe_prev_btn_auto_pushed_set(ephoto->pager, EINA_FALSE);
    elm_object_style_set(ephoto->pager, "fade_invisible");
    evas_object_size_hint_weight_set
      (ephoto->pager, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);

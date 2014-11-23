@@ -1,12 +1,12 @@
 MAINTAINERCLEANFILES = *.o config.h.in config.h Makefile.in Makefile stamp-h1
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src/bin \
 	-DPACKAGE_DATA_DIR=\"$(datadir)/$(PACKAGE)\" \
 	-DGETTEXT_PACKAGE=\"$(PACKAGE)\" \
 	-DLOCALEDIR=\"$(localedir)\" \
-	@ELEMENTARY_CFLAGS@ @EFREET_MIME_CFLAGS@ @EXIF_CFLAGS@
+	@ELEMENTARY_CFLAGS@ @EFREET_MIME_CFLAGS@
 
 bin_PROGRAMS = ephoto
 if BUILD_QUICKLAUNCH
@@ -22,7 +22,7 @@ _sources = \
         ephoto_slideshow.c
 
 
-_libs =	@ELEMENTARY_LIBS@ @EFREET_MIME_LIBS@ @EXIF_LIBS@
+_libs =	@ELEMENTARY_LIBS@ @EFREET_MIME_LIBS@
 
 ephoto_SOURCES = $(_sources)
 ephoto_LDADD = $(_libs)

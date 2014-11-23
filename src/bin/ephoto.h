@@ -37,8 +37,6 @@ Evas_Object *ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, const char *p
 void         ephoto_thumb_path_set(Evas_Object *o, const char *path);
 void         ephoto_directory_set(Ephoto *ephoto, const char *path);
 
-Ephoto_Orient ephoto_file_orient_get(const char *path);
-
 Eina_Bool    ephoto_config_init(Ephoto *em);
 void         ephoto_config_save(Ephoto *em);
 void         ephoto_config_free(Ephoto *em);
@@ -49,13 +47,13 @@ Evas_Object *ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent);
 void         ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
 void         ephoto_single_browser_path_pending_set(Evas_Object *obj, const char *path);
  /* smart callbacks called:
-  * "back" - the user want to go back to the previous screen.
+  * "back" - the user wants to go back to the previous screen.
   */
 
 Evas_Object *ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent);
 void         ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
  /* smart callbacks called:
-  * "back" - the user want to go back to the previous screen.
+  * "back" - the user wants to go back to the previous screen.
   */
 
 Evas_Object *ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent);

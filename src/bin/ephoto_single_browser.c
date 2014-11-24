@@ -185,7 +185,6 @@ _orient_apply(Ephoto_Single_Browser *sb)
    int w, h; 
    EINA_SAFETY_ON_NULL_RETURN(v);
 
-   elm_table_unpack(v->table, v->image);
    switch (sb->orient)
      {
       case EPHOTO_ORIENT_0:
@@ -214,10 +213,13 @@ _orient_apply(Ephoto_Single_Browser *sb)
       default:
          return;
      }
+   elm_table_unpack(v->table, v->image);
+   elm_object_content_unset(v->scroller);
    elm_image_object_size_get(v->image, &w, &h);
    evas_object_size_hint_min_set(v->image, w, h);
    evas_object_size_hint_max_set(v->image, w, h);
    elm_table_pack(v->table, v->image, 0, 0, 1, 1);
+   elm_object_content_set(v->scroller, v->table);
    if (v->fit)
      _viewer_zoom_fit_apply(v);
    else

@@ -227,7 +227,7 @@ ephoto_about_window(Ephoto *ephoto)
    elm_object_text_set(label,
      "<b>About Ephoto</b><br/>"
      "Ephoto is a comprehensive image viewer based on the EFL.<br/>"
-     "For more information, please visit the ephoto project page on the Enlightenment wiki:<br/>"
+     "For more information, please visit the Ephoto project page on the Enlightenment wiki:<br/>"
      "https://phab.enlightenment.org/w/projects/ephoto<br/>"
      "Ephoto's source can be found through Enlightenment's git:<br/>"
      "http://git.enlightenment.org/apps/ephoto.git<br/>"

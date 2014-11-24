@@ -183,7 +183,6 @@ ephoto_window_add(const char *path)
 
    ephoto->pager = elm_naviframe_add(ephoto->win);
    elm_naviframe_prev_btn_auto_pushed_set(ephoto->pager, EINA_FALSE);
-   elm_object_style_set(ephoto->pager, "fade_invisible");
    evas_object_size_hint_weight_set
      (ephoto->pager, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_fill_set

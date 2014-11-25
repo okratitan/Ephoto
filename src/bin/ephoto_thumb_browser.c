@@ -19,6 +19,7 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *entry;
    Evas_Object *grid;
    Evas_Object *panel;
+   Evas_Object *nolabel;
    Eio_File *ls;
    Eina_List *todo_items;
    Eina_List *grid_items;
@@ -343,6 +344,27 @@ _ephoto_thumb_populate_end(void *data, int type __UNUSED__, void *event __UNUSED
      {
         free(tb);
         return ECORE_CALLBACK_PASS_ON;
+     }
+   if (!tb->ephoto->entries)
+     {
+        elm_table_unpack(tb->table, tb->panel);
+        tb->nolabel = elm_label_add(tb->table);
+        elm_label_line_wrap_set(tb->nolabel, ELM_WRAP_WORD);
+        elm_object_text_set(tb->nolabel, "There are no images in this directory");
+        evas_object_size_hint_weight_set(tb->nolabel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+        evas_object_size_hint_align_set(tb->nolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+        elm_table_pack(tb->table, tb->nolabel, 0, 0, 4, 1);
+        evas_object_show(tb->nolabel);
+        elm_table_pack(tb->table, tb->panel, 0, 0, 1, 1);
+     }
+   else
+     {
+        if (tb->nolabel)
+          {
+             elm_table_unpack(tb->table, tb->nolabel);
+             evas_object_del(tb->nolabel);
+             tb->nolabel = NULL;
+          }
      }
 
    return ECORE_CALLBACK_PASS_ON;

@@ -185,7 +185,7 @@ _ephoto_eina_file_direct_info_image_useful(const Eina_File_Direct_Info *info)
    int count = sizeof(filters)/sizeof(filters[0]);
    for (i=0; i < count; i++)
      {
-        if (!strcmp(type+1, filters[i]))
+        if (!strcasecmp(type+1, filters[i]))
           return evas_object_image_extension_can_load_get(bname);
      }
    return EINA_FALSE;

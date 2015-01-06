@@ -13,6 +13,7 @@ struct _Ephoto_Single_Browser
    Evas_Object *table;
    Evas_Object *panel;
    Evas_Object *viewer;
+   Evas_Object *nolabel;
    const char *pending_path;
    Ephoto_Entry *entry;
    Ephoto_Orient orient;
@@ -81,7 +82,7 @@ _viewer_add(Evas_Object *parent, const char *path)
    evas_object_show(v->table);
 
    v->image = elm_image_add(v->table);
-   elm_image_preload_disabled_set(v->image, EINA_FALSE);
+   elm_image_preload_disabled_set(v->image, EINA_TRUE);
    elm_image_file_set(v->image, path, group);
    err = evas_object_image_load_error_get(elm_image_object_get(v->image));
    if (err != EVAS_LOAD_ERROR_NONE) goto load_error;
@@ -95,8 +96,9 @@ _viewer_add(Evas_Object *parent, const char *path)
 
  load_error:
    ERR("could not load image '%s': %s", path, evas_load_error_str(err));
-   evas_object_del(obj);
  error:
+   evas_object_event_callback_del(obj, EVAS_CALLBACK_DEL, _viewer_del);
+   evas_object_data_del(obj, "viewer"); 
    free(v);
    return NULL;
 }
@@ -291,7 +293,11 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
         evas_object_del(sb->viewer);
         sb->viewer = NULL;
      }
-
+   if (sb->nolabel)
+     {
+        evas_object_del(sb->nolabel);
+        sb->nolabel = NULL;
+     }
    if (sb->entry)
      {
         const char *bname = ecore_file_file_get(sb->entry->path);
@@ -299,12 +305,25 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
         elm_table_clear(sb->table, EINA_FALSE);
 
         sb->viewer = _viewer_add(sb->main, sb->entry->path);
-        elm_table_pack(sb->table, sb->viewer, 0, 0, 4, 1);
-        evas_object_show(sb->viewer);
-        evas_object_event_callback_add
-          (sb->viewer, EVAS_CALLBACK_MOUSE_WHEEL, _mouse_wheel, sb);
-        ephoto_title_set(sb->ephoto, bname);
-
+        if (sb->viewer)
+          {
+             elm_table_pack(sb->table, sb->viewer, 0, 0, 4, 1);
+             evas_object_show(sb->viewer);
+             evas_object_event_callback_add
+               (sb->viewer, EVAS_CALLBACK_MOUSE_WHEEL, _mouse_wheel, sb);
+             ephoto_title_set(sb->ephoto, bname);
+          }
+        else
+          {
+             sb->nolabel = elm_label_add(sb->table);
+             elm_label_line_wrap_set(sb->nolabel, ELM_WRAP_WORD);
+             elm_object_text_set(sb->nolabel, "This image does not exist or is corrupted");
+             evas_object_size_hint_weight_set(sb->nolabel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+             evas_object_size_hint_align_set(sb->nolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+             elm_table_pack(sb->table, sb->nolabel, 0, 0, 4, 1);
+             evas_object_show(sb->nolabel);
+             ephoto_title_set(sb->ephoto, "Bad Image");
+          }
         elm_table_pack(sb->table, sb->panel, 0, 0, 1, 1);
      }
 
@@ -762,7 +781,8 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
    if (entry)
      ephoto_entry_free_listener_add(entry, _entry_free, sb);
    _ephoto_single_browser_recalc(sb);
-   _zoom_fit(sb);
+   if (sb->viewer)
+     _zoom_fit(sb);
 }
 
 void

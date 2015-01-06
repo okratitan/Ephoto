@@ -449,6 +449,13 @@ _thumb_del(void *data, Evas *e __UNUSED__, Evas_Object *o, void *event_info __UN
    ephoto->thumbs = eina_list_remove(ephoto->thumbs, o);
 }
 
+static void
+_load_error(void *data , Evas_Object *obj __UNUSED__, void *event_info __UNUSED__)
+{
+   const char *path = data;
+   ERR("Error loading thumbnail: %s\n", path);  
+}
+
 Evas_Object *
 ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, const char *path)
 {
@@ -477,6 +484,7 @@ ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, const char *path)
    elm_object_style_set(o, "noframe");
    ephoto->thumbs = eina_list_append(ephoto->thumbs, o);
    evas_object_event_callback_add(o, EVAS_CALLBACK_DEL, _thumb_del, ephoto);
+   evas_object_smart_callback_add(o, "generate,error", _load_error, path);
    return o;
 }
 

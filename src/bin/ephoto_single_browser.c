@@ -190,6 +190,7 @@ _orient_apply(Ephoto_Single_Browser *sb)
    switch (sb->orient)
      {
       case EPHOTO_ORIENT_0:
+         elm_image_orient_set(v->image, ELM_IMAGE_ORIENT_NONE);
          break;
       case EPHOTO_ORIENT_90:
          elm_image_orient_set(v->image, ELM_IMAGE_ROTATE_90);
@@ -232,29 +233,144 @@ _orient_apply(Ephoto_Single_Browser *sb)
 static void
 _rotate_counterclock(Ephoto_Single_Browser *sb)
 {
-   sb->orient = EPHOTO_ORIENT_270;
+   switch (sb->orient)
+     {
+      case EPHOTO_ORIENT_0:  
+         sb->orient = EPHOTO_ORIENT_270;
+         break;
+      case EPHOTO_ORIENT_90:
+         sb->orient = EPHOTO_ORIENT_0;
+         break;
+      case EPHOTO_ORIENT_180:
+         sb->orient = EPHOTO_ORIENT_90;
+         break;
+      case EPHOTO_ORIENT_270:
+         sb->orient = EPHOTO_ORIENT_180;
+         break;
+      case EPHOTO_ORIENT_FLIP_HORIZ:
+         sb->orient = EPHOTO_ORIENT_FLIP_VERT_90;
+         break;
+      case EPHOTO_ORIENT_FLIP_VERT_90:
+         sb->orient = EPHOTO_ORIENT_FLIP_VERT;
+         break;
+      case EPHOTO_ORIENT_FLIP_VERT:
+         sb->orient = EPHOTO_ORIENT_FLIP_HORIZ_90;
+         break;
+      case EPHOTO_ORIENT_FLIP_HORIZ_90:
+         sb->orient = EPHOTO_ORIENT_FLIP_HORIZ;
+         break;
+      default:
+         sb->orient = EPHOTO_ORIENT_0;
+         break;
+     }
    _orient_apply(sb);
 }
 
 static void
 _rotate_clock(Ephoto_Single_Browser *sb)
 {
-   sb->orient = EPHOTO_ORIENT_90;
+   switch (sb->orient)
+     {
+      case EPHOTO_ORIENT_0:  
+         sb->orient = EPHOTO_ORIENT_90;
+         break;
+      case EPHOTO_ORIENT_90:
+         sb->orient = EPHOTO_ORIENT_180;
+         break;
+      case EPHOTO_ORIENT_180:
+         sb->orient = EPHOTO_ORIENT_270;
+         break;
+      case EPHOTO_ORIENT_270:
+         sb->orient = EPHOTO_ORIENT_0;
+         break;
+      case EPHOTO_ORIENT_FLIP_HORIZ:
+         sb->orient = EPHOTO_ORIENT_FLIP_HORIZ_90;
+         break;
+      case EPHOTO_ORIENT_FLIP_VERT_90:
+         sb->orient = EPHOTO_ORIENT_FLIP_HORIZ;
+         break;
+      case EPHOTO_ORIENT_FLIP_VERT:
+         sb->orient = EPHOTO_ORIENT_FLIP_VERT_90;
+         break;
+      case EPHOTO_ORIENT_FLIP_HORIZ_90:
+         sb->orient = EPHOTO_ORIENT_FLIP_VERT;
+         break;
+      default:
+         sb->orient = EPHOTO_ORIENT_0;
+         break;
+     }
    _orient_apply(sb);
 }
 
 static void
 _flip_horiz(Ephoto_Single_Browser *sb)
 {
-
-   sb->orient = EPHOTO_ORIENT_FLIP_HORIZ;
+   switch (sb->orient)
+     {
+      case EPHOTO_ORIENT_0:  
+         sb->orient = EPHOTO_ORIENT_FLIP_HORIZ;
+         break;
+      case EPHOTO_ORIENT_90:
+         sb->orient = EPHOTO_ORIENT_FLIP_VERT_90;
+         break;
+      case EPHOTO_ORIENT_180:
+         sb->orient = EPHOTO_ORIENT_FLIP_VERT;
+         break;
+      case EPHOTO_ORIENT_270:
+         sb->orient = EPHOTO_ORIENT_FLIP_HORIZ_90;
+         break;
+      case EPHOTO_ORIENT_FLIP_HORIZ:
+         sb->orient = EPHOTO_ORIENT_0;
+         break;
+      case EPHOTO_ORIENT_FLIP_VERT_90:
+         sb->orient = EPHOTO_ORIENT_90;
+         break;
+      case EPHOTO_ORIENT_FLIP_VERT:
+         sb->orient = EPHOTO_ORIENT_180;
+         break;
+      case EPHOTO_ORIENT_FLIP_HORIZ_90:
+         sb->orient = EPHOTO_ORIENT_270;
+         break;
+      default:
+         sb->orient = EPHOTO_ORIENT_0;
+         break;
+     }
    _orient_apply(sb);
 }
 
 static void
 _flip_vert(Ephoto_Single_Browser *sb)
 {
-   sb->orient = EPHOTO_ORIENT_FLIP_VERT;
+   switch (sb->orient)
+     {
+      case EPHOTO_ORIENT_0:  
+         sb->orient = EPHOTO_ORIENT_FLIP_VERT;
+         break;
+      case EPHOTO_ORIENT_90:
+         sb->orient = EPHOTO_ORIENT_FLIP_HORIZ_90;
+         break;
+      case EPHOTO_ORIENT_180:
+         sb->orient = EPHOTO_ORIENT_FLIP_HORIZ;
+         break;
+      case EPHOTO_ORIENT_270:
+         sb->orient = EPHOTO_ORIENT_FLIP_VERT_90;
+         break;
+      case EPHOTO_ORIENT_FLIP_HORIZ:
+         sb->orient = EPHOTO_ORIENT_180;
+         break;
+      case EPHOTO_ORIENT_FLIP_VERT_90:
+         sb->orient = EPHOTO_ORIENT_270;
+         break;
+      case EPHOTO_ORIENT_FLIP_VERT:
+         sb->orient = EPHOTO_ORIENT_0;
+         break;
+      case EPHOTO_ORIENT_FLIP_HORIZ_90:
+         sb->orient = EPHOTO_ORIENT_90;
+         break;
+      default:
+         sb->orient = EPHOTO_ORIENT_0;
+         break;
+     }
    _orient_apply(sb);
 }
 
@@ -757,6 +873,8 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    sb->handlers = eina_list_append
       (sb->handlers, ecore_event_handler_add
        (EPHOTO_EVENT_ENTRY_CREATE, _ephoto_single_entry_create, sb));
+
+   sb->orient = EPHOTO_ORIENT_0;
 
    return sb->main;
 

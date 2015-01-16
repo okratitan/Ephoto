@@ -8,6 +8,15 @@
 
 #define PARENT_DIR "Up"
 
+#define FILESEP "file://"
+#define FILESEP_LEN sizeof(FILESEP) - 1
+
+#define DRAG_TIMEOUT 0.3
+#define ANIM_TIME 0.2
+
+static Eina_Bool _5s_cancel = EINA_FALSE;
+static Ecore_Timer *_5s_timeout = NULL;
+
 typedef struct _Ephoto_Thumb_Browser Ephoto_Thumb_Browser;
 
 struct _Ephoto_Thumb_Browser
@@ -288,6 +297,178 @@ _key_down(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event
      }
 }
 
+static Eina_Bool
+_5s_timeout_gone(void *data)
+{
+   elm_drag_cancel(data);
+   _5s_timeout = NULL;
+   return ECORE_CALLBACK_CANCEL;
+}
+
+static void
+_dnd_drag_start(void *data EINA_UNUSED, Evas_Object *obj)
+{
+   if (_5s_cancel)
+     _5s_timeout = ecore_timer_add(5.0, _5s_timeout_gone, obj);
+}
+
+static void
+_dnd_drag_done(void *data, Evas_Object *obj EINA_UNUSED, Eina_Bool doaccept EINA_UNUSED)
+{
+   if (_5s_cancel)
+     {
+        ecore_timer_del(_5s_timeout);
+        _5s_timeout = NULL;
+     }
+
+   eina_list_free(data);
+   return;
+}
+
+static const char *
+_dnd_drag_data_build(Eina_List **items)
+{
+   const char *drag_data = NULL;
+   if (*items)
+     {
+        Eina_List *l;
+        Elm_Object_Item *it;
+        Ephoto_Entry *e;
+        unsigned int len = 0;
+
+        EINA_LIST_FOREACH(*items, l, it)
+          {
+             e = elm_object_item_data_get(it);
+             if (e->path)
+               len += strlen(e->path);
+          }
+
+        drag_data = malloc(len + eina_list_count(*items) * (FILESEP_LEN + 1) + 1);
+        strcpy((char *) drag_data, "");
+
+        EINA_LIST_FOREACH(*items, l, it)
+          {
+             e = elm_object_item_data_get(it);
+             if (e->path)
+               {
+                  strcat((char *) drag_data, FILESEP);
+                  strcat((char *) drag_data, e->path);
+                  strcat((char *) drag_data, "\n");
+               }
+          }
+     }
+   return drag_data;
+}
+
+static Evas_Object *
+_dnd_create_icon(void *data, Evas_Object *win, Evas_Coord *xoff, Evas_Coord *yoff)
+{
+   Evas_Object *icon = NULL;
+   Evas_Object *o = elm_object_item_part_content_get(data, "elm.swallow.icon");
+
+   if (o)
+     {
+        int xm, ym, w = 30, h = 30;
+        const char *f;
+        const char *g;
+        elm_image_file_get(o, &f, &g);
+        evas_pointer_canvas_xy_get(evas_object_evas_get(o), &xm, &ym);
+        if (xoff) *xoff = xm - (w/2);
+        if (yoff) *yoff = ym - (h/2);
+        icon = elm_icon_add(win);
+        elm_image_file_set(icon, f, g);
+        evas_object_size_hint_align_set(icon, EVAS_HINT_FILL, EVAS_HINT_FILL);
+        evas_object_size_hint_weight_set(icon, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+        if (xoff && yoff) evas_object_move(icon, *xoff, *yoff);
+        evas_object_resize(icon, w, h);
+     }
+
+   return icon;
+}
+
+static Eina_List *
+_dnd_icons_get(void *data)
+{
+   Eina_List *l;
+   Eina_List *icons = NULL;
+   Evas_Coord xm, ym;
+
+   evas_pointer_canvas_xy_get(evas_object_evas_get(data), &xm, &ym);
+   Eina_List *items = eina_list_clone(elm_gengrid_selected_items_get(data));
+   Elm_Object_Item *gli = elm_gengrid_at_xy_item_get(data, xm, ym, NULL, NULL);
+   if (gli)
+     {
+        void *p = eina_list_search_sorted(items, _entry_cmp, gli);
+        if (!p)
+          items = eina_list_append(items, gli);
+     }
+
+   EINA_LIST_FOREACH(items, l, gli)
+     {
+        Evas_Object *o = elm_object_item_part_content_get(gli, "elm.swallow.icon");
+
+        if (o)
+          {
+             int x, y, w, h;
+             const char *f, *g;
+             elm_image_file_get(o, &f, &g);
+             Evas_Object *ic = elm_icon_add(data);
+             elm_image_file_set(ic, f, g);
+             evas_object_geometry_get(o, &x, &y, &w, &h);
+             evas_object_size_hint_align_set(ic, EVAS_HINT_FILL, EVAS_HINT_FILL);
+             evas_object_size_hint_weight_set(ic, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+             evas_object_move(ic, x, y);
+             evas_object_resize(ic, w, h);
+             evas_object_show(ic);
+             icons =  eina_list_append(icons, ic);
+          }
+     }
+
+   eina_list_free(items);
+   return icons;
+}
+
+static const char *
+_dnd_get_drag_data(Evas_Object *obj, Elm_Object_Item *it, Eina_List **items)
+{
+   const char *drag_data = NULL;
+
+   *items = eina_list_clone(elm_gengrid_selected_items_get(obj));
+   if (it)
+     {  
+        void *p = eina_list_search_sorted(*items, _entry_cmp, it);
+        if (!p)
+          *items = eina_list_append(*items, it);
+     }
+   drag_data = _dnd_drag_data_build(items);
+
+   return drag_data;
+}
+
+static Elm_Object_Item *
+_dnd_item_get(Evas_Object *obj, Evas_Coord x, Evas_Coord y, int *xposret, int *yposret)
+{
+   Elm_Object_Item *item;
+   item = elm_gengrid_at_xy_item_get(obj, x, y, xposret, yposret);
+   return item;
+}
+
+static Eina_Bool
+_dnd_item_data_get(Evas_Object *obj, Elm_Object_Item *it, Elm_Drag_User_Info *info)
+{
+   info->format = ELM_SEL_FORMAT_TARGETS;
+   info->createicon = _dnd_create_icon;
+   info->createdata = it;
+   info->dragstart = _dnd_drag_start;
+   info->icons = _dnd_icons_get(obj);
+   info->dragdone = _dnd_drag_done;
+   info->data = _dnd_get_drag_data(obj, it, (Eina_List **) &info->donecbdata);
+   info->acceptdata = info->donecbdata;
+   if (info->data)
+     return EINA_TRUE;
+   else
+     return EINA_FALSE;
+}
 
 static void
 _main_del(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
@@ -454,6 +635,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_align_set(tb->grid, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
    elm_gengrid_align_set(tb->grid, 0.5, 0.0);
+   elm_gengrid_highlight_mode_set(tb->grid, EINA_FALSE);
    elm_scroller_bounce_set(tb->grid, EINA_FALSE, EINA_TRUE);
    evas_object_size_hint_align_set
      (tb->grid, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -462,6 +644,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
 
    evas_object_smart_callback_add
      (tb->grid, "selected", _ephoto_thumb_selected, tb);
+   elm_drag_item_container_add(tb->grid, ANIM_TIME, DRAG_TIMEOUT, _dnd_item_get, _dnd_item_data_get);
 
    _zoom_set(tb, tb->ephoto->config->thumb_size);
 

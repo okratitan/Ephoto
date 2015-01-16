@@ -2,6 +2,8 @@
 
 #define ZOOM_STEP 0.2
 
+static Ecore_Timer *_1s_hold = NULL;
+
 typedef struct _Ephoto_Single_Browser Ephoto_Single_Browser;
 typedef struct _Ephoto_Viewer Ephoto_Viewer;
 
@@ -38,6 +40,62 @@ _viewer_del(void *data, Evas *e __UNUSED__, Evas_Object *obj __UNUSED__, void *e
 {
    Ephoto_Viewer *v = data;
    free(v);
+}
+
+static Evas_Object *
+_image_create_icon(void *data, Evas_Object *parent, Evas_Coord *xoff, Evas_Coord *yoff)
+{
+   Evas_Object *ic;
+   Evas_Object *io = data;
+   const char *f, *g;
+   Evas_Coord x, y, w, h, xm, ym;
+
+   elm_image_file_get(io, &f, &g);
+   ic = elm_image_add(parent);
+   elm_image_file_set(ic, f, g);
+   evas_object_geometry_get(io, &x, &y, &w, &h);
+   evas_object_move(ic, x, y);
+   evas_object_resize(ic, 60, 60);
+   evas_object_show(ic);
+
+   evas_pointer_canvas_xy_get(evas_object_evas_get(io), &xm, &ym);
+   if (xoff) *xoff = xm - 30;
+   if (yoff) *yoff = ym - 30;
+
+   return ic;
+}
+
+static Eina_Bool
+_1s_hold_time(void *data)
+{
+   const char *f;
+   char dd[PATH_MAX];
+
+   Evas_Object *io = data;
+
+   elm_image_file_get(io, &f, NULL);
+   snprintf(dd, sizeof(dd), "file://%s", f);
+
+   elm_drag_start(io, ELM_SEL_FORMAT_IMAGE, dd, ELM_XDND_ACTION_COPY,
+                  _image_create_icon, io,
+                  NULL, NULL, NULL, NULL, NULL, NULL);
+   _1s_hold = NULL;
+   
+   return ECORE_CALLBACK_CANCEL;
+}
+
+static void
+_image_mouse_down_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *io = data;
+ 
+   _1s_hold = ecore_timer_add(0.5, _1s_hold_time, io);
+}
+
+static void
+_image_mouse_up_cb(void *data EINA_UNUSED, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   ecore_timer_del(_1s_hold);
 }
 
 static Evas_Object *
@@ -87,9 +145,12 @@ _viewer_add(Evas_Object *parent, const char *path)
    err = evas_object_image_load_error_get(elm_image_object_get(v->image));
    if (err != EVAS_LOAD_ERROR_NONE) goto load_error;
    elm_image_object_size_get(v->image, &w, &h);
+   elm_drop_target_add(v->image, ELM_SEL_FORMAT_IMAGE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
    evas_object_size_hint_min_set(v->image, w, h);
    evas_object_size_hint_max_set(v->image, w, h);
    elm_table_pack(v->table, v->image, 0, 0, 1, 1);
+   evas_object_event_callback_add(v->image, EVAS_CALLBACK_MOUSE_DOWN, _image_mouse_down_cb, v->image);
+   evas_object_event_callback_add(v->image, EVAS_CALLBACK_MOUSE_UP, _image_mouse_up_cb, v->image);
    evas_object_show(v->image);
 
    return obj;
@@ -399,7 +460,6 @@ _last_entry_find(Ephoto_Single_Browser *sb)
    EINA_SAFETY_ON_NULL_RETURN_VAL(sb->ephoto, NULL);
    return eina_list_last_data_get(sb->ephoto->entries);
 }
-
 
 static void
 _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)

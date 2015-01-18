@@ -56,7 +56,7 @@ _ephoto_slideshow_show(Ephoto *ephoto, Ephoto_Entry *entry)
 }
 
 static void
-_ephoto_single_browser_back(void *data, Evas_Object *obj __UNUSED__, void *event_info)
+_ephoto_single_browser_back(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto *ephoto = data;
    Ephoto_Entry *entry = event_info;
@@ -64,7 +64,7 @@ _ephoto_single_browser_back(void *data, Evas_Object *obj __UNUSED__, void *event
 }
 
 static void
-_ephoto_slideshow_back(void *data, Evas_Object *obj __UNUSED__, void *event_info)
+_ephoto_slideshow_back(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto *ephoto = data;
    Ephoto_Entry *entry = event_info;
@@ -83,7 +83,7 @@ _ephoto_slideshow_back(void *data, Evas_Object *obj __UNUSED__, void *event_info
 }
 
 static void
-_ephoto_thumb_browser_view(void *data, Evas_Object *obj __UNUSED__, void *event_info)
+_ephoto_thumb_browser_view(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto *ephoto = data;
    Ephoto_Entry *entry = event_info;
@@ -91,7 +91,7 @@ _ephoto_thumb_browser_view(void *data, Evas_Object *obj __UNUSED__, void *event_
 }
 
 static void
-_ephoto_thumb_browser_changed_directory(void *data, Evas_Object *obj __UNUSED__, void *event_info __UNUSED__)
+_ephoto_thumb_browser_changed_directory(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto *ephoto = data;
    ephoto_single_browser_entry_set(ephoto->single_browser, NULL);
@@ -99,7 +99,7 @@ _ephoto_thumb_browser_changed_directory(void *data, Evas_Object *obj __UNUSED__,
 }
 
 static void
-_ephoto_thumb_browser_slideshow(void *data, Evas_Object *obj __UNUSED__, void *event_info)
+_ephoto_thumb_browser_slideshow(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto *ephoto = data;
    Ephoto_Entry *entry = event_info;
@@ -107,7 +107,7 @@ _ephoto_thumb_browser_slideshow(void *data, Evas_Object *obj __UNUSED__, void *e
 }
 
 static void
-_ephoto_single_browser_slideshow(void *data, Evas_Object *obj __UNUSED__, void *event_info)
+_ephoto_single_browser_slideshow(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto *ephoto = data;
    Ephoto_Entry *entry = event_info;
@@ -115,7 +115,7 @@ _ephoto_single_browser_slideshow(void *data, Evas_Object *obj __UNUSED__, void *
 }
 
 static void
-_win_free(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+_win_free(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto *ephoto = data;
    if (ephoto->timer.thumb_regen) ecore_timer_del(ephoto->timer.thumb_regen);
@@ -124,7 +124,7 @@ _win_free(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event
 }
 
 static void
-_resize_cb(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+_resize_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto *ephoto = data;
    int w, h;
@@ -290,7 +290,7 @@ ephoto_entries_cmp(const void *pa, const void *pb)
 }
 
 static void
-_ephoto_populate_main(void *data, Eio_File *handler __UNUSED__, const Eina_File_Direct_Info *info)
+_ephoto_populate_main(void *data, Eio_File *handler EINA_UNUSED, const Eina_File_Direct_Info *info)
 {
    Ephoto *ephoto = data;
    Ephoto_Entry *e;
@@ -319,7 +319,7 @@ _ephoto_populate_main(void *data, Eio_File *handler __UNUSED__, const Eina_File_
 }
 
 static Eina_Bool
-_ephoto_populate_filter(void *data __UNUSED__, Eio_File *handler __UNUSED__, const Eina_File_Direct_Info *info)
+_ephoto_populate_filter(void *data EINA_UNUSED, Eio_File *handler EINA_UNUSED, const Eina_File_Direct_Info *info)
 {
    const char *bname = info->path + info->name_start;
 
@@ -330,7 +330,7 @@ _ephoto_populate_filter(void *data __UNUSED__, Eio_File *handler __UNUSED__, con
 }
 
 static void
-_ephoto_populate_end(void *data, Eio_File *handler __UNUSED__)
+_ephoto_populate_end(void *data, Eio_File *handler EINA_UNUSED)
 {
    Ephoto *ephoto = data;
    ephoto->ls = NULL;
@@ -443,14 +443,14 @@ ephoto_thumb_size_set(Ephoto *ephoto, int size)
 }
 
 static void
-_thumb_del(void *data, Evas *e __UNUSED__, Evas_Object *o, void *event_info __UNUSED__)
+_thumb_del(void *data, Evas *e EINA_UNUSED, Evas_Object *o, void *event_info EINA_UNUSED)
 {
    Ephoto *ephoto = data;
    ephoto->thumbs = eina_list_remove(ephoto->thumbs, o);
 }
 
 static void
-_load_error(void *data , Evas_Object *obj __UNUSED__, void *event_info __UNUSED__)
+_load_error(void *data , Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    const char *path = data;
    ERR("Error loading thumbnail: %s\n", path);  

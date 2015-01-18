@@ -60,21 +60,21 @@ _grid_items_free(Ephoto_Thumb_Browser *tb)
 }
 
 static char *
-_ephoto_thumb_item_text_get(void *data, Evas_Object *obj __UNUSED__, const char *part __UNUSED__)
+_ephoto_thumb_item_text_get(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA_UNUSED)
 {
    Ephoto_Entry *e = data;
    return strdup(e->label);
 }
 
 static Evas_Object *
-_ephoto_thumb_file_icon_get(void *data, Evas_Object *obj, const char *part __UNUSED__)
+_ephoto_thumb_file_icon_get(void *data, Evas_Object *obj, const char *part EINA_UNUSED)
 {
    Ephoto_Entry *e = data;
    return ephoto_thumb_add(e->ephoto, obj, e->path);
 }
 
 static void
-_ephoto_thumb_item_del(void *data __UNUSED__, Evas_Object *obj __UNUSED__)
+_ephoto_thumb_item_del(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED)
 {
    /* FIXME: the entry is already freed when changing directories
     * One solution is to take care of this cleaning when manually removing
@@ -162,7 +162,7 @@ _todo_items_process(void *data)
 }
 
 static void
-_ephoto_thumb_selected(void *data, Evas_Object *o __UNUSED__, void *event_info)
+_ephoto_thumb_selected(void *data, Evas_Object *o EINA_UNUSED, void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
    Elm_Object_Item *it = event_info;
@@ -174,7 +174,7 @@ _ephoto_thumb_selected(void *data, Evas_Object *o __UNUSED__, void *event_info)
 }
 
 static void
-_changed_dir(void *data, Evas_Object *o __UNUSED__, void *event_info)
+_changed_dir(void *data, Evas_Object *o EINA_UNUSED, void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
    const char *path = event_info;
@@ -185,7 +185,7 @@ _changed_dir(void *data, Evas_Object *o __UNUSED__, void *event_info)
 }
 
 static void
-_changed_dir_text(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+_changed_dir_text(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
    const char *path = elm_fileselector_path_get(tb->entry);
@@ -206,7 +206,7 @@ _zoom_set(Ephoto_Thumb_Browser *tb, int zoom)
 }
 
 static void
-_zoom_in(void *data, Evas_Object *o, void *event_info __UNUSED__)
+_zoom_in(void *data, Evas_Object *o, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
    Evas_Object *min = evas_object_data_get(o, "min");
@@ -217,7 +217,7 @@ _zoom_in(void *data, Evas_Object *o, void *event_info __UNUSED__)
 }
 
 static void
-_zoom_out(void *data, Evas_Object *o, void *event_info __UNUSED__)
+_zoom_out(void *data, Evas_Object *o, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
    Evas_Object *max = evas_object_data_get(o, "max");
@@ -228,7 +228,7 @@ _zoom_out(void *data, Evas_Object *o, void *event_info __UNUSED__)
 }
 
 static void
-_view_single(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+_view_single(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
    Elm_Object_Item *it = elm_gengrid_selected_item_get(tb->grid);
@@ -242,7 +242,7 @@ _view_single(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
 }
 
 static void
-_slideshow(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+_slideshow(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
    Elm_Object_Item *it = elm_gengrid_selected_item_get(tb->grid);
@@ -256,7 +256,7 @@ _slideshow(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
 }
 
 static void
-_settings(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+_settings(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
 
@@ -265,7 +265,7 @@ _settings(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
 }
 
 static void
-_about(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+_about(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
 
@@ -274,7 +274,7 @@ _about(void *data, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
 }
 
 static void
-_key_down(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event_info)
+_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
    Evas_Event_Key_Down *ev = event_info;
@@ -471,7 +471,7 @@ _dnd_item_data_get(Evas_Object *obj, Elm_Object_Item *it, Elm_Drag_User_Info *in
 }
 
 static void
-_main_del(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
    Ecore_Event_Handler *handler;
@@ -501,7 +501,7 @@ _main_del(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event
 }
 
 static Eina_Bool
-_ephoto_thumb_populate_start(void *data, int type __UNUSED__, void *event __UNUSED__)
+_ephoto_thumb_populate_start(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
 
@@ -516,7 +516,7 @@ _ephoto_thumb_populate_start(void *data, int type __UNUSED__, void *event __UNUS
 }
 
 static Eina_Bool
-_ephoto_thumb_populate_end(void *data, int type __UNUSED__, void *event __UNUSED__)
+_ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
 
@@ -552,13 +552,13 @@ _ephoto_thumb_populate_end(void *data, int type __UNUSED__, void *event __UNUSED
 }
 
 static Eina_Bool
-_ephoto_thumb_populate_error(void *data __UNUSED__, int type __UNUSED__, void *event __UNUSED__)
+_ephoto_thumb_populate_error(void *data EINA_UNUSED, int type EINA_UNUSED, void *event EINA_UNUSED)
 {
    return ECORE_CALLBACK_PASS_ON;
 }
 
 static Eina_Bool
-_ephoto_thumb_entry_create(void *data, int type __UNUSED__, void *event)
+_ephoto_thumb_entry_create(void *data, int type EINA_UNUSED, void *event)
 {
    Ephoto_Thumb_Browser *tb = data;
    Ephoto_Event_Entry_Create *ev = event;

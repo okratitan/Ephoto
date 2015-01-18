@@ -10,7 +10,7 @@ struct _Ephoto_Slideshow
 };
 
 static void
-_key_down(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event_info)
+_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *event_info)
 {
    Ephoto_Slideshow *ss = data;
    Evas_Event_Key_Down *ev = event_info;
@@ -38,21 +38,21 @@ _key_down(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event
 }
 
 static void
-_mouse_down(void *data, Evas *e __UNUSED__, Evas_Object *o __UNUSED__, void *event_info __UNUSED__)
+_mouse_down(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Slideshow *ss = data;
    evas_object_smart_callback_call(ss->slideshow, "back", ss->entry);
 }
 
 static void
-_entry_free(void *data, const Ephoto_Entry *entry __UNUSED__)
+_entry_free(void *data, const Ephoto_Entry *entry EINA_UNUSED)
 {
    Ephoto_Slideshow *ss = data;
    ss->entry = NULL;
 }
 
 static void
-_slideshow_del(void *data, Evas *e __UNUSED__, Evas_Object *obj __UNUSED__, void *event_info __UNUSED__)
+_slideshow_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Slideshow *ss = data;
    if (ss->entry)

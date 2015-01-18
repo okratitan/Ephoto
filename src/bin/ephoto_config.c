@@ -76,7 +76,7 @@ ephoto_config_free(Ephoto *ephoto)
 }
 
 static void
-_close(void *data, Evas_Object *obj __UNUSED__, void *event_info __UNUSED__)
+_close(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Evas_Object *o = data;
 
@@ -84,7 +84,7 @@ _close(void *data, Evas_Object *obj __UNUSED__, void *event_info __UNUSED__)
 }
 
 static void
-_save(void *data, Evas_Object *obj __UNUSED__, void *event_info __UNUSED__)
+_save(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto *ephoto = data;
 
@@ -98,7 +98,7 @@ _save(void *data, Evas_Object *obj __UNUSED__, void *event_info __UNUSED__)
 }
 
 static void
-_hv_select(void *data __UNUSED__, Evas_Object *obj, void *event_info)
+_hv_select(void *data EINA_UNUSED, Evas_Object *obj, void *event_info)
 {
    elm_object_text_set(obj, elm_object_item_text_get(event_info));
 }

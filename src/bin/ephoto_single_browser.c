@@ -15,6 +15,7 @@ struct _Ephoto_Single_Browser
    Evas_Object *table;
    Evas_Object *panel;
    Evas_Object *viewer;
+   Evas_Object *infolabel;
    Evas_Object *nolabel;
    const char *pending_path;
    Ephoto_Entry *entry;
@@ -468,6 +469,8 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
      {
         evas_object_del(sb->viewer);
         sb->viewer = NULL;
+        evas_object_del(sb->infolabel);
+        sb->infolabel = NULL;
      }
    if (sb->nolabel)
      {
@@ -483,10 +486,54 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
         sb->viewer = _viewer_add(sb->main, sb->entry->path);
         if (sb->viewer)
           {
+             char image_info[PATH_MAX];
+             char isize[PATH_MAX];
+             Evas_Coord w, h;
+             Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+             Eina_File *f = eina_file_open(sb->entry->path, EINA_FALSE);
+             size_t size = eina_file_size_get(f);
+             eina_file_close(f);
+
+             double dsize = (double)size;
+             if (dsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f bytes", dsize);
+             else
+               {
+                  dsize /= 1024.0;
+                  if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.0f KB", dsize);
+                  else
+                    {
+                       dsize /= 1024.0;
+                       if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f MB", dsize);
+                       else
+                         {
+                            dsize /= 1024.0;
+                            if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f GB", dsize);
+                            else
+                              {
+                                 dsize /= 1024.0;
+                                 snprintf(isize, sizeof(isize), "%'.1f TB", dsize);
+                              }
+                         }
+                    }
+               }
+             evas_object_image_size_get(elm_image_object_get(v->image), &w, &h);
+             snprintf(image_info, PATH_MAX, 
+                      "<b>Type:</b> %s        <b>Resolution:</b> %dx%d        <b>File Size: </b>%s", 
+                      efreet_mime_type_get(sb->entry->path), w, h, isize);
+
              elm_table_pack(sb->table, sb->viewer, 0, 0, 4, 1);
              evas_object_show(sb->viewer);
              evas_object_event_callback_add
                (sb->viewer, EVAS_CALLBACK_MOUSE_WHEEL, _mouse_wheel, sb);
+
+             sb->infolabel = elm_label_add(sb->table);
+             elm_label_line_wrap_set(sb->infolabel, ELM_WRAP_NONE);
+             elm_object_text_set(sb->infolabel, image_info);
+             evas_object_size_hint_weight_set(sb->infolabel, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
+             evas_object_size_hint_align_set(sb->infolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+             elm_table_pack(sb->table, sb->infolabel, 0, 1, 4, 1);
+             evas_object_show(sb->infolabel);
+
              ephoto_title_set(sb->ephoto, bname);
           }
         else
@@ -500,7 +547,7 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
              evas_object_show(sb->nolabel);
              ephoto_title_set(sb->ephoto, "Bad Image");
           }
-        elm_table_pack(sb->table, sb->panel, 0, 0, 1, 1);
+        elm_table_pack(sb->table, sb->panel, 0, 0, 1, 2);
      }
 
    elm_object_focus_set(sb->main, EINA_TRUE);
@@ -856,7 +903,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
      elm_panel_hidden_set(sb->panel, EINA_TRUE);
    else
      elm_panel_hidden_set(sb->panel, EINA_FALSE);
-   elm_table_pack(sb->table, sb->panel, 0, 0, 1, 1);
+   elm_table_pack(sb->table, sb->panel, 0, 0, 1, 2);
    evas_object_show(sb->panel);
    
    sb->bar = elm_toolbar_add(sb->panel);

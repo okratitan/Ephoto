@@ -144,6 +144,7 @@ struct _Ephoto_Entry
    Ephoto *ephoto;
    Elm_Object_Item *item;
    Eina_List *free_listeners;
+   Eina_Bool is_dir;
 };
 
 struct _Ephoto_Event_Entry_Create
@@ -151,7 +152,7 @@ struct _Ephoto_Event_Entry_Create
    Ephoto_Entry *entry;
 };
 
-Ephoto_Entry *ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label);
+Ephoto_Entry *ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label, Eina_File_Type type);
 void          ephoto_entry_free(Ephoto_Entry *entry);
 void          ephoto_entry_free_listener_add(Ephoto_Entry *entry, void (*cb)(void *data, const Ephoto_Entry *entry), const void *data);
 void          ephoto_entry_free_listener_del(Ephoto_Entry *entry, void (*cb)(void *data, const Ephoto_Entry *entry), const void *data);

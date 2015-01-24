@@ -29,7 +29,7 @@ _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    elm_naviframe_item_simple_promote(ephoto->pager, ephoto->thumb_browser);
    elm_object_focus_set(ephoto->thumb_browser, EINA_TRUE);
    _ephoto_state_set(ephoto, EPHOTO_STATE_THUMB);
-   ephoto_title_set(ephoto, NULL);
+   ephoto_title_set(ephoto, ephoto->config->directory);
 
    if ((entry) && (entry->item))
      elm_gengrid_item_bring_in(entry->item, ELM_GENGRID_ITEM_SCROLLTO_IN);
@@ -296,7 +296,7 @@ _ephoto_populate_main(void *data, Eio_File *handler EINA_UNUSED, const Eina_File
    Ephoto_Entry *e;
    Ephoto_Event_Entry_Create *ev;
 
-   e = ephoto_entry_new(ephoto, info->path, info->path + info->name_start);
+   e = ephoto_entry_new(ephoto, info->path, info->path + info->name_start, info->type);
 
    if (!ephoto->entries)
      ephoto->entries = eina_list_append(ephoto->entries, e);
@@ -324,7 +324,7 @@ _ephoto_populate_filter(void *data EINA_UNUSED, Eio_File *handler EINA_UNUSED, c
    const char *bname = info->path + info->name_start;
 
    if (bname[0] == '.') return EINA_FALSE;
-   if (info->type == EINA_FILE_DIR) return EINA_FALSE;
+   if (info->type == EINA_FILE_DIR) return EINA_TRUE;
 
    return _ephoto_eina_file_direct_info_image_useful(info);
 }
@@ -524,7 +524,7 @@ ephoto_thumb_path_set(Evas_Object *o, const char *path)
 }
 
 Ephoto_Entry *
-ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label)
+ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label, Eina_File_Type type)
 {
    Ephoto_Entry *entry;
    EINA_SAFETY_ON_NULL_RETURN_VAL(path, NULL);
@@ -534,6 +534,10 @@ ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label)
    entry->path = eina_stringshare_add(path);
    entry->basename = ecore_file_file_get(entry->path);
    entry->label = eina_stringshare_add(label);
+   if (type == EINA_FILE_DIR)
+     entry->is_dir = EINA_TRUE;
+   else
+     entry->is_dir = EINA_FALSE;
    return entry;
 }
 

@@ -298,19 +298,39 @@ _ephoto_populate_main(void *data, Eio_File *handler EINA_UNUSED, const Eina_File
 
    e = ephoto_entry_new(ephoto, info->path, info->path + info->name_start, info->type);
 
-   if (!ephoto->entries)
-     ephoto->entries = eina_list_append(ephoto->entries, e);
+   if (e->is_dir)
+     {
+        if (!ephoto->direntries)
+          ephoto->direntries = eina_list_append(ephoto->direntries, e);
+        else
+          {
+             int near_cmp;
+             Eina_List *near_node = eina_list_search_sorted_near_list
+               (ephoto->direntries, ephoto_entries_cmp, e, &near_cmp);
+             if (near_cmp < 0)
+               ephoto->direntries = eina_list_append_relative_list
+                 (ephoto->direntries, e, near_node);
+             else
+               ephoto->direntries = eina_list_prepend_relative_list
+                 (ephoto->direntries, e, near_node);
+          }
+     }
    else
      {
-        int near_cmp;
-        Eina_List *near_node = eina_list_search_sorted_near_list
-          (ephoto->entries, ephoto_entries_cmp, e, &near_cmp);
-        if (near_cmp < 0)
-          ephoto->entries = eina_list_append_relative_list
-            (ephoto->entries, e, near_node);
+        if (!ephoto->entries)
+          ephoto->entries = eina_list_append(ephoto->entries, e);
         else
-          ephoto->entries = eina_list_prepend_relative_list
-            (ephoto->entries, e, near_node);
+          {
+             int near_cmp;
+             Eina_List *near_node = eina_list_search_sorted_near_list
+               (ephoto->entries, ephoto_entries_cmp, e, &near_cmp);
+             if (near_cmp < 0)
+               ephoto->entries = eina_list_append_relative_list
+                 (ephoto->entries, e, near_node);
+             else
+               ephoto->entries = eina_list_prepend_relative_list
+                 (ephoto->entries, e, near_node);
+          }
      }
    ev = calloc(1, sizeof(Ephoto_Event_Entry_Create));
    ev->entry = e;
@@ -593,4 +613,5 @@ ephoto_entries_free(Ephoto *ephoto)
 {
    Ephoto_Entry *entry;
    EINA_LIST_FREE(ephoto->entries, entry) ephoto_entry_free(entry);
+   EINA_LIST_FREE(ephoto->direntries, entry) ephoto_entry_free(entry);
 }

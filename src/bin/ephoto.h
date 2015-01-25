@@ -118,6 +118,7 @@ struct _Ephoto
    Evas_Object *slideshow;
 
    Eina_List *entries;
+   Eina_List *direntries;
    Eina_List *thumbs; /* live thumbs that need to be regenerated on changes */
 
    int thumb_gen_size; /* pending value for thumb_regen */

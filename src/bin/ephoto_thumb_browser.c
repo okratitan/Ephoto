@@ -759,8 +759,8 @@ Evas_Object *
 ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
 {
    Evas_Object *box = elm_box_add(parent);
-   Evas_Object *icon, *min, *max, *hbox, *but, *sep, *ic;
-   Evas_Coord w;
+   Evas_Object *icon, *min, *max, *hbox, *botbox, *but, *sep, *ic;
+   Evas_Coord w, h;
    Ephoto_Thumb_Browser *tb;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(box, NULL);
@@ -876,6 +876,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_smart_callback_add(but, "clicked", _ephoto_dir_hide_folders, tb);
    elm_box_pack_end(tb->leftbox, but);
    evas_object_show(but);
+   evas_object_size_hint_min_get(but, 0, &h);
 
    tb->table = elm_table_add(tb->main);
    evas_object_size_hint_weight_set(tb->table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -904,12 +905,21 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
 
    evas_object_show(tb->grid);
    elm_table_pack(tb->table, tb->grid, 0, 0, 4, 1);
-   
+
+   botbox = evas_object_rectangle_add(evas_object_evas_get(tb->table));
+   evas_object_color_set(botbox, 255, 255, 255, 0);
+   evas_object_size_hint_min_set(botbox, 0, h);
+   evas_object_size_hint_weight_set(botbox, EVAS_HINT_EXPAND, 0.0);
+   evas_object_size_hint_fill_set(botbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_table_pack(tb->table, botbox, 0, 1, 4, 1);
+   evas_object_show(botbox);
+
    tb->infolabel = elm_label_add(tb->table);
-   elm_label_line_wrap_set(tb->infolabel, ELM_WRAP_NONE);
+   elm_label_line_wrap_set(tb->infolabel, ELM_WRAP_WORD);
    elm_object_text_set(tb->infolabel, "Info Label");
    evas_object_size_hint_weight_set(tb->infolabel, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(tb->infolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_aspect_set(tb->infolabel, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_table_pack(tb->table, tb->infolabel, 0, 1, 4, 1);
    evas_object_show(tb->infolabel);
 

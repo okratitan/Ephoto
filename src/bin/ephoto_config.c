@@ -1,6 +1,6 @@
 #include "ephoto.h"
 
-#define CONFIG_VERSION 8
+#define CONFIG_VERSION 9
 
 static int _ephoto_config_load(Ephoto *ephoto);
 static Eina_Bool _ephoto_on_config_save(void *data);
@@ -38,8 +38,6 @@ ephoto_config_init(Ephoto *ephoto)
    C_VAL(D, T, editor, EET_T_STRING);
    C_VAL(D, T, window_width, EET_T_INT);
    C_VAL(D, T, window_height, EET_T_INT);
-   C_VAL(D, T, thumb_browser_panel, EET_T_INT);
-   C_VAL(D, T, single_browser_panel, EET_T_INT);
 
    switch (_ephoto_config_load(ephoto))
      {
@@ -51,8 +49,6 @@ ephoto_config_init(Ephoto *ephoto)
          ephoto->config->editor = eina_stringshare_add("gimp %s");
          ephoto->config->window_width = 900;
          ephoto->config->window_height = 600;
-         ephoto->config->thumb_browser_panel = 0;
-         ephoto->config->single_browser_panel = 0;
          break;
       default:
          return EINA_TRUE;

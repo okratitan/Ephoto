@@ -13,7 +13,6 @@ struct _Ephoto_Single_Browser
    Evas_Object *main;
    Evas_Object *bar;
    Evas_Object *table;
-   Evas_Object *panel;
    Evas_Object *viewer;
    Evas_Object *infolabel;
    Evas_Object *nolabel;
@@ -521,7 +520,7 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
                       "<b>Type:</b> %s        <b>Resolution:</b> %dx%d        <b>File Size: </b>%s", 
                       efreet_mime_type_get(sb->entry->path), w, h, isize);
 
-             elm_table_pack(sb->table, sb->viewer, 0, 0, 4, 1);
+             elm_table_pack(sb->table, sb->viewer, 0, 1, 4, 1);
              evas_object_show(sb->viewer);
              evas_object_event_callback_add
                (sb->viewer, EVAS_CALLBACK_MOUSE_WHEEL, _mouse_wheel, sb);
@@ -531,7 +530,7 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
              elm_object_text_set(sb->infolabel, image_info);
              evas_object_size_hint_weight_set(sb->infolabel, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
              evas_object_size_hint_align_set(sb->infolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-             elm_table_pack(sb->table, sb->infolabel, 0, 1, 4, 1);
+             elm_table_pack(sb->table, sb->infolabel, 0, 2, 4, 1);
              evas_object_show(sb->infolabel);
 
              ephoto_title_set(sb->ephoto, bname);
@@ -543,11 +542,11 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
              elm_object_text_set(sb->nolabel, "This image does not exist or is corrupted");
              evas_object_size_hint_weight_set(sb->nolabel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
              evas_object_size_hint_align_set(sb->nolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-             elm_table_pack(sb->table, sb->nolabel, 0, 0, 4, 1);
+             elm_table_pack(sb->table, sb->nolabel, 0, 1, 4, 1);
              evas_object_show(sb->nolabel);
              ephoto_title_set(sb->ephoto, "Bad Image");
           }
-        elm_table_pack(sb->table, sb->panel, 0, 0, 1, 2);
+        elm_table_pack(sb->table, sb->bar, 0, 0, 4, 1);
      }
 
    elm_object_focus_set(sb->main, EINA_TRUE);
@@ -826,11 +825,6 @@ _main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *eve
    Ephoto_Single_Browser *sb = data;
    Ecore_Event_Handler *handler;
 
-   if (elm_panel_hidden_get(sb->panel))
-     sb->ephoto->config->single_browser_panel = 1;
-   else
-     sb->ephoto->config->single_browser_panel = 0;
-
    EINA_LIST_FREE(sb->handlers, handler)
       ecore_event_handler_del(handler);
    if (sb->entry)
@@ -894,24 +888,13 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_box_pack_end(sb->main, sb->table);
    evas_object_show(sb->table);
 
-   sb->panel = elm_panel_add(sb->table);
-   EINA_SAFETY_ON_NULL_GOTO(sb->panel, error);
-   elm_panel_orient_set(sb->panel, ELM_PANEL_ORIENT_LEFT);
-   evas_object_size_hint_weight_set(sb->panel, 0.0, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(sb->panel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   if (sb->ephoto->config->single_browser_panel)
-     elm_panel_hidden_set(sb->panel, EINA_TRUE);
-   else
-     elm_panel_hidden_set(sb->panel, EINA_FALSE);
-   elm_table_pack(sb->table, sb->panel, 0, 0, 1, 2);
-   evas_object_show(sb->panel);
-   
-   sb->bar = elm_toolbar_add(sb->panel);
+   sb->bar = elm_toolbar_add(sb->table);
    EINA_SAFETY_ON_NULL_GOTO(sb->bar, error);
-   elm_toolbar_horizontal_set(sb->bar, EINA_FALSE);
+   elm_toolbar_horizontal_set(sb->bar, EINA_TRUE);
+   elm_toolbar_homogeneous_set(sb->bar, EINA_FALSE);
    elm_toolbar_shrink_mode_set(sb->bar, ELM_TOOLBAR_SHRINK_SCROLL);
    elm_toolbar_select_mode_set(sb->bar, ELM_OBJECT_SELECT_MODE_NONE);
-   evas_object_size_hint_weight_set(sb->bar, 0.0, EVAS_HINT_EXPAND);
+   evas_object_size_hint_weight_set(sb->bar, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(sb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
    icon = elm_toolbar_item_append(sb->bar, "go-home", "Back", _back, sb);
@@ -970,7 +953,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    icon = elm_toolbar_item_append(sb->bar, "help-about", "About", _about, sb);
    elm_toolbar_item_priority_set(icon, 0);
 
-   elm_object_content_set(sb->panel, sb->bar);
+   elm_table_pack(sb->table, sb->bar, 0, 0, 4, 1);
    evas_object_show(sb->bar);
 
    sb->handlers = eina_list_append

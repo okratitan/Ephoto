@@ -26,11 +26,11 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *table;
    Evas_Object *grid;
    Evas_Object *nolabel;
-   Evas_Object *botbox;
    Evas_Object *infolabel;
-   Evas_Object *panes;
    Evas_Object *bar;
+   Evas_Object *vbar;
    Evas_Object *fsel;
+   Evas_Object *leftbox;
    Eio_File *ls;
    Eina_List *todo_items;
    Eina_List *grid_items;
@@ -352,6 +352,51 @@ _about(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 
    if (tb->ephoto)
      ephoto_about_window(tb->ephoto);
+}
+
+static void
+_ephoto_dir_show_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Ephoto_Thumb_Browser *tb = data;
+
+   elm_box_unpack(tb->main, tb->vbar);
+   evas_object_del(tb->vbar);
+   tb->vbar = NULL;
+
+   evas_object_show(tb->leftbox);
+   elm_box_pack_start(tb->main, tb->leftbox);
+}
+
+static void
+_ephoto_dir_hide_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Ephoto_Thumb_Browser *tb = data;
+   Evas_Object *icon, *max, *min;
+
+   evas_object_hide(tb->leftbox);
+   elm_box_unpack(tb->main, tb->leftbox);
+
+   tb->vbar = elm_toolbar_add(tb->main);
+   elm_toolbar_horizontal_set(tb->vbar, EINA_FALSE);
+   elm_toolbar_homogeneous_set(tb->vbar, EINA_TRUE);
+   elm_toolbar_shrink_mode_set(tb->vbar, ELM_TOOLBAR_SHRINK_NONE);
+   elm_toolbar_select_mode_set(tb->vbar, ELM_OBJECT_SELECT_MODE_NONE);
+   evas_object_size_hint_weight_set(tb->vbar, 0.0, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(tb->vbar, EVAS_HINT_FILL, EVAS_HINT_FILL);   
+
+   elm_toolbar_item_append(tb->vbar, "stock_folder", "Show Folders", _ephoto_dir_show_folders, tb); 
+   icon = elm_toolbar_item_append(tb->vbar, "zoom-in", "Zoom In", _zoom_in, tb);
+   max = elm_object_item_widget_get(icon);
+   icon = elm_toolbar_item_append(tb->vbar, "zoom-out", "Zoom Out", _zoom_out, tb);
+   min = elm_object_item_widget_get(icon);
+   evas_object_data_set(max, "min", min);
+   evas_object_data_set(min, "max", max);
+   elm_toolbar_item_append(tb->vbar, "stock_media-play", "Slideshow", _slideshow, tb);
+   elm_toolbar_item_append(tb->vbar, "emblem-system", "Settings", _settings, tb);
+   elm_toolbar_item_append(tb->vbar, "stock_about", "About", _about, tb);
+
+   elm_box_pack_start(tb->main, tb->vbar);
+   evas_object_show(tb->vbar);
 }
 
 static void
@@ -694,7 +739,8 @@ Evas_Object *
 ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
 {
    Evas_Object *box = elm_box_add(parent);
-   Evas_Object *icon, *min, *max, *vbox, *hbox, *but, *sep, *ic;
+   Evas_Object *icon, *min, *max, *hbox, *but, *sep, *ic;
+   Evas_Coord w;
    Ephoto_Thumb_Browser *tb;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(box, NULL);
@@ -716,7 +762,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
 
    tb->ephoto = ephoto;
    tb->main = box;
-
+   elm_box_horizontal_set(tb->main, EINA_TRUE);
    evas_object_size_hint_weight_set(tb->main, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->main, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_event_callback_add(tb->main, EVAS_CALLBACK_DEL, _main_del, tb);
@@ -724,21 +770,13 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
      (tb->main, EVAS_CALLBACK_KEY_DOWN, _key_down, tb);
    evas_object_data_set(tb->main, "thumb_browser", tb);
 
-   tb->panes = elm_panes_add(tb->main);
-   elm_panes_horizontal_set(tb->panes, EINA_FALSE);
-   evas_object_size_hint_weight_set(tb->panes, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(tb->panes, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_panes_content_left_size_set(tb->panes, 0.3);
-   elm_box_pack_end(tb->main, tb->panes);
-   evas_object_show(tb->panes);
+   tb->leftbox = elm_box_add(tb->main);
+   evas_object_size_hint_weight_set(tb->leftbox, 0.0, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(tb->leftbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(tb->main, tb->leftbox);
+   evas_object_show(tb->leftbox);
 
-   vbox = elm_box_add(tb->panes);
-   evas_object_size_hint_weight_set(vbox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(vbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_object_part_content_set(tb->panes, "left", vbox);
-   evas_object_show(vbox);
-
-   tb->bar = elm_toolbar_add(vbox);
+   tb->bar = elm_toolbar_add(tb->leftbox);
    elm_toolbar_horizontal_set(tb->bar, EINA_TRUE);
    elm_toolbar_homogeneous_set(tb->bar, EINA_TRUE);
    elm_toolbar_shrink_mode_set(tb->bar, ELM_TOOLBAR_SHRINK_NONE);
@@ -756,20 +794,23 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_toolbar_item_append(tb->bar, "emblem-system", "Settings", _settings, tb);
    elm_toolbar_item_append(tb->bar, "stock_about", "About", _about, tb);
 
-   elm_box_pack_end(vbox, tb->bar);
+   elm_box_pack_end(tb->leftbox, tb->bar);
    evas_object_show(tb->bar);
 
-   sep = elm_separator_add(vbox);
+   evas_object_size_hint_min_get(tb->bar, &w, 0);
+   evas_object_size_hint_min_set(tb->leftbox, w, 0);
+
+   sep = elm_separator_add(tb->leftbox);
    elm_separator_horizontal_set(sep, EINA_TRUE);
    evas_object_size_hint_min_set(sep, 0, 20);
-   elm_box_pack_end(vbox, sep);
+   elm_box_pack_end(tb->leftbox, sep);
    evas_object_show(sep);
 
-   hbox = elm_box_add(vbox);
+   hbox = elm_box_add(tb->leftbox);
    elm_box_horizontal_set(hbox, EINA_TRUE);
    evas_object_size_hint_weight_set(hbox, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(vbox, hbox);
+   elm_box_pack_end(tb->leftbox, hbox);
    evas_object_show(hbox);
 
    ic = elm_icon_add(hbox);
@@ -778,7 +819,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    but = elm_button_add(hbox);
    elm_object_part_content_set(but, "icon", ic);
    elm_object_text_set(but, "Up");
-   evas_object_size_hint_weight_set(but, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_weight_set(but, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_smart_callback_add(but, "clicked", _ephoto_dir_go_up, tb);
    elm_box_pack_end(hbox, but);
@@ -790,24 +831,32 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    but = elm_button_add(hbox);
    elm_object_part_content_set(but, "icon", ic);
    elm_object_text_set(but, "Home");
-   evas_object_size_hint_weight_set(but, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_weight_set(but, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_smart_callback_add(but, "clicked", _ephoto_dir_go_home, tb);
    elm_box_pack_end(hbox, but);
    evas_object_show(but);
 
-   tb->fsel = elm_genlist_add(vbox);
+   tb->fsel = elm_genlist_add(tb->leftbox);
    evas_object_size_hint_weight_set(tb->fsel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(vbox, tb->fsel);
+   elm_box_pack_end(tb->leftbox, tb->fsel);
    evas_object_smart_callback_add
      (tb->fsel, "clicked,double", _ephoto_dir_selected, tb);
    evas_object_show(tb->fsel);
 
-   tb->table = elm_table_add(tb->panes);
+   but = elm_button_add(hbox);
+   elm_object_text_set(but, "Hide Folders");
+   evas_object_size_hint_weight_set(but, EVAS_HINT_EXPAND, 0.0);
+   evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_smart_callback_add(but, "clicked", _ephoto_dir_hide_folders, tb);
+   elm_box_pack_end(tb->leftbox, but);
+   evas_object_show(but);
+
+   tb->table = elm_table_add(tb->main);
    evas_object_size_hint_weight_set(tb->table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->table, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_object_part_content_set(tb->panes, "right", tb->table);
+   elm_box_pack_end(tb->main, tb->table);
    evas_object_show(tb->table);
 
    tb->grid = elm_gengrid_add(tb->table);

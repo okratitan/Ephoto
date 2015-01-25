@@ -909,7 +909,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_table_pack(tb->table, tb->grid, 0, 0, 4, 1);
 
    botbox = evas_object_rectangle_add(evas_object_evas_get(tb->table));
-   evas_object_color_set(botbox, 255, 255, 255, 0);
+   evas_object_color_set(botbox, 0, 0, 0, 0);
    evas_object_size_hint_min_set(botbox, 0, h);
    evas_object_size_hint_weight_set(botbox, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_fill_set(botbox, EVAS_HINT_FILL, EVAS_HINT_FILL);

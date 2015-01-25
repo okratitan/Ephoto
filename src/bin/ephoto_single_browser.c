@@ -527,7 +527,7 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
                (sb->viewer, EVAS_CALLBACK_MOUSE_WHEEL, _mouse_wheel, sb);
 
              botbox = evas_object_rectangle_add(evas_object_evas_get(sb->table));
-             evas_object_color_set(botbox, 255, 255, 255, 0);
+             evas_object_color_set(botbox, 0, 0, 0, 0);
              evas_object_size_hint_min_set(botbox, 0, sb->ephoto->bottom_bar_size);
              evas_object_size_hint_weight_set(botbox, EVAS_HINT_EXPAND, 0.0);
              evas_object_size_hint_fill_set(botbox, EVAS_HINT_FILL, EVAS_HINT_FILL);

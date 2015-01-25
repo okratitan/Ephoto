@@ -488,6 +488,7 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
              char image_info[PATH_MAX];
              char isize[PATH_MAX];
              Evas_Coord w, h;
+             Evas_Object *botbox;
              Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
              Eina_File *f = eina_file_open(sb->entry->path, EINA_FALSE);
              size_t size = eina_file_size_get(f);
@@ -524,6 +525,14 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
              evas_object_show(sb->viewer);
              evas_object_event_callback_add
                (sb->viewer, EVAS_CALLBACK_MOUSE_WHEEL, _mouse_wheel, sb);
+
+             botbox = evas_object_rectangle_add(evas_object_evas_get(sb->table));
+             evas_object_color_set(botbox, 255, 255, 255, 0);
+             evas_object_size_hint_min_set(botbox, 0, sb->ephoto->bottom_bar_size);
+             evas_object_size_hint_weight_set(botbox, EVAS_HINT_EXPAND, 0.0);
+             evas_object_size_hint_fill_set(botbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+             elm_table_pack(sb->table, botbox, 0, 2, 4, 1);
+             evas_object_show(botbox);
 
              sb->infolabel = elm_label_add(sb->table);
              elm_label_line_wrap_set(sb->infolabel, ELM_WRAP_NONE);

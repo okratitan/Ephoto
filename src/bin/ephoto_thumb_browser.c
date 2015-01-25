@@ -389,6 +389,7 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_inf
    elm_toolbar_homogeneous_set(tb->vbar, EINA_TRUE);
    elm_toolbar_shrink_mode_set(tb->vbar, ELM_TOOLBAR_SHRINK_NONE);
    elm_toolbar_select_mode_set(tb->vbar, ELM_OBJECT_SELECT_MODE_NONE);
+   elm_toolbar_align_set(tb->vbar, 0.0);
    evas_object_size_hint_weight_set(tb->vbar, 0.0, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->vbar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
@@ -877,6 +878,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_box_pack_end(tb->leftbox, but);
    evas_object_show(but);
    evas_object_size_hint_min_get(but, 0, &h);
+   tb->ephoto->bottom_bar_size = h;
 
    tb->table = elm_table_add(tb->main);
    evas_object_size_hint_weight_set(tb->table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);

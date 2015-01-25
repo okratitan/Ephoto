@@ -120,6 +120,7 @@ struct _Ephoto
    Eina_List *thumbs; /* live thumbs that need to be regenerated on changes */
 
    int thumb_gen_size; /* pending value for thumb_regen */
+   Evas_Coord  bottom_bar_size;
    struct {
       Ecore_Timer *thumb_regen;
    } timer;

@@ -26,7 +26,7 @@ _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
 
    ephoto_single_browser_entry_set(ephoto->single_browser, NULL);
    ephoto_slideshow_entry_set(ephoto->slideshow, NULL);
-   elm_naviframe_item_simple_promote(ephoto->pager, ephoto->thumb_browser);
+   elm_naviframe_item_promote(ephoto->tb);
    elm_object_focus_set(ephoto->thumb_browser, EINA_TRUE);
    _ephoto_state_set(ephoto, EPHOTO_STATE_THUMB);
    ephoto_title_set(ephoto, ephoto->config->directory);
@@ -197,7 +197,8 @@ ephoto_window_add(const char *path)
         evas_object_del(ephoto->win);
         return NULL;
      }
-   elm_naviframe_item_simple_push(ephoto->pager, ephoto->thumb_browser);
+   ephoto->tb = elm_naviframe_item_push(ephoto->pager, NULL, NULL, NULL, ephoto->thumb_browser, "overlap");
+   elm_naviframe_item_title_enabled_set(ephoto->tb, EINA_FALSE, EINA_FALSE);
    evas_object_smart_callback_add
      (ephoto->thumb_browser, "view", _ephoto_thumb_browser_view, ephoto);
    evas_object_smart_callback_add
@@ -214,7 +215,9 @@ ephoto_window_add(const char *path)
         evas_object_del(ephoto->win);
         return NULL;
      }
-   elm_naviframe_item_simple_push(ephoto->pager, ephoto->single_browser);
+   ephoto->sb = elm_naviframe_item_insert_after(ephoto->pager, ephoto->tb, 
+                  NULL, NULL, NULL, ephoto->single_browser, "overlap");
+   elm_naviframe_item_title_enabled_set(ephoto->sb, EINA_FALSE, EINA_FALSE);
    evas_object_smart_callback_add
      (ephoto->single_browser, "back", _ephoto_single_browser_back, ephoto);
    evas_object_smart_callback_add
@@ -228,7 +231,9 @@ ephoto_window_add(const char *path)
         evas_object_del(ephoto->win);
         return NULL;
      }
-   elm_naviframe_item_simple_push(ephoto->pager, ephoto->slideshow);
+   ephoto->sl = elm_naviframe_item_insert_after(ephoto->pager, ephoto->sb,
+                  NULL, NULL, NULL, ephoto->slideshow, "overlap");
+   elm_naviframe_item_title_enabled_set(ephoto->sl, EINA_FALSE, EINA_FALSE);
    evas_object_smart_callback_add
      (ephoto->slideshow, "back", _ephoto_slideshow_back, ephoto);
 

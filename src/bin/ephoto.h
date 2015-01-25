@@ -114,6 +114,9 @@ struct _Ephoto
    Evas_Object *thumb_browser;
    Evas_Object *single_browser;
    Evas_Object *slideshow;
+   Elm_Object_Item *tb;
+   Elm_Object_Item *sb;
+   Elm_Object_Item *sl;
 
    Eina_List *entries;
    Eina_List *direntries;

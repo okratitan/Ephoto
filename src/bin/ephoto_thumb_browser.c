@@ -615,6 +615,7 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UN
         evas_object_size_hint_align_set(tb->nolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
         elm_table_pack(tb->table, tb->nolabel, 0, 0, 4, 1);
         evas_object_show(tb->nolabel);
+        elm_object_text_set(tb->infolabel, "<b>Total</b> 0 images        <b>Size:</b> 0 bytes");
      }
    else
      {
@@ -624,38 +625,34 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UN
              evas_object_del(tb->nolabel);
              tb->nolabel = NULL;
           }
+        char isize[PATH_MAX];
+        char image_info[PATH_MAX];
+
+        if (tb->totsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f bytes", tb->totsize);
         else
           {
-             char isize[PATH_MAX];
-             char image_info[PATH_MAX];
-
-             if (tb->totsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f bytes", tb->totsize);
+             tb->totsize /= 1024.0;
+             if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.0f KB", tb->totsize);
              else
                {
                   tb->totsize /= 1024.0;
-                  if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.0f KB", tb->totsize);
+                  if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f MB", tb->totsize);
                   else
                     {
                        tb->totsize /= 1024.0;
-                       if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f MB", tb->totsize);
+                       if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f GB", tb->totsize);
                        else
                          {
                             tb->totsize /= 1024.0;
-                            if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f GB", tb->totsize);
-                            else
-                              {
-                                 tb->totsize /= 1024.0;
-                                 snprintf(isize, sizeof(isize), "%'.1f TB", tb->totsize);
-                              }
+                            snprintf(isize, sizeof(isize), "%'.1f TB", tb->totsize);
                          }
                     }
                }
-             snprintf(image_info, PATH_MAX, "<b>Total:</b> %d images        <b>Size:</b> %s", 
-                      tb->totimages, isize);
-             elm_object_text_set(tb->infolabel, image_info);
           }
+        snprintf(image_info, PATH_MAX, "<b>Total:</b> %d images        <b>Size:</b> %s", 
+                 tb->totimages, isize);
+        elm_object_text_set(tb->infolabel, image_info);
      }
-
    return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -671,13 +668,13 @@ _ephoto_thumb_entry_create(void *data, int type EINA_UNUSED, void *event)
    Ephoto_Thumb_Browser *tb = data;
    Ephoto_Event_Entry_Create *ev = event;
    Ephoto_Entry *e;
-   Eina_File *f;
 
    e = ev->entry;
    tb->todo_items = eina_list_append(tb->todo_items, e);
 
    if (!e->is_dir)
      {
+        Eina_File *f;
         tb->totimages += 1;
         f = eina_file_open(e->path, EINA_FALSE);
         tb->totsize += (double)eina_file_size_get(f);

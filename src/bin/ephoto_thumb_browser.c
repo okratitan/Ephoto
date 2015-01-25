@@ -31,6 +31,7 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *vbar;
    Evas_Object *fsel;
    Evas_Object *leftbox;
+   Evas_Object *bleftbox;
    Eio_File *ls;
    Eina_List *todo_items;
    Eina_List *grid_items;
@@ -359,8 +360,9 @@ _ephoto_dir_show_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_inf
 {
    Ephoto_Thumb_Browser *tb = data;
 
-   elm_box_unpack(tb->main, tb->vbar);
-   evas_object_del(tb->vbar);
+   elm_box_unpack(tb->main, tb->bleftbox);
+   evas_object_del(tb->bleftbox);
+   tb->bleftbox = NULL;
    tb->vbar = NULL;
 
    evas_object_show(tb->leftbox);
@@ -371,10 +373,16 @@ static void
 _ephoto_dir_hide_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
-   Evas_Object *icon, *max, *min;
+   Evas_Object *icon, *max, *min, *but, *ic;
 
    evas_object_hide(tb->leftbox);
    elm_box_unpack(tb->main, tb->leftbox);
+
+   tb->bleftbox = elm_box_add(tb->main);
+   evas_object_size_hint_weight_set(tb->bleftbox, 0.0, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(tb->bleftbox, EVAS_HINT_FILL, EVAS_HINT_FILL);  
+   elm_box_pack_start(tb->main, tb->bleftbox);
+   evas_object_show(tb->bleftbox);
 
    tb->vbar = elm_toolbar_add(tb->main);
    elm_toolbar_horizontal_set(tb->vbar, EINA_FALSE);
@@ -382,9 +390,8 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_inf
    elm_toolbar_shrink_mode_set(tb->vbar, ELM_TOOLBAR_SHRINK_NONE);
    elm_toolbar_select_mode_set(tb->vbar, ELM_OBJECT_SELECT_MODE_NONE);
    evas_object_size_hint_weight_set(tb->vbar, 0.0, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(tb->vbar, EVAS_HINT_FILL, EVAS_HINT_FILL);   
+   evas_object_size_hint_align_set(tb->vbar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-   elm_toolbar_item_append(tb->vbar, "stock_folder", "Show Folders", _ephoto_dir_show_folders, tb); 
    icon = elm_toolbar_item_append(tb->vbar, "zoom-in", "Zoom In", _zoom_in, tb);
    max = elm_object_item_widget_get(icon);
    icon = elm_toolbar_item_append(tb->vbar, "zoom-out", "Zoom Out", _zoom_out, tb);
@@ -393,10 +400,23 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_inf
    evas_object_data_set(min, "max", max);
    elm_toolbar_item_append(tb->vbar, "stock_media-play", "Slideshow", _slideshow, tb);
    elm_toolbar_item_append(tb->vbar, "emblem-system", "Settings", _settings, tb);
-   elm_toolbar_item_append(tb->vbar, "stock_about", "About", _about, tb);
+   elm_toolbar_item_append(tb->vbar, "help-about", "About", _about, tb);
 
-   elm_box_pack_start(tb->main, tb->vbar);
+   elm_box_pack_end(tb->bleftbox, tb->vbar);
    evas_object_show(tb->vbar);
+
+   ic = elm_icon_add(tb->bleftbox);
+   elm_icon_standard_set(ic, "go-next");
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   but = elm_button_add(tb->bleftbox);
+   elm_object_part_content_set(but, "icon", ic);
+   elm_object_tooltip_text_set(but, "Show the file selector");
+   evas_object_size_hint_weight_set(but, 0.0, 0.0);
+   evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_smart_callback_add(but, "clicked", _ephoto_dir_show_folders, tb);
+   elm_box_pack_end(tb->bleftbox, but);
+   evas_object_show(but);
+
 }
 
 static void
@@ -792,7 +812,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_data_set(min, "max", max);
    elm_toolbar_item_append(tb->bar, "stock_media-play", "Slideshow", _slideshow, tb);
    elm_toolbar_item_append(tb->bar, "emblem-system", "Settings", _settings, tb);
-   elm_toolbar_item_append(tb->bar, "stock_about", "About", _about, tb);
+   elm_toolbar_item_append(tb->bar, "help-about", "About", _about, tb);
 
    elm_box_pack_end(tb->leftbox, tb->bar);
    evas_object_show(tb->bar);
@@ -845,8 +865,12 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
      (tb->fsel, "clicked,double", _ephoto_dir_selected, tb);
    evas_object_show(tb->fsel);
 
+   ic = elm_icon_add(hbox);
+   elm_icon_standard_set(ic, "go-previous");
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    but = elm_button_add(hbox);
-   elm_object_text_set(but, "Hide Folders");
+   elm_object_part_content_set(but, "icon", ic);
+   elm_object_tooltip_text_set(but, "Hide the file selector");
    evas_object_size_hint_weight_set(but, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_smart_callback_add(but, "clicked", _ephoto_dir_hide_folders, tb);

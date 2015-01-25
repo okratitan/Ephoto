@@ -914,7 +914,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(sb->bar, 0.0, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(sb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-   icon = elm_toolbar_item_append(sb->bar, "stock_home", "Back", _back, sb);
+   icon = elm_toolbar_item_append(sb->bar, "go-home", "Back", _back, sb);
    elm_toolbar_item_priority_set(icon, 150);
 
    icon = elm_toolbar_item_append(sb->bar, "stock_media-play", "Slideshow", _slideshow, sb);
@@ -928,7 +928,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    icon = elm_toolbar_item_append(sb->bar, "zoom-out", "Zoom Out", _zoom_out_cb, sb);
    elm_toolbar_item_priority_set(icon, 100);
 
-   icon = elm_toolbar_item_append(sb->bar, "zoom-fit", "Zoom Fit", _zoom_fit_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-fit-best", "Zoom Fit", _zoom_fit_cb, sb);
    elm_toolbar_item_priority_set(icon, 80);
 
    icon = elm_toolbar_item_append(sb->bar, "zoom-original", "Zoom 1:1", _zoom_1_cb, sb);
@@ -967,7 +967,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    icon = elm_toolbar_item_append(sb->bar, "emblem-system", "Settings", _settings, sb);
    elm_toolbar_item_priority_set(icon, 10);
 
-   icon = elm_toolbar_item_append(sb->bar, "stock_about", "About", _about, sb);
+   icon = elm_toolbar_item_append(sb->bar, "help-about", "About", _about, sb);
    elm_toolbar_item_priority_set(icon, 0);
 
    elm_object_content_set(sb->panel, sb->bar);

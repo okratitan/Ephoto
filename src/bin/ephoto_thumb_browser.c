@@ -608,14 +608,17 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UN
      }
    if (!tb->ephoto->entries)
      {
-        tb->nolabel = elm_label_add(tb->table);
-        elm_label_line_wrap_set(tb->nolabel, ELM_WRAP_WORD);
-        elm_object_text_set(tb->nolabel, "There are no images in this directory");
-        evas_object_size_hint_weight_set(tb->nolabel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-        evas_object_size_hint_align_set(tb->nolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-        elm_table_pack(tb->table, tb->nolabel, 0, 0, 4, 1);
-        evas_object_show(tb->nolabel);
-        elm_object_text_set(tb->infolabel, "<b>Total</b> 0 images        <b>Size:</b> 0 bytes");
+        if (!tb->nolabel)
+          {
+             tb->nolabel = elm_label_add(tb->table);
+             elm_label_line_wrap_set(tb->nolabel, ELM_WRAP_WORD);
+             elm_object_text_set(tb->nolabel, "There are no images in this directory");
+             evas_object_size_hint_weight_set(tb->nolabel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+             evas_object_size_hint_align_set(tb->nolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+             elm_table_pack(tb->table, tb->nolabel, 0, 0, 4, 1);
+             evas_object_show(tb->nolabel);
+             elm_object_text_set(tb->infolabel, "<b>Total</b> 0 images        <b>Size:</b> 0 bytes");
+          }
      }
    else
      {
@@ -725,7 +728,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_panes_horizontal_set(tb->panes, EINA_FALSE);
    evas_object_size_hint_weight_set(tb->panes, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->panes, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_panes_content_left_size_set(tb->panes, 0.2);
+   elm_panes_content_left_size_set(tb->panes, 0.3);
    elm_box_pack_end(tb->main, tb->panes);
    evas_object_show(tb->panes);
 
@@ -737,20 +740,18 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
 
    tb->bar = elm_toolbar_add(vbox);
    elm_toolbar_horizontal_set(tb->bar, EINA_TRUE);
-   elm_toolbar_shrink_mode_set(tb->bar, ELM_TOOLBAR_SHRINK_SCROLL);
+   elm_toolbar_shrink_mode_set(tb->bar, ELM_TOOLBAR_SHRINK_NONE);
    elm_toolbar_select_mode_set(tb->bar, ELM_OBJECT_SELECT_MODE_NONE);
    evas_object_size_hint_weight_set(tb->bar, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(tb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);   
 
-   elm_toolbar_item_append(tb->bar, "stock_media-play", "Slideshow", _slideshow, tb);
-   elm_toolbar_item_separator_set(elm_toolbar_item_append(tb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
    icon = elm_toolbar_item_append(tb->bar, "zoom-in", "Zoom In", _zoom_in, tb);
    max = elm_object_item_widget_get(icon);
    icon = elm_toolbar_item_append(tb->bar, "zoom-out", "Zoom Out", _zoom_out, tb);
    min = elm_object_item_widget_get(icon);
    evas_object_data_set(max, "min", min);
    evas_object_data_set(min, "max", max);
-   elm_toolbar_item_separator_set(elm_toolbar_item_append(tb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
+   elm_toolbar_item_append(tb->bar, "stock_media-play", "Slideshow", _slideshow, tb);
    elm_toolbar_item_append(tb->bar, "emblem-system", "Settings", _settings, tb);
    elm_toolbar_item_append(tb->bar, "stock_about", "About", _about, tb);
 
@@ -799,7 +800,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_align_set(tb->fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_box_pack_end(vbox, tb->fsel);
    evas_object_smart_callback_add
-     (tb->fsel, "selected", _ephoto_dir_selected, tb);
+     (tb->fsel, "clicked,double", _ephoto_dir_selected, tb);
    evas_object_show(tb->fsel);
 
    tb->table = elm_table_add(tb->panes);

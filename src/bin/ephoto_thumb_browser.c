@@ -367,6 +367,8 @@ _ephoto_dir_show_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_inf
 
    evas_object_show(tb->leftbox);
    elm_box_pack_start(tb->main, tb->leftbox);
+
+   tb->ephoto->config->fsel_hide = 0;
 }
 
 static void
@@ -418,6 +420,7 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_inf
    elm_box_pack_end(tb->bleftbox, but);
    evas_object_show(but);
 
+   tb->ephoto->config->fsel_hide = 1;
 }
 
 static void
@@ -940,6 +943,9 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    tb->handlers = eina_list_append
       (tb->handlers, ecore_event_handler_add
        (EPHOTO_EVENT_ENTRY_CREATE, _ephoto_thumb_entry_create, tb));
+
+   if (tb->ephoto->config->fsel_hide)
+     evas_object_smart_callback_call(but, "clicked", tb);
 
    return tb->main;
 

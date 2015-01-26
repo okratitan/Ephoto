@@ -102,6 +102,7 @@ struct _Ephoto_Config
    Evas_Object *window;
    Evas_Object *slide_time;
    Evas_Object *slide_trans;
+   int fsel_hide;
 };
 
 struct _Ephoto

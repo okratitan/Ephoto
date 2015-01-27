@@ -555,8 +555,7 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
              evas_object_show(sb->nolabel);
              ephoto_title_set(sb->ephoto, "Bad Image");
           }
-        elm_table_pack(sb->table, sb->bar, 0, 0, 4, 1);
-     }
+      }
 
    elm_object_focus_set(sb->main, EINA_TRUE);
 }
@@ -874,6 +873,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
 {
    Evas_Object *box = elm_box_add(parent);
    Elm_Object_Item *icon;
+   Evas_Object *menu;
    Ephoto_Single_Browser *sb;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(box, NULL);
@@ -884,6 +884,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    sb->ephoto = ephoto;
    sb->main = box;
 
+   elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(sb->main, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(sb->main, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_event_callback_add(sb->main, EVAS_CALLBACK_DEL, _main_del, sb);
@@ -891,79 +892,55 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
      (sb->main, EVAS_CALLBACK_KEY_DOWN, _key_down, sb);
    evas_object_data_set(sb->main, "single_browser", sb);
 
-   sb->table = elm_table_add(sb->main);
-   evas_object_size_hint_weight_set(sb->table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(sb->table, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(sb->main, sb->table);
-   evas_object_show(sb->table);
-
-   sb->bar = elm_toolbar_add(sb->table);
+   sb->bar = elm_toolbar_add(sb->ephoto->win);
    EINA_SAFETY_ON_NULL_GOTO(sb->bar, error);
    elm_toolbar_horizontal_set(sb->bar, EINA_TRUE);
-   elm_toolbar_homogeneous_set(sb->bar, EINA_FALSE);
+   elm_toolbar_homogeneous_set(sb->bar, EINA_TRUE);
    elm_toolbar_shrink_mode_set(sb->bar, ELM_TOOLBAR_SHRINK_SCROLL);
    elm_toolbar_select_mode_set(sb->bar, ELM_OBJECT_SELECT_MODE_NONE);
    evas_object_size_hint_weight_set(sb->bar, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(sb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
    icon = elm_toolbar_item_append(sb->bar, "go-home", "Back", _back, sb);
-   elm_toolbar_item_priority_set(icon, 150);
+   icon = elm_toolbar_item_append(sb->bar, "image-x-generic", "Edit", NULL, NULL);
+   elm_toolbar_item_menu_set(icon, EINA_TRUE);
+   elm_toolbar_menu_parent_set(sb->bar, sb->ephoto->win);
+   menu = elm_toolbar_item_menu_get(icon);
 
-   icon = elm_toolbar_item_append(sb->bar, "stock_media-play", "Slideshow", _slideshow, sb);
-   elm_toolbar_item_priority_set(icon, 150);
-   
-   elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
+   elm_menu_item_add(menu, NULL, "object-rotate-left", "Rotate Left", _go_rotate_counterclock, sb);
+   elm_menu_item_add(menu, NULL, "object-rotate-right", "Rotate Right", _go_rotate_clock, sb);
+   elm_menu_item_add(menu, NULL, "object-flip-horizontal", "Flip Horizontal", _go_flip_horiz, sb);
+   elm_menu_item_add(menu, NULL, "object-flip-vertical", "Flip Vertical", _go_flip_vert, sb);
 
-   icon = elm_toolbar_item_append(sb->bar, "zoom-in", "Zoom In", _zoom_in_cb, sb);
-   elm_toolbar_item_priority_set(icon, 100);
-
-   icon = elm_toolbar_item_append(sb->bar, "zoom-out", "Zoom Out", _zoom_out_cb, sb);
-   elm_toolbar_item_priority_set(icon, 100);
-
-   icon = elm_toolbar_item_append(sb->bar, "zoom-fit-best", "Zoom Fit", _zoom_fit_cb, sb);
-   elm_toolbar_item_priority_set(icon, 80);
-
-   icon = elm_toolbar_item_append(sb->bar, "zoom-original", "Zoom 1:1", _zoom_1_cb, sb);
-   elm_toolbar_item_priority_set(icon, 80);
-   
-   elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
+   /*FIXME: Use separators once they don't mess up homogeneous toolbar*/
+   //elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
 
    icon = elm_toolbar_item_append(sb->bar, "go-first", "First", _go_first, sb);
-   elm_toolbar_item_priority_set(icon, 60);
-
    icon = elm_toolbar_item_append(sb->bar, "go-previous", "Previous", _go_prev, sb);
-   elm_toolbar_item_priority_set(icon, 70);
-
    icon = elm_toolbar_item_append(sb->bar, "go-next", "Next", _go_next, sb);
-   elm_toolbar_item_priority_set(icon, 70);
-
    icon = elm_toolbar_item_append(sb->bar, "go-last", "Last", _go_last, sb);
-   elm_toolbar_item_priority_set(icon, 60);
 
-   elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
+   //elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
 
-   icon = elm_toolbar_item_append(sb->bar, "object-rotate-left", "Rotate Left", _go_rotate_counterclock, sb);
-   elm_toolbar_item_priority_set(icon, 50);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-in", "Zoom In", _zoom_in_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-out", "Zoom Out", _zoom_out_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-fit-best", "Zoom Fit", _zoom_fit_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-original", "Zoom 1:1", _zoom_1_cb, sb);
 
-   icon = elm_toolbar_item_append(sb->bar, "object-rotate-right", "Rotate Right", _go_rotate_clock, sb);
-   elm_toolbar_item_priority_set(icon, 40);
+   //elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
 
-   icon = elm_toolbar_item_append(sb->bar, "object-flip-horizontal", "Flip Horizontal", _go_flip_horiz, sb);
-   elm_toolbar_item_priority_set(icon, 30);
-
-   icon = elm_toolbar_item_append(sb->bar, "object-flip-vertical", "Flip Vertical", _go_flip_vert, sb);
-   elm_toolbar_item_priority_set(icon, 20);
-
-   elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
-
+   icon = elm_toolbar_item_append(sb->bar, "stock_media-play", "Slideshow", _slideshow, sb);
    icon = elm_toolbar_item_append(sb->bar, "emblem-system", "Settings", _settings, sb);
-   elm_toolbar_item_priority_set(icon, 10);
-
    icon = elm_toolbar_item_append(sb->bar, "help-about", "About", _about, sb);
-   elm_toolbar_item_priority_set(icon, 0);
 
-   elm_table_pack(sb->table, sb->bar, 0, 0, 4, 1);
+   elm_box_pack_end(sb->main, sb->bar);
    evas_object_show(sb->bar);
+
+   sb->table = elm_table_add(sb->main);
+   evas_object_size_hint_weight_set(sb->table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(sb->table, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(sb->main, sb->table);
+   evas_object_show(sb->table);
 
    sb->handlers = eina_list_append
       (sb->handlers, ecore_event_handler_add

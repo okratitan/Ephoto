@@ -1,9 +1,5 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 #include <Elementary.h>
-#ifndef ELM_LIB_QUICKLAUNCH
-
+#include "config.h"
 #include "ephoto.h"
 
 static void _ephoto_display_usage(void);
@@ -14,20 +10,18 @@ int __log_domain = -1;
 EAPI int
 elm_main(int argc, char **argv)
 {
-//   Ethumb_Client *client;
    int r = 0;
-
-#if ENABLE_NLS
-   setlocale(LC_ALL, "");
-   bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
-   bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-   textdomain(GETTEXT_PACKAGE);
-#endif
 
    eio_init();
    elm_need_efreet();
    elm_need_ethumb();
    elm_init(argc, argv);
+
+#if HAVE_GETTEXT && ENABLE_NLS
+   elm_app_compile_locale_set(LOCALEDIR);
+   bindtextdomain(PACKAGE, elm_app_locale_dir_get());
+   textdomain(PACKAGE);
+#endif   
 
    __log_domain = eina_log_domain_register("ephoto", EINA_COLOR_ORANGE);
    if (!__log_domain)
@@ -105,5 +99,4 @@ _ephoto_display_usage(void)
           "ephoto dirname  : Specifies a directory to open\n");
 }
 
-#endif
 ELM_MAIN()

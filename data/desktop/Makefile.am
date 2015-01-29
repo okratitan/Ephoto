@@ -1,4 +1,4 @@
-MAINTAINERCLEANFILES = Makefile.in
+MAINTAINERCLEANFILES = Makefile.in Makefile
 
 desktopdir = $(datadir)/applications
 desktop_DATA = ephoto.desktop

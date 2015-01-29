@@ -1,25 +1,16 @@
-    ________   ________  ___  ___  ________  ________  ________
-   /  _____/  /  __   / /  / /  / /  __   / /__  ___/ /  __   /
-  /  /____   /  /_/  / /  /_/  / /  / /  /    / /    /  / /  /
- /  _____/  /  _____/ /  __   / /  / /  /    / /    /  / /  /
-/  /_____  /  /      /  / /  / /  /_/  /    / /    /  /_/  /
-________/ /__/      /__/ /__/ /_______/    /_/    /_______/
-
-
 TODO-
-===Config===================
+-Config:
 Add more options to the config.
-===Thumb Browser============
-Add a way to view more info
-============================
-===Single Image Mode========
+-Single Browser:
+Add cropping capability.
 Add neat effects like grayscale, sepia, HSV/RGB, etc...
-Save changes made to images.
-============================
-===Slideshow================
--Possibly look at implementing moving slideshows.
-============================
-===Other Random Features====
--Exporting to flickr, facebook, etc..
--Read straight from a camera
+Add ability to save images.
+-Thumb Browser:
+Add ability to view more info on image(Exif perhaps?)
+Turn file selector into a tree.
+-Slideshow:
+Possibly look at implementing moving slideshows.
+-Other:
+Exporting to flickr, facebook, etc..
+Read straight from a camera
 ============================

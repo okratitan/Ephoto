@@ -461,6 +461,39 @@ _last_entry_find(Ephoto_Single_Browser *sb)
    return eina_list_last_data_get(sb->ephoto->entries);
 }
 
+static const char *
+_ephoto_get_file_size(const char *path)
+{
+   char isize[PATH_MAX];
+   Eina_File *f = eina_file_open(path, EINA_FALSE);
+   size_t size = eina_file_size_get(f);
+   eina_file_close(f);
+   double dsize = (double)size;
+   if (dsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f bytes", dsize);
+   else
+     {
+        dsize /= 1024.0;
+        if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.0f KB", dsize);
+        else
+          {
+             dsize /= 1024.0;
+             if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f MB", dsize);
+             else
+               {
+                  dsize /= 1024.0;
+                  if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f GB", dsize);
+                  else
+                    {
+                       dsize /= 1024.0;
+                       snprintf(isize, sizeof(isize), "%'.1f TB", dsize);
+                    }
+               }
+          }
+     }
+   return strdup(isize);
+}
+
+
 static void
 _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
 {
@@ -486,40 +519,15 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
         if (sb->viewer)
           {
              char image_info[PATH_MAX];
-             char isize[PATH_MAX];
              Evas_Coord w, h;
              Evas_Object *botbox;
              Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
-             Eina_File *f = eina_file_open(sb->entry->path, EINA_FALSE);
-             size_t size = eina_file_size_get(f);
-             eina_file_close(f);
 
-             double dsize = (double)size;
-             if (dsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f bytes", dsize);
-             else
-               {
-                  dsize /= 1024.0;
-                  if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.0f KB", dsize);
-                  else
-                    {
-                       dsize /= 1024.0;
-                       if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f MB", dsize);
-                       else
-                         {
-                            dsize /= 1024.0;
-                            if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f GB", dsize);
-                            else
-                              {
-                                 dsize /= 1024.0;
-                                 snprintf(isize, sizeof(isize), "%'.1f TB", dsize);
-                              }
-                         }
-                    }
-               }
              evas_object_image_size_get(elm_image_object_get(v->image), &w, &h);
              snprintf(image_info, PATH_MAX, 
                       "<b>Type:</b> %s        <b>Resolution:</b> %dx%d        <b>File Size: </b>%s", 
-                      efreet_mime_type_get(sb->entry->path), w, h, isize);
+                      efreet_mime_type_get(sb->entry->path), w, h, 
+                      _ephoto_get_file_size(sb->entry->path));
 
              elm_table_pack(sb->table, sb->viewer, 0, 1, 4, 1);
              evas_object_show(sb->viewer);
@@ -685,7 +693,7 @@ static void _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_in
    Ephoto_Single_Browser *sb = evas_object_data_get(win, "single_browser");
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
    const char *path, *key, *type;;
-   char tmp_path[PATH_MAX];
+   char tmp_path[PATH_MAX], info[PATH_MAX];
    int x, y, w, h, cx, cy, cw, ch, iw, ih, sw, sh; 
    int nx, ny, nw, nh, i, j, tmpx, tmpy, ind, index;
    double scalex, scaley, scalew, scaleh;
@@ -737,10 +745,17 @@ static void _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_in
 
    elm_image_file_set(v->image, tmp_path, NULL);
    evas_object_geometry_get(sb->table, 0, 0, &sw, &sh);
+
+   snprintf(info, PATH_MAX, 
+            "<b>Type:</b> %s        <b>Resolutions</b>: %dx%d        <b>Size</b>: %s",
+            efreet_mime_type_get(tmp_path), nw, nh, _ephoto_get_file_size(tmp_path));
+   elm_object_text_set(sb->infolabel, info);
+
    if (nw < sw && nh < sh)
            _zoom_set(sb, 1.0);
    else
            _zoom_fit(sb);
+
    evas_object_del(win);
 }
 

@@ -144,7 +144,7 @@ _viewer_add(Evas_Object *parent, const char *path)
    elm_image_file_set(v->image, path, group);
    err = evas_object_image_load_error_get(elm_image_object_get(v->image));
    if (err != EVAS_LOAD_ERROR_NONE) goto load_error;
-   elm_image_object_size_get(v->image, &w, &h);
+   evas_object_image_size_get(elm_image_object_get(v->image), &w, &h);
    elm_drop_target_add(v->image, ELM_SEL_FORMAT_IMAGE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
    evas_object_size_hint_min_set(v->image, w, h);
    evas_object_size_hint_max_set(v->image, w, h);
@@ -674,6 +674,212 @@ _last_entry(Ephoto_Single_Browser *sb)
    ephoto_single_browser_entry_set(sb->main, entry);
 }
 
+static void _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *win = data;
+   Evas_Object *layout = evas_object_data_get(win, "layout");
+   Evas_Object *image = evas_object_data_get(layout, "image");
+   Evas_Object *edje = elm_layout_edje_get(layout);
+   Evas_Object *image_object = elm_image_object_get(image);
+   Evas_Object *crop;
+   Ephoto_Single_Browser *sb = evas_object_data_get(win, "single_browser");
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+   const char *path, *key, *type;;
+   char tmp_path[PATH_MAX];
+   int x, y, w, h, cx, cy, cw, ch, iw, ih, sw, sh; 
+   int nx, ny, nw, nh, i, j, tmpx, tmpy, ind, index;
+   double scalex, scaley, scalew, scaleh;
+   unsigned int *idata, *idata_new;
+
+   elm_image_file_get(image, &path, &key);
+   crop = evas_object_image_add(evas_object_evas_get(win));
+   evas_object_image_file_set(crop, path, key);
+
+   evas_object_geometry_get(layout, &x, &y, &w, &h);
+   edje_object_part_geometry_get(edje, "cropper", &cx, &cy, &cw, &ch);
+   evas_object_image_size_get(crop, &iw, &ih);
+
+   idata = evas_object_image_data_get(crop, EINA_FALSE);
+
+   scalex = (double)cx/(double)w;
+   scaley = (double)cy/(double)h;
+   scalew = (double)cw/(double)w;
+   scaleh = (double)ch/(double)h;
+
+   nx = iw*scalex;
+   ny = ih*scaley;
+   nw = iw*scalew;
+   nh = ih*scaleh;
+
+   index = 0;
+   idata_new = malloc(sizeof(unsigned int)*nw*nh);
+
+   for (i = 0; i < nh; i++)
+     {
+        tmpy = (i+ny)*iw;
+        for (j = 0; j < nw; j++)
+          {
+             tmpx = j+nx;
+             ind = tmpy+tmpx;
+             idata_new[index] = idata[ind];
+             index++;
+          }
+     }
+   evas_object_image_size_set(crop, nw, nh);
+   evas_object_image_data_set(crop, idata_new);
+   evas_object_image_data_update_add(crop, 0, 0, nw, nh);
+   
+   type = strrchr(sb->entry->basename, '.');
+   snprintf(tmp_path, PATH_MAX, "%s/.config/ephoto/tmp%s", getenv("HOME"), type);
+   if (ecore_file_exists(tmp_path))
+     ecore_file_unlink(tmp_path);
+   evas_object_image_save(crop, tmp_path, NULL, NULL);
+
+   elm_image_file_set(v->image, tmp_path, NULL);
+   evas_object_geometry_get(sb->table, 0, 0, &sw, &sh);
+   if (nw < sw && nh < sh)
+           _zoom_set(sb, 1.0);
+   else
+           _zoom_fit(sb);
+   evas_object_del(win);
+}
+
+static void _cancel_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *win = data;
+
+   evas_object_del(win);
+}
+
+static void _image_resize(void *data EINA_UNUSED, Evas *e EINA_UNUSED, Evas_Object *obj, void *event_info EINA_UNUSED)
+{
+   Evas_Object *image = data;
+   int sx, sy, sw, sh, iw, ih, diffw, diffh;
+
+   evas_object_geometry_get(obj, &sx, &sy, &sw, &sh);
+   evas_object_image_size_get(elm_image_object_get(image), &iw, &ih);
+   if (iw < sw && ih < sh)
+     {
+        diffw = sw - iw;
+        diffh = sh - ih;
+        diffw /= 2;
+        diffh /= 2;
+        evas_object_resize(obj, iw, ih);
+        evas_object_move(obj, sx+diffw, sy+diffh);
+     }
+   else
+     {
+        int nw, nh;
+        if (sw > sh)
+          {
+             nw = sw;
+             nh = ih*((double)sw/(double)iw);
+             if (nh > sh)
+               {
+                  int onw, onh;
+                  onw = nw;
+                  onh = nh;
+                  nh = sh;
+                  nw = onw*((double)nh/(double)onh);
+               }
+          }
+        else
+          {
+             nh = sh;
+             nw = iw*((double)sh/(double)ih);
+             if (nw > sw)
+               {
+                  int onw, onh;
+                  onw = nw;
+                  onh = nh;
+                  nw = sw;
+                  nh = onh*((double)nw/(double)onw);
+               }
+          }
+        diffw = sw - nw;
+        diffh = sh - nh;
+        diffw /= 2;
+        diffh /= 2;
+        evas_object_resize(obj, nw, nh);
+        evas_object_move(obj, sx+diffw, sy+diffh);
+     }
+}
+
+static void
+_crop_image(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   const char *path, *key;
+   Ephoto_Single_Browser *sb = data;
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+   Evas_Object *win, *box, *frame, *layout, *image, *hbox, *ic, *button;
+
+   win = elm_win_inwin_add(sb->ephoto->win);
+   evas_object_data_set(win, "single_browser", sb);
+   evas_object_show(win);
+
+   box = elm_box_add(win);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_win_inwin_content_set(win, box);
+   evas_object_show(box);
+
+   frame = elm_frame_add(box);
+   elm_frame_autocollapse_set(frame, EINA_FALSE);
+   elm_object_text_set(frame, "Crop Image");
+   evas_object_size_hint_weight_set(frame, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, frame);
+   evas_object_show(frame);
+
+   layout = elm_layout_add(frame);
+   elm_layout_file_set(layout, PACKAGE_DATA_DIR "/themes/crop.edj", "image_cropper");
+   evas_object_data_set(win, "layout", layout);
+   evas_object_size_hint_weight_set(layout, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(layout, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_object_content_set(frame, layout);
+   evas_object_show(layout);
+
+   elm_image_file_get(v->image, &path, &key);
+   image = elm_image_add(frame);
+   elm_image_file_set(image, path, key);
+   evas_object_data_set(layout, "image", image);
+   evas_object_size_hint_weight_set(image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(image, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_layout_content_set(layout, "ephoto.swallow.image", image);
+   evas_object_show(image);
+   
+   hbox = elm_box_add(box);
+   elm_box_homogeneous_set(hbox, EINA_TRUE);
+   elm_box_horizontal_set(hbox, EINA_TRUE);
+   evas_object_size_hint_weight_set(hbox, EVAS_HINT_EXPAND, 0.0);
+   evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, hbox);
+   evas_object_show(hbox);
+
+   ic = elm_icon_add(box);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "document-save");   
+   button = elm_button_add(hbox);
+   elm_object_text_set(button, "Apply");
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _apply_crop, win);
+   elm_box_pack_end(hbox, button);
+   evas_object_show(button);
+
+   ic = elm_icon_add(hbox);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "window-close"); 
+   button = elm_button_add(box);
+   elm_object_text_set(button, "Cancel");
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _cancel_crop, win);
+   elm_box_pack_end(hbox, button);
+   evas_object_show(button);
+
+   evas_object_event_callback_add(layout, EVAS_CALLBACK_RESIZE, _image_resize, image);
+}
+
 static void
 _go_first(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 {
@@ -830,8 +1036,11 @@ _entry_free(void *data, const Ephoto_Entry *entry EINA_UNUSED)
 static void
 _main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 {
+   char tmp_path[PATH_MAX];
    Ephoto_Single_Browser *sb = data;
    Ecore_Event_Handler *handler;
+   Eina_Iterator *tmps;
+   Eina_File_Direct_Info *info;
 
    EINA_LIST_FREE(sb->handlers, handler)
       ecore_event_handler_del(handler);
@@ -839,6 +1048,14 @@ _main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *eve
      ephoto_entry_free_listener_del(sb->entry, _entry_free, sb);
    if (sb->pending_path)
      eina_stringshare_del(sb->pending_path);
+   snprintf(tmp_path, PATH_MAX, "%s/.config/ephoto/", getenv("HOME"));
+   tmps = eina_file_stat_ls(tmp_path);
+   EINA_ITERATOR_FOREACH(tmps, info)
+     {
+        const char *bname = info->path + info->name_start;  
+        if (!strncmp(bname, "tmp", 3))
+          ecore_file_unlink(info->path);
+     }
    free(sb);
 }
 
@@ -907,6 +1124,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_toolbar_menu_parent_set(sb->bar, sb->ephoto->win);
    menu = elm_toolbar_item_menu_get(icon);
 
+   elm_menu_item_add(menu, NULL, NULL, "Crop", _crop_image, sb);
    elm_menu_item_add(menu, NULL, "object-rotate-left", "Rotate Left", _go_rotate_counterclock, sb);
    elm_menu_item_add(menu, NULL, "object-rotate-right", "Rotate Right", _go_rotate_clock, sb);
    elm_menu_item_add(menu, NULL, "object-flip-horizontal", "Flip Horizontal", _go_flip_horiz, sb);
@@ -973,10 +1191,22 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
    sb->entry = entry;
 
    if (entry)
-     ephoto_entry_free_listener_add(entry, _entry_free, sb);
+     ephoto_entry_free_listener_add(entry, _entry_free, sb); 
+
    _ephoto_single_browser_recalc(sb);
+
    if (sb->viewer)
-     _zoom_fit(sb);
+     {
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+        Evas_Coord sw, sh, iw, ih; 
+        
+        evas_object_geometry_get(sb->table, 0, 0, &sw, &sh);
+        evas_object_image_size_get(elm_image_object_get(v->image), &iw, &ih);
+        if (iw < sw && ih < sh)
+           _zoom_set(sb, 1.0);
+        else
+           _zoom_fit(sb);
+     }
 }
 
 void

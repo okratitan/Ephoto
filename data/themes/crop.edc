@@ -1,143 +1,238 @@
 collections {
-group { name: "image_cropper";
-   parts {
-      part { name: "background";
-         type: RECT;
-         description { state: "default" 0.0;
-            color: 255 255 255 0;
+   group { name: "ephoto,image,cropper,base";
+      script {
+         public message(Msg_Type:type, id, ...) {
+            if ((type == MSG_INT_SET) && (id == 1)) {
+               new cox, coy, cw, ch, pox, poy;
+
+               cox = getarg(2);
+               coy = getarg(3);
+               cw = getarg(4);
+               ch = getarg(5);
+
+               get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+
+               cox += pox;
+               coy += poy;
+ 
+               custom_state(PART:"ephoto.swallow.cropper", "default", 0.0);
+               set_state_val(PART:"ephoto.swallow.cropper", STATE_MIN, cw, ch);
+               set_state_val(PART:"ephoto.swallow.cropper", STATE_MAX, cw, ch);
+               set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, cox, coy);
+               set_state(PART:"ephoto.swallow.cropper", "custom", 0.0);
+            }
          }
       }
-      part { name: "clipper";
-         type: RECT;
-         description { state: "default" 0.0;
-            color: 0 0 0 0;
+      parts {
+         part { name: "clipper";
+            type: RECT;
+            description { state: "default" 0.0;
+            }
          }
-         description { state: "show" 0.0;
-            color: 255 255 255 255;
+         part { name: "ephoto.swallow.image";
+            type: SWALLOW;
+            scale: 1;
+            mouse_events: 0;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+            }
          }
-      }
-      part { name: "ephoto.swallow.image";
-         type: SWALLOW;
-         scale: 1;
-         mouse_events: 0;
-         clip_to: "clipper";
-         description { state: "default" 0.0;
+         part { name: "ephoto.swallow.cropper";
+            type: SWALLOW;
+            scale: 1;
+            mouse_events: 1;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+            }
+         } 
+         part { name: "shader_top";
+            type: RECT;
+            scale: 1;
+            mouse_events: 0;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+               color: 0 0 0 200;
+               rel1.to: "clipper";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "ephoto.swallow.cropper";
+               rel2.relative: 1.0 0.0;
+            }
          }
-      }
-      part { name: "shader_top";
-         type: RECT;
-         scale: 1;
-         mouse_events: 0;
-         clip_to: "clipper";
-         description { state: "default" 0.0;
-            color: 0 0 0 200;
-            rel1.to: "clipper";
-            rel1.relative: 0.0 0.0;
-            rel2.to: "cropper";
-            rel2.relative: 1.0 0.0;
+         part { name: "shader_left";
+            type: RECT;
+            scale: 1;
+            mouse_events: 0;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+               color: 0 0 0 200;
+               rel1.to: "shader_top";
+               rel1.relative: 0.0 1.0;
+               rel2.to: "ephoto.swallow.cropper";
+               rel2.relative: 0.0 1.0;
+            }
          }
-      }
-      part { name: "shader_left";
-         type: RECT;
-         scale: 1;
-         mouse_events: 0;
-         clip_to: "clipper";
-         description { state: "default" 0.0;
-            color: 0 0 0 200;
-            rel1.to: "shader_top";
-            rel1.relative: 0.0 1.0;
-            rel2.to: "cropper";
-            rel2.relative: 0.0 1.0;
+         part { name: "shader_bottom";
+            type: RECT;
+            scale: 1;
+            mouse_events: 0;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+               color: 0 0 0 200;
+               rel1.to: "shader_left";
+               rel1.relative: 0.0 1.0;
+               rel2.to: "clipper";
+               rel2.relative: 1.0 1.0;
+            }
          }
-      }
-      part { name: "shader_bottom";
-         type: RECT;
-         scale: 1;
-         mouse_events: 0;
-         clip_to: "clipper";
-         description { state: "default" 0.0;
-            color: 0 0 0 200;
-            rel1.to: "shader_left";
-            rel1.relative: 0.0 1.0;
-            rel2.to: "clipper";
-            rel2.relative: 1.0 1.0;
-         }
-      }
-      part { name: "shader_right";
-         type: RECT;
-         scale: 1;
-         mouse_events: 0;
-         clip_to: "clipper";
-         description { state: "default" 0.0;
-            color: 0 0 0 200;
-            rel1.to: "shader_top";
-            rel1.relative: 1.0 0.0;
-            rel2.to: "shader_bottom";
-            rel2.relative: 1.0 0.0;
-         }
-      }
-      part { name: "cropper";
-         type: RECT;
-         scale: 1;
-         mouse_events: 0;
-         clip_to: "clipper";
-         description { state: "default" 0.0;
-            color: 255 255 255 0;
-            rel1.to: "rel1_dragable";
-            rel2.to: "rel2_dragable";
-         }
-      }
-      part { name: "rel1_dragable";
-         type: RECT;
-         scale: 1;
-         mouse_events: 1;
-         clip_to: "clipper";
-         description { state: "default" 0.0;
-            color: 0 0 0 255;
-            min: 16 16;
-            max: 16 16;
-         }
-         dragable {
-            confine: "ephoto.swallow.image";
-            x: 1 1 0;
-            y: 1 1 0;
-         }
-      }
-      part { name: "rel2_dragable";
-         type: RECT;
-         scale: 1;
-         mouse_events: 1;
-         clip_to: "clipper";
-         description { state: "default" 0.0;
-            color: 0 0 0 255;
-            min: 16 16;
-            max: 16 16;
-         }
-         dragable {
-            confine: "ephoto.swallow.image";
-            x: 1 1 0;
-            y: 1 1 0;
+         part { name: "shader_right";
+            type: RECT;
+            scale: 1;
+            mouse_events: 0;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+               color: 0 0 0 200;
+               rel1.to: "shader_top";
+               rel1.relative: 1.0 0.0;
+               rel2.to: "shader_bottom";
+               rel2.relative: 1.0 0.0;
+            }
          }
       }
    }
-   programs {
-      program { name: "on_load_init";
-         signal: "load";
-         source: "";
-         after: "on_load_show";
-         script {
-            set_drag(PART:"rel1_dragable", 0.2, 0.2);
-            set_drag(PART:"rel2_dragable", 0.8, 0.8);
+   group { name: "ephoto,image,cropper";
+      parts { 
+         part { name: "cropper";
+            type: RECT;
+            scale: 1;
+            mouse_events: 1;
+            description { state: "default" 0.0;
+               color: 255 255 255 0;
+            }
          }
-      }
-      program { name: "on_load_show";
-         action: STATE_SET "show" 0.0;
-         target: "clipper";
-         transition: DECELERATE 0.25;
-         after: "emit_drag_signal";
-      }
-      program { name: "emit_drag_signal";
-         action: SIGNAL_EMIT "drag" "rel2_dragable";
+         part { name: "dragger";
+            type: RECT;
+            scale: 1;
+            mouse_events: 1;
+            description { state: "default" 0.0;
+               color: 255 255 255 0;
+               rel1.to: "cropper";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "cropper";
+               rel2.relative: 1.0 1.0;
+            }
+         }
+         part { name: "handle2";
+            type: RECT;
+            scale: 1;
+            mouse_events: 1;
+            description { state: "default" 0.0;
+               color: 0 0 0 255;
+               min: 10 10;
+               max: 99999 10;
+               rel1.to: "cropper";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "cropper";
+               rel2.relative: 1.0 0.0;
+            }
+         }
+         part { name: "handle4";
+            type: RECT;
+            scale: 1;
+            mouse_events: 1;
+            description { state: "default" 0.0;
+               color: 0 0 0 255;
+               min: 10 10;
+               max: 10 99999;
+               rel1.to: "cropper";
+               rel1.relative: 1.0 0.0;
+               rel2.to: "cropper";
+               rel2.relative: 1.0 1.0;
+            }
+         }
+         part { name: "handle6";
+            type: RECT;
+            scale: 1;
+            mouse_events: 1;
+            description { state: "default" 0.0;
+               color: 0 0 0 255;
+               min: 10 10;
+               max: 99999 10;
+               rel1.to: "cropper";
+               rel1.relative: 0.0 1.0;
+               rel2.to: "cropper";
+               rel2.relative: 1.0 1.0;
+            }
+         }
+         part { name: "handle8";
+            type: RECT;
+            scale: 1;
+            mouse_events: 1;
+            description { state: "default" 0.0;
+               color: 0 0 0 255;
+               min: 10 10;
+               max: 10 99999;
+               rel1.to: "cropper";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "cropper";
+               rel2.relative: 0.0 1.0;
+            }
+         }
+         part { name: "handle1";
+            type: RECT;
+            scale: 1;
+            mouse_events: 1;
+            description { state: "default" 0.0;
+               color: 0 0 0 255;
+               min: 10 10;
+               max: 99999 10;
+               rel1.to: "cropper";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "cropper";
+               rel2.relative: 0.0 0.0;
+            }
+         }
+         part { name: "handle3";
+            type: RECT;
+            scale: 1;
+            mouse_events: 1;
+            description { state: "default" 0.0;
+               color: 0 0 0 255;
+               min: 10 10;
+               max: 99999 10;
+               rel1.to: "cropper";
+               rel1.relative: 1.0 0.0;
+               rel2.to: "cropper";
+               rel2.relative: 1.0 0.0;
+            }
+         }
+         part { name: "handle5";
+            type: RECT;
+            scale: 1;
+            mouse_events: 1;
+            description { state: "default" 0.0;
+               color: 0 0 0 255;
+               min: 10 10;
+               max: 99999 10;
+               rel1.to: "cropper";
+               rel1.relative: 1.0 1.0;
+               rel2.to: "cropper";
+               rel2.relative: 1.0 1.0;
+            }
+         }
+         part { name: "handle7";
+            type: RECT;
+            scale: 1;
+            mouse_events: 1;
+            description { state: "default" 0.0;
+               color: 0 0 0 255;
+               min: 10 10;
+               max: 99999 10;
+               rel1.to: "cropper";
+               rel1.relative: 0.0 1.0;
+               rel2.to: "cropper";
+               rel2.relative: 0.0 1.0;
+            }
+         }
       }
    }
 }

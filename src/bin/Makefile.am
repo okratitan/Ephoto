@@ -19,7 +19,8 @@ ephoto_SOURCES = \
 	ephoto_config.c \
         ephoto_thumb_browser.c \
         ephoto_single_browser.c \
-        ephoto_slideshow.c
+        ephoto_slideshow.c \
+        ephoto_cropper.c
 
 noinst_HEADERS = ephoto.h
 EXTRA_DIST = ephoto.h

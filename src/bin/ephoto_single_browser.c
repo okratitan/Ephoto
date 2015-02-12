@@ -685,8 +685,9 @@ _last_entry(Ephoto_Single_Browser *sb)
 static void _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Evas_Object *win = data;
-   Evas_Object *layout = evas_object_data_get(win, "layout");
-   Evas_Object *image = evas_object_data_get(layout, "image");
+   Evas_Object *cropper = evas_object_data_get(win, "cropper");
+   Evas_Object *layout = evas_object_data_get(cropper, "layout");
+   Evas_Object *image = evas_object_data_get(cropper, "image");
    Evas_Object *edje = elm_layout_edje_get(layout);
    Evas_Object *image_object = elm_image_object_get(image);
    Evas_Object *crop;
@@ -704,7 +705,7 @@ static void _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_in
    evas_object_image_file_set(crop, path, key);
 
    evas_object_geometry_get(layout, &x, &y, &w, &h);
-   edje_object_part_geometry_get(edje, "cropper", &cx, &cy, &cw, &ch);
+   edje_object_part_geometry_get(edje, "ephoto.swallow.cropper", &cx, &cy, &cw, &ch);
    evas_object_image_size_get(crop, &iw, &ih);
 
    idata = evas_object_image_data_get(crop, EINA_FALSE);
@@ -766,67 +767,13 @@ static void _cancel_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_i
    evas_object_del(win);
 }
 
-static void _image_resize(void *data EINA_UNUSED, Evas *e EINA_UNUSED, Evas_Object *obj, void *event_info EINA_UNUSED)
-{
-   Evas_Object *image = data;
-   int sx, sy, sw, sh, iw, ih, diffw, diffh;
-
-   evas_object_geometry_get(obj, &sx, &sy, &sw, &sh);
-   evas_object_image_size_get(elm_image_object_get(image), &iw, &ih);
-   if (iw < sw && ih < sh)
-     {
-        diffw = sw - iw;
-        diffh = sh - ih;
-        diffw /= 2;
-        diffh /= 2;
-        evas_object_resize(obj, iw, ih);
-        evas_object_move(obj, sx+diffw, sy+diffh);
-     }
-   else
-     {
-        int nw, nh;
-        if (sw > sh)
-          {
-             nw = sw;
-             nh = ih*((double)sw/(double)iw);
-             if (nh > sh)
-               {
-                  int onw, onh;
-                  onw = nw;
-                  onh = nh;
-                  nh = sh;
-                  nw = onw*((double)nh/(double)onh);
-               }
-          }
-        else
-          {
-             nh = sh;
-             nw = iw*((double)sh/(double)ih);
-             if (nw > sw)
-               {
-                  int onw, onh;
-                  onw = nw;
-                  onh = nh;
-                  nw = sw;
-                  nh = onh*((double)nw/(double)onw);
-               }
-          }
-        diffw = sw - nw;
-        diffh = sh - nh;
-        diffw /= 2;
-        diffh /= 2;
-        evas_object_resize(obj, nw, nh);
-        evas_object_move(obj, sx+diffw, sy+diffh);
-     }
-}
-
 static void
 _crop_image(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    const char *path, *key;
    Ephoto_Single_Browser *sb = data;
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
-   Evas_Object *win, *box, *frame, *layout, *image, *hbox, *ic, *button;
+   Evas_Object *win, *box, *frame, *cropper, *hbox, *ic, *button;
 
    win = elm_win_inwin_add(sb->ephoto->win);
    evas_object_data_set(win, "single_browser", sb);
@@ -847,23 +794,11 @@ _crop_image(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED
    elm_box_pack_end(box, frame);
    evas_object_show(frame);
 
-   layout = elm_layout_add(frame);
-   elm_layout_file_set(layout, PACKAGE_DATA_DIR "/themes/crop.edj", "image_cropper");
-   evas_object_data_set(win, "layout", layout);
-   evas_object_size_hint_weight_set(layout, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(layout, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_object_content_set(frame, layout);
-   evas_object_show(layout);
-
    elm_image_file_get(v->image, &path, &key);
-   image = elm_image_add(frame);
-   elm_image_file_set(image, path, key);
-   evas_object_data_set(layout, "image", image);
-   evas_object_size_hint_weight_set(image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(image, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_layout_content_set(layout, "ephoto.swallow.image", image);
-   evas_object_show(image);
-   
+   cropper = ephoto_cropper_add(frame, path, key);
+   elm_object_content_set(frame, cropper);
+   evas_object_data_set(win, "cropper", cropper);   
+
    hbox = elm_box_add(box);
    elm_box_homogeneous_set(hbox, EINA_TRUE);
    elm_box_horizontal_set(hbox, EINA_TRUE);
@@ -891,8 +826,6 @@ _crop_image(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED
    evas_object_smart_callback_add(button, "clicked", _cancel_crop, win);
    elm_box_pack_end(hbox, button);
    evas_object_show(button);
-
-   evas_object_event_callback_add(layout, EVAS_CALLBACK_RESIZE, _image_resize, image);
 }
 
 static void

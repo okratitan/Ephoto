@@ -46,6 +46,7 @@ void         ephoto_about_window(Ephoto *em);
 Evas_Object *ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent);
 void         ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
 void         ephoto_single_browser_path_pending_set(Evas_Object *obj, const char *path);
+Evas_Object *ephoto_cropper_add(Evas_Object *parent, const char *file, const char *key);
  /* smart callbacks called:
   * "back" - the user wants to go back to the previous screen.
   */

@@ -9,6 +9,8 @@ struct _Ephoto_Cropper
    Evas_Object *layout;
    int startx;
    int starty;
+   int startcx;
+   int startcy;
    int offsetx;
    int offsety;
 };
@@ -30,41 +32,29 @@ _cropper_both_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *e
 
    if (!strcmp(source, "handle1"))
      {
-        mx -= ec->offsetx;
-        mx -= cx;
-        my -= ec->offsety;
-        my -= cy;
         cw -= nx;
         ch -= ny;
      }
-   if (!strcmp(source, "handle3"))
+   else if (!strcmp(source, "handle3"))
      {
-        mx = nx;
-        my -= ec->offsety;
-        my -= cy;
         cw += nx;
         ch -= ny;
      }
    else if (!strcmp(source, "handle5"))
      {
-        mx = nx;
-        my = ny;
         cw += nx;
         ch += ny;
      }
    else if (!strcmp(source, "handle7"))
      {
-        mx -= ec->offsetx;
-        mx -= cx;
-        my = ny;
         cw -= nx;
         ch += ny;
      }
    
    msg = alloca(sizeof(Edje_Message_Int_Set) + (4*sizeof(int)));
    msg->count = 4;
-   msg->val[0] = mx;
-   msg->val[1] = my;
+   msg->val[0] = nx;
+   msg->val[1] = ny;
    msg->val[2] = cw;
    msg->val[3] = ch;
    edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
@@ -91,6 +81,8 @@ _cropper_resize_both(void *data, Evas_Object *obj EINA_UNUSED, const char *emiss
    ec->offsety = my - cy;
    ec->startx = mx;
    ec->starty = my;
+   ec->startcx = cx;
+   ec->startcy = cy;
 
    edje_object_signal_callback_add(ec->cropper, "mouse,move", source, _cropper_both_mouse_move, ec);
    edje_object_signal_callback_add(ec->cropper, "mouse,up,1", source, _cropper_both_mouse_up, ec);
@@ -111,20 +103,13 @@ _cropper_horiz_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *
    ec->startx = mx;
 
    if (!strcmp(source, "handle8"))
-     {
-        mx -= ec->offsetx;
-        mx -= cx;
-        cw -= nx;
-     }
+     cw -= nx;
    else if (!strcmp(source, "handle4"))
-     {
-        mx = nx;
-        cw += nx;
-     }
+     cw += nx;
 
    msg = alloca(sizeof(Edje_Message_Int_Set) + (4*sizeof(int)));
    msg->count = 4;
-   msg->val[0] = mx;
+   msg->val[0] = nx;
    msg->val[1] = 0;
    msg->val[2] = cw;
    msg->val[3] = ch;
@@ -153,7 +138,8 @@ _cropper_resize_horiz(void *data, Evas_Object *obj EINA_UNUSED, const char *emis
    ec->offsety = my - cy;
    ec->startx = mx;
    ec->starty = my;
-
+   ec->startcx = cx;
+   ec->startcy = cy;
 
    edje_object_signal_callback_add(ec->cropper, "mouse,move", source, _cropper_horiz_mouse_move, ec);
    edje_object_signal_callback_add(ec->cropper, "mouse,up,1", source, _cropper_horiz_mouse_up, ec);
@@ -174,21 +160,14 @@ _cropper_vert_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *e
    ec->starty = my;
 
    if (!strcmp(source, "handle2"))
-     {
-        my -= ec->offsety;
-        my -= cy;
-        ch -= ny;
-     }
+     ch -= ny;
    else if (!strcmp(source, "handle6"))
-     {
-        my = ny;
-        ch += ny;
-     }
-
+     ch += ny;
+   
    msg = alloca(sizeof(Edje_Message_Int_Set) + (4*sizeof(int)));
    msg->count = 4;
    msg->val[0] = 0;
-   msg->val[1] = my;
+   msg->val[1] = ny;
    msg->val[2] = cw;
    msg->val[3] = ch;
    edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
@@ -215,6 +194,8 @@ _cropper_resize_vert(void *data, Evas_Object *obj EINA_UNUSED, const char *emiss
    ec->offsety = my - cy;
    ec->startx = mx;
    ec->starty = my;
+   ec->startcx = cx;
+   ec->startcy = cy;
 
    edje_object_signal_callback_add(ec->cropper, "mouse,move", source, _cropper_vert_mouse_move, ec);
    edje_object_signal_callback_add(ec->cropper, "mouse,up,1", source, _cropper_vert_mouse_up, ec);
@@ -264,6 +245,8 @@ _cropper_move(void *data, Evas_Object *obj EINA_UNUSED, const char *emission EIN
    ec->starty = my;
    ec->offsetx = mx - cx;
    ec->offsety = my - cy;
+   ec->startcx = cx;
+   ec->startcy = cy;
 
    edje_object_signal_callback_add(ec->cropper, "mouse,move", "dragger", _cropper_mouse_move, ec);
    edje_object_signal_callback_add(ec->cropper, "mouse,up,1", "dragger", _cropper_mouse_up, ec);

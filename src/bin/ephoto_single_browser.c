@@ -752,10 +752,7 @@ static void _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_in
             efreet_mime_type_get(tmp_path), nw, nh, _ephoto_get_file_size(tmp_path));
    elm_object_text_set(sb->infolabel, info);
 
-   if (nw < sw && nh < sh)
-           _zoom_set(sb, 1.0);
-   else
-           _zoom_fit(sb);
+   _zoom_fit(sb);
 
    evas_object_del(win);
 }
@@ -1144,17 +1141,7 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
    _ephoto_single_browser_recalc(sb);
 
    if (sb->viewer)
-     {
-        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
-        Evas_Coord sw, sh, iw, ih; 
-        
-        evas_object_geometry_get(sb->table, 0, 0, &sw, &sh);
-        evas_object_image_size_get(elm_image_object_get(v->image), &iw, &ih);
-        if (iw < sw && ih < sh)
-           _zoom_set(sb, 1.0);
-        else
-           _zoom_fit(sb);
-     }
+     _zoom_fit(sb);
 }
 
 void

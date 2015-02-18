@@ -27,8 +27,8 @@ _cropper_both_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *e
 
    nx = mx - ec->startx;
    ny = my - ec->starty;
-   ec->startx = mx;
-   ec->starty = my;
+   ec->startx += nx;
+   ec->starty += ny;
 
    if (!strcmp(source, "handle1"))
      {
@@ -100,7 +100,7 @@ _cropper_horiz_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *
 
    nx = mx - ec->startx;
 
-   ec->startx = mx;
+   ec->startx += nx;
 
    if (!strcmp(source, "handle8"))
      cw -= nx;
@@ -157,7 +157,7 @@ _cropper_vert_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *e
 
    ny = my - ec->starty;
 
-   ec->starty = my;
+   ec->starty += ny;
 
    if (!strcmp(source, "handle2"))
      ch -= ny;
@@ -215,13 +215,19 @@ _cropper_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *emissi
    mx -= ec->offsetx;
    my -= ec->offsety;
 
+   mx -= ec->startcx;
+   my -= ec->startcy;
+
    msg = alloca(sizeof(Edje_Message_Int_Set) + (4*sizeof(int)));
    msg->count = 4;
-   msg->val[0] = mx-cx;
-   msg->val[1] = my-cy;
+   msg->val[0] = mx;
+   msg->val[1] = my;
    msg->val[2] = cw;
    msg->val[3] = ch;
    edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
+
+   ec->startcx += mx;
+   ec->startcy += my;
 }
 
 static void 

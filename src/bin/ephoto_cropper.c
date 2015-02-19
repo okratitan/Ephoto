@@ -19,15 +19,25 @@ _cropper_both_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *e
 {
    Ephoto_Cropper *ec = data;
    Edje_Message_Int_Set *msg;
-   int mx, my, cx, cy, cw, ch, nx, ny;
+   int mx, my, cx, cy, cw, ch, nx, ny, lx, ly, lw, lh;
 
    evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), &mx, &my);
    evas_object_geometry_get(ec->cropper, &cx, &cy, &cw, &ch);
+   evas_object_geometry_get(ec->layout, &lx, &ly, &lw, &lh);
 
    nx = mx - ec->startx;
    ny = my - ec->starty;
    ec->startx = mx;
    ec->starty = my;
+
+   if (cx+nx < lx)
+     nx = lx-cx;
+   else if (cx+cw+nx > lx+lw)
+     nx = (lx+lw)-(cx+cw);
+   else if (cy+ny < ly)
+     ny = ly-cy;
+   else if (cy+ch+ny > ly+lh)
+     ny = (ly+lh)-(cy+ch);
 
    msg = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
    msg->count = 3;
@@ -78,14 +88,19 @@ _cropper_horiz_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *
 {
    Ephoto_Cropper *ec = data;
    Edje_Message_Int_Set *msg;
-   int mx, cx, cy, cw, ch, nx;
+   int mx, cx, cy, cw, ch, nx, lx, ly, lw, lh;
 
    evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), &mx, 0);
    evas_object_geometry_get(ec->cropper, &cx, &cy, &cw, &ch);
+   evas_object_geometry_get(ec->layout, &lx, &ly, &lw, &lh);
 
    nx = mx - ec->startx;
-
    ec->startx = mx;
+
+   if (cx+nx < lx)
+     nx = lx-cx;
+   else if (cx+cw+nx > lx+lw)
+     nx = (lx+lw)-(cx+cw);
 
    msg = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
    msg->count = 3;
@@ -133,14 +148,19 @@ _cropper_vert_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *e
 {
    Ephoto_Cropper *ec = data;
    Edje_Message_Int_Set *msg;
-   int my, cx, cy, cw, ch, ny;
+   int my, cx, cy, cw, ch, ny, lx, ly, lw, lh;
 
    evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), 0, &my);
    evas_object_geometry_get(ec->cropper, &cx, &cy, &cw, &ch);
+   evas_object_geometry_get(ec->layout, &lx, &ly, &lw, &lh);
 
    ny = my - ec->starty;
-
    ec->starty = my;
+
+   if (cy+ny < ly)
+     ny = ly-cy;
+   else if (cy+ch+ny > ly+lh)
+     ny = (ly+lh)-(cy+ch);
 
    msg = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
    msg->count = 3;
@@ -189,15 +209,25 @@ _cropper_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *emissi
    if (!ec->resizing)
      {
         Edje_Message_Int_Set *msg;
-        int mx, my, cx, cy, cw, ch, nx, ny;
+        int mx, my, cx, cy, cw, ch, nx, ny, lx, ly, lw, lh;
 
         evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), &mx, &my);
         evas_object_geometry_get(ec->cropper, &cx, &cy, &cw, &ch);
+        evas_object_geometry_get(ec->layout, &lx, &ly, &lw, &lh);
 
         nx = mx - ec->startx;
         ny = my - ec->starty;
         ec->startx = mx;
         ec->starty = my;
+
+        if (cx+nx < lx)
+          nx = lx-cx;
+        else if (cx+cw+nx > lx+lw)
+          nx = (lx+lw)-(cx+cw);
+        else if (cy+ny < ly)
+          ny = ly-cy;
+        else if (cy+ch+ny > ly+lh)
+          ny = (ly+lh)-(cy+ch);
 
         msg = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
         msg->count = 3;
@@ -238,7 +268,6 @@ static void
 _image_resize(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNUSED)
 {
    Ephoto_Cropper *ec = data;
-   Edje_Message_Int_Set *msg;
 
    int sx, sy, sw, sh, iw, ih, diffw, diffh;
    int cx, cy, cw, ch, ix, iy;
@@ -260,14 +289,6 @@ _image_resize(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, voi
 
         evas_object_resize(ec->layout, iw, ih);
         evas_object_move(ec->layout, ix, iy);
-
-        msg = alloca(sizeof(Edje_Message_Int_Set) + (4*sizeof(int)));
-        msg->count = 4;
-        msg->val[0] = 0;
-        msg->val[1] = 0;
-        msg->val[2] = cw;
-        msg->val[3] = ch;
-//        edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
      }
    else
      {
@@ -311,14 +332,6 @@ _image_resize(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, voi
 
         evas_object_resize(ec->layout, nw, nh);
         evas_object_move(ec->layout, ix, iy);
-        
-        msg = alloca(sizeof(Edje_Message_Int_Set) + (4*sizeof(int)));
-        msg->count = 4;
-        msg->val[0] = 0;
-        msg->val[1] = 0;
-        msg->val[2] = cw;
-        msg->val[3] = ch;
-//        edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
      }
 }
 

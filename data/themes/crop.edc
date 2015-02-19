@@ -3,22 +3,54 @@ collections {
       script {
          public message(Msg_Type:type, id, ...) {
             if ((type == MSG_INT_SET) && (id == 1)) {
-               new cox, coy, cw, ch, pox, poy;
+               new movetype, cox, coy, pox, poy;
 
-               cox = getarg(2);
-               coy = getarg(3);
-               cw = getarg(4);
-               ch = getarg(5);
+               movetype = getarg(2);
+               cox = getarg(3);
+               coy = getarg(4);
 
-               get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
-
-               cox += pox;
-               coy += poy;
- 
                custom_state(PART:"ephoto.swallow.cropper", "default", 0.0);
-               set_state_val(PART:"ephoto.swallow.cropper", STATE_MIN, cw, ch);
-               set_state_val(PART:"ephoto.swallow.cropper", STATE_MAX, cw, ch);
-               set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, cox, coy);
+               if (movetype == 0) {
+                  new ppox, ppoy;
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  pox += cox;
+                  poy += coy;
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+                  ppox += cox;
+                  ppoy += coy;
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+               }
+               if (movetype == 1 || movetype == 2 || movetype == 8) {
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  cox += pox;
+                  coy += poy;
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, cox, coy);
+               }
+               if (movetype == 3) {
+                  new ppox, ppoy;
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  poy += coy;
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+                  ppox += cox;
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+               }
+               if (movetype == 4 || movetype == 5 || movetype == 6) {
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, pox, poy);
+                  cox += pox;
+                  coy += poy;
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, cox, coy);
+               }
+               if (movetype == 7) {
+                  new ppox, ppoy;
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  pox += cox;
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+                  ppoy += coy;
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+               }
                set_state(PART:"ephoto.swallow.cropper", "custom", 0.0);
             }
          }
@@ -43,6 +75,10 @@ collections {
             mouse_events: 1;
             clip_to: "clipper";
             description { state: "default" 0.0;
+               rel1.to: "ephoto.swallow.image";
+               rel1.relative: 0.2 0.2;
+               rel2.to: "ephoto.swallow.image";
+               rel2.relative: 0.8 0.8;
             }
          } 
          part { name: "shader_top";

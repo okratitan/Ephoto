@@ -9,10 +9,9 @@ struct _Ephoto_Cropper
    Evas_Object *layout;
    int startx;
    int starty;
-   int startcx;
-   int startcy;
    int offsetx;
    int offsety;
+   int resizing;
 };
 
 static void 
@@ -27,36 +26,22 @@ _cropper_both_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *e
 
    nx = mx - ec->startx;
    ny = my - ec->starty;
-   ec->startx += nx;
-   ec->starty += ny;
+   ec->startx = mx;
+   ec->starty = my;
 
+   msg = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
+   msg->count = 3;
    if (!strcmp(source, "handle1"))
-     {
-        cw -= nx;
-        ch -= ny;
-     }
+     msg->val[0] = 1;
    else if (!strcmp(source, "handle3"))
-     {
-        cw += nx;
-        ch -= ny;
-     }
+     msg->val[0] = 3;
    else if (!strcmp(source, "handle5"))
-     {
-        cw += nx;
-        ch += ny;
-     }
+     msg->val[0] = 5;
    else if (!strcmp(source, "handle7"))
-     {
-        cw -= nx;
-        ch += ny;
-     }
-   
-   msg = alloca(sizeof(Edje_Message_Int_Set) + (4*sizeof(int)));
-   msg->count = 4;
-   msg->val[0] = nx/2;
-   msg->val[1] = ny/2;
-   msg->val[2] = cw;
-   msg->val[3] = ch;
+     msg->val[0] = 7;
+
+   msg->val[1] = nx;
+   msg->val[2] = ny;
    edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
 }
 
@@ -67,6 +52,7 @@ _cropper_both_mouse_up(void *data, Evas_Object *obj EINA_UNUSED, const char *emi
 
    edje_object_signal_callback_del_full(ec->cropper, "mouse,move", source, _cropper_both_mouse_move, ec);
    edje_object_signal_callback_del_full(ec->cropper, "mouse,up,1", source, _cropper_both_mouse_up, ec);
+   ec->resizing = 0;
 }
 
 static void 
@@ -75,14 +61,13 @@ _cropper_resize_both(void *data, Evas_Object *obj EINA_UNUSED, const char *emiss
    Ephoto_Cropper *ec = data;
    int mx, my, cx, cy;
 
+   ec->resizing = 1;
    evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), &mx, &my);
    evas_object_geometry_get(ec->cropper, &cx, &cy, 0, 0);
    ec->offsetx = mx - cx;
    ec->offsety = my - cy;
    ec->startx = mx;
    ec->starty = my;
-   ec->startcx = cx;
-   ec->startcy = cy;
 
    edje_object_signal_callback_add(ec->cropper, "mouse,move", source, _cropper_both_mouse_move, ec);
    edje_object_signal_callback_add(ec->cropper, "mouse,up,1", source, _cropper_both_mouse_up, ec);
@@ -100,19 +85,16 @@ _cropper_horiz_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *
 
    nx = mx - ec->startx;
 
-   ec->startx += nx;
+   ec->startx = mx;
 
-   if (!strcmp(source, "handle8"))
-     cw -= nx;
-   else if (!strcmp(source, "handle4"))
-     cw += nx;
-
-   msg = alloca(sizeof(Edje_Message_Int_Set) + (4*sizeof(int)));
-   msg->count = 4;
-   msg->val[0] = nx/2;
-   msg->val[1] = 0;
-   msg->val[2] = cw;
-   msg->val[3] = ch;
+   msg = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
+   msg->count = 3;
+   if (!strcmp(source, "handle4"))
+     msg->val[0] = 4;
+   else if (!strcmp(source, "handle8"))
+     msg->val[0] = 8;
+   msg->val[1] = nx;
+   msg->val[2] = 0;
    edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
 }
 
@@ -123,6 +105,7 @@ _cropper_horiz_mouse_up(void *data, Evas_Object *obj EINA_UNUSED, const char *em
 
    edje_object_signal_callback_del_full(ec->cropper, "mouse,move", source, _cropper_horiz_mouse_move, ec);
    edje_object_signal_callback_del_full(ec->cropper, "mouse,up,1", source, _cropper_horiz_mouse_up, ec);
+   ec->resizing = 0;
 }
 
 
@@ -132,14 +115,14 @@ _cropper_resize_horiz(void *data, Evas_Object *obj EINA_UNUSED, const char *emis
    Ephoto_Cropper *ec = data;
    int mx, my, cx, cy;
 
+   ec->resizing = 1;
    evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), &mx, &my);
    evas_object_geometry_get(ec->cropper, &cx, &cy, 0, 0);
    ec->offsetx = mx - cx;
    ec->offsety = my - cy;
    ec->startx = mx;
    ec->starty = my;
-   ec->startcx = cx;
-   ec->startcy = cy;
+
 
    edje_object_signal_callback_add(ec->cropper, "mouse,move", source, _cropper_horiz_mouse_move, ec);
    edje_object_signal_callback_add(ec->cropper, "mouse,up,1", source, _cropper_horiz_mouse_up, ec);
@@ -156,19 +139,17 @@ _cropper_vert_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *e
    evas_object_geometry_get(ec->cropper, &cx, &cy, &cw, &ch);
 
    ny = my - ec->starty;
-   ec->starty += ny;
 
+   ec->starty = my;
+
+   msg = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
+   msg->count = 3;
    if (!strcmp(source, "handle2"))
-     ch -= ny;
+     msg->val[0] = 2;
    else if (!strcmp(source, "handle6"))
-     ch += ny;   
-
-   msg = alloca(sizeof(Edje_Message_Int_Set) + (4*sizeof(int)));
-   msg->count = 4;
-   msg->val[0] = 0;
-   msg->val[1] = ny/2;
-   msg->val[2] = cw;
-   msg->val[3] = ch;
+     msg->val[0] = 6;
+   msg->val[1] = 0;
+   msg->val[2] = ny;
    edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
 }
 
@@ -179,6 +160,7 @@ _cropper_vert_mouse_up(void *data, Evas_Object *obj EINA_UNUSED, const char *emi
 
    edje_object_signal_callback_del_full(ec->cropper, "mouse,move", source, _cropper_vert_mouse_move, ec);
    edje_object_signal_callback_del_full(ec->cropper, "mouse,up,1", source, _cropper_vert_mouse_up, ec);
+   ec->resizing = 0;
 }
 
 static void 
@@ -187,14 +169,13 @@ _cropper_resize_vert(void *data, Evas_Object *obj EINA_UNUSED, const char *emiss
    Ephoto_Cropper *ec = data;
    int mx, my, cx, cy;
 
+   ec->resizing = 1;
    evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), &mx, &my);
    evas_object_geometry_get(ec->cropper, &cx, &cy, 0, 0);
    ec->offsetx = mx - cx;
    ec->offsety = my - cy;
    ec->startx = mx;
    ec->starty = my;
-   ec->startcx = cx;
-   ec->startcy = cy;
 
    edje_object_signal_callback_add(ec->cropper, "mouse,move", source, _cropper_vert_mouse_move, ec);
    edje_object_signal_callback_add(ec->cropper, "mouse,up,1", source, _cropper_vert_mouse_up, ec);
@@ -205,22 +186,26 @@ static void
 _cropper_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *emission EINA_UNUSED, const char *source EINA_UNUSED)
 {
    Ephoto_Cropper *ec = data;
-   Edje_Message_Int_Set *msg;
-   int mx, my, cx, cy, cw, ch;
+   if (!ec->resizing)
+     {
+        Edje_Message_Int_Set *msg;
+        int mx, my, cx, cy, cw, ch, nx, ny;
 
-   evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), &mx, &my);
-   evas_object_geometry_get(ec->cropper, &cx, &cy, &cw, &ch);
+        evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), &mx, &my);
+        evas_object_geometry_get(ec->cropper, &cx, &cy, &cw, &ch);
 
-   mx -= ec->offsetx;
-   my -= ec->offsety;
+        nx = mx - ec->startx;
+        ny = my - ec->starty;
+        ec->startx = mx;
+        ec->starty = my;
 
-   msg = alloca(sizeof(Edje_Message_Int_Set) + (4*sizeof(int)));
-   msg->count = 4;
-   msg->val[0] = mx-cx;
-   msg->val[1] = my-cy;
-   msg->val[2] = cw;
-   msg->val[3] = ch;
-   edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
+        msg = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
+        msg->count = 3;
+        msg->val[0] = 0;
+        msg->val[1] = nx;
+        msg->val[2] = ny;
+        edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
+     }
 }
 
 static void 
@@ -244,8 +229,6 @@ _cropper_move(void *data, Evas_Object *obj EINA_UNUSED, const char *emission EIN
    ec->starty = my;
    ec->offsetx = mx - cx;
    ec->offsety = my - cy;
-   ec->startcx = cx;
-   ec->startcy = cy;
 
    edje_object_signal_callback_add(ec->cropper, "mouse,move", "dragger", _cropper_mouse_move, ec);
    edje_object_signal_callback_add(ec->cropper, "mouse,up,1", "dragger", _cropper_mouse_up, ec);
@@ -284,7 +267,7 @@ _image_resize(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, voi
         msg->val[1] = 0;
         msg->val[2] = cw;
         msg->val[3] = ch;
-        edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
+//        edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
      }
    else
      {
@@ -335,7 +318,7 @@ _image_resize(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, voi
         msg->val[1] = 0;
         msg->val[2] = cw;
         msg->val[3] = ch;
-        edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
+//        edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
      }
 }
 
@@ -350,6 +333,7 @@ Evas_Object *
 ephoto_cropper_add(Evas_Object *parent, const char *file, const char *key)
 {
    Ephoto_Cropper *ec = calloc(1, sizeof(Ephoto_Cropper));
+   ec->resizing = 0;
  
    ec->box = elm_box_add(parent);
    evas_object_size_hint_weight_set(ec->box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -392,4 +376,3 @@ ephoto_cropper_add(Evas_Object *parent, const char *file, const char *key)
 
    return ec->box;
 }
-

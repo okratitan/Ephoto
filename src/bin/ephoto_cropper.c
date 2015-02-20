@@ -19,10 +19,20 @@ _cropper_both_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *e
 {
    Ephoto_Cropper *ec = data;
    Edje_Message_Int_Set *msg;
-   int mx, my, cx, cy, cw, ch, nx, ny;
+   int mx, my, cx, cy, cw, ch, nx, ny, lx, ly, lw, lh;
 
    evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), &mx, &my);
    evas_object_geometry_get(ec->cropper, &cx, &cy, &cw, &ch);
+   evas_object_geometry_get(ec->layout, &lx, &ly, &lw, &lh);
+
+   if (mx < lx)
+     mx = lx;
+   else if (mx > lx+lw)
+     mx = lx+lw;
+   if (my < ly)
+     my = ly;
+   else if (my > ly+lh)
+     my = ly+lh;
 
    nx = mx - ec->startx;
    ny = my - ec->starty;
@@ -78,10 +88,16 @@ _cropper_horiz_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *
 {
    Ephoto_Cropper *ec = data;
    Edje_Message_Int_Set *msg;
-   int mx, cx, cy, cw, ch, nx;
+   int mx, cx, cy, cw, ch, nx, lx, lw;
 
    evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), &mx, 0);
    evas_object_geometry_get(ec->cropper, &cx, &cy, &cw, &ch);
+   evas_object_geometry_get(ec->layout, &lx, 0, &lw, 0);
+
+   if (mx < lx)
+     mx = lx;
+   else if (mx > lx+lw)
+     mx = lx+lw;
 
    nx = mx - ec->startx;
    ec->startx = mx;
@@ -132,10 +148,16 @@ _cropper_vert_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *e
 {
    Ephoto_Cropper *ec = data;
    Edje_Message_Int_Set *msg;
-   int my, cx, cy, cw, ch, ny;
+   int my, cx, cy, cw, ch, ny, ly, lh;
 
    evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), 0, &my);
    evas_object_geometry_get(ec->cropper, &cx, &cy, &cw, &ch);
+   evas_object_geometry_get(ec->layout, 0, &ly, 0, &lh);
+
+   if (my < ly)
+     my = ly;
+   else if (my > ly+lh)
+     my = ly+lh;
 
    ny = my - ec->starty;
    ec->starty = my;
@@ -187,10 +209,21 @@ _cropper_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *emissi
    if (!ec->resizing)
      {
         Edje_Message_Int_Set *msg;
-        int mx, my, cx, cy, cw, ch, nx, ny;
+        int mx, my, cx, cy, cw, ch, nx, ny, lx, ly, lw, lh;
 
         evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), &mx, &my);
         evas_object_geometry_get(ec->cropper, &cx, &cy, &cw, &ch);
+        evas_object_geometry_get(ec->layout, &lx, &ly, &lw, &lh);
+
+        if (mx < lx)
+          mx = lx;
+        else if (mx > lx+lw)
+          mx = lx+lw;
+        if (my < ly)
+          my = ly;
+        else if (my > ly+lh)
+          my = ly+lh;
+                
 
         nx = mx - ec->startx;
         ny = my - ec->starty;

@@ -3,19 +3,30 @@ collections {
       script {
          public message(Msg_Type:type, id, ...) {
             if ((type == MSG_INT_SET) && (id == 1)) {
-               new movetype, cox, coy, pox, poy;
+               new movetype, cox, coy, pox, poy, ix, iy, iw, ih, cx, cy, cw, ch;
 
                movetype = getarg(2);
                cox = getarg(3);
                coy = getarg(4);
 
+               get_geometry(PART:"ephoto.swallow.image", ix, iy, iw, ih);
+               get_geometry(PART:"ephoto.swallow.cropper", cx, cy, cw, ch);
+               
                custom_state(PART:"ephoto.swallow.cropper", "default", 0.0);
                if (movetype == 0) {
                   new ppox, ppoy;
                   get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+                  if (cx+cox < ix)
+                    cox = ix-cx;
+                  if (cx+cw+cox > ix+iw)
+                    cox = (ix+iw)-(cx+cw);
+                  if (cy+coy < iy)
+                    coy = iy-cy;
+                  if (cy+ch+coy > iy+ih)
+                    coy = (iy+ih)-(cy+ch);
                   pox += cox;
                   poy += coy;
-                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
                   ppox += cox;
                   ppoy += coy;
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
@@ -23,6 +34,10 @@ collections {
                }
                if (movetype == 1 || movetype == 2 || movetype == 8) {
                   get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  if (cx+cox < ix)
+                    cox = ix-cx;
+                  if (cy+coy < iy)
+                    coy = iy-cy;
                   cox += pox;
                   coy += poy;
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, cox, coy);
@@ -30,14 +45,22 @@ collections {
                if (movetype == 3) {
                   new ppox, ppoy;
                   get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
-                  poy += coy;
                   get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+                  if (cy+coy < iy)
+                    coy = iy-cy;
+                  if (cx+cw+cox > ix+iw)
+                    cox = (ix+iw)-(cx+cw);
+                  poy += coy;
                   ppox += cox;
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
                }
                if (movetype == 4 || movetype == 5 || movetype == 6) {
                   get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, pox, poy);
+                  if (cx+cw+cox > ix+iw)
+                    cox = (ix+iw)-(cx+cw);
+                  if (cy+ch+coy > iy+ih)
+                    coy = (iy+ih)-(cy+ch);
                   cox += pox;
                   coy += poy;
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, cox, coy);
@@ -45,8 +68,12 @@ collections {
                if (movetype == 7) {
                   new ppox, ppoy;
                   get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
-                  pox += cox;
                   get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+                  if (cx+cox < ix)
+                    cox = ix-cx;
+                  if (cy+ch+coy > iy+ih)
+                    coy = (iy+ih)-(cy+ch);
+                  pox += cox;
                   ppoy += coy;
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
@@ -75,6 +102,7 @@ collections {
             mouse_events: 1;
             clip_to: "clipper";
             description { state: "default" 0.0;
+               min: 20 20;
                rel1.to: "ephoto.swallow.image";
                rel1.relative: 0.2 0.2;
                rel2.to: "ephoto.swallow.image";
@@ -165,6 +193,7 @@ collections {
                color: 0 0 0 255;
                min: 10 10;
                max: 99999 10;
+               align: 0 0;
                rel1.to: "cropper";
                rel1.relative: 0.0 0.0;
                rel2.to: "cropper";
@@ -179,6 +208,7 @@ collections {
                color: 0 0 0 255;
                min: 10 10;
                max: 10 99999;
+               align: 1 1;
                rel1.to: "cropper";
                rel1.relative: 1.0 0.0;
                rel2.to: "cropper";
@@ -193,6 +223,7 @@ collections {
                color: 0 0 0 255;
                min: 10 10;
                max: 99999 10;
+               align: 1 1;
                rel1.to: "cropper";
                rel1.relative: 0.0 1.0;
                rel2.to: "cropper";
@@ -207,6 +238,7 @@ collections {
                color: 0 0 0 255;
                min: 10 10;
                max: 10 99999;
+               align: 0 0;
                rel1.to: "cropper";
                rel1.relative: 0.0 0.0;
                rel2.to: "cropper";
@@ -221,6 +253,7 @@ collections {
                color: 0 0 0 255;
                min: 10 10;
                max: 99999 10;
+               align: 0 0;
                rel1.to: "cropper";
                rel1.relative: 0.0 0.0;
                rel2.to: "cropper";
@@ -235,6 +268,7 @@ collections {
                color: 0 0 0 255;
                min: 10 10;
                max: 99999 10;
+               align: 1 0;
                rel1.to: "cropper";
                rel1.relative: 1.0 0.0;
                rel2.to: "cropper";
@@ -249,6 +283,7 @@ collections {
                color: 0 0 0 255;
                min: 10 10;
                max: 99999 10;
+               align: 1 1;
                rel1.to: "cropper";
                rel1.relative: 1.0 1.0;
                rel2.to: "cropper";
@@ -263,6 +298,7 @@ collections {
                color: 0 0 0 255;
                min: 10 10;
                max: 99999 10;
+               align: 0 1;
                rel1.to: "cropper";
                rel1.relative: 0.0 1.0;
                rel2.to: "cropper";

@@ -275,65 +275,47 @@ _image_resize(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, voi
 
    evas_object_geometry_get(ec->layout, &sx, &sy, &sw, &sh);
    evas_object_image_size_get(elm_image_object_get(ec->image), &iw, &ih);
-   if (iw < sw && ih < sh)
-     {
-        diffw = sw-iw;
-        diffh = sh-ih;
-        diffw /= 2;
-        diffh /= 2;
-        ix = sx+diffw;
-        iy = sy+diffh;
-        cw = iw/2;
-        ch = ih/2;
-        cx = (cw/2)+ix;
-        cy = (ch/2)+iy;
 
-        evas_object_resize(ec->layout, iw, ih);
-        evas_object_move(ec->layout, ix, iy);
+   int nw, nh;
+   if (sw > sh)
+     {
+        nw = sw;
+        nh = ih*((double)sw/(double)iw);
+        if (nh > sh)
+          {
+             int onw, onh;
+             onw = nw;
+             onh = nh;
+             nh = sh;
+             nw = onw*((double)nh/(double)onh);
+          }
      }
    else
      {
-        int nw, nh;
-        if (sw > sh)
+        nh = sh;
+        nw = iw*((double)sh/(double)ih);
+        if (nw > sw)
           {
+             int onw, onh;
+             onw = nw;
+             onh = nh;
              nw = sw;
-             nh = ih*((double)sw/(double)iw);
-             if (nh > sh)
-               {
-                  int onw, onh;
-                  onw = nw;
-                  onh = nh;
-                  nh = sh;
-                  nw = onw*((double)nh/(double)onh);
-               }
+             nh = onh*((double)nw/(double)onw);
           }
-        else
-          {
-             nh = sh;
-             nw = iw*((double)sh/(double)ih);
-             if (nw > sw)
-               {
-                  int onw, onh;
-                  onw = nw;
-                  onh = nh;
-                  nw = sw;
-                  nh = onh*((double)nw/(double)onw);
-               }
-          }
-        diffw = sw-nw;
-        diffh = sh-nh;
-        diffw /= 2;
-        diffh /= 2;
-        ix = sx+diffw;
-        iy = sy+diffh;
-        cw = nw/2;
-        ch = nh/2;
-        cx = ix+(cw/2);
-        cy = iy+(ch/2);
-
-        evas_object_resize(ec->layout, nw, nh);
-        evas_object_move(ec->layout, ix, iy);
      }
+   diffw = sw-nw;
+   diffh = sh-nh;
+   diffw /= 2;
+   diffh /= 2;
+   ix = sx+diffw;
+   iy = sy+diffh;
+   cw = nw/2;
+   ch = nh/2;
+   cx = ix+(cw/2);
+   cy = iy+(ch/2);
+
+   evas_object_resize(ec->layout, nw, nh);
+   evas_object_move(ec->layout, ix, iy);
 }
 
 static void

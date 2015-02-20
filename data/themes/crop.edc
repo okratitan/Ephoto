@@ -94,6 +94,10 @@ collections {
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
                }
+               if (movetype == 9) {
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, 0, 0);
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, 0, 0);
+               }
                set_state(PART:"ephoto.swallow.cropper", "custom", 0.0);
             }
          }

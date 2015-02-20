@@ -269,6 +269,7 @@ static void
 _image_resize(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Cropper *ec = data;
+   Edje_Message_Int_Set *msg;
 
    int sx, sy, sw, sh, iw, ih, diffw, diffh;
    int cx, cy, cw, ch, ix, iy;
@@ -316,6 +317,13 @@ _image_resize(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, voi
 
    evas_object_resize(ec->layout, nw, nh);
    evas_object_move(ec->layout, ix, iy);
+
+   msg = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
+   msg->count = 3;
+   msg->val[0] = 9;
+   msg->val[1] = 0;
+   msg->val[2] = 0;
+   edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
 }
 
 static void

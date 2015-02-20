@@ -739,7 +739,344 @@ _last_entry(Ephoto_Single_Browser *sb)
    ephoto_single_browser_entry_set(sb->main, entry);
 }
 
-static void _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+static void
+_reset_yes(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *win = data;
+   Ephoto_Single_Browser *sb = evas_object_data_get(win, "single_browser");
+   sb->cropping = 0;
+   ephoto_single_browser_entry_set(sb->main, sb->entry);
+   evas_object_del(win);
+}
+
+static void
+_reset_no(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *win = data;
+   evas_object_del(win);
+}
+
+static void
+_reset_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   Evas_Object *win, *box, *label, *hbox, *ic, *button;
+
+   win = elm_win_inwin_add(sb->ephoto->win);
+   elm_object_style_set(win, "minimal");
+   evas_object_show(win);
+
+   box = elm_box_add(win);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+
+   label = elm_label_add(box);
+   elm_object_text_set(label, "Are you sure you want to reset your changes?");
+   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, label);
+   evas_object_show(label);
+
+   hbox = elm_box_add(win);
+   elm_box_horizontal_set(hbox, EINA_TRUE);
+   evas_object_size_hint_weight_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, hbox);
+   evas_object_show(hbox);
+
+   ic = elm_icon_add(hbox);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "stock_save");
+
+   button = elm_button_add(hbox);
+   elm_object_text_set(button, "Yes");
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _reset_yes, win);
+   elm_box_pack_end(hbox, button);
+   evas_object_show(button);
+
+   ic = elm_icon_add(hbox);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "stock_close");
+
+   button = elm_button_add(hbox);
+   elm_object_text_set(button, "No");
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _reset_no, win);
+   elm_box_pack_end(hbox, button);
+   evas_object_show(button);
+
+   evas_object_data_set(win, "single_browser", sb);
+   elm_win_inwin_content_set(win, box);
+   evas_object_show(box);
+}
+
+static void
+_failed_save(Ephoto_Single_Browser *sb)
+{
+   Evas_Object *win, *box, *label, *ic, *button;
+   char buf[PATH_MAX];
+
+   win = elm_win_inwin_add(sb->ephoto->win);
+   elm_object_style_set(win, "minimal");
+   evas_object_show(win);
+
+   box = elm_box_add(win);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+
+   label = elm_label_add(box);
+   elm_object_text_set(label, "Error: Image could not be saved here!");
+   evas_object_size_hint_weight_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, label);
+   evas_object_show(label);
+
+   ic = elm_icon_add(box);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "stock_close");
+
+   button = elm_button_add(box);
+   elm_object_text_set(button, "OK");
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _reset_no, win);
+   elm_box_pack_end(box, button);
+   evas_object_show(button);
+
+   evas_object_data_set(win, "single_browser", sb);
+   elm_win_inwin_content_set(win, box);
+   evas_object_show(box);
+}
+
+static void
+_save_yes(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *win = data;
+   Ephoto_Single_Browser *sb = evas_object_data_get(win, "single_browser");
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+   Eina_Bool success;
+   if (ecore_file_exists(sb->entry->path))
+     {
+        success = ecore_file_unlink(sb->entry->path);
+        if (!success)
+          _failed_save(sb);
+     }
+   else
+     {
+        success = evas_object_image_save(elm_image_object_get(v->image), sb->entry->path, NULL, NULL);
+        if (!success)
+          _failed_save(sb);
+     }
+   ephoto_single_browser_entry_set(sb->main, sb->entry);
+   evas_object_del(win);
+}
+
+static void
+_save_no(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *win = data;
+   evas_object_del(win);
+}
+
+static void
+_save_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   if (sb->cropping)
+     {
+        sb->cropping = 0;
+        ephoto_single_browser_entry_set(sb->main, sb->entry);
+     }
+   Evas_Object *win, *box, *label, *hbox, *ic, *button;
+
+   win = elm_win_inwin_add(sb->ephoto->win);
+   elm_object_style_set(win, "minimal");
+   evas_object_show(win);
+
+   box = elm_box_add(win);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+
+   label = elm_label_add(box);
+   elm_object_text_set(label, "Are you sure you want to overwrite this image?");
+   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, label);
+   evas_object_show(label);
+
+   hbox = elm_box_add(win);
+   elm_box_horizontal_set(hbox, EINA_TRUE);
+   evas_object_size_hint_weight_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, hbox);
+   evas_object_show(hbox);
+
+   ic = elm_icon_add(hbox);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "stock_save");
+
+   button = elm_button_add(hbox);
+   elm_object_text_set(button, "Yes");
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _save_yes, win);
+   elm_box_pack_end(hbox, button);
+   evas_object_show(button);
+
+   ic = elm_icon_add(hbox);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "stock_close");
+
+   button = elm_button_add(hbox);
+   elm_object_text_set(button, "No");
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _save_no, win);
+   elm_box_pack_end(hbox, button);
+   evas_object_show(button);
+
+   evas_object_data_set(win, "single_browser", sb);
+   elm_win_inwin_content_set(win, box);
+   evas_object_show(box);
+}
+
+static void
+_save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *win = data;
+   const char *file = evas_object_data_get(win, "file");
+   Ephoto_Single_Browser *sb = evas_object_data_get(win, "single_browser");
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+   Eina_Bool success;
+   if (ecore_file_exists(file))
+     {
+        success = ecore_file_unlink(file);
+        if (!success)
+          _failed_save(sb);
+     }
+   else
+     {
+        success = evas_object_image_save(elm_image_object_get(v->image), file, NULL, NULL);
+        if (!success)
+          _failed_save(sb);
+     }
+   ephoto_single_browser_entry_set(sb->main, sb->entry);
+   evas_object_del(win);
+}
+
+static void
+_save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
+{
+   const char *selected = event_info;
+   Evas_Object *win = data;
+
+   if (selected)
+     {
+        Ephoto_Single_Browser *sb = evas_object_data_get(win, "single_browser");
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+        Eina_Bool success;
+
+        char buf[PATH_MAX];
+        if (!evas_object_image_extension_can_load_get(selected))
+          snprintf(buf, PATH_MAX, "%s.jpg", selected);
+        else
+          snprintf(buf, PATH_MAX, "%s", selected);
+        if (ecore_file_exists(buf))
+          {
+             Evas_Object *win, *box, *label, *hbox, *ic, *button;
+
+             win = elm_win_inwin_add(sb->ephoto->win);
+             elm_object_style_set(win, "minimal");
+             evas_object_show(win);
+
+             box = elm_box_add(win);
+             elm_box_horizontal_set(box, EINA_FALSE);
+             evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+             evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+
+             label = elm_label_add(box);
+             elm_object_text_set(label, "Are you sure you want to overwrite this image?");
+             evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+             evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+             elm_box_pack_end(box, label);
+             evas_object_show(label);
+
+             hbox = elm_box_add(win);
+             elm_box_horizontal_set(hbox, EINA_TRUE);
+             evas_object_size_hint_weight_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+             evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+             elm_box_pack_end(box, hbox);
+             evas_object_show(hbox);
+
+             ic = elm_icon_add(hbox);
+             evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+             elm_icon_standard_set(ic, "stock_save");
+          
+             button = elm_button_add(hbox);
+             elm_object_text_set(button, "Yes");
+             elm_object_part_content_set(button, "icon", ic);
+             evas_object_smart_callback_add(button, "clicked", _save_image_as_overwrite, win);
+             elm_box_pack_end(hbox, button);
+             evas_object_show(button);
+
+             ic = elm_icon_add(hbox);
+             evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+             elm_icon_standard_set(ic, "stock_close");
+
+             button = elm_button_add(hbox);
+             elm_object_text_set(button, "No");
+             elm_object_part_content_set(button, "icon", ic);
+             evas_object_smart_callback_add(button, "clicked", _save_no, win);
+             elm_box_pack_end(hbox, button);
+             evas_object_show(button);
+
+             evas_object_data_set(win, "single_browser", sb);
+             evas_object_data_set(win, "file", strdup(buf));
+             elm_win_inwin_content_set(win, box);
+             evas_object_show(box);
+          }
+        else
+          {
+             success = evas_object_image_save(elm_image_object_get(v->image), buf, NULL, NULL);
+             if (!success)
+               _failed_save(sb);
+          }
+     }
+   evas_object_del(win);
+}
+
+static void
+_save_image_as(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   if (sb->cropping)
+     {
+        sb->cropping = 0;
+        ephoto_single_browser_entry_set(sb->main, sb->entry);
+     }
+   Evas_Object *win, *fsel;
+
+   win = elm_win_inwin_add(sb->ephoto->win);
+   evas_object_show(win);
+
+   fsel = elm_fileselector_add(win);
+   elm_fileselector_is_save_set(fsel, EINA_TRUE);
+   elm_fileselector_expandable_set(fsel, EINA_FALSE);
+   elm_fileselector_path_set(fsel, sb->ephoto->config->directory);
+   elm_fileselector_current_name_set(fsel, "Save as...");
+   elm_fileselector_mime_types_filter_append(fsel, "image/*", "Image Files");
+   evas_object_size_hint_weight_set(fsel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_smart_callback_add(fsel, "done", _save_image_as_done, win);
+
+   evas_object_data_set(win, "single_browser", sb);
+   elm_win_inwin_content_set(win, fsel);
+   evas_object_show(fsel);
+}
+
+static void
+_apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
@@ -832,7 +1169,8 @@ static void _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_in
    _zoom_fit(sb);
 }
 
-static void _cancel_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+static void
+_cancel_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
    sb->cropping = 0;
@@ -1092,7 +1430,10 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_toolbar_menu_parent_set(sb->bar, sb->ephoto->win);
    menu = elm_toolbar_item_menu_get(icon);
 
-   elm_menu_item_add(menu, NULL, NULL, "Crop", _crop_image, sb);
+   elm_menu_item_add(menu, NULL, "edit-undo", "Reset", _reset_image, sb);
+   elm_menu_item_add(menu, NULL, "document-save", "Save", _save_image, sb);
+   elm_menu_item_add(menu, NULL, "document-save-as", "Save As", _save_image_as, sb);
+   elm_menu_item_add(menu, NULL, "edit-cut", "Crop", _crop_image, sb);
    elm_menu_item_add(menu, NULL, "object-rotate-left", "Rotate Left", _go_rotate_counterclock, sb);
    elm_menu_item_add(menu, NULL, "object-rotate-right", "Rotate Right", _go_rotate_clock, sb);
    elm_menu_item_add(menu, NULL, "object-flip-horizontal", "Flip Horizontal", _go_flip_horiz, sb);

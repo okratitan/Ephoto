@@ -38,6 +38,10 @@ collections {
                     cox = ix-cx;
                   if (cy+coy < iy)
                     coy = iy-cy;
+                  if (cw-cox < 20)
+                     return;
+                  if (ch-coy < 20)
+                     return;
                   cox += pox;
                   coy += poy;
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, cox, coy);
@@ -46,10 +50,14 @@ collections {
                   new ppox, ppoy;
                   get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
                   get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
-                  if (cy+coy < iy)
-                    coy = iy-cy;
                   if (cx+cw+cox > ix+iw)
                     cox = (ix+iw)-(cx+cw);
+                  if (cy+coy < iy)
+                    coy = iy-cy;
+                  if (cw+cox < 20)
+                     return;
+                  if (ch-coy < 20)
+                     return;
                   poy += coy;
                   ppox += cox;
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
@@ -61,6 +69,10 @@ collections {
                     cox = (ix+iw)-(cx+cw);
                   if (cy+ch+coy > iy+ih)
                     coy = (iy+ih)-(cy+ch);
+                  if (cw+cox < 20)
+                     return;
+                  if (ch+coy < 20)
+                     return;
                   cox += pox;
                   coy += poy;
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, cox, coy);
@@ -73,6 +85,10 @@ collections {
                     cox = ix-cx;
                   if (cy+ch+coy > iy+ih)
                     coy = (iy+ih)-(cy+ch);
+                  if (cw-cox < 20)
+                     return;
+                  if (ch+coy < 20)
+                     return;
                   pox += cox;
                   ppoy += coy;
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);

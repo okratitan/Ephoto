@@ -115,7 +115,7 @@ _ephoto_single_browser_slideshow(void *data, Evas_Object *obj EINA_UNUSED, void 
 }
 
 static void
-_win_free(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+_win_free(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto *ephoto = data;
    if (ephoto->timer.thumb_regen) ecore_timer_del(ephoto->timer.thumb_regen);
@@ -124,7 +124,7 @@ _win_free(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *eve
 }
 
 static void
-_resize_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+_resize_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto *ephoto = data;
    int w, h;
@@ -215,7 +215,7 @@ ephoto_window_add(const char *path)
         evas_object_del(ephoto->win);
         return NULL;
      }
-   ephoto->sb = elm_naviframe_item_insert_after(ephoto->pager, ephoto->tb, 
+   ephoto->sb = elm_naviframe_item_insert_after(ephoto->pager, ephoto->tb,
                   NULL, NULL, NULL, ephoto->single_browser, "overlap");
    elm_naviframe_item_title_enabled_set(ephoto->sb, EINA_FALSE, EINA_FALSE);
    evas_object_smart_callback_add
@@ -278,7 +278,7 @@ ephoto_title_set(Ephoto *ephoto, const char *title)
 {
    char buf[1024] = "Ephoto";
 
-   if (title) 
+   if (title)
      {
         snprintf(buf, sizeof(buf), "Ephoto - %s", title);
         elm_win_title_set(ephoto->win, buf);
@@ -468,17 +468,17 @@ ephoto_thumb_size_set(Ephoto *ephoto, int size)
 }
 
 static void
-_thumb_del(void *data, Evas *e EINA_UNUSED, Evas_Object *o, void *event_info EINA_UNUSED)
+_thumb_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj, void *event_info EINA_UNUSED)
 {
    Ephoto *ephoto = data;
-   ephoto->thumbs = eina_list_remove(ephoto->thumbs, o);
+   ephoto->thumbs = eina_list_remove(ephoto->thumbs, obj);
 }
 
 static void
 _load_error(void *data , Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    const char *path = data;
-   ERR("Error loading thumbnail: %s\n", path);  
+   ERR("Error loading thumbnail: %s\n", path);
 }
 
 Evas_Object *
@@ -514,7 +514,7 @@ ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, const char *path)
 }
 
 void
-ephoto_thumb_path_set(Evas_Object *o, const char *path)
+ephoto_thumb_path_set(Evas_Object *obj, const char *path)
 {
    Ethumb_Thumb_Format format = ETHUMB_THUMB_FDO;
    const char *group = NULL;
@@ -535,17 +535,17 @@ ephoto_thumb_path_set(Evas_Object *o, const char *path)
                   group = eina_list_data_get(g);
                   edje_file_collection_list_free(g);
                }
-             elm_image_file_set(o, path, group);
-             evas_object_data_set(o, "ephoto_format", NULL);
+             elm_image_file_set(obj, path, group);
+             evas_object_data_set(obj, "ephoto_format", NULL);
              return;
           }
      }
-   elm_thumb_format_set(o, format);
-   evas_object_data_set(o, "ephoto_format", (void*)(long)format);
-   elm_thumb_crop_align_set(o, 0.5, 0.5);
-   elm_thumb_aspect_set(o, ETHUMB_THUMB_CROP);
-   elm_thumb_orientation_set(o, ETHUMB_THUMB_ORIENT_ORIGINAL);
-   elm_thumb_file_set(o, path, group);
+   elm_thumb_format_set(obj, format);
+   evas_object_data_set(obj, "ephoto_format", (void*)(long)format);
+   elm_thumb_crop_align_set(obj, 0.5, 0.5);
+   elm_thumb_aspect_set(obj, ETHUMB_THUMB_CROP);
+   elm_thumb_orientation_set(obj, ETHUMB_THUMB_ORIENT_ORIGINAL);
+   elm_thumb_file_set(obj, path, group);
 }
 
 Ephoto_Entry *

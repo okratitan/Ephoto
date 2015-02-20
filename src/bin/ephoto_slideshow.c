@@ -10,7 +10,7 @@ struct _Ephoto_Slideshow
 };
 
 static void
-_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *event_info)
+_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto_Slideshow *ss = data;
    Evas_Event_Key_Down *ev = event_info;
@@ -38,7 +38,7 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *eve
 }
 
 static void
-_mouse_down(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+_mouse_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Slideshow *ss = data;
    evas_object_smart_callback_call(ss->slideshow, "back", ss->entry);

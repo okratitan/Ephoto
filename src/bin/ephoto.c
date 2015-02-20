@@ -21,7 +21,7 @@ elm_main(int argc, char **argv)
    elm_app_compile_locale_set(LOCALEDIR);
    bindtextdomain(PACKAGE, elm_app_locale_dir_get());
    textdomain(PACKAGE);
-#endif   
+#endif
 
    __log_domain = eina_log_domain_register("ephoto", EINA_COLOR_ORANGE);
    if (!__log_domain)

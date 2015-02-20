@@ -114,7 +114,7 @@ ephoto_config_window(Ephoto *ephoto)
    elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   
+
    scroller = elm_scroller_add(win);
    evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(scroller, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -174,7 +174,7 @@ ephoto_config_window(Ephoto *ephoto)
 
    ic = elm_icon_add(box);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "stock_save");   
+   elm_icon_standard_set(ic, "stock_save");
 
    button = elm_button_add(hbox);
    elm_object_text_set(button, "Save");
@@ -185,7 +185,7 @@ ephoto_config_window(Ephoto *ephoto)
 
    ic = elm_icon_add(box);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "stock_close"); 
+   elm_icon_standard_set(ic, "stock_close");
 
    button = elm_button_add(hbox);
    elm_object_text_set(button, "Cancel");
@@ -197,7 +197,7 @@ ephoto_config_window(Ephoto *ephoto)
    ephoto->config->window = win;
    elm_win_inwin_content_set(win, box);
    evas_object_show(box);
-}  
+}
 
 void
 ephoto_about_window(Ephoto *ephoto)
@@ -211,7 +211,7 @@ ephoto_about_window(Ephoto *ephoto)
    elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   
+
    scroller = elm_scroller_add(win);
    evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(scroller, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -240,7 +240,7 @@ ephoto_about_window(Ephoto *ephoto)
 
    ic = elm_icon_add(box);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "stock_close"); 
+   elm_icon_standard_set(ic, "stock_close");
 
    button = elm_button_add(box);
    elm_object_text_set(button, "Close");

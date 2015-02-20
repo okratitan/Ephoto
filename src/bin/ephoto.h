@@ -34,7 +34,7 @@ Evas_Object *ephoto_window_add(const char *path);
 void         ephoto_title_set(Ephoto *ephoto, const char *title);
 void         ephoto_thumb_size_set(Ephoto *ephoto, int size);
 Evas_Object *ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, const char *path);
-void         ephoto_thumb_path_set(Evas_Object *o, const char *path);
+void         ephoto_thumb_path_set(Evas_Object *obj, const char *path);
 void         ephoto_directory_set(Ephoto *ephoto, const char *path);
 
 Eina_Bool    ephoto_config_init(Ephoto *em);

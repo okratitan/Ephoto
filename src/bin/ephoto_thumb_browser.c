@@ -244,7 +244,7 @@ _todo_items_process(void *data)
 }
 
 static void
-_ephoto_dir_selected(void *data, Evas_Object *o EINA_UNUSED, void *event_info)
+_ephoto_dir_selected(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
    Elm_Object_Item *it = event_info;
@@ -255,7 +255,7 @@ _ephoto_dir_selected(void *data, Evas_Object *o EINA_UNUSED, void *event_info)
 }
 
 static void
-_ephoto_dir_go_home(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+_ephoto_dir_go_home(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
 
@@ -264,7 +264,7 @@ _ephoto_dir_go_home(void *data, Evas_Object *o EINA_UNUSED, void *event_info EIN
 }
 
 static void
-_ephoto_dir_go_up(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+_ephoto_dir_go_up(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
 
@@ -278,7 +278,7 @@ _ephoto_dir_go_up(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_
 }
 
 static void
-_ephoto_thumb_selected(void *data, Evas_Object *o EINA_UNUSED, void *event_info)
+_ephoto_thumb_selected(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
    Elm_Object_Item *it = event_info;
@@ -298,33 +298,33 @@ _zoom_set(Ephoto_Thumb_Browser *tb, int zoom)
    else if (zoom < ZOOM_MIN) zoom = ZOOM_MIN;
 
    ephoto_thumb_size_set(tb->ephoto, zoom);
-   elm_gengrid_item_size_set(tb->grid, zoom * scale, zoom * scale);
+   elm_gengrid_item_size_set(tb->grid, zoom*scale, zoom*scale);
 }
 
 static void
-_zoom_in(void *data, Evas_Object *o, void *event_info EINA_UNUSED)
+_zoom_in(void *data, Evas_Object *obj, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
-   Evas_Object *min = evas_object_data_get(o, "min");
-   int zoom = tb->ephoto->config->thumb_size + ZOOM_STEP;
+   Evas_Object *min = evas_object_data_get(obj, "min");
+   int zoom = tb->ephoto->config->thumb_size+ZOOM_STEP;
    _zoom_set(tb, zoom);
-   if (zoom >= ZOOM_MAX) elm_object_disabled_set(o, EINA_TRUE);
+   if (zoom >= ZOOM_MAX) elm_object_disabled_set(obj, EINA_TRUE);
    if (zoom > ZOOM_MIN) elm_object_disabled_set(min, EINA_FALSE);
 }
 
 static void
-_zoom_out(void *data, Evas_Object *o, void *event_info EINA_UNUSED)
+_zoom_out(void *data, Evas_Object *obj, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
-   Evas_Object *max = evas_object_data_get(o, "max");
-   int zoom = tb->ephoto->config->thumb_size - ZOOM_STEP;
+   Evas_Object *max = evas_object_data_get(obj, "max");
+   int zoom = tb->ephoto->config->thumb_size-ZOOM_STEP;
    _zoom_set(tb, zoom);
-   if (zoom <= ZOOM_MIN) elm_object_disabled_set(o, EINA_TRUE);
+   if (zoom <= ZOOM_MIN) elm_object_disabled_set(obj, EINA_TRUE);
    if (zoom < ZOOM_MAX) elm_object_disabled_set(max, EINA_FALSE);
 }
 
 static void
-_slideshow(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+_slideshow(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
    Elm_Object_Item *it = elm_gengrid_selected_item_get(tb->grid);
@@ -338,7 +338,7 @@ _slideshow(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 }
 
 static void
-_settings(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+_settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
 
@@ -347,7 +347,7 @@ _settings(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 }
 
 static void
-_about(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+_about(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
 
@@ -356,7 +356,7 @@ _about(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
 }
 
 static void
-_ephoto_dir_show_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+_ephoto_dir_show_folders(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
 
@@ -372,7 +372,7 @@ _ephoto_dir_show_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_inf
 }
 
 static void
-_ephoto_dir_hide_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+_ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
    Evas_Object *icon, *max, *min, *but, *ic;
@@ -382,7 +382,7 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_inf
 
    tb->bleftbox = elm_box_add(tb->main);
    evas_object_size_hint_weight_set(tb->bleftbox, 0.0, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(tb->bleftbox, EVAS_HINT_FILL, EVAS_HINT_FILL);  
+   evas_object_size_hint_align_set(tb->bleftbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_box_pack_start(tb->main, tb->bleftbox);
    evas_object_show(tb->bleftbox);
 
@@ -424,7 +424,7 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *o EINA_UNUSED, void *event_inf
 }
 
 static void
-_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *event_info)
+_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
    Evas_Event_Key_Down *ev = event_info;
@@ -501,9 +501,9 @@ _dnd_drag_data_build(Eina_List **items)
              e = elm_object_item_data_get(it);
              if (e->path)
                {
-                  strcat((char *) drag_data, FILESEP);
-                  strcat((char *) drag_data, e->path);
-                  strcat((char *) drag_data, "\n");
+                  strcat((char *)drag_data, FILESEP);
+                  strcat((char *)drag_data, e->path);
+                  strcat((char *)drag_data, "\n");
                }
           }
      }
@@ -523,8 +523,8 @@ _dnd_create_icon(void *data, Evas_Object *win, Evas_Coord *xoff, Evas_Coord *yof
         const char *g;
         elm_image_file_get(o, &f, &g);
         evas_pointer_canvas_xy_get(evas_object_evas_get(o), &xm, &ym);
-        if (xoff) *xoff = xm - (w/2);
-        if (yoff) *yoff = ym - (h/2);
+        if (xoff) *xoff = xm-(w/2);
+        if (yoff) *yoff = ym-(h/2);
         icon = elm_icon_add(win);
         elm_image_file_set(icon, f, g);
         evas_object_size_hint_align_set(icon, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -585,7 +585,7 @@ _dnd_get_drag_data(Evas_Object *obj, Elm_Object_Item *it, Eina_List **items)
 
    *items = eina_list_clone(elm_gengrid_selected_items_get(obj));
    if (it)
-     {  
+     {
         void *p = eina_list_search_sorted(*items, _entry_cmp, it);
         if (!p)
           *items = eina_list_append(*items, it);
@@ -621,7 +621,7 @@ _dnd_item_data_get(Evas_Object *obj, Elm_Object_Item *it, Elm_Drag_User_Info *in
 }
 
 static void
-_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *o EINA_UNUSED, void *event_info EINA_UNUSED)
+_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
    Ecore_Event_Handler *handler;
@@ -721,7 +721,7 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UN
                     }
                }
           }
-        snprintf(image_info, PATH_MAX, "<b>Total:</b> %d images        <b>Size:</b> %s", 
+        snprintf(image_info, PATH_MAX, "<b>Total:</b> %d images        <b>Size:</b> %s",
                  tb->totimages, isize);
         elm_object_text_set(tb->infolabel, image_info);
      }
@@ -806,7 +806,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_toolbar_shrink_mode_set(tb->bar, ELM_TOOLBAR_SHRINK_NONE);
    elm_toolbar_select_mode_set(tb->bar, ELM_OBJECT_SELECT_MODE_NONE);
    evas_object_size_hint_weight_set(tb->bar, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_align_set(tb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);   
+   evas_object_size_hint_align_set(tb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
    icon = elm_toolbar_item_append(tb->bar, "zoom-in", "Zoom In", _zoom_in, tb);
    max = elm_object_item_widget_get(icon);

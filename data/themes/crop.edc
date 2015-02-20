@@ -8,7 +8,7 @@ collections {
                movetype = getarg(2);
                cox = getarg(3);
                coy = getarg(4);
-
+ 
                get_geometry(PART:"ephoto.swallow.image", ix, iy, iw, ih);
                get_geometry(PART:"ephoto.swallow.cropper", cx, cy, cw, ch);
                
@@ -95,17 +95,27 @@ collections {
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
                }
                if (movetype == 9) {
+                  new ppox, ppoy;
                   get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
-                  if (cx < ix)
-                    pox += ix-cx;
-                  if (cx+cw > ix+iw)
-                    pox += (ix+iw)-(cx+cw);
-                  if (cy < iy)
-                    poy += iy-cy;
-                  if (cy+ch > iy+ih)
-                    poy += (iy+ih)-(cy+ch);
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+                  if (cx < ix) {
+                     pox += ix-cx;
+                     ppox += ix-cx;
+                  }
+                  if (cx+cw > ix+iw) {
+                     pox += (ix+iw)-(cx+cw);
+                     ppox += (ix+iw)-(cx+cw);
+                  }
+                  if (cy < iy) {
+                     poy += iy-cy;
+                     ppoy += iy-cy;
+                  }
+                  if (cy+ch > iy+ih) {
+                     poy += (iy+ih)-(cy+ch);
+                     ppoy += (iy+ih)-(cy+ch);
+                  }
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
-                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, pox, poy);
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
                }
                set_state(PART:"ephoto.swallow.cropper", "custom", 0.0);
             }

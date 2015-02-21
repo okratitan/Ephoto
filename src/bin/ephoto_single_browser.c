@@ -464,8 +464,8 @@ _mouse_wheel(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void
    Evas_Event_Mouse_Wheel *ev = event_info;
    if (!evas_key_modifier_is_set(ev->modifiers, "Control")) return;
 
-   if (ev->z > 0) _zoom_in(sb);
-   else _zoom_out(sb);
+   if (ev->z > 0) _zoom_out(sb);
+   else _zoom_in(sb);
 }
 
 static Ephoto_Entry *

@@ -95,25 +95,17 @@ collections {
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
                }
                if (movetype == 9) {
-                  new ppox, ppoy;
+                  new ppox, ppoy, oldw, oldh, scalew, scaleh;
                   get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
                   get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
-                  if (cx < ix) {
-                     pox += ix-cx;
-                     ppox += ix-cx;
-                  }
-                  if (cx+cw > ix+iw) {
-                     pox += (ix+iw)-(cx+cw);
-                     ppox += (ix+iw)-(cx+cw);
-                  }
-                  if (cy < iy) {
-                     poy += iy-cy;
-                     ppoy += iy-cy;
-                  }
-                  if (cy+ch > iy+ih) {
-                     poy += (iy+ih)-(cy+ch);
-                     ppoy += (iy+ih)-(cy+ch);
-                  }
+                  oldw = cw + cox;
+                  oldh = ch + coy;
+                  scalew = oldw/cw;
+                  scaleh = oldh/ch;
+                  pox *= scalew;
+                  ppox *= scalew;
+                  poy *= scaleh;
+                  ppoy *= scaleh;
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
                }

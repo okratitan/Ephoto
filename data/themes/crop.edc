@@ -1,3 +1,15 @@
+
+#define FIXED_SIZE(_W, _H) \
+   min: _W _H; max: _W _H;
+
+images {
+   image: "sel_border.png" COMP;
+   image: "sel_corner1.png" COMP;
+   image: "sel_corner3.png" COMP;
+   image: "sel_corner5.png" COMP;
+   image: "sel_corner7.png" COMP;
+}
+
 collections {
    group { name: "ephoto,image,cropper,base";
       script {
@@ -150,7 +162,7 @@ collections {
             mouse_events: 0;
             clip_to: "clipper";
             description { state: "default" 0.0;
-               color: 0 0 0 200;
+               color: 0 0 0 150;
                rel1.to: "clipper";
                rel1.relative: 0.0 0.0;
                rel2.to: "ephoto.swallow.cropper";
@@ -163,7 +175,7 @@ collections {
             mouse_events: 0;
             clip_to: "clipper";
             description { state: "default" 0.0;
-               color: 0 0 0 200;
+               color: 0 0 0 150;
                rel1.to: "shader_top";
                rel1.relative: 0.0 1.0;
                rel2.to: "ephoto.swallow.cropper";
@@ -176,7 +188,7 @@ collections {
             mouse_events: 0;
             clip_to: "clipper";
             description { state: "default" 0.0;
-               color: 0 0 0 200;
+               color: 0 0 0 150;
                rel1.to: "shader_left";
                rel1.relative: 0.0 1.0;
                rel2.to: "clipper";
@@ -189,7 +201,7 @@ collections {
             mouse_events: 0;
             clip_to: "clipper";
             description { state: "default" 0.0;
-               color: 0 0 0 200;
+               color: 0 0 0 150;
                rel1.to: "shader_top";
                rel1.relative: 1.0 0.0;
                rel2.to: "shader_bottom";
@@ -199,146 +211,195 @@ collections {
       }
    }
    group { name: "ephoto,image,cropper";
-      parts { 
-         part { name: "cropper";
-            type: RECT;
-            scale: 1;
-            mouse_events: 1;
+      parts {
+         part { name: "cropper"; type: IMAGE;
+            repeat_events: 1;
             description { state: "default" 0.0;
-               color: 255 255 255 0;
+               color: 255 255 255 200;
+               image {
+                  normal: "sel_border.png";
+                  border: 3 3 3 3;
+                  middle: NONE;
+               }
             }
-         }
-         part { name: "dragger";
-            type: RECT;
-            scale: 1;
-            mouse_events: 1;
-            description { state: "default" 0.0;
-               color: 255 255 255 0;
-               rel1.to: "cropper";
-               rel1.relative: 0.0 0.0;
-               rel2.to: "cropper";
-               rel2.relative: 1.0 1.0;
+            part { name: "dragger"; type: RECT;
+               repeat_events: 1;
+               description { state: "default" 0.0;
+                  color: 255 255 255 0;
+                  rel1 {
+                     to: "handle1";
+                     relative: 1.0 1.0;
+                  }
+                  rel2 {
+                     to: "handle5";
+                     relative: 0.0 0.0;
+                  }
+               }
             }
-         }
-         part { name: "handle2";
-            type: RECT;
-            scale: 1;
-            mouse_events: 1;
-            description { state: "default" 0.0;
-               color: 0 0 0 255;
-               min: 10 10;
-               max: 99999 10;
-               align: 0 0;
-               rel1.to: "cropper";
-               rel1.relative: 0.0 0.0;
-               rel2.to: "cropper";
-               rel2.relative: 1.0 0.0;
+            part { name: "handle1"; type: IMAGE;
+               repeat_events: 1;
+               description { state: "default" 0.0;
+                  FIXED_SIZE(22, 22)
+                  rel1.offset: 1 1;
+                  align: 0.0 0.0;
+                  color: 255 255 255 0;
+                  image.normal: "sel_corner1.png";
+               }
+               description { state: "visible" 0.0;
+                  inherit: "default" 0.0;
+                  color: 255 255 255 200;
+               }
             }
-         }
-         part { name: "handle4";
-            type: RECT;
-            scale: 1;
-            mouse_events: 1;
-            description { state: "default" 0.0;
-               color: 0 0 0 255;
-               min: 10 10;
-               max: 10 99999;
-               align: 1 1;
-               rel1.to: "cropper";
-               rel1.relative: 1.0 0.0;
-               rel2.to: "cropper";
-               rel2.relative: 1.0 1.0;
+            part { name: "handle2"; type: RECT;
+               repeat_events: 1;
+               description { state: "default" 0.0;
+                  color: 255 255 255 0;
+                  rel1 {
+                     to: "handle1";
+                     relative: 1.0 0.0;
+                     offset: 3 2;
+                  }
+                  rel2 {
+                     to: "handle3";
+                     relative: 0.0 1.0;
+                     offset: -4 -2;
+                  }
+               }
+               description { state: "visible" 0.0;
+                  inherit: "default" 0.0;
+                  color: 255 255 255 80;
+               }
             }
-         }
-         part { name: "handle6";
-            type: RECT;
-            scale: 1;
-            mouse_events: 1;
-            description { state: "default" 0.0;
-               color: 0 0 0 255;
-               min: 10 10;
-               max: 99999 10;
-               align: 1 1;
-               rel1.to: "cropper";
-               rel1.relative: 0.0 1.0;
-               rel2.to: "cropper";
-               rel2.relative: 1.0 1.0;
+            part { name: "handle3"; type: IMAGE;
+               repeat_events: 1;
+               description { state: "default" 0.0;
+                  FIXED_SIZE(22, 22)
+                  rel1.offset: 0 1;
+                  rel2.offset: -2 -1;
+                  align: 1.0 0.0;
+                  color: 255 255 255 0;
+                  image.normal: "sel_corner3.png";
+               }
+               description { state: "visible" 0.0;
+                  inherit: "default" 0.0;
+                  color: 255 255 255 200;
+               }
             }
-         }
-         part { name: "handle8";
-            type: RECT;
-            scale: 1;
-            mouse_events: 1;
-            description { state: "default" 0.0;
-               color: 0 0 0 255;
-               min: 10 10;
-               max: 10 99999;
-               align: 0 0;
-               rel1.to: "cropper";
-               rel1.relative: 0.0 0.0;
-               rel2.to: "cropper";
-               rel2.relative: 0.0 1.0;
+            part { name: "handle4"; type: RECT;
+               repeat_events: 1;
+               description { state: "default" 0.0;
+                  color: 255 255 255 0;
+                  rel1 {
+                     to: "handle3";
+                     relative: 0.0 1.0;
+                     offset: 1 3;
+                  }
+                  rel2 {
+                     to: "handle5";
+                     relative: 1.0 0.0;
+                     offset: -3 -4;
+                  }
+               }
+               description { state: "visible" 0.0;
+                  inherit: "default" 0.0;
+                  color: 255 255 255 80;
+               }
             }
-         }
-         part { name: "handle1";
-            type: RECT;
-            scale: 1;
-            mouse_events: 1;
-            description { state: "default" 0.0;
-               color: 0 0 0 255;
-               min: 10 10;
-               max: 99999 10;
-               align: 0 0;
-               rel1.to: "cropper";
-               rel1.relative: 0.0 0.0;
-               rel2.to: "cropper";
-               rel2.relative: 0.0 0.0;
+            part { name: "handle5"; type: IMAGE;
+               repeat_events: 1;
+               description { state: "default" 0.0;
+                  FIXED_SIZE(22, 22)
+                  rel2.offset: -2 -2;
+                  align: 1.0 1.0;
+                  color: 255 255 255 0;
+                  image.normal: "sel_corner5.png";
+               }
+               description { state: "visible" 0.0;
+                  inherit: "default" 0.0;
+                  color: 255 255 255 200;
+               }
             }
-         }
-         part { name: "handle3";
-            type: RECT;
-            scale: 1;
-            mouse_events: 1;
-            description { state: "default" 0.0;
-               color: 0 0 0 255;
-               min: 10 10;
-               max: 99999 10;
-               align: 1 0;
-               rel1.to: "cropper";
-               rel1.relative: 1.0 0.0;
-               rel2.to: "cropper";
-               rel2.relative: 1.0 0.0;
+            part { name: "handle6"; type: RECT;
+               repeat_events: 1;
+               description { state: "default" 0.0;
+                  rel1 {
+                     to: "handle7";
+                     relative: 1.0 0.0;
+                     offset: 3 1;
+                  }
+                  rel2 {
+                     to: "handle5";
+                     relative: 0.0 1.0;
+                     offset: -4 -3;
+                  }
+                  color: 255 255 255 0;
+               }
+               description { state: "visible" 0.0;
+                  inherit: "default" 0.0;
+                  color: 255 255 255 80;
+               }
             }
-         }
-         part { name: "handle5";
-            type: RECT;
-            scale: 1;
-            mouse_events: 1;
-            description { state: "default" 0.0;
-               color: 0 0 0 255;
-               min: 10 10;
-               max: 99999 10;
-               align: 1 1;
-               rel1.to: "cropper";
-               rel1.relative: 1.0 1.0;
-               rel2.to: "cropper";
-               rel2.relative: 1.0 1.0;
+            part { name: "handle7"; type: IMAGE;
+               repeat_events: 1;
+               description { state: "default" 0.0;
+                  FIXED_SIZE(22, 22)
+                  rel1.offset: 1 0;
+                  rel2.offset: -1 -2;
+                  align: 0.0 1.0;
+                  color: 255 255 255 0;
+                  image.normal: "sel_corner7.png";
+               }
+               description { state: "visible" 0.0;
+                  inherit: "default" 0.0;
+                  color: 255 255 255 200;
+               }
             }
-         }
-         part { name: "handle7";
-            type: RECT;
-            scale: 1;
-            mouse_events: 1;
-            description { state: "default" 0.0;
-               color: 0 0 0 255;
-               min: 10 10;
-               max: 99999 10;
-               align: 0 1;
-               rel1.to: "cropper";
-               rel1.relative: 0.0 1.0;
-               rel2.to: "cropper";
-               rel2.relative: 0.0 1.0;
+            part { name: "handle8"; type: RECT;
+               repeat_events: 1;
+               description { state: "default" 0.0;
+                  rel1 {
+                     to: "handle1";
+                     relative: 0.0 1.0;
+                     offset: 2 3;
+                  }
+                  rel2 {
+                     to: "handle7";
+                     relative: 1.0 0.0;
+                     offset: -2 -4;
+                  }
+                  color: 255 255 255 0;
+               }
+               description { state: "visible" 0.0;
+                  inherit: "default" 0.0;
+                  color: 255 255 255 80;
+               }
             }
+            program {
+               signal: "mouse,in"; source: "cropper";
+               action: STATE_SET "visible" 0.0;
+               transition: LINEAR 0.3 ;
+               targets: "handle1" "handle3" "handle5" "handle7";
+            }
+            program {
+               signal: "mouse,out"; source: "cropper";
+               action: STATE_SET "default" 0.0;
+               transition: LINEAR 0.3 ;
+               targets: "handle1" "handle3" "handle5" "handle7";
+            }
+#define SHOW_HIDE_LATERALS(_NAME_)                 \
+            program { signal: "mouse,in"; source: _NAME_;   \
+                      action: STATE_SET "visible" 0.0;      \
+                      transition: LINEAR 0.3 ;       \
+                      target: _NAME_; }                     \
+            program { signal: "mouse,out"; source: _NAME_;  \
+                      action: STATE_SET "default" 0.0;      \
+                      transition: LINEAR 0.3 ;       \
+                      target: _NAME_; }
+            SHOW_HIDE_LATERALS("handle2")
+            SHOW_HIDE_LATERALS("handle4")
+            SHOW_HIDE_LATERALS("handle6")
+            SHOW_HIDE_LATERALS("handle8")
+#undef SHOW_HIDE_LATERALS
          }
       }
    }

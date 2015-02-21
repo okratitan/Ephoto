@@ -4,7 +4,7 @@ Version: @VERSION@
 Release: 0.%(date '+%Y%m%d')
 License: BSD
 Group: Applications/Multimedia
-URL: http://www.stephen.3sixty8.com
+URL: http://www.smhouston.us
 Source: %{name}-%{version}.tar.gz
 Packager: %{?_packager:%{_packager}}%{!?_packager:Stephen Houston <smhouston88@gmail.com>}
 Vendor: %{?_vendorinfo:%{_vendorinfo}}%{!?_vendorinfo:Okra Project (http://www.smhouston.us/)}

@@ -271,8 +271,7 @@ _image_resize(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, voi
    Ephoto_Cropper *ec = data;
    Edje_Message_Int_Set *msg;
 
-   int sx, sy, sw, sh, iw, ih, diffw, diffh;
-   int cx, cy, cw, ch, ix, iy;
+   int sx, sy, sw, sh, ix, iy, iw, ih, diffw, diffh;
 
    evas_object_geometry_get(ec->layout, &sx, &sy, &sw, &sh);
    evas_object_image_size_get(elm_image_object_get(ec->image), &iw, &ih);
@@ -310,10 +309,6 @@ _image_resize(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, voi
    diffh /= 2;
    ix = sx+diffw;
    iy = sy+diffh;
-   cw = nw/2;
-   ch = nh/2;
-   cx = ix+(cw/2);
-   cy = iy+(ch/2);
 
    evas_object_resize(ec->layout, nw, nh);
    evas_object_move(ec->layout, ix, iy);

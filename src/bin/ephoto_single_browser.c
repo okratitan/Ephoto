@@ -21,7 +21,7 @@ struct _Ephoto_Single_Browser
    Ephoto_Entry *entry;
    Ephoto_Orient orient;
    Eina_List *handlers;
-   int cropping;
+   Eina_Bool cropping:1;
 };
 
 struct _Ephoto_Viewer
@@ -29,9 +29,9 @@ struct _Ephoto_Viewer
    Evas_Object *scroller;
    Evas_Object *table;
    Evas_Object *image;
-   int cropping;
    double zoom;
    Eina_Bool fit:1;
+   Eina_Bool cropping:1;
 };
 
 static void _zoom_set(Ephoto_Single_Browser *sb, double zoom);
@@ -744,7 +744,7 @@ _reset_yes(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSE
 {
    Evas_Object *win = data;
    Ephoto_Single_Browser *sb = evas_object_data_get(win, "single_browser");
-   sb->cropping = 0;
+   sb->cropping = EINA_FALSE;
    ephoto_single_browser_entry_set(sb->main, sb->entry);
    evas_object_del(win);
 }
@@ -885,7 +885,7 @@ _save_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
    Ephoto_Single_Browser *sb = data;
    if (sb->cropping)
      {
-        sb->cropping = 0;
+        sb->cropping = EINA_FALSE;
         ephoto_single_browser_entry_set(sb->main, sb->entry);
      }
    Evas_Object *win, *box, *label, *hbox, *ic, *button;
@@ -1051,7 +1051,7 @@ _save_image_as(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_U
    Ephoto_Single_Browser *sb = data;
    if (sb->cropping)
      {
-        sb->cropping = 0;
+        sb->cropping = EINA_FALSE;
         ephoto_single_browser_entry_set(sb->main, sb->entry);
      }
    Evas_Object *win, *fsel;
@@ -1137,7 +1137,7 @@ _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
    evas_object_image_save(crop, tmp_path, NULL, NULL);
    evas_object_del(crop);
 
-   sb->cropping = 0;
+   sb->cropping = EINA_FALSE;
    evas_object_del(sb->viewer);
    sb->viewer = _viewer_add(sb->main, tmp_path);
    elm_table_pack(sb->table, sb->viewer, 0, 1, 4, 1);
@@ -1171,7 +1171,7 @@ static void
 _cancel_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
-   sb->cropping = 0;
+   sb->cropping = EINA_FALSE;
    ephoto_single_browser_entry_set(sb->main, sb->entry);
 }
 
@@ -1179,7 +1179,7 @@ static void
 _crop_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
-   sb->cropping = 1;
+   sb->cropping = EINA_TRUE;
    ephoto_single_browser_entry_set(sb->main, sb->entry);
 }
 
@@ -1402,7 +1402,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    EINA_SAFETY_ON_NULL_GOTO(sb, error);
 
    sb->ephoto = ephoto;
-   sb->cropping = 0;
+   sb->cropping = EINA_FALSE;
    sb->main = box;
 
    elm_box_horizontal_set(box, EINA_FALSE);

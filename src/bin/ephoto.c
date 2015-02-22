@@ -15,7 +15,6 @@ elm_main(int argc, char **argv)
    eio_init();
    elm_need_efreet();
    elm_need_ethumb();
-   elm_init(argc, argv);
 
 #if HAVE_GETTEXT && ENABLE_NLS
    elm_app_compile_locale_set(LOCALEDIR);
@@ -83,7 +82,6 @@ elm_main(int argc, char **argv)
    eina_log_domain_unregister(__log_domain);
    efreet_mime_shutdown();
  end_log_domain:
-   elm_shutdown();
    eio_shutdown();
 
    return r;

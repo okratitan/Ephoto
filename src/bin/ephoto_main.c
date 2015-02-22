@@ -149,7 +149,7 @@ ephoto_window_add(const char *path)
    EPHOTO_EVENT_POPULATE_END = ecore_event_type_new();
    EPHOTO_EVENT_POPULATE_ERROR = ecore_event_type_new();
 
-   ephoto->win = elm_win_add(NULL, "ephoto", ELM_WIN_BASIC);
+   ephoto->win = elm_win_util_standard_add("ephoto", "Ephoto");
    if (!ephoto->win)
      {
         free(ephoto);
@@ -173,13 +173,6 @@ ephoto_window_add(const char *path)
        (ephoto->config->thumb_gen_size != 256) &&
        (ephoto->config->thumb_gen_size != 512))
      ephoto_thumb_size_set(ephoto, ephoto->config->thumb_size);
-
-   ephoto->bg = elm_bg_add(ephoto->win);
-   evas_object_size_hint_weight_set
-     (ephoto->bg, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_fill_set(ephoto->bg, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_win_resize_object_add(ephoto->win, ephoto->bg);
-   evas_object_show(ephoto->bg);
 
    ephoto->pager = elm_naviframe_add(ephoto->win);
    elm_naviframe_prev_btn_auto_pushed_set(ephoto->pager, EINA_FALSE);

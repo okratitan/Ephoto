@@ -109,7 +109,6 @@ struct _Ephoto_Config
 struct _Ephoto
 {
    Evas_Object *win;
-   Evas_Object *bg;
    Evas_Object *panel;
    Evas_Object *pager;
 

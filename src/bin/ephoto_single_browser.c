@@ -816,7 +816,6 @@ static void
 _failed_save(Ephoto_Single_Browser *sb)
 {
    Evas_Object *win, *box, *label, *ic, *button;
-   char buf[PATH_MAX];
 
    win = elm_win_inwin_add(sb->ephoto->win);
    elm_object_style_set(win, "minimal");
@@ -1084,7 +1083,6 @@ _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
    Evas_Object *layout = evas_object_data_get(cropper, "layout");
    Evas_Object *image = evas_object_data_get(cropper, "image");
    Evas_Object *edje = elm_layout_edje_get(layout);
-   Evas_Object *image_object = elm_image_object_get(image);
    Evas_Object *crop;
 
    const char *path, *key, *type;;

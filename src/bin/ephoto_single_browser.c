@@ -983,13 +983,13 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
           snprintf(buf, PATH_MAX, "%s", selected);
         if (ecore_file_exists(buf))
           {
-             Evas_Object *win, *box, *label, *hbox, *ic, *button;
+             Evas_Object *inwin, *box, *label, *hbox, *ic, *button;
 
-             win = elm_win_inwin_add(sb->ephoto->win);
-             elm_object_style_set(win, "minimal");
-             evas_object_show(win);
+             inwin = elm_win_inwin_add(sb->ephoto->win);
+             elm_object_style_set(inwin, "minimal");
+             evas_object_show(inwin);
 
-             box = elm_box_add(win);
+             box = elm_box_add(inwin);
              elm_box_horizontal_set(box, EINA_FALSE);
              evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
              evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -1001,7 +1001,7 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
              elm_box_pack_end(box, label);
              evas_object_show(label);
 
-             hbox = elm_box_add(win);
+             hbox = elm_box_add(inwin);
              elm_box_horizontal_set(hbox, EINA_TRUE);
              evas_object_size_hint_weight_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
              evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -1015,7 +1015,7 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
              button = elm_button_add(hbox);
              elm_object_text_set(button, "Yes");
              elm_object_part_content_set(button, "icon", ic);
-             evas_object_smart_callback_add(button, "clicked", _save_image_as_overwrite, win);
+             evas_object_smart_callback_add(button, "clicked", _save_image_as_overwrite, inwin);
              elm_box_pack_end(hbox, button);
              evas_object_show(button);
 
@@ -1026,13 +1026,13 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
              button = elm_button_add(hbox);
              elm_object_text_set(button, "No");
              elm_object_part_content_set(button, "icon", ic);
-             evas_object_smart_callback_add(button, "clicked", _save_no, win);
+             evas_object_smart_callback_add(button, "clicked", _save_no, inwin);
              elm_box_pack_end(hbox, button);
              evas_object_show(button);
 
-             evas_object_data_set(win, "single_browser", sb);
-             evas_object_data_set(win, "file", strdup(buf));
-             elm_win_inwin_content_set(win, box);
+             evas_object_data_set(inwin, "single_browser", sb);
+             evas_object_data_set(inwin, "file", strdup(buf));
+             elm_win_inwin_content_set(inwin, box);
              evas_object_show(box);
           }
         else

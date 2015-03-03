@@ -138,7 +138,6 @@ _cropper_resize_horiz(void *data, Evas_Object *obj EINA_UNUSED, const char *emis
    ec->startx = mx;
    ec->starty = my;
 
-
    edje_object_signal_callback_add(ec->cropper, "mouse,move", source, _cropper_horiz_mouse_move, ec);
    edje_object_signal_callback_add(ec->cropper, "mouse,up,1", source, _cropper_horiz_mouse_up, ec);
 }
@@ -223,7 +222,6 @@ _cropper_mouse_move(void *data, Evas_Object *obj EINA_UNUSED, const char *emissi
           my = ly;
         else if (my > ly+lh)
           my = ly+lh;
-
 
         nx = mx-ec->startx;
         ny = my-ec->starty;

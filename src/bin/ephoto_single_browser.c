@@ -1293,12 +1293,21 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *e
              if (shift) _zoom_fit(sb);
              else _zoom_set(sb, 1.0);
           }
-
         return;
      }
 
    if (!strcmp(k, "Escape"))
-     evas_object_smart_callback_call(sb->main, "back", sb->entry);
+     {
+        if (sb->cropping)
+          _cancel_crop(sb, NULL, NULL);
+        else
+          evas_object_smart_callback_call(sb->main, "back", sb->entry);
+     }
+   else if (!strcmp(k, "Return"))
+     {
+        if (sb->cropping)
+          _apply_crop(sb, NULL, NULL);
+     }
    else if (!strcmp(k, "Left"))
      _prev_entry(sb);
    else if (!strcmp(k, "Right"))

@@ -1251,6 +1251,8 @@ static void
 _back(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
+   if (sb->cropping)
+     _cancel_crop(sb, NULL, NULL);
    evas_object_smart_callback_call(sb->main, "back", sb->entry);
 }
 

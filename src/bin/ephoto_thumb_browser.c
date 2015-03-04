@@ -347,15 +347,6 @@ _settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED
 }
 
 static void
-_about(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
-{
-   Ephoto_Thumb_Browser *tb = data;
-
-   if (tb->ephoto)
-     ephoto_about_window(tb->ephoto);
-}
-
-static void
 _ephoto_dir_show_folders(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
@@ -403,7 +394,6 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED, void *event_i
    evas_object_data_set(min, "max", max);
    elm_toolbar_item_append(tb->vbar, "stock_media-play", "Slideshow", _slideshow, tb);
    elm_toolbar_item_append(tb->vbar, "emblem-system", "Settings", _settings, tb);
-   elm_toolbar_item_append(tb->vbar, "help-about", "About", _about, tb);
 
    elm_box_pack_end(tb->bleftbox, tb->vbar);
    evas_object_show(tb->vbar);
@@ -816,7 +806,6 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_data_set(min, "max", max);
    elm_toolbar_item_append(tb->bar, "stock_media-play", "Slideshow", _slideshow, tb);
    elm_toolbar_item_append(tb->bar, "emblem-system", "Settings", _settings, tb);
-   elm_toolbar_item_append(tb->bar, "help-about", "About", _about, tb);
 
    elm_box_pack_end(tb->leftbox, tb->bar);
    evas_object_show(tb->bar);

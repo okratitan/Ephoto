@@ -70,3 +70,6 @@ endif
 EXTRA_DIST = README AUTHORS COPYING autogen.sh ephoto.spec
 
 ACLOCAL_AMFLAGS = -I m4
+
+filesdir = $(datadir)/ephoto/
+files_DATA = AUTHORS COPYING

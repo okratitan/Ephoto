@@ -75,9 +75,9 @@ ephoto_config_free(Ephoto *ephoto)
 static void
 _close(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
-   Evas_Object *o = data;
+   Ephoto *ephoto = data;
 
-   evas_object_del(o);
+   evas_object_del(ephoto->config->window);
 }
 
 static void
@@ -100,22 +100,19 @@ _hv_select(void *data EINA_UNUSED, Evas_Object *obj, void *event_info)
    elm_object_text_set(obj, elm_object_item_text_get(event_info));
 }
 
-void
-ephoto_config_window(Ephoto *ephoto)
+static Evas_Object *
+_add_slideshow_config(Evas_Object *parent, Ephoto *ephoto)
 {
-   Evas_Object *win, *scroller, *box, *hbox, *table, *spinner, *hoversel, *ic, *button, *label;
+   Evas_Object *box, *scroller, *table, *label, *spinner, *hoversel, *hbox, *ic, *button;
    const Eina_List *l;
    const char *transition;
 
-   win = elm_win_inwin_add(ephoto->win);
-   evas_object_show(win);
-
-   box = elm_box_add(win);
+   box = elm_box_add(parent);
    elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-   scroller = elm_scroller_add(win);
+   scroller = elm_scroller_add(box);
    evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(scroller, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_box_pack_end(box, scroller);
@@ -154,7 +151,7 @@ ephoto_config_window(Ephoto *ephoto)
    evas_object_show(label);
 
    hoversel = elm_hoversel_add(table);
-   elm_hoversel_hover_parent_set(hoversel, win);
+   elm_hoversel_hover_parent_set(hoversel, box);
    EINA_LIST_FOREACH(elm_slideshow_transitions_get(ephoto->slideshow), l, transition)
      elm_hoversel_item_add(hoversel, transition, NULL, 0, _hv_select, transition);
    elm_hoversel_item_add(hoversel, "None", NULL, 0, _hv_select, NULL);
@@ -172,7 +169,7 @@ ephoto_config_window(Ephoto *ephoto)
    elm_box_pack_end(box, hbox);
    evas_object_show(hbox);
 
-   ic = elm_icon_add(box);
+   ic = elm_icon_add(hbox);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "stock_save");
 
@@ -183,58 +180,90 @@ ephoto_config_window(Ephoto *ephoto)
    elm_box_pack_end(hbox, button);
    evas_object_show(button);
 
-   ic = elm_icon_add(box);
+   ic = elm_icon_add(hbox);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "stock_close");
 
    button = elm_button_add(hbox);
    elm_object_text_set(button, "Cancel");
    elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _close, win);
+   evas_object_smart_callback_add(button, "clicked", _close, ephoto);
    elm_box_pack_end(hbox, button);
    evas_object_show(button);
 
-   ephoto->config->window = win;
-   elm_win_inwin_content_set(win, box);
-   evas_object_show(box);
+   return box;
 }
 
-void
-ephoto_about_window(Ephoto *ephoto)
+static Evas_Object *
+_add_about_config(Evas_Object *parent, Ephoto *ephoto)
 {
-   Evas_Object *win, *scroller, *box, *ic, *button, *label;
+   Evas_Object *box, *scroller, *ic, *button, *label;
+   Eina_Strbuf *sbuf = eina_strbuf_new();
+   FILE *f;
 
-   win = elm_win_inwin_add(ephoto->win);
-   evas_object_show(win);
-
-   box = elm_box_add(win);
+   box = elm_box_add(parent);
    elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-   scroller = elm_scroller_add(win);
+   scroller = elm_scroller_add(box);
    evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(scroller, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_box_pack_end(box, scroller);
    evas_object_show(scroller);
 
-   label = elm_label_add(box);
+   label = elm_label_add(scroller);
    evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_object_text_set(label,
-     "<b>About Ephoto</b><br/>"
+   eina_strbuf_append_printf(sbuf, "<b>About Ephoto</b><br/>"
      "Ephoto is a comprehensive image viewer based on the EFL.<br/>"
      "For more information, please visit the Ephoto project page on the Enlightenment wiki:<br/>"
      "https://phab.enlightenment.org/w/projects/ephoto<br/>"
      "Ephoto's source can be found through Enlightenment's git:<br/>"
      "http://git.enlightenment.org/apps/ephoto.git<br/>"
      "<br/>"
-     "Authors:<br/>"
-     "Stephen \"okra\" Houston - Project Manager/Lead Developer<br/>"
-     "Gustavo Sverzut Barbieri<br/>"
-     "Otavio Pontes<br/>"
-     "Daniel Juyung Seo<br/>"
-     "And others.<br/>");
+     "<b>Authors:</b><br/>");
+   f = fopen(PACKAGE_DATA_DIR "/AUTHORS", "r");
+   if (f)
+     {
+        char buf[PATH_MAX];
+        while (fgets(buf, sizeof(buf), f))
+          {
+             int len;
+
+             len = strlen(buf);
+             if (len > 0)
+               {
+                  if (buf[len - 1] == '\n')
+                    {
+                       buf[len - 1] = 0;
+                       len--;
+                    }
+                  if (len > 0)
+                    {
+                       char *p;
+
+                       do
+                         {
+                            p = strchr(buf, '<');
+                            if (p) *p = 0;
+                         }
+                       while (p);
+                       do
+                         {
+                            p = strchr(buf, '>');
+                            if (p) *p = 0;
+                         }
+                       while (p);
+                       eina_strbuf_append_printf(sbuf, "%s<br>", buf);
+                    }
+                  if (len == 0)
+                    eina_strbuf_append_printf(sbuf, "<br>");
+               }
+          }
+        fclose(f);
+     }
+   elm_object_text_set(label, eina_strbuf_string_get(sbuf));
    elm_object_content_set(scroller, label);
    evas_object_show(label);
 
@@ -245,12 +274,71 @@ ephoto_about_window(Ephoto *ephoto)
    button = elm_button_add(box);
    elm_object_text_set(button, "Close");
    elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _close, win);
+   evas_object_smart_callback_add(button, "clicked", _close, ephoto);
    elm_box_pack_end(box, button);
    evas_object_show(button);
 
-   elm_win_inwin_content_set(win, box);
+   return box;
+}
+
+static void
+_show_page(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Elm_Object_Item *it = data;
+
+   elm_naviframe_item_promote(it);
+}
+
+void
+ephoto_config_window(Ephoto *ephoto)
+{
+   Evas_Object *win, *box, *toolbar, *pager, *slideshow, *about;
+   Elm_Object_Item *sit, *ait;
+   const Eina_List *l;
+   const char *transition;
+
+   win = elm_win_inwin_add(ephoto->win);
+   evas_object_show(win);
+
+   box = elm_box_add(win);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_show(box);
+
+   toolbar = elm_toolbar_add(win);
+   elm_toolbar_horizontal_set(toolbar, EINA_TRUE);
+   elm_toolbar_homogeneous_set(toolbar, EINA_TRUE);
+   elm_toolbar_shrink_mode_set(toolbar, ELM_TOOLBAR_SHRINK_SCROLL);
+   elm_toolbar_select_mode_set(toolbar, ELM_OBJECT_SELECT_MODE_NONE);
+   evas_object_size_hint_weight_set(toolbar, EVAS_HINT_EXPAND, 0.0);
+   evas_object_size_hint_align_set(toolbar, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, toolbar);
+   evas_object_show(toolbar);
+
+   pager = elm_naviframe_add(win);
+   elm_naviframe_prev_btn_auto_pushed_set(pager, EINA_FALSE);
+   evas_object_size_hint_weight_set
+     (pager, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_fill_set
+     (pager, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, pager);
+   evas_object_show(pager);
+
+   slideshow = _add_slideshow_config(pager, ephoto);   
+   sit = elm_naviframe_item_push(pager, NULL, NULL, NULL, slideshow, "overlap");
+   elm_naviframe_item_title_enabled_set(sit, EINA_FALSE, EINA_FALSE);
+   elm_toolbar_item_append(toolbar, "stock_media-play", "Slideshow", _show_page, sit);
+
+   about = _add_about_config(pager, ephoto);
+   ait = elm_naviframe_item_insert_after(pager, sit, NULL, NULL, NULL, about, "overlap");
+   elm_naviframe_item_title_enabled_set(ait, EINA_FALSE, EINA_FALSE);
+   elm_toolbar_item_append(toolbar, "help-about", "About", _show_page, ait);
+
+   elm_naviframe_item_promote(sit);
+
+   ephoto->config->window = win;
+   elm_win_inwin_content_set(win, box);
 }
 
 static int

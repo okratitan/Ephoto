@@ -1266,15 +1266,6 @@ _settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED
 }
 
 static void
-_about(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
-{
-   Ephoto_Single_Browser *sb = data;
-
-   if (sb->ephoto)
-     ephoto_about_window(sb->ephoto);
-}
-
-static void
 _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto_Single_Browser *sb = data;
@@ -1467,7 +1458,6 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
 
    icon = elm_toolbar_item_append(sb->bar, "stock_media-play", "Slideshow", _slideshow, sb);
    icon = elm_toolbar_item_append(sb->bar, "emblem-system", "Settings", _settings, sb);
-   icon = elm_toolbar_item_append(sb->bar, "help-about", "About", _about, sb);
 
    elm_box_pack_end(sb->main, sb->bar);
    evas_object_show(sb->bar);

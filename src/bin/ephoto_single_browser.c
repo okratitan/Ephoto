@@ -1102,7 +1102,7 @@ _save_image_as(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_U
    elm_fileselector_is_save_set(fsel, EINA_TRUE);
    elm_fileselector_expandable_set(fsel, EINA_FALSE);
    elm_fileselector_path_set(fsel, sb->ephoto->config->directory);
-   elm_fileselector_current_name_set(fsel, "Save as...");
+   elm_fileselector_current_name_set(fsel, sb->entry->basename);
    elm_fileselector_mime_types_filter_append(fsel, "image/*", "Image Files");
    evas_object_size_hint_weight_set(fsel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);

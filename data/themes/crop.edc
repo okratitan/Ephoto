@@ -125,6 +125,11 @@ collections {
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
                }
+               if (movetype == 10) {
+                  new buf[32];
+                  snprintf(buf, sizeof(buf), "%dx%d", cox, coy);
+                  set_text(PART:"ephoto.cropper.size", buf);
+               }
                set_state(PART:"ephoto.swallow.cropper", "custom", 0.0);
             }
          }
@@ -155,7 +160,25 @@ collections {
                rel2.to: "ephoto.swallow.image";
                rel2.relative: 0.8 0.8;
             }
-         } 
+         }
+         part { name: "ephoto.cropper.size";
+            type: TEXT;
+            effect: GLOW;
+            scale: 1;
+            mouse_events: 0;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+               color: 255 255 255 255;
+               rel1.to: "ephoto.swallow.cropper";
+               rel2.to: "ephoto.swallow.cropper";
+               text {
+                  text: "";
+                  font: FN;
+                  size: 12;
+                  align: 0.5 1.0;
+               }
+            }
+         }
          part { name: "shader_top";
             type: RECT;
             scale: 1;

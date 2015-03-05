@@ -32,6 +32,7 @@ struct _Ephoto_Viewer
    double zoom;
    Eina_Bool fit:1;
    Eina_Bool cropping:1;
+   Eina_Bool zoom_first:1;
 };
 
 static void _zoom_set(Ephoto_Single_Browser *sb, double zoom);
@@ -112,6 +113,7 @@ _viewer_add(Evas_Object *parent, const char *path)
    int err;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(v, NULL);
+   v->zoom_first = EINA_TRUE;
 
    Evas_Coord w, h;
    const char *group = NULL;
@@ -222,7 +224,29 @@ _viewer_zoom_fit_apply(Ephoto_Viewer *v)
 static void
 _viewer_resized(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
-   _viewer_zoom_fit_apply(data);
+   Ephoto_Viewer *v = data;
+   if (v->zoom_first)
+     {
+        Evas_Coord cw, ch, iw, ih;
+        Evas_Object *image;
+        
+        if (v->cropping)
+          image = evas_object_data_get(v->image, "image");
+        else
+          image = v->image;
+        evas_object_geometry_get(v->scroller, NULL, NULL, &cw, &ch);
+        evas_object_image_size_get(elm_image_object_get(image), &iw, &ih);
+
+        if ((cw <= 0) || (ch <= 0)) return; /* object still not resized */
+        EINA_SAFETY_ON_TRUE_RETURN(iw <= 0);
+        EINA_SAFETY_ON_TRUE_RETURN(ih <= 0);
+        if (iw < cw && ih < ch)
+          _viewer_zoom_apply(v, 1);
+        else
+          _viewer_zoom_fit_apply(v);
+     }
+   else
+     _viewer_zoom_fit_apply(v);
 }
 
 static void
@@ -657,6 +681,8 @@ static void
 _zoom_in_cb(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+   v->zoom_first = EINA_FALSE;
    _zoom_in(sb);
 }
 
@@ -664,6 +690,8 @@ static void
 _zoom_out_cb(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+   v->zoom_first = EINA_FALSE;
    _zoom_out(sb);
 }
 
@@ -671,6 +699,8 @@ static void
 _zoom_1_cb(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+   v->zoom_first = EINA_FALSE;
    _zoom_set(sb, 1.0);
 }
 
@@ -678,6 +708,15 @@ static void
 _zoom_fit_cb(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+   Eina_Bool first_click;
+   if (v->zoom_first)
+     first_click = EINA_TRUE;
+   else
+     first_click = EINA_FALSE;
+   v->zoom_first = EINA_FALSE;
+   if (first_click)
+     v->fit = EINA_FALSE;
    _zoom_fit(sb);
 }
 

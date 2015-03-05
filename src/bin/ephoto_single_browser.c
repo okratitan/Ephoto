@@ -899,14 +899,16 @@ _save_yes(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED
      {
         success = ecore_file_unlink(sb->entry->path);
         if (!success)
-          _failed_save(sb);
+          {
+             _failed_save(sb);
+             ephoto_single_browser_entry_set(sb->main, sb->entry);
+             evas_object_del(win);
+             return;
+          }
      }
-   else
-     {
-        success = evas_object_image_save(elm_image_object_get(v->image), sb->entry->path, NULL, NULL);
-        if (!success)
-          _failed_save(sb);
-     }
+   success = evas_object_image_save(elm_image_object_get(v->image), sb->entry->path, NULL, NULL);
+   if (!success)
+     _failed_save(sb);
    ephoto_single_browser_entry_set(sb->main, sb->entry);
    evas_object_del(win);
 }
@@ -991,13 +993,22 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED, void *event_i
      {
         success = ecore_file_unlink(file);
         if (!success)
-          _failed_save(sb);
+          {
+             _failed_save(sb);
+             ephoto_single_browser_entry_set(sb->main, sb->entry);
+             evas_object_del(win);
+             return;
+          }
      }
+   success = evas_object_image_save(elm_image_object_get(v->image), file, NULL, NULL);
+   if (!success)
+     _failed_save(sb);
    else
      {
-        success = evas_object_image_save(elm_image_object_get(v->image), file, NULL, NULL);
-        if (!success)
-          _failed_save(sb);
+        char *dir = ecore_file_dir_get(file);
+        ephoto_directory_set(sb->ephoto, dir);
+        free(dir);
+        ephoto_single_browser_path_pending_set(sb->ephoto->single_browser, file);
      }
    ephoto_single_browser_entry_set(sb->main, sb->entry);
    evas_object_del(win);
@@ -1079,6 +1090,13 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
              success = evas_object_image_save(elm_image_object_get(v->image), buf, NULL, NULL);
              if (!success)
                _failed_save(sb);
+             else
+               {
+                  char *dir = ecore_file_dir_get(buf);
+                  ephoto_directory_set(sb->ephoto, dir);
+                  free(dir);
+                  ephoto_single_browser_path_pending_set(sb->ephoto->single_browser, buf);
+               }
           }
      }
    evas_object_del(win);

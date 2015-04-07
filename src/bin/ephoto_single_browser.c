@@ -783,7 +783,9 @@ _reset_yes(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSE
 {
    Evas_Object *win = data;
    Ephoto_Single_Browser *sb = evas_object_data_get(win, "single_browser");
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
    sb->cropping = EINA_FALSE;
+   sb->orient = EPHOTO_ORIENT_0;
    ephoto_single_browser_entry_set(sb->main, sb->entry);
    evas_object_del(win);
 }

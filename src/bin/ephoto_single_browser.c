@@ -828,7 +828,7 @@ _reset_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNU
 
    ic = elm_icon_add(hbox);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "stock_save");
+   elm_icon_standard_set(ic, "document-save");
 
    button = elm_button_add(hbox);
    elm_object_text_set(button, "Yes");
@@ -839,7 +839,7 @@ _reset_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNU
 
    ic = elm_icon_add(hbox);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "stock_close");
+   elm_icon_standard_set(ic, "window-close");
 
    button = elm_button_add(hbox);
    elm_object_text_set(button, "No");
@@ -876,7 +876,7 @@ _failed_save(Ephoto_Single_Browser *sb)
 
    ic = elm_icon_add(box);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "stock_close");
+   elm_icon_standard_set(ic, "window-close");
 
    button = elm_button_add(box);
    elm_object_text_set(button, "OK");
@@ -958,7 +958,7 @@ _save_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
 
    ic = elm_icon_add(hbox);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "stock_save");
+   elm_icon_standard_set(ic, "document-save");
 
    button = elm_button_add(hbox);
    elm_object_text_set(button, "Yes");
@@ -969,7 +969,7 @@ _save_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
 
    ic = elm_icon_add(hbox);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "stock_close");
+   elm_icon_standard_set(ic, "window-close");
 
    button = elm_button_add(hbox);
    elm_object_text_set(button, "No");
@@ -1062,7 +1062,7 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 
              ic = elm_icon_add(hbox);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-             elm_icon_standard_set(ic, "stock_save");
+             elm_icon_standard_set(ic, "document-save");
           
              button = elm_button_add(hbox);
              elm_object_text_set(button, "Yes");
@@ -1073,7 +1073,7 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 
              ic = elm_icon_add(hbox);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-             elm_icon_standard_set(ic, "stock_close");
+             elm_icon_standard_set(ic, "window-close");
 
              button = elm_button_add(hbox);
              elm_object_text_set(button, "No");
@@ -1515,8 +1515,8 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
 
    //elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
 
-   icon = elm_toolbar_item_append(sb->bar, "stock_media-play", "Slideshow", _slideshow, sb);
-   icon = elm_toolbar_item_append(sb->bar, "emblem-system", "Settings", _settings, sb);
+   icon = elm_toolbar_item_append(sb->bar, "media-playback-start", "Slideshow", _slideshow, sb);
+   icon = elm_toolbar_item_append(sb->bar, "preferences-system", "Settings", _settings, sb);
 
    elm_box_pack_end(sb->main, sb->bar);
    evas_object_show(sb->bar);

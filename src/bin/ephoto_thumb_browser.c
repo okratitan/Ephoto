@@ -89,7 +89,7 @@ _ephoto_dir_item_icon_get(void *data EINA_UNUSED, Evas_Object *obj, const char *
    if (!strcmp(part, "elm.swallow.end"))
      return NULL;
    Evas_Object *ic = elm_icon_add(obj);
-   elm_icon_standard_set(ic, "stock_folder");
+   elm_icon_standard_set(ic, "folder");
    return ic;
 }
 
@@ -392,8 +392,8 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED, void *event_i
    min = elm_object_item_widget_get(icon);
    evas_object_data_set(max, "min", min);
    evas_object_data_set(min, "max", max);
-   elm_toolbar_item_append(tb->vbar, "stock_media-play", "Slideshow", _slideshow, tb);
-   elm_toolbar_item_append(tb->vbar, "emblem-system", "Settings", _settings, tb);
+   elm_toolbar_item_append(tb->vbar, "media-playback-start", "Slideshow", _slideshow, tb);
+   elm_toolbar_item_append(tb->vbar, "preferences-system", "Settings", _settings, tb);
 
    elm_box_pack_end(tb->bleftbox, tb->vbar);
    evas_object_show(tb->vbar);
@@ -804,8 +804,8 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    min = elm_object_item_widget_get(icon);
    evas_object_data_set(max, "min", min);
    evas_object_data_set(min, "max", max);
-   elm_toolbar_item_append(tb->bar, "stock_media-play", "Slideshow", _slideshow, tb);
-   elm_toolbar_item_append(tb->bar, "emblem-system", "Settings", _settings, tb);
+   elm_toolbar_item_append(tb->bar, "media-playback-start", "Slideshow", _slideshow, tb);
+   elm_toolbar_item_append(tb->bar, "preferences-system", "Settings", _settings, tb);
 
    elm_box_pack_end(tb->leftbox, tb->bar);
    evas_object_show(tb->bar);

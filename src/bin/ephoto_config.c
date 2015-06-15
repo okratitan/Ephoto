@@ -171,7 +171,7 @@ _add_slideshow_config(Evas_Object *parent, Ephoto *ephoto)
 
    ic = elm_icon_add(hbox);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "stock_save");
+   elm_icon_standard_set(ic, "document-save");
 
    button = elm_button_add(hbox);
    elm_object_text_set(button, "Save");
@@ -182,7 +182,7 @@ _add_slideshow_config(Evas_Object *parent, Ephoto *ephoto)
 
    ic = elm_icon_add(hbox);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "stock_close");
+   elm_icon_standard_set(ic, "window-close");
 
    button = elm_button_add(hbox);
    elm_object_text_set(button, "Cancel");
@@ -269,7 +269,7 @@ _add_about_config(Evas_Object *parent, Ephoto *ephoto)
 
    ic = elm_icon_add(box);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "stock_close");
+   elm_icon_standard_set(ic, "window-close");
 
    button = elm_button_add(box);
    elm_object_text_set(button, "Close");
@@ -328,7 +328,7 @@ ephoto_config_window(Ephoto *ephoto)
    slideshow = _add_slideshow_config(pager, ephoto);   
    sit = elm_naviframe_item_push(pager, NULL, NULL, NULL, slideshow, "overlap");
    elm_naviframe_item_title_enabled_set(sit, EINA_FALSE, EINA_FALSE);
-   elm_toolbar_item_append(toolbar, "stock_media-play", "Slideshow", _show_page, sit);
+   elm_toolbar_item_append(toolbar, "media-playback-start", "Slideshow", _show_page, sit);
 
    about = _add_about_config(pager, ephoto);
    ait = elm_naviframe_item_insert_after(pager, sit, NULL, NULL, NULL, about, "overlap");

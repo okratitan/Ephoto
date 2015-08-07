@@ -93,6 +93,12 @@ ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent)
    return NULL;
 }
 
+static void _image_shown(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNUSED)
+{
+   Ephoto_Entry *entry = data;
+   ephoto_title_set(entry->ephoto, entry->basename);
+}
+
 static Evas_Object *
 _slideshow_item_get(void *data, Evas_Object *obj)
 {
@@ -118,6 +124,7 @@ _slideshow_item_get(void *data, Evas_Object *obj)
    Evas_Object *image = elm_image_add(obj);
    elm_image_file_set(image, entry->path, group);
    elm_object_style_set(image, "shadow");
+   evas_object_event_callback_add(image, EVAS_CALLBACK_SHOW, _image_shown, entry);
 
    return image;
 }

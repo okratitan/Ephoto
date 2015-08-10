@@ -515,23 +515,23 @@ _ephoto_get_file_size(const char *path)
    size_t size = eina_file_size_get(f);
    eina_file_close(f);
    double dsize = (double)size;
-   if (dsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f bytes", dsize);
+   if (dsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f %s", dsize, _("bytes"));
    else
      {
         dsize /= 1024.0;
-        if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.0f KB", dsize);
+        if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.0f %s", dsize, _("KB"));
         else
           {
              dsize /= 1024.0;
-             if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f MB", dsize);
+             if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f %s", dsize, _("MB"));
              else
                {
                   dsize /= 1024.0;
-                  if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f GB", dsize);
+                  if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f %s", dsize, _("GB"));
                   else
                     {
                        dsize /= 1024.0;
-                       snprintf(isize, sizeof(isize), "%'.1f TB", dsize);
+                       snprintf(isize, sizeof(isize), "%'.1f %s", dsize, _("TB"));
                     }
                }
           }
@@ -613,9 +613,9 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
                {
                   evas_object_image_size_get(elm_image_object_get(v->image), &w, &h);
                   snprintf(image_info, PATH_MAX,
-                           "<b>Type:</b> %s        <b>Resolution:</b> %dx%d        <b>File Size: </b>%s",
-                           efreet_mime_type_get(sb->entry->path), w, h,
-                           _ephoto_get_file_size(sb->entry->path));
+                           "<b>%s:</b> %s        <b>%s:</b> %dx%d        <b>%s:</b> %s",
+                           _("Type"), efreet_mime_type_get(sb->entry->path), _("Resolution"), w, h,
+                           _("File Size"), _ephoto_get_file_size(sb->entry->path));
                   sb->botbox = evas_object_rectangle_add(evas_object_evas_get(sb->table));
                   evas_object_color_set(sb->botbox, 0, 0, 0, 0);
                   evas_object_size_hint_min_set(sb->botbox, 0, sb->ephoto->bottom_bar_size);
@@ -639,12 +639,12 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
           {
              sb->nolabel = elm_label_add(sb->table);
              elm_label_line_wrap_set(sb->nolabel, ELM_WRAP_WORD);
-             elm_object_text_set(sb->nolabel, "This image does not exist or is corrupted");
+             elm_object_text_set(sb->nolabel, _("This image does not exist or is corrupted!"));
              evas_object_size_hint_weight_set(sb->nolabel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
              evas_object_size_hint_align_set(sb->nolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
              elm_table_pack(sb->table, sb->nolabel, 0, 1, 4, 1);
              evas_object_show(sb->nolabel);
-             ephoto_title_set(sb->ephoto, "Bad Image");
+             ephoto_title_set(sb->ephoto, _("Bad Image"));
           }
       }
 
@@ -1213,9 +1213,9 @@ _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
 
    evas_object_del(sb->botbox);
    snprintf(image_info, PATH_MAX,
-             "<b>Type:</b> %s        <b>Resolution:</b> %dx%d        <b>File Size: </b>%s",
-             efreet_mime_type_get(tmp_path), nw, nh,
-             _ephoto_get_file_size(tmp_path));
+             "<b>%s:</b> %s        <b>%s:</b> %dx%d        <b>%s:</b> %s",
+             _("Type"), efreet_mime_type_get(tmp_path), _("Resolution"), nw, nh,
+             _("File Size"), _ephoto_get_file_size(tmp_path));
    sb->botbox = evas_object_rectangle_add(evas_object_evas_get(sb->table));
    evas_object_color_set(sb->botbox, 0, 0, 0, 0);
    evas_object_size_hint_min_set(sb->botbox, 0, sb->ephoto->bottom_bar_size);

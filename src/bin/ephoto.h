@@ -21,7 +21,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+
+#ifdef HAVE_PO
+#include <locale.h>
+#endif
+
+#ifdef HAVE_GETTEXT
 #include "gettext.h"
+#endif
 
 typedef struct _Ephoto_Config Ephoto_Config;
 typedef struct _Ephoto Ephoto;

@@ -106,6 +106,7 @@ _add_slideshow_config(Evas_Object *parent, Ephoto *ephoto)
    Evas_Object *box, *scroller, *table, *label, *spinner, *hoversel, *hbox, *ic, *button;
    const Eina_List *l;
    const char *transition;
+   char buf[PATH_MAX];
 
    box = elm_box_add(parent);
    elm_box_horizontal_set(box, EINA_FALSE);
@@ -124,12 +125,15 @@ _add_slideshow_config(Evas_Object *parent, Ephoto *ephoto)
    evas_object_show(table);
 
    label = elm_label_add(table);
-   elm_object_text_set(label, "<b>Slideshow Options:</b>");
+   snprintf(buf, PATH_MAX, "<b>%s</b>", _("Slideshow Options"));
+   elm_object_text_set(label, buf);
    elm_table_pack(table, label, 0, 0, 2, 1);
    evas_object_show(label);
 
    label = elm_label_add(table);
-   elm_object_text_set(label, "<b>Show Each Slide For:   </b>");
+   memset(buf, 0, PATH_MAX);
+   snprintf(buf, PATH_MAX, "<b>%s:</b>", _("Show Each Slide For"));
+   elm_object_text_set(label, buf);
    evas_object_size_hint_align_set(label, 1.0, EVAS_HINT_FILL);
    elm_table_pack(table, label, 0, 1, 1, 1);
    evas_object_show(label);
@@ -145,7 +149,9 @@ _add_slideshow_config(Evas_Object *parent, Ephoto *ephoto)
    ephoto->config->slide_time = spinner;
 
    label = elm_label_add(table);
-   elm_object_text_set(label, "<b>Slide Transition:</b>");
+   memset(buf, 0, PATH_MAX);
+   snprintf(buf, PATH_MAX, "<b>%s:</b>", _("Slide Transition"));
+   elm_object_text_set(label, buf);
    evas_object_size_hint_align_set(label, 1.0, EVAS_HINT_FILL);
    elm_table_pack(table, label, 0, 2, 1, 1);
    evas_object_show(label);
@@ -332,12 +338,12 @@ ephoto_config_window(Ephoto *ephoto)
    slideshow = _add_slideshow_config(pager, ephoto);   
    sit = elm_naviframe_item_push(pager, NULL, NULL, NULL, slideshow, "overlap");
    elm_naviframe_item_title_enabled_set(sit, EINA_FALSE, EINA_FALSE);
-   elm_toolbar_item_append(toolbar, "media-playback-start", "Slideshow", _show_page, sit);
+   elm_toolbar_item_append(toolbar, "media-playback-start", _("Slideshow"), _show_page, sit);
 
    about = _add_about_config(pager, ephoto);
    ait = elm_naviframe_item_insert_after(pager, sit, NULL, NULL, NULL, about, "overlap");
    elm_naviframe_item_title_enabled_set(ait, EINA_FALSE, EINA_FALSE);
-   elm_toolbar_item_append(toolbar, "help-about", "About", _show_page, ait);
+   elm_toolbar_item_append(toolbar, "help-about", _("About"), _show_page, ait);
 
    elm_naviframe_item_promote(sit);
 

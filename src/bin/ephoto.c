@@ -1,5 +1,3 @@
-#include <Elementary.h>
-#include "config.h"
 #include "ephoto.h"
 
 static void _ephoto_display_usage(void);
@@ -19,6 +17,7 @@ elm_main(int argc, char **argv)
 #if HAVE_GETTEXT && ENABLE_NLS
    elm_app_compile_locale_set(LOCALEDIR);
    bindtextdomain(PACKAGE, LOCALEDIR);
+   bind_textdomain_codeset(PACKAGE, "UTF-8");
    textdomain(PACKAGE);
 #endif
 

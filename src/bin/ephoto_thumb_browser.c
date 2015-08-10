@@ -676,6 +676,7 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UN
      {
         if (!tb->nolabel)
           {
+             char buf[PATH_MAX];
              tb->nolabel = elm_label_add(tb->table);
              elm_label_line_wrap_set(tb->nolabel, ELM_WRAP_WORD);
              elm_object_text_set(tb->nolabel, _("There are no images in this directory"));
@@ -683,7 +684,8 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UN
              evas_object_size_hint_align_set(tb->nolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
              elm_table_pack(tb->table, tb->nolabel, 0, 0, 4, 1);
              evas_object_show(tb->nolabel);
-             elm_object_text_set(tb->infolabel, "<b>Total</b> 0 images        <b>Size:</b> 0 bytes");
+             snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0 %s", _("Total"), _("images"), _("Size"), _("bytes"));
+             elm_object_text_set(tb->infolabel, buf);
           }
      }
    else
@@ -697,29 +699,29 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UN
         char isize[PATH_MAX];
         char image_info[PATH_MAX];
 
-        if (tb->totsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f bytes", tb->totsize);
+        if (tb->totsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f %s", tb->totsize, _("bytes"));
         else
           {
              tb->totsize /= 1024.0;
-             if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.0f KB", tb->totsize);
+             if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.0f %s", tb->totsize, _("KB"));
              else
                {
                   tb->totsize /= 1024.0;
-                  if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f MB", tb->totsize);
+                  if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f %s", tb->totsize, _("MB"));
                   else
                     {
                        tb->totsize /= 1024.0;
-                       if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f GB", tb->totsize);
+                       if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f %s", tb->totsize, _("GB"));
                        else
                          {
                             tb->totsize /= 1024.0;
-                            snprintf(isize, sizeof(isize), "%'.1f TB", tb->totsize);
+                            snprintf(isize, sizeof(isize), "%'.1f %s", tb->totsize, _("TB"));
                          }
                     }
                }
           }
-        snprintf(image_info, PATH_MAX, "<b>Total:</b> %d images        <b>Size:</b> %s",
-                 tb->totimages, isize);
+        snprintf(image_info, PATH_MAX, "<b>%s:</b> %d %s        <b>%s:</b> %s",
+                 _("Total"), tb->totimages, _("images"), _("Size"), isize);
         elm_object_text_set(tb->infolabel, image_info);
      }
    return ECORE_CALLBACK_PASS_ON;

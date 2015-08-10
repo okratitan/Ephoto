@@ -1,0 +1,159 @@
+# Italian translation for Ephoto.
+# Copyright (C) YEAR Stephen "okra" Houston
+# This file is distributed under the same license as the PACKAGE package.
+# Massimo Maiurana <maiurana@gmail.com>, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ephoto 0.1.1\n"
+"Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2015-08-10 20:25+0200\n"
+"PO-Revision-Date: 2015-08-10 21:10+0200\n"
+"Last-Translator: Massimo Maiurana <maiurana@gmail.com>\n"
+"Language-Team: none\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/bin/ephoto_config.c:178 src/bin/ephoto_single_browser.c:1503
+msgid "Save"
+msgstr "Salva"
+
+#: src/bin/ephoto_config.c:190 src/bin/ephoto_single_browser.c:606
+msgid "Cancel"
+msgstr "Annulla"
+
+#: src/bin/ephoto_config.c:278
+msgid "Close"
+msgstr "Chiudi"
+
+#: src/bin/ephoto_thumb_browser.c:391 src/bin/ephoto_thumb_browser.c:805
+#: src/bin/ephoto_single_browser.c:1521
+msgid "Zoom In"
+msgstr "Zoom avanti"
+
+#: src/bin/ephoto_thumb_browser.c:393 src/bin/ephoto_thumb_browser.c:807
+#: src/bin/ephoto_single_browser.c:1522
+msgid "Zoom Out"
+msgstr "Zoom indietro"
+
+#: src/bin/ephoto_thumb_browser.c:397 src/bin/ephoto_thumb_browser.c:811
+#: src/bin/ephoto_single_browser.c:1528
+msgid "Slideshow"
+msgstr "Presentazione"
+
+#: src/bin/ephoto_thumb_browser.c:398 src/bin/ephoto_thumb_browser.c:812
+#: src/bin/ephoto_single_browser.c:1529
+msgid "Settings"
+msgstr "Impostazioni"
+
+#: src/bin/ephoto_thumb_browser.c:409
+msgid "Show the file selector"
+msgstr "Mostra selettore file"
+
+#: src/bin/ephoto_thumb_browser.c:677
+msgid "There are no images in this directory"
+msgstr "Non ci sono immagini in questa directory"
+
+#: src/bin/ephoto_thumb_browser.c:839
+msgid "Up"
+msgstr "Su"
+
+#: src/bin/ephoto_thumb_browser.c:852
+msgid "Home"
+msgstr "Home"
+
+#: src/bin/ephoto_thumb_browser.c:873
+msgid "Hide the file selector"
+msgstr "Nascondi selettore file"
+
+#: src/bin/ephoto_single_browser.c:595
+msgid "Apply"
+msgstr "Applica"
+
+#: src/bin/ephoto_single_browser.c:818
+msgid "Are you sure you want to reset your changes?"
+msgstr "Siete sicuri di voler annullare i cambiamenti?"
+
+#: src/bin/ephoto_single_browser.c:837 src/bin/ephoto_single_browser.c:970
+#: src/bin/ephoto_single_browser.c:1076
+msgid "Yes"
+msgstr "Sì"
+
+#: src/bin/ephoto_single_browser.c:849 src/bin/ephoto_single_browser.c:982
+#: src/bin/ephoto_single_browser.c:1088
+msgid "No"
+msgstr "No"
+
+#: src/bin/ephoto_single_browser.c:875
+msgid "Error: Image could not be saved here!"
+msgstr "Errore: l'imagine non può essere salvata qui!"
+
+#: src/bin/ephoto_single_browser.c:887
+msgid "OK"
+msgstr "OK"
+
+#: src/bin/ephoto_single_browser.c:951 src/bin/ephoto_single_browser.c:1057
+msgid "Are you sure you want to overwrite this image?"
+msgstr "Siete sicuri di voler sovrascrivere questa immagine?"
+
+#: src/bin/ephoto_single_browser.c:1496
+msgid "Back"
+msgstr "Indietro"
+
+#: src/bin/ephoto_single_browser.c:1497
+msgid "Edit"
+msgstr "Modifica"
+
+#: src/bin/ephoto_single_browser.c:1502
+msgid "Reset"
+msgstr "Reimposta"
+
+#: src/bin/ephoto_single_browser.c:1504
+msgid "Save As"
+msgstr "Salva con nome"
+
+#: src/bin/ephoto_single_browser.c:1505
+msgid "Crop"
+msgstr "Ritaglia"
+
+#: src/bin/ephoto_single_browser.c:1506
+msgid "Rotate Left"
+msgstr "Ruota a sinistra"
+
+#: src/bin/ephoto_single_browser.c:1507
+msgid "Rotate Right"
+msgstr "Ruota a destra"
+
+#: src/bin/ephoto_single_browser.c:1508
+msgid "Flip Horizontal"
+msgstr "Sfoglia orizzontalmente"
+
+#: src/bin/ephoto_single_browser.c:1509
+msgid "Flip Vertical"
+msgstr "Sfoglia verticalmente"
+
+#: src/bin/ephoto_single_browser.c:1514
+msgid "First"
+msgstr "Prima"
+
+#: src/bin/ephoto_single_browser.c:1515
+msgid "Previous"
+msgstr "Precedente"
+
+#: src/bin/ephoto_single_browser.c:1516
+msgid "Next"
+msgstr "Successiva"
+
+#: src/bin/ephoto_single_browser.c:1517
+msgid "Last"
+msgstr "Ultima"
+
+#: src/bin/ephoto_single_browser.c:1523
+msgid "Zoom Fit"
+msgstr "Adatta zoom"
+
+#: src/bin/ephoto_single_browser.c:1524
+msgid "Zoom 1:1"
+msgstr "Zoom 1:1"

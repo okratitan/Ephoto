@@ -588,20 +588,22 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
                   evas_object_show(sb->botbox);
 
                   ic = elm_icon_add(sb->botbox);
+                  elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
                   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
                   elm_icon_standard_set(ic, "document-save");
                   button = elm_button_add(sb->botbox);
-                  elm_object_text_set(button, "Apply");
+                  elm_object_text_set(button, _("Apply"));
                   elm_object_part_content_set(button, "icon", ic);
                   evas_object_smart_callback_add(button, "clicked", _apply_crop, sb);
                   elm_box_pack_end(sb->botbox, button);
                   evas_object_show(button);
 
                   ic = elm_icon_add(sb->botbox);
+                  elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
                   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
                   elm_icon_standard_set(ic, "window-close");
                   button = elm_button_add(sb->botbox);
-                  elm_object_text_set(button, "Cancel");
+                  elm_object_text_set(button, _("Cancel"));
                   elm_object_part_content_set(button, "icon", ic);
                   evas_object_smart_callback_add(button, "clicked", _cancel_crop, sb);
                   elm_box_pack_end(sb->botbox, button);
@@ -813,7 +815,7 @@ _reset_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNU
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
    label = elm_label_add(box);
-   elm_object_text_set(label, "Are you sure you want to reset your changes?");
+   elm_object_text_set(label, _("Are you sure you want to reset your changes?"));
    evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_box_pack_end(box, label);
@@ -827,22 +829,24 @@ _reset_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNU
    evas_object_show(hbox);
 
    ic = elm_icon_add(hbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "document-save");
 
    button = elm_button_add(hbox);
-   elm_object_text_set(button, "Yes");
+   elm_object_text_set(button, _("Yes"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _reset_yes, win);
    elm_box_pack_end(hbox, button);
    evas_object_show(button);
 
    ic = elm_icon_add(hbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
    button = elm_button_add(hbox);
-   elm_object_text_set(button, "No");
+   elm_object_text_set(button, _("No"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _reset_no, win);
    elm_box_pack_end(hbox, button);
@@ -868,18 +872,19 @@ _failed_save(Ephoto_Single_Browser *sb)
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
    label = elm_label_add(box);
-   elm_object_text_set(label, "Error: Image could not be saved here!");
+   elm_object_text_set(label, _("Error: Image could not be saved here!"));
    evas_object_size_hint_weight_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_box_pack_end(box, label);
    evas_object_show(label);
 
    ic = elm_icon_add(box);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
    button = elm_button_add(box);
-   elm_object_text_set(button, "OK");
+   elm_object_text_set(button, _("OK"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _reset_no, win);
    elm_box_pack_end(box, button);
@@ -943,7 +948,7 @@ _save_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
    label = elm_label_add(box);
-   elm_object_text_set(label, "Are you sure you want to overwrite this image?");
+   elm_object_text_set(label, _("Are you sure you want to overwrite this image?"));
    evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_box_pack_end(box, label);
@@ -957,22 +962,24 @@ _save_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
    evas_object_show(hbox);
 
    ic = elm_icon_add(hbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "document-save");
 
    button = elm_button_add(hbox);
-   elm_object_text_set(button, "Yes");
+   elm_object_text_set(button, _("Yes"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _save_yes, win);
    elm_box_pack_end(hbox, button);
    evas_object_show(button);
 
    ic = elm_icon_add(hbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
    button = elm_button_add(hbox);
-   elm_object_text_set(button, "No");
+   elm_object_text_set(button, _("No"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _save_no, win);
    elm_box_pack_end(hbox, button);
@@ -1047,7 +1054,7 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
              evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
              label = elm_label_add(box);
-             elm_object_text_set(label, "Are you sure you want to overwrite this image?");
+             elm_object_text_set(label, _("Are you sure you want to overwrite this image?"));
              evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
              evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
              elm_box_pack_end(box, label);
@@ -1061,22 +1068,24 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
              evas_object_show(hbox);
 
              ic = elm_icon_add(hbox);
+             elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
              elm_icon_standard_set(ic, "document-save");
           
              button = elm_button_add(hbox);
-             elm_object_text_set(button, "Yes");
+             elm_object_text_set(button, _("Yes"));
              elm_object_part_content_set(button, "icon", ic);
              evas_object_smart_callback_add(button, "clicked", _save_image_as_overwrite, inwin);
              elm_box_pack_end(hbox, button);
              evas_object_show(button);
 
              ic = elm_icon_add(hbox);
+             elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
              elm_icon_standard_set(ic, "window-close");
 
              button = elm_button_add(hbox);
-             elm_object_text_set(button, "No");
+             elm_object_text_set(button, _("No"));
              elm_object_part_content_set(button, "icon", ic);
              evas_object_smart_callback_add(button, "clicked", _save_no, inwin);
              elm_box_pack_end(hbox, button);
@@ -1484,40 +1493,40 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(sb->bar, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(sb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-   icon = elm_toolbar_item_append(sb->bar, "go-home", "Back", _back, sb);
-   icon = elm_toolbar_item_append(sb->bar, "image-x-generic", "Edit", NULL, NULL);
+   icon = elm_toolbar_item_append(sb->bar, "go-home", _("Back"), _back, sb);
+   icon = elm_toolbar_item_append(sb->bar, "image-x-generic", _("Edit"), NULL, NULL);
    elm_toolbar_item_menu_set(icon, EINA_TRUE);
    elm_toolbar_menu_parent_set(sb->bar, sb->ephoto->win);
    menu = elm_toolbar_item_menu_get(icon);
 
-   elm_menu_item_add(menu, NULL, "edit-undo", "Reset", _reset_image, sb);
-   elm_menu_item_add(menu, NULL, "document-save", "Save", _save_image, sb);
-   elm_menu_item_add(menu, NULL, "document-save-as", "Save As", _save_image_as, sb);
-   elm_menu_item_add(menu, NULL, "edit-cut", "Crop", _crop_image, sb);
-   elm_menu_item_add(menu, NULL, "object-rotate-left", "Rotate Left", _go_rotate_counterclock, sb);
-   elm_menu_item_add(menu, NULL, "object-rotate-right", "Rotate Right", _go_rotate_clock, sb);
-   elm_menu_item_add(menu, NULL, "object-flip-horizontal", "Flip Horizontal", _go_flip_horiz, sb);
-   elm_menu_item_add(menu, NULL, "object-flip-vertical", "Flip Vertical", _go_flip_vert, sb);
+   elm_menu_item_add(menu, NULL, "edit-undo", _("Reset"), _reset_image, sb);
+   elm_menu_item_add(menu, NULL, "document-save", _("Save"), _save_image, sb);
+   elm_menu_item_add(menu, NULL, "document-save-as", _("Save As"), _save_image_as, sb);
+   elm_menu_item_add(menu, NULL, "edit-cut", _("Crop"), _crop_image, sb);
+   elm_menu_item_add(menu, NULL, "object-rotate-left", _("Rotate Left"), _go_rotate_counterclock, sb);
+   elm_menu_item_add(menu, NULL, "object-rotate-right", _("Rotate Right"), _go_rotate_clock, sb);
+   elm_menu_item_add(menu, NULL, "object-flip-horizontal", _("Flip Horizontal"), _go_flip_horiz, sb);
+   elm_menu_item_add(menu, NULL, "object-flip-vertical", _("Flip Vertical"), _go_flip_vert, sb);
 
    /*FIXME: Use separators once they don't mess up homogeneous toolbar*/
    //elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
 
-   icon = elm_toolbar_item_append(sb->bar, "go-first", "First", _go_first, sb);
-   icon = elm_toolbar_item_append(sb->bar, "go-previous", "Previous", _go_prev, sb);
-   icon = elm_toolbar_item_append(sb->bar, "go-next", "Next", _go_next, sb);
-   icon = elm_toolbar_item_append(sb->bar, "go-last", "Last", _go_last, sb);
+   icon = elm_toolbar_item_append(sb->bar, "go-first", _("First"), _go_first, sb);
+   icon = elm_toolbar_item_append(sb->bar, "go-previous", _("Previous"), _go_prev, sb);
+   icon = elm_toolbar_item_append(sb->bar, "go-next", _("Next"), _go_next, sb);
+   icon = elm_toolbar_item_append(sb->bar, "go-last", _("Last"), _go_last, sb);
 
    //elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
 
-   icon = elm_toolbar_item_append(sb->bar, "zoom-in", "Zoom In", _zoom_in_cb, sb);
-   icon = elm_toolbar_item_append(sb->bar, "zoom-out", "Zoom Out", _zoom_out_cb, sb);
-   icon = elm_toolbar_item_append(sb->bar, "zoom-fit-best", "Zoom Fit", _zoom_fit_cb, sb);
-   icon = elm_toolbar_item_append(sb->bar, "zoom-original", "Zoom 1:1", _zoom_1_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-in", _("Zoom In"), _zoom_in_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-out", _("Zoom Out"), _zoom_out_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-fit-best", _("Zoom Fit"), _zoom_fit_cb, sb);
+   icon = elm_toolbar_item_append(sb->bar, "zoom-original", _("Zoom 1:1"), _zoom_1_cb, sb);
 
    //elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
 
-   icon = elm_toolbar_item_append(sb->bar, "media-playback-start", "Slideshow", _slideshow, sb);
-   icon = elm_toolbar_item_append(sb->bar, "preferences-system", "Settings", _settings, sb);
+   icon = elm_toolbar_item_append(sb->bar, "media-playback-start", _("Slideshow"), _slideshow, sb);
+   icon = elm_toolbar_item_append(sb->bar, "preferences-system", _("Settings"), _settings, sb);
 
    elm_box_pack_end(sb->main, sb->bar);
    evas_object_show(sb->bar);

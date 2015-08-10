@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include "gettext.h"
 
 typedef struct _Ephoto_Config Ephoto_Config;
 typedef struct _Ephoto Ephoto;

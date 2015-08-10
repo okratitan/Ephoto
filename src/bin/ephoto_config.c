@@ -145,7 +145,7 @@ _add_slideshow_config(Evas_Object *parent, Ephoto *ephoto)
    ephoto->config->slide_time = spinner;
 
    label = elm_label_add(table);
-   elm_object_text_set(label, "<b>Slide Transition:   </b>");
+   elm_object_text_set(label, "<b>Slide Transition:</b>");
    evas_object_size_hint_align_set(label, 1.0, EVAS_HINT_FILL);
    elm_table_pack(table, label, 0, 2, 1, 1);
    evas_object_show(label);
@@ -170,22 +170,24 @@ _add_slideshow_config(Evas_Object *parent, Ephoto *ephoto)
    evas_object_show(hbox);
 
    ic = elm_icon_add(hbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "document-save");
 
    button = elm_button_add(hbox);
-   elm_object_text_set(button, "Save");
+   elm_object_text_set(button, _("Save"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _save, ephoto);
    elm_box_pack_end(hbox, button);
    evas_object_show(button);
 
    ic = elm_icon_add(hbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
    button = elm_button_add(hbox);
-   elm_object_text_set(button, "Cancel");
+   elm_object_text_set(button, _("Cancel"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _close, ephoto);
    elm_box_pack_end(hbox, button);
@@ -268,11 +270,12 @@ _add_about_config(Evas_Object *parent, Ephoto *ephoto)
    evas_object_show(label);
 
    ic = elm_icon_add(box);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
    button = elm_button_add(box);
-   elm_object_text_set(button, "Close");
+   elm_object_text_set(button, _("Close"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _close, ephoto);
    elm_box_pack_end(box, button);

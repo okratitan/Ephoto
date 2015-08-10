@@ -388,14 +388,14 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED, void *event_i
    evas_object_size_hint_weight_set(tb->vbar, 0.0, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->vbar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-   icon = elm_toolbar_item_append(tb->vbar, "zoom-in", "Zoom In", _zoom_in, tb);
+   icon = elm_toolbar_item_append(tb->vbar, "zoom-in", _("Zoom In"), _zoom_in, tb);
    max = elm_object_item_widget_get(icon);
-   icon = elm_toolbar_item_append(tb->vbar, "zoom-out", "Zoom Out", _zoom_out, tb);
+   icon = elm_toolbar_item_append(tb->vbar, "zoom-out", _("Zoom Out"), _zoom_out, tb);
    min = elm_object_item_widget_get(icon);
    evas_object_data_set(max, "min", min);
    evas_object_data_set(min, "max", max);
-   elm_toolbar_item_append(tb->vbar, "media-playback-start", "Slideshow", _slideshow, tb);
-   elm_toolbar_item_append(tb->vbar, "preferences-system", "Settings", _settings, tb);
+   elm_toolbar_item_append(tb->vbar, "media-playback-start", _("Slideshow"), _slideshow, tb);
+   elm_toolbar_item_append(tb->vbar, "preferences-system", _("Settings"), _settings, tb);
 
    elm_box_pack_end(tb->bleftbox, tb->vbar);
    evas_object_show(tb->vbar);
@@ -406,7 +406,7 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED, void *event_i
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    but = elm_button_add(tb->bleftbox);
    elm_object_part_content_set(but, "icon", ic);
-   elm_object_tooltip_text_set(but, "Show the file selector");
+   elm_object_tooltip_text_set(but, _("Show the file selector"));
    evas_object_size_hint_weight_set(but, 0.0, 0.0);
    evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_smart_callback_add(but, "clicked", _ephoto_dir_show_folders, tb);
@@ -674,7 +674,7 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UN
           {
              tb->nolabel = elm_label_add(tb->table);
              elm_label_line_wrap_set(tb->nolabel, ELM_WRAP_WORD);
-             elm_object_text_set(tb->nolabel, "There are no images in this directory");
+             elm_object_text_set(tb->nolabel, _("There are no images in this directory"));
              evas_object_size_hint_weight_set(tb->nolabel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
              evas_object_size_hint_align_set(tb->nolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
              elm_table_pack(tb->table, tb->nolabel, 0, 0, 4, 1);
@@ -802,14 +802,14 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(tb->bar, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(tb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-   icon = elm_toolbar_item_append(tb->bar, "zoom-in", "Zoom In", _zoom_in, tb);
+   icon = elm_toolbar_item_append(tb->bar, "zoom-in", _("Zoom In"), _zoom_in, tb);
    max = elm_object_item_widget_get(icon);
-   icon = elm_toolbar_item_append(tb->bar, "zoom-out", "Zoom Out", _zoom_out, tb);
+   icon = elm_toolbar_item_append(tb->bar, "zoom-out", _("Zoom Out"), _zoom_out, tb);
    min = elm_object_item_widget_get(icon);
    evas_object_data_set(max, "min", min);
    evas_object_data_set(min, "max", max);
-   elm_toolbar_item_append(tb->bar, "media-playback-start", "Slideshow", _slideshow, tb);
-   elm_toolbar_item_append(tb->bar, "preferences-system", "Settings", _settings, tb);
+   elm_toolbar_item_append(tb->bar, "media-playback-start", _("Slideshow"), _slideshow, tb);
+   elm_toolbar_item_append(tb->bar, "preferences-system", _("Settings"), _settings, tb);
 
    elm_box_pack_end(tb->leftbox, tb->bar);
    evas_object_show(tb->bar);
@@ -836,7 +836,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    but = elm_button_add(hbox);
    elm_object_part_content_set(but, "icon", ic);
-   elm_object_text_set(but, "Up");
+   elm_object_text_set(but, _("Up"));
    evas_object_size_hint_weight_set(but, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_smart_callback_add(but, "clicked", _ephoto_dir_go_up, tb);
@@ -849,7 +849,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    but = elm_button_add(hbox);
    elm_object_part_content_set(but, "icon", ic);
-   elm_object_text_set(but, "Home");
+   elm_object_text_set(but, _("Home"));
    evas_object_size_hint_weight_set(but, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_smart_callback_add(but, "clicked", _ephoto_dir_go_home, tb);
@@ -870,7 +870,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    but = elm_button_add(hbox);
    elm_object_part_content_set(but, "icon", ic);
-   elm_object_tooltip_text_set(but, "Hide the file selector");
+   elm_object_tooltip_text_set(but, _("Hide the file selector"));
    evas_object_size_hint_weight_set(but, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_smart_callback_add(but, "clicked", _ephoto_dir_hide_folders, tb);

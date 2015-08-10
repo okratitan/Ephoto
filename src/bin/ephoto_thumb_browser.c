@@ -283,6 +283,20 @@ _ephoto_dir_go_up(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EIN
 }
 
 static void
+_ephoto_direntry_go(void *data, Evas_Object *obj, void *event_info EINA_UNUSED)
+{
+   const char *dir;
+   Ephoto_Thumb_Browser *tb = data;
+
+   dir = elm_object_text_get(tb->direntry);
+   if (ecore_file_is_dir(dir))
+     {
+        ephoto_directory_set(tb->ephoto, dir);
+        ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
+     }
+}
+
+static void
 _ephoto_thumb_selected(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
@@ -837,6 +851,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_align_set(tb->direntry, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_object_text_set(tb->direntry, tb->ephoto->config->directory);
    elm_box_pack_end(tb->leftbox, tb->direntry);
+   evas_object_smart_callback_add(tb->direntry, "activated", _ephoto_direntry_go, tb);
    evas_object_show(tb->direntry);
 
    hbox = elm_box_add(tb->leftbox);

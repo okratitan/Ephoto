@@ -89,6 +89,7 @@ _ephoto_dir_item_icon_get(void *data EINA_UNUSED, Evas_Object *obj, const char *
    if (!strcmp(part, "elm.swallow.end"))
      return NULL;
    Evas_Object *ic = elm_icon_add(obj);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    elm_icon_standard_set(ic, "folder");
    return ic;
 }
@@ -382,6 +383,7 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED, void *event_i
    elm_toolbar_homogeneous_set(tb->vbar, EINA_TRUE);
    elm_toolbar_shrink_mode_set(tb->vbar, ELM_TOOLBAR_SHRINK_NONE);
    elm_toolbar_select_mode_set(tb->vbar, ELM_OBJECT_SELECT_MODE_NONE);
+   elm_toolbar_icon_order_lookup_set(tb->vbar, ELM_ICON_LOOKUP_FDO_THEME); 
    elm_toolbar_align_set(tb->vbar, 0.0);
    evas_object_size_hint_weight_set(tb->vbar, 0.0, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->vbar, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -399,6 +401,7 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED, void *event_i
    evas_object_show(tb->vbar);
 
    ic = elm_icon_add(tb->bleftbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    elm_icon_standard_set(ic, "go-next");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    but = elm_button_add(tb->bleftbox);
@@ -795,6 +798,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_toolbar_homogeneous_set(tb->bar, EINA_TRUE);
    elm_toolbar_shrink_mode_set(tb->bar, ELM_TOOLBAR_SHRINK_NONE);
    elm_toolbar_select_mode_set(tb->bar, ELM_OBJECT_SELECT_MODE_NONE);
+   elm_toolbar_icon_order_lookup_set(tb->bar, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_weight_set(tb->bar, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(tb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
@@ -827,6 +831,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(hbox);
 
    ic = elm_icon_add(hbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    elm_icon_standard_set(ic, "go-up");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    but = elm_button_add(hbox);
@@ -839,6 +844,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(but);
 
    ic = elm_icon_add(hbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    elm_icon_standard_set(ic, "go-home");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    but = elm_button_add(hbox);
@@ -859,6 +865,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(tb->fsel);
 
    ic = elm_icon_add(hbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    elm_icon_standard_set(ic, "go-previous");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    but = elm_button_add(hbox);

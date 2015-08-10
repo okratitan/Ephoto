@@ -1480,6 +1480,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_toolbar_homogeneous_set(sb->bar, EINA_TRUE);
    elm_toolbar_shrink_mode_set(sb->bar, ELM_TOOLBAR_SHRINK_SCROLL);
    elm_toolbar_select_mode_set(sb->bar, ELM_OBJECT_SELECT_MODE_NONE);
+   elm_toolbar_icon_order_lookup_set(sb->bar, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_weight_set(sb->bar, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(sb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 

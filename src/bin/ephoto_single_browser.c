@@ -515,23 +515,23 @@ _ephoto_get_file_size(const char *path)
    size_t size = eina_file_size_get(f);
    eina_file_close(f);
    double dsize = (double)size;
-   if (dsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f%s", dsize, ngettext("B", "Bs", dsize));
+   if (dsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f%s", dsize, ngettext("B", "B", dsize));
    else
      {
         dsize /= 1024.0;
-        if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.0f%s", dsize, ngettext("KB", "KBs", dsize));
+        if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.0f%s", dsize, ngettext("KB", "KB", dsize));
         else
           {
              dsize /= 1024.0;
-             if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", dsize, ngettext("MB", "MBs", dsize));
+             if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", dsize, ngettext("MB", "MB", dsize));
              else
                {
                   dsize /= 1024.0;
-                  if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", dsize, ngettext("GB", "GBs", dsize));
+                  if (dsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", dsize, ngettext("GB", "GB", dsize));
                   else
                     {
                        dsize /= 1024.0;
-                       snprintf(isize, sizeof(isize), "%'.1f%s", dsize, ngettext("TB", "TBs", dsize));
+                       snprintf(isize, sizeof(isize), "%'.1f%s", dsize, ngettext("TB", "TB", dsize));
                     }
                }
           }

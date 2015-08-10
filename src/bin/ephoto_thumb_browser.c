@@ -698,7 +698,7 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UN
              evas_object_size_hint_align_set(tb->nolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
              elm_table_pack(tb->table, tb->nolabel, 0, 0, 4, 1);
              evas_object_show(tb->nolabel);
-             snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s", _("Total"), ngettext("image", "images", 0), _("Size"), ngettext("B", "Bs", 0));
+             snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s", _("Total"), ngettext("image", "images", 0), _("Size"), ngettext("B", "B", 0));
              elm_object_text_set(tb->infolabel, buf);
           }
      }
@@ -713,23 +713,23 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UN
         char isize[PATH_MAX];
         char image_info[PATH_MAX];
 
-        if (tb->totsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize, ngettext("B", "Bs", tb->totsize));
+        if (tb->totsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize, ngettext("B", "B", tb->totsize));
         else
           {
              tb->totsize /= 1024.0;
-             if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize, ngettext("KB", "KBs", tb->totsize));
+             if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize, ngettext("KB", "KB", tb->totsize));
              else
                {
                   tb->totsize /= 1024.0;
-                  if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, ngettext("MB", "MBs", tb->totsize));
+                  if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, ngettext("MB", "MB", tb->totsize));
                   else
                     {
                        tb->totsize /= 1024.0;
-                       if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, ngettext("GB", "GBs", tb->totsize));
+                       if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, ngettext("GB", "GB", tb->totsize));
                        else
                          {
                             tb->totsize /= 1024.0;
-                            snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, ngettext("TB", "TBs", tb->totsize));
+                            snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, ngettext("TB", "TB", tb->totsize));
                          }
                     }
                }

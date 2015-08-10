@@ -140,7 +140,9 @@ _add_slideshow_config(Evas_Object *parent, Ephoto *ephoto)
 
    spinner = elm_spinner_add(table);
    elm_spinner_editable_set(spinner, EINA_TRUE);
-   elm_spinner_label_format_set(spinner, "%1.0f seconds");
+   memset(buf, 0, PATH_MAX);
+   snprintf(buf, PATH_MAX, "%%1.0f %s", _("seconds"));
+   elm_spinner_label_format_set(spinner, buf);
    elm_spinner_step_set(spinner, 1);
    elm_spinner_value_set(spinner, ephoto->config->slideshow_timeout);
    elm_spinner_min_max_set(spinner, 1, 60);
@@ -223,14 +225,14 @@ _add_about_config(Evas_Object *parent, Ephoto *ephoto)
    label = elm_label_add(scroller);
    evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   eina_strbuf_append_printf(sbuf, "<b>About Ephoto</b><br/>"
+   eina_strbuf_append_printf(sbuf, _("<b>About Ephoto</b><br/>"
      "Ephoto is a comprehensive image viewer based on the EFL.<br/>"
      "For more information, please visit the Ephoto project page on the Enlightenment wiki:<br/>"
      "https://phab.enlightenment.org/w/projects/ephoto<br/>"
      "Ephoto's source can be found through Enlightenment's git:<br/>"
      "http://git.enlightenment.org/apps/ephoto.git<br/>"
      "<br/>"
-     "<b>Authors:</b><br/>");
+     "<b>Authors:</b><br/>"));
    f = fopen(PACKAGE_DATA_DIR "/AUTHORS", "r");
    if (f)
      {

@@ -698,7 +698,7 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UN
              evas_object_size_hint_align_set(tb->nolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
              elm_table_pack(tb->table, tb->nolabel, 0, 0, 4, 1);
              evas_object_show(tb->nolabel);
-             snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0 %s", _("Total"), _("images"), _("Size"), _("bytes"));
+             snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s", _("Total"), ngettext("image", "images", 0), _("Size"), ngettext("B", "Bs", 0));
              elm_object_text_set(tb->infolabel, buf);
           }
      }
@@ -713,29 +713,29 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UN
         char isize[PATH_MAX];
         char image_info[PATH_MAX];
 
-        if (tb->totsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize, _("B"));
+        if (tb->totsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize, ngettext("B", "Bs", tb->totsize));
         else
           {
              tb->totsize /= 1024.0;
-             if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize, _("KB"));
+             if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize, ngettext("KB", "KBs", tb->totsize));
              else
                {
                   tb->totsize /= 1024.0;
-                  if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, _("MB"));
+                  if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, ngettext("MB", "MBs", tb->totsize));
                   else
                     {
                        tb->totsize /= 1024.0;
-                       if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, _("GB"));
+                       if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, ngettext("GB", "GBs", tb->totsize));
                        else
                          {
                             tb->totsize /= 1024.0;
-                            snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, _("TB"));
+                            snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, ngettext("TB", "TBs", tb->totsize));
                          }
                     }
                }
           }
         snprintf(image_info, PATH_MAX, "<b>%s:</b> %d %s        <b>%s:</b> %s",
-                 _("Total"), tb->totimages, _("images"), _("Size"), isize);
+                 _("Total"), tb->totimages, ngettext("image", "images", tb->totimages), _("Size"), isize);
         elm_object_text_set(tb->infolabel, image_info);
      }
    return ECORE_CALLBACK_PASS_ON;

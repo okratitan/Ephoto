@@ -22,5 +22,5 @@ ephoto_SOURCES = \
         ephoto_slideshow.c \
         ephoto_cropper.c
 
-noinst_HEADERS = ephoto.h
-EXTRA_DIST = ephoto.h
+noinst_HEADERS = ephoto.h gettext.h
+EXTRA_DIST = ephoto.h gettext.h

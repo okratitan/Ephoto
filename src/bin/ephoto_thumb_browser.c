@@ -713,23 +713,23 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED, void *event EINA_UN
         char isize[PATH_MAX];
         char image_info[PATH_MAX];
 
-        if (tb->totsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f %s", tb->totsize, _("bytes"));
+        if (tb->totsize < 1024.0) snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize, _("B"));
         else
           {
              tb->totsize /= 1024.0;
-             if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.0f %s", tb->totsize, _("KB"));
+             if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize, _("KB"));
              else
                {
                   tb->totsize /= 1024.0;
-                  if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f %s", tb->totsize, _("MB"));
+                  if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, _("MB"));
                   else
                     {
                        tb->totsize /= 1024.0;
-                       if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f %s", tb->totsize, _("GB"));
+                       if (tb->totsize < 1024) snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, _("GB"));
                        else
                          {
                             tb->totsize /= 1024.0;
-                            snprintf(isize, sizeof(isize), "%'.1f %s", tb->totsize, _("TB"));
+                            snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize, _("TB"));
                          }
                     }
                }

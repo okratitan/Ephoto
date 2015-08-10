@@ -32,6 +32,7 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *fsel;
    Evas_Object *leftbox;
    Evas_Object *bleftbox;
+   Evas_Object *direntry;
    Eio_File *ls;
    Eina_List *todo_items;
    Eina_List *grid_items;
@@ -253,6 +254,7 @@ _ephoto_dir_selected(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 
    ephoto_directory_set(tb->ephoto, e->path);
    ephoto_title_set(tb->ephoto, e->path);
+   elm_object_text_set(tb->direntry, e->path);
 }
 
 static void
@@ -262,6 +264,7 @@ _ephoto_dir_go_home(void *data, Evas_Object *obj EINA_UNUSED, void *event_info E
 
    ephoto_directory_set(tb->ephoto, getenv("HOME"));
    ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
+   elm_object_text_set(tb->direntry, tb->ephoto->config->directory);
 }
 
 static void
@@ -275,6 +278,7 @@ _ephoto_dir_go_up(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EIN
         snprintf(path, PATH_MAX, "%s", tb->ephoto->config->directory);
         ephoto_directory_set(tb->ephoto, dirname(path));
         ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
+        elm_object_text_set(tb->direntry, tb->ephoto->config->directory);
      }
 }
 
@@ -822,6 +826,16 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_min_set(sep, 0, 20);
    elm_box_pack_end(tb->leftbox, sep);
    evas_object_show(sep);
+
+   tb->direntry = elm_entry_add(tb->leftbox);
+   elm_entry_single_line_set(tb->direntry, EINA_TRUE);
+   elm_entry_scrollable_set(tb->direntry, EINA_TRUE);
+   elm_scroller_policy_set(tb->direntry, ELM_SCROLLER_POLICY_OFF, ELM_SCROLLER_POLICY_OFF);
+   evas_object_size_hint_weight_set(tb->direntry, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(tb->direntry, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_object_text_set(tb->direntry, tb->ephoto->config->directory);
+   elm_box_pack_end(tb->leftbox, tb->direntry);
+   evas_object_show(tb->direntry);
 
    hbox = elm_box_add(tb->leftbox);
    elm_box_horizontal_set(hbox, EINA_TRUE);

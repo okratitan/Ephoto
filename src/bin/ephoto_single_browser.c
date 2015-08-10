@@ -884,7 +884,7 @@ _failed_save(Ephoto_Single_Browser *sb)
    elm_icon_standard_set(ic, "window-close");
 
    button = elm_button_add(box);
-   elm_object_text_set(button, _("OK"));
+   elm_object_text_set(button, _("Ok"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _reset_no, win);
    elm_box_pack_end(box, button);
@@ -1132,7 +1132,7 @@ _save_image_as(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_U
    elm_fileselector_expandable_set(fsel, EINA_FALSE);
    elm_fileselector_path_set(fsel, sb->ephoto->config->directory);
    elm_fileselector_current_name_set(fsel, sb->entry->basename);
-   elm_fileselector_mime_types_filter_append(fsel, "image/*", "Image Files");
+   elm_fileselector_mime_types_filter_append(fsel, "image/*", _("Image Files"));
    evas_object_size_hint_weight_set(fsel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_smart_callback_add(fsel, "done", _save_image_as_done, win);

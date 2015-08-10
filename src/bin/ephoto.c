@@ -15,7 +15,7 @@ elm_main(int argc, char **argv)
    eio_init();
    elm_need_efreet();
    elm_need_ethumb();
-
+   elm_language_set("");
 #if HAVE_GETTEXT && ENABLE_NLS
    elm_app_compile_locale_set(LOCALEDIR);
    bindtextdomain(PACKAGE, elm_app_locale_dir_get());

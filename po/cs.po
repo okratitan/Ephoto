@@ -1,0 +1,169 @@
+# Czech translation for Ephoto.
+# Copyright (C) 2015 Stephen "okra" Houston
+# This file is distributed under the same license as the ephoto package.
+# Daniel Kolesa <daniel@octaforge.org>, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ephoto 0.1.1\n"
+"Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2015-08-10 20:32+0100\n"
+"PO-Revision-Date: 2015-08-10 20:45+0100\n"
+"Last-Translator: Daniel Kolesa <daniel@octaforge.org>\n"
+"Language-Team: none\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/bin/ephoto_config.c:178
+#: src/bin/ephoto_single_browser.c:1503
+msgid "Save"
+msgstr "Uložit"
+
+#: src/bin/ephoto_config.c:190
+#: src/bin/ephoto_single_browser.c:606
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: src/bin/ephoto_config.c:278
+msgid "Close"
+msgstr "Zavřít"
+
+#: src/bin/ephoto_thumb_browser.c:391
+#: src/bin/ephoto_thumb_browser.c:805
+#: src/bin/ephoto_single_browser.c:1521
+msgid "Zoom In"
+msgstr "Přiblížit"
+
+#: src/bin/ephoto_thumb_browser.c:393
+#: src/bin/ephoto_thumb_browser.c:807
+#: src/bin/ephoto_single_browser.c:1522
+msgid "Zoom Out"
+msgstr "Oddálit"
+
+#: src/bin/ephoto_thumb_browser.c:397
+#: src/bin/ephoto_thumb_browser.c:811
+#: src/bin/ephoto_single_browser.c:1528
+msgid "Slideshow"
+msgstr "Prezentace"
+
+#: src/bin/ephoto_thumb_browser.c:398
+#: src/bin/ephoto_thumb_browser.c:812
+#: src/bin/ephoto_single_browser.c:1529
+msgid "Settings"
+msgstr "Nastavení"
+
+#: src/bin/ephoto_thumb_browser.c:409
+msgid "Show the file selector"
+msgstr "Zobrazit výběr souborů"
+
+#: src/bin/ephoto_thumb_browser.c:677
+msgid "There are no images in this directory"
+msgstr "V tomto adresáři nejsou žádné obrázky"
+
+#: src/bin/ephoto_thumb_browser.c:839
+msgid "Up"
+msgstr "Nahoru"
+
+#: src/bin/ephoto_thumb_browser.c:852
+msgid "Home"
+msgstr "Domů"
+
+#: src/bin/ephoto_thumb_browser.c:873
+msgid "Hide the file selector"
+msgstr "Skrýt výběr souborů"
+
+#: src/bin/ephoto_single_browser.c:595
+msgid "Apply"
+msgstr "Použít"
+
+#: src/bin/ephoto_single_browser.c:818
+msgid "Are you sure you want to reset your changes?"
+msgstr "Opravdu chcete resetovat změny?"
+
+#: src/bin/ephoto_single_browser.c:837
+#: src/bin/ephoto_single_browser.c:970
+#: src/bin/ephoto_single_browser.c:1076
+msgid "Yes"
+msgstr "Ano"
+
+#: src/bin/ephoto_single_browser.c:849
+#: src/bin/ephoto_single_browser.c:982
+#: src/bin/ephoto_single_browser.c:1088
+msgid "No"
+msgstr "Ne"
+
+#: src/bin/ephoto_single_browser.c:875
+msgid "Error: Image could not be saved here!"
+msgstr "Chyba: obrázek zde nemůže být uložen!"
+
+#: src/bin/ephoto_single_browser.c:887
+msgid "OK"
+msgstr "OK"
+
+#: src/bin/ephoto_single_browser.c:951
+#: src/bin/ephoto_single_browser.c:1057
+msgid "Are you sure you want to overwrite this image?"
+msgstr "Opravdu chcete přepsat tento obrázek?"
+
+#: src/bin/ephoto_single_browser.c:1496
+msgid "Back"
+msgstr "Zpět"
+
+#: src/bin/ephoto_single_browser.c:1497
+msgid "Edit"
+msgstr "Upravit"
+
+#: src/bin/ephoto_single_browser.c:1502
+msgid "Reset"
+msgstr "Resetovat"
+
+#: src/bin/ephoto_single_browser.c:1504
+msgid "Save As"
+msgstr "Uložit jako"
+
+#: src/bin/ephoto_single_browser.c:1505
+msgid "Crop"
+msgstr "Oříznout"
+
+#: src/bin/ephoto_single_browser.c:1506
+msgid "Rotate Left"
+msgstr "Otočit doleva"
+
+#: src/bin/ephoto_single_browser.c:1507
+msgid "Rotate Right"
+msgstr "Otočit doprava"
+
+#: src/bin/ephoto_single_browser.c:1508
+msgid "Flip Horizontal"
+msgstr "Překlopit vodorovně"
+
+#: src/bin/ephoto_single_browser.c:1509
+msgid "Flip Vertical"
+msgstr "Překlopit svisle"
+
+#: src/bin/ephoto_single_browser.c:1514
+msgid "First"
+msgstr "První"
+
+#: src/bin/ephoto_single_browser.c:1515
+msgid "Previous"
+msgstr "Předchozí"
+
+#: src/bin/ephoto_single_browser.c:1516
+msgid "Next"
+msgstr "Další"
+
+#: src/bin/ephoto_single_browser.c:1517
+msgid "Last"
+msgstr "Poslední"
+
+#: src/bin/ephoto_single_browser.c:1523
+msgid "Zoom Fit"
+msgstr "Vměstnat do okna"
+
+#: src/bin/ephoto_single_browser.c:1524
+msgid "Zoom 1:1"
+msgstr "Zoom 1:1"
+

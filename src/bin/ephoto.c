@@ -18,7 +18,7 @@ elm_main(int argc, char **argv)
    elm_language_set("");
 #if HAVE_GETTEXT && ENABLE_NLS
    elm_app_compile_locale_set(LOCALEDIR);
-   bindtextdomain(PACKAGE, elm_app_locale_dir_get());
+   bindtextdomain(PACKAGE, LOCALEDIR);
    textdomain(PACKAGE);
 #endif
 

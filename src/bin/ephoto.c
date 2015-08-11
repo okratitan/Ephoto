@@ -14,9 +14,11 @@ elm_main(int argc, char **argv)
    elm_need_efreet();
    elm_need_ethumb();
    elm_language_set("");
+   elm_app_compile_data_dir_set(PACKAGE_DATA_DIR);
+   elm_app_info_set(elm_main, "ephoto", "themes/crop.edj");
 #if HAVE_GETTEXT && ENABLE_NLS
    elm_app_compile_locale_set(LOCALEDIR);
-   bindtextdomain(PACKAGE, LOCALEDIR);
+   bindtextdomain(PACKAGE, elm_app_locale_dir_get());
    bind_textdomain_codeset(PACKAGE, "UTF-8");
    textdomain(PACKAGE);
 #endif

@@ -100,6 +100,17 @@ _hv_select(void *data EINA_UNUSED, Evas_Object *obj, void *event_info)
    elm_object_text_set(obj, elm_object_item_text_get(event_info));
 }
 
+static void
+_spinner_changed(void *data EINA_UNUSED, Evas_Object *obj, void *event_info EINA_UNUSED)
+{
+   double val;
+   char buf[PATH_MAX];
+
+   val = elm_spinner_value_get(obj);
+   snprintf(buf, PATH_MAX, "%%1.0f %s", ngettext("second", "seconds", val));
+   elm_spinner_label_format_set(obj, buf);
+}
+
 static Evas_Object *
 _add_slideshow_config(Evas_Object *parent, Ephoto *ephoto)
 {
@@ -142,6 +153,7 @@ _add_slideshow_config(Evas_Object *parent, Ephoto *ephoto)
    elm_spinner_editable_set(spinner, EINA_TRUE);
    memset(buf, 0, PATH_MAX);
    snprintf(buf, PATH_MAX, "%%1.0f %s", _("seconds"));
+   evas_object_smart_callback_add(spinner, "changed", _spinner_changed, NULL);
    elm_spinner_label_format_set(spinner, buf);
    elm_spinner_step_set(spinner, 1);
    elm_spinner_value_set(spinner, ephoto->config->slideshow_timeout);

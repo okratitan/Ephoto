@@ -7,70 +7,171 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ephoto 0.1.1\n"
 "Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2015-08-10 20:25+0200\n"
-"PO-Revision-Date: 2015-08-10 21:10+0200\n"
+"POT-Creation-Date: 2015-08-11 08:09+0200\n"
+"PO-Revision-Date: 2015-08-11 08:20+0200\n"
 "Last-Translator: Massimo Maiurana <maiurana@gmail.com>\n"
 "Language-Team: none\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/bin/ephoto_config.c:178 src/bin/ephoto_single_browser.c:1503
+#: src/bin/ephoto_config.c:128
+msgid "Slideshow Options"
+msgstr "Opzioni presentazione"
+
+#: src/bin/ephoto_config.c:135
+msgid "Show Each Slide For"
+msgstr "Mostra ogni immagine per"
+
+#: src/bin/ephoto_config.c:144
+msgid "seconds"
+msgstr "secondi"
+
+#: src/bin/ephoto_config.c:155
+msgid "Slide Transition"
+msgstr "Transizione immagini"
+
+#: src/bin/ephoto_config.c:186 src/bin/ephoto_single_browser.c:1503
 msgid "Save"
 msgstr "Salva"
 
-#: src/bin/ephoto_config.c:190 src/bin/ephoto_single_browser.c:606
+#: src/bin/ephoto_config.c:198 src/bin/ephoto_single_browser.c:606
 msgid "Cancel"
 msgstr "Annulla"
 
-#: src/bin/ephoto_config.c:278
+#: src/bin/ephoto_config.c:228
+msgid ""
+"<b>About Ephoto</b><br/>Ephoto is a comprehensive image viewer based on the "
+"EFL.<br/>For more information, please visit the Ephoto project page on the "
+"Enlightenment wiki:<br/>https://phab.enlightenment.org/w/projects/ephoto<br/"
+">Ephoto's source can be found through Enlightenment's git:<br/>http://git."
+"enlightenment.org/apps/ephoto.git<br/><br/><b>Authors:</b><br/>"
+msgstr ""
+"<b>Informazioni su Ephoto</b><br/>Ephoto è un visualizzatore di immagini "
+"completo basato sulle EFL.<br/>Per maggiori informazioni si prega di "
+"visitare la pagina del progetto Ephoto sul wiki di Enlightenment:<br/"
+">https://phab.enlightenment.org/w/projects/ephoto<br/>Il sorgente di Ephoto "
+"è reperibile nel deposito git di Enlightenment:<br/>http://git.enlightenment."
+"org/apps/ephoto.git<br/><br/><b>Authori:</b><br/>"
+
+#: src/bin/ephoto_config.c:286
 msgid "Close"
 msgstr "Chiudi"
 
-#: src/bin/ephoto_thumb_browser.c:391 src/bin/ephoto_thumb_browser.c:805
+#: src/bin/ephoto_config.c:343 src/bin/ephoto_thumb_browser.c:415
+#: src/bin/ephoto_thumb_browser.c:831 src/bin/ephoto_single_browser.c:1528
+msgid "Slideshow"
+msgstr "Presentazione"
+
+#: src/bin/ephoto_config.c:348
+msgid "About"
+msgstr "Informazioni"
+
+#: src/bin/ephoto_thumb_browser.c:409 src/bin/ephoto_thumb_browser.c:825
 #: src/bin/ephoto_single_browser.c:1521
 msgid "Zoom In"
 msgstr "Zoom avanti"
 
-#: src/bin/ephoto_thumb_browser.c:393 src/bin/ephoto_thumb_browser.c:807
+#: src/bin/ephoto_thumb_browser.c:411 src/bin/ephoto_thumb_browser.c:827
 #: src/bin/ephoto_single_browser.c:1522
 msgid "Zoom Out"
 msgstr "Zoom indietro"
 
-#: src/bin/ephoto_thumb_browser.c:397 src/bin/ephoto_thumb_browser.c:811
-#: src/bin/ephoto_single_browser.c:1528
-msgid "Slideshow"
-msgstr "Presentazione"
-
-#: src/bin/ephoto_thumb_browser.c:398 src/bin/ephoto_thumb_browser.c:812
+#: src/bin/ephoto_thumb_browser.c:416 src/bin/ephoto_thumb_browser.c:832
 #: src/bin/ephoto_single_browser.c:1529
 msgid "Settings"
 msgstr "Impostazioni"
 
-#: src/bin/ephoto_thumb_browser.c:409
+#: src/bin/ephoto_thumb_browser.c:427
 msgid "Show the file selector"
 msgstr "Mostra selettore file"
 
-#: src/bin/ephoto_thumb_browser.c:677
+#: src/bin/ephoto_thumb_browser.c:696
 msgid "There are no images in this directory"
 msgstr "Non ci sono immagini in questa directory"
 
-#: src/bin/ephoto_thumb_browser.c:839
+#: src/bin/ephoto_thumb_browser.c:701 src/bin/ephoto_thumb_browser.c:738
+msgid "Total"
+msgstr "Totale"
+
+#: src/bin/ephoto_thumb_browser.c:701 src/bin/ephoto_thumb_browser.c:738
+msgid "image"
+msgid_plural "images"
+msgstr[0] "immagine"
+msgstr[1] "immagini"
+
+#: src/bin/ephoto_thumb_browser.c:701 src/bin/ephoto_thumb_browser.c:738
+msgid "Size"
+msgstr "Dimensioni"
+
+#: src/bin/ephoto_thumb_browser.c:701 src/bin/ephoto_thumb_browser.c:716
+#: src/bin/ephoto_single_browser.c:518
+msgid "B"
+msgid_plural "B"
+msgstr[0] "B"
+msgstr[1] "B"
+
+#: src/bin/ephoto_thumb_browser.c:720 src/bin/ephoto_single_browser.c:522
+msgid "KB"
+msgid_plural "KB"
+msgstr[0] "KB"
+msgstr[1] "KB"
+
+#: src/bin/ephoto_thumb_browser.c:724 src/bin/ephoto_single_browser.c:526
+msgid "MB"
+msgid_plural "MB"
+msgstr[0] "MB"
+msgstr[1] "MB"
+
+#: src/bin/ephoto_thumb_browser.c:728 src/bin/ephoto_single_browser.c:530
+msgid "GB"
+msgid_plural "GB"
+msgstr[0] "GB"
+msgstr[1] "GB"
+
+#: src/bin/ephoto_thumb_browser.c:732 src/bin/ephoto_single_browser.c:534
+msgid "TB"
+msgid_plural "TB"
+msgstr[0] "TB"
+msgstr[1] "TB"
+
+#: src/bin/ephoto_thumb_browser.c:870
 msgid "Up"
 msgstr "Su"
 
-#: src/bin/ephoto_thumb_browser.c:852
+#: src/bin/ephoto_thumb_browser.c:883
 msgid "Home"
 msgstr "Home"
 
-#: src/bin/ephoto_thumb_browser.c:873
+#: src/bin/ephoto_thumb_browser.c:904
 msgid "Hide the file selector"
 msgstr "Nascondi selettore file"
 
 #: src/bin/ephoto_single_browser.c:595
 msgid "Apply"
 msgstr "Applica"
+
+#: src/bin/ephoto_single_browser.c:617 src/bin/ephoto_single_browser.c:1217
+msgid "Type"
+msgstr "Tipo"
+
+#: src/bin/ephoto_single_browser.c:617 src/bin/ephoto_single_browser.c:1217
+msgid "Resolution"
+msgstr "Risoluzione"
+
+#: src/bin/ephoto_single_browser.c:618 src/bin/ephoto_single_browser.c:1218
+msgid "File Size"
+msgstr "Dimensione file"
+
+#: src/bin/ephoto_single_browser.c:642
+msgid "This image does not exist or is corrupted!"
+msgstr "Questa immagine non esiste o è corrotta!"
+
+#: src/bin/ephoto_single_browser.c:647
+msgid "Bad Image"
+msgstr "Imagine non utilizzabile"
 
 #: src/bin/ephoto_single_browser.c:818
 msgid "Are you sure you want to reset your changes?"
@@ -91,12 +192,16 @@ msgid "Error: Image could not be saved here!"
 msgstr "Errore: l'imagine non può essere salvata qui!"
 
 #: src/bin/ephoto_single_browser.c:887
-msgid "OK"
-msgstr "OK"
+msgid "Ok"
+msgstr "Ok"
 
 #: src/bin/ephoto_single_browser.c:951 src/bin/ephoto_single_browser.c:1057
 msgid "Are you sure you want to overwrite this image?"
 msgstr "Siete sicuri di voler sovrascrivere questa immagine?"
+
+#: src/bin/ephoto_single_browser.c:1135
+msgid "Image Files"
+msgstr "File di immagini"
 
 #: src/bin/ephoto_single_browser.c:1496
 msgid "Back"

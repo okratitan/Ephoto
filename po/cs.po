@@ -7,128 +7,158 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ephoto 0.1.1\n"
 "Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2015-08-10 22:00+0100\n"
-"PO-Revision-Date: 2015-08-10 22:07+0100\n"
+"POT-Creation-Date: 2015-08-11 16:20+0100\n"
+"PO-Revision-Date: 2015-08-11 16:21+0100\n"
 "Last-Translator: Daniel Kolesa <daniel@octaforge.org>\n"
 "Language-Team: none\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Poedit 1.8.4\n"
 
-#: src/bin/ephoto_config.c:128
+#: src/bin/ephoto_config.c:110
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "sekunda"
+msgstr[1] "sekundy"
+msgstr[2] "sekund"
+
+#: src/bin/ephoto_config.c:139
 msgid "Slideshow Options"
 msgstr "Možnosti prezentace"
 
-#: src/bin/ephoto_config.c:135
+#: src/bin/ephoto_config.c:146
 msgid "Show Each Slide For"
 msgstr "Zobrazit každý obrázek"
 
-#: src/bin/ephoto_config.c:153
+#: src/bin/ephoto_config.c:155
+msgid "seconds"
+msgstr "sekund"
+
+#: src/bin/ephoto_config.c:167
 msgid "Slide Transition"
 msgstr "Přechod obrázků"
 
-#: src/bin/ephoto_config.c:184
-#: src/bin/ephoto_single_browser.c:1503
+#: src/bin/ephoto_config.c:198 src/bin/ephoto_single_browser.c:1503
 msgid "Save"
 msgstr "Uložit"
 
-#: src/bin/ephoto_config.c:196
-#: src/bin/ephoto_single_browser.c:606
+#: src/bin/ephoto_config.c:210 src/bin/ephoto_single_browser.c:606
 msgid "Cancel"
 msgstr "Zrušit"
 
-#: src/bin/ephoto_config.c:284
+#: src/bin/ephoto_config.c:240
+msgid ""
+"<b>About Ephoto</b><br/>Ephoto is a comprehensive image viewer based on the "
+"EFL.<br/>For more information, please visit the Ephoto project page on the "
+"Enlightenment wiki:<br/>https://phab.enlightenment.org/w/projects/ephoto<br/"
+">Ephoto's source can be found through Enlightenment's git:<br/>http://git."
+"enlightenment.org/apps/ephoto.git<br/><br/><b>Authors:</b><br/>"
+msgstr ""
+"<b>O programu Ephoto</b><br/>Ephoto je kompletní prohlížeč obrázků založený "
+"na EFL.<br/>Pro více informací navštivte projektovou stránku na "
+"Enlightenment wiki:<br/>https://phab.enlightenment.org/w/projects/ephoto<br/"
+">Zdrojový kód Ephoto můžete najít v Gitu Enlightenmentu:<br/>http://git."
+"enlightenment.org/apps/ephoto.git<br/><br/><b>Autoři:</b><br/>"
+
+#: src/bin/ephoto_config.c:298
 msgid "Close"
 msgstr "Zavřít"
 
-#: src/bin/ephoto_config.c:341
-#: src/bin/ephoto_thumb_browser.c:401
-#: src/bin/ephoto_thumb_browser.c:817
-#: src/bin/ephoto_single_browser.c:1528
+#: src/bin/ephoto_config.c:355 src/bin/ephoto_thumb_browser.c:415
+#: src/bin/ephoto_thumb_browser.c:831 src/bin/ephoto_single_browser.c:1528
 msgid "Slideshow"
 msgstr "Prezentace"
 
-#: src/bin/ephoto_config.c:346
+#: src/bin/ephoto_config.c:360
 msgid "About"
 msgstr "O programu"
 
-#: src/bin/ephoto_thumb_browser.c:395
-#: src/bin/ephoto_thumb_browser.c:811
+#: src/bin/ephoto_thumb_browser.c:409 src/bin/ephoto_thumb_browser.c:825
 #: src/bin/ephoto_single_browser.c:1521
 msgid "Zoom In"
 msgstr "Přiblížit"
 
-#: src/bin/ephoto_thumb_browser.c:397
-#: src/bin/ephoto_thumb_browser.c:813
+#: src/bin/ephoto_thumb_browser.c:411 src/bin/ephoto_thumb_browser.c:827
 #: src/bin/ephoto_single_browser.c:1522
 msgid "Zoom Out"
 msgstr "Oddálit"
 
-#: src/bin/ephoto_thumb_browser.c:402
-#: src/bin/ephoto_thumb_browser.c:818
+#: src/bin/ephoto_thumb_browser.c:416 src/bin/ephoto_thumb_browser.c:832
 #: src/bin/ephoto_single_browser.c:1529
 msgid "Settings"
 msgstr "Nastavení"
 
-#: src/bin/ephoto_thumb_browser.c:413
+#: src/bin/ephoto_thumb_browser.c:427
 msgid "Show the file selector"
 msgstr "Zobrazit výběr souborů"
 
-#: src/bin/ephoto_thumb_browser.c:682
+#: src/bin/ephoto_thumb_browser.c:696
 msgid "There are no images in this directory"
 msgstr "V tomto adresáři nejsou žádné obrázky"
 
-#: src/bin/ephoto_thumb_browser.c:687
-#: src/bin/ephoto_thumb_browser.c:724
+#: src/bin/ephoto_thumb_browser.c:701 src/bin/ephoto_thumb_browser.c:738
 msgid "Total"
 msgstr "Celkem"
 
-#: src/bin/ephoto_thumb_browser.c:687
-#: src/bin/ephoto_thumb_browser.c:724
-msgid "images"
-msgstr "Obrázky"
+#: src/bin/ephoto_thumb_browser.c:701 src/bin/ephoto_thumb_browser.c:738
+msgid "image"
+msgid_plural "images"
+msgstr[0] "obrázek"
+msgstr[1] "obrázky"
+msgstr[2] "obrázků"
 
-#: src/bin/ephoto_thumb_browser.c:687
-#: src/bin/ephoto_thumb_browser.c:724
+#: src/bin/ephoto_thumb_browser.c:701 src/bin/ephoto_thumb_browser.c:738
 msgid "Size"
 msgstr "Velikost"
 
-#: src/bin/ephoto_thumb_browser.c:687
-#: src/bin/ephoto_thumb_browser.c:702
+#: src/bin/ephoto_thumb_browser.c:701 src/bin/ephoto_thumb_browser.c:716
 #: src/bin/ephoto_single_browser.c:518
-msgid "bytes"
-msgstr "bajtů"
+msgid "B"
+msgid_plural "B"
+msgstr[0] "KB"
+msgstr[1] "B"
+msgstr[2] "B"
 
-#: src/bin/ephoto_thumb_browser.c:706
-#: src/bin/ephoto_single_browser.c:522
+#: src/bin/ephoto_thumb_browser.c:720 src/bin/ephoto_single_browser.c:522
 msgid "KB"
-msgstr "KB"
+msgid_plural "KB"
+msgstr[0] "KB"
+msgstr[1] "KB"
+msgstr[2] "KB"
 
-#: src/bin/ephoto_thumb_browser.c:710
-#: src/bin/ephoto_single_browser.c:526
+#: src/bin/ephoto_thumb_browser.c:724 src/bin/ephoto_single_browser.c:526
 msgid "MB"
-msgstr "MB"
+msgid_plural "MB"
+msgstr[0] "MB"
+msgstr[1] "MB"
+msgstr[2] "MB"
 
-#: src/bin/ephoto_thumb_browser.c:714
-#: src/bin/ephoto_single_browser.c:530
+#: src/bin/ephoto_thumb_browser.c:728 src/bin/ephoto_single_browser.c:530
 msgid "GB"
-msgstr "GB"
+msgid_plural "GB"
+msgstr[0] "GB"
+msgstr[1] "GB"
+msgstr[2] "GB"
 
-#: src/bin/ephoto_thumb_browser.c:718
-#: src/bin/ephoto_single_browser.c:534
+#: src/bin/ephoto_thumb_browser.c:732 src/bin/ephoto_single_browser.c:534
 msgid "TB"
-msgstr "TB"
+msgid_plural "TB"
+msgstr[0] "TB"
+msgstr[1] "TB"
+msgstr[2] "TB"
 
-#: src/bin/ephoto_thumb_browser.c:855
+#: src/bin/ephoto_thumb_browser.c:870
 msgid "Up"
 msgstr "Nahoru"
 
-#: src/bin/ephoto_thumb_browser.c:868
+#: src/bin/ephoto_thumb_browser.c:883
 msgid "Home"
 msgstr "Domů"
 
-#: src/bin/ephoto_thumb_browser.c:889
+#: src/bin/ephoto_thumb_browser.c:904
 msgid "Hide the file selector"
 msgstr "Skrýt výběr souborů"
 
@@ -136,18 +166,15 @@ msgstr "Skrýt výběr souborů"
 msgid "Apply"
 msgstr "Použít"
 
-#: src/bin/ephoto_single_browser.c:617
-#: src/bin/ephoto_single_browser.c:1217
+#: src/bin/ephoto_single_browser.c:617 src/bin/ephoto_single_browser.c:1217
 msgid "Type"
 msgstr "Typ"
 
-#: src/bin/ephoto_single_browser.c:617
-#: src/bin/ephoto_single_browser.c:1217
+#: src/bin/ephoto_single_browser.c:617 src/bin/ephoto_single_browser.c:1217
 msgid "Resolution"
 msgstr "Rozlišení"
 
-#: src/bin/ephoto_single_browser.c:618
-#: src/bin/ephoto_single_browser.c:1218
+#: src/bin/ephoto_single_browser.c:618 src/bin/ephoto_single_browser.c:1218
 msgid "File Size"
 msgstr "Velikost souboru"
 
@@ -163,14 +190,12 @@ msgstr "Chybný obrázek"
 msgid "Are you sure you want to reset your changes?"
 msgstr "Opravdu chcete resetovat změny?"
 
-#: src/bin/ephoto_single_browser.c:837
-#: src/bin/ephoto_single_browser.c:970
+#: src/bin/ephoto_single_browser.c:837 src/bin/ephoto_single_browser.c:970
 #: src/bin/ephoto_single_browser.c:1076
 msgid "Yes"
 msgstr "Ano"
 
-#: src/bin/ephoto_single_browser.c:849
-#: src/bin/ephoto_single_browser.c:982
+#: src/bin/ephoto_single_browser.c:849 src/bin/ephoto_single_browser.c:982
 #: src/bin/ephoto_single_browser.c:1088
 msgid "No"
 msgstr "Ne"
@@ -183,8 +208,7 @@ msgstr "Chyba: obrázek zde nemůže být uložen!"
 msgid "Ok"
 msgstr "Ok"
 
-#: src/bin/ephoto_single_browser.c:951
-#: src/bin/ephoto_single_browser.c:1057
+#: src/bin/ephoto_single_browser.c:951 src/bin/ephoto_single_browser.c:1057
 msgid "Are you sure you want to overwrite this image?"
 msgstr "Opravdu chcete přepsat tento obrázek?"
 
@@ -251,6 +275,9 @@ msgstr "Vměstnat do okna"
 #: src/bin/ephoto_single_browser.c:1524
 msgid "Zoom 1:1"
 msgstr "Zoom 1:1"
+
+#~ msgid "bytes"
+#~ msgstr "bajtů"
 
 #~ msgid "OK"
 #~ msgstr "OK"

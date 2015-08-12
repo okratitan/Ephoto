@@ -1,0 +1,283 @@
+# Slovak translation for Ephoto.
+# Copyright (C) 2015 Stephen "okra" Houston
+# This file is distributed under the same license as the ephoto package.
+# Štefan Uram <uram@szm.sk>, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ephoto 0.1.1\n"
+"Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2015-08-11 21:42+0200\n"
+"PO-Revision-Date: 2015-08-11 16:21+0100\n"
+"Last-Translator: Štefan Uram <uram@szm.sk>\n"
+"Language-Team: none\n"
+"Language: sk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Poedit 1.8.4\n"
+
+#: src/bin/ephoto_config.c:110
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "sekunda"
+msgstr[1] "sekundy"
+msgstr[2] "sekúnd"
+
+#: src/bin/ephoto_config.c:139
+msgid "Slideshow Options"
+msgstr "Možnosti prezentácie"
+
+#: src/bin/ephoto_config.c:146
+msgid "Show Each Slide For"
+msgstr "Zobrazit každý obrázok"
+
+#: src/bin/ephoto_config.c:155
+msgid "seconds"
+msgstr "sekúnd"
+
+#: src/bin/ephoto_config.c:167
+msgid "Slide Transition"
+msgstr "Prechod obrázkov"
+
+#: src/bin/ephoto_config.c:198 src/bin/ephoto_single_browser.c:1503
+msgid "Save"
+msgstr "Uložiť"
+
+#: src/bin/ephoto_config.c:210 src/bin/ephoto_single_browser.c:606
+msgid "Cancel"
+msgstr "Zrušiť"
+
+#: src/bin/ephoto_config.c:240
+msgid ""
+"<b>About Ephoto</b><br/>Ephoto is a comprehensive image viewer based on the "
+"EFL.<br/>For more information, please visit the Ephoto project page on the "
+"Enlightenment wiki:<br/>https://phab.enlightenment.org/w/projects/ephoto<br/"
+">Ephoto's source can be found through Enlightenment's git:<br/>http://git."
+"enlightenment.org/apps/ephoto.git<br/><br/><b>Authors:</b><br/>"
+msgstr ""
+"<b>O programu Ephoto</b><br/>Ephoto je kompletní prohlížeč obrázků založený "
+"na EFL.<br/>Pre viac informácií navštívte projektovú stránku na "
+"Enlightenment wiki:<br/>https://phab.enlightenment.org/w/projects/ephoto<br/"
+">Zdrojový kód Ephoto môžete nájsť v Gite Enlightenmentu:<br/>http://git."
+"enlightenment.org/apps/ephoto.git<br/><br/><b>Autoři:</b><br/>"
+
+#: src/bin/ephoto_config.c:298
+msgid "Close"
+msgstr "Zavrieť"
+
+#: src/bin/ephoto_config.c:355 src/bin/ephoto_thumb_browser.c:412
+#: src/bin/ephoto_thumb_browser.c:829 src/bin/ephoto_single_browser.c:1528
+msgid "Slideshow"
+msgstr "Prezentácia"
+
+#: src/bin/ephoto_config.c:360
+msgid "About"
+msgstr "O programe"
+
+#: src/bin/ephoto_thumb_browser.c:406 src/bin/ephoto_thumb_browser.c:823
+#: src/bin/ephoto_single_browser.c:1521
+msgid "Zoom In"
+msgstr "Priblížiť"
+
+#: src/bin/ephoto_thumb_browser.c:408 src/bin/ephoto_thumb_browser.c:825
+#: src/bin/ephoto_single_browser.c:1522
+msgid "Zoom Out"
+msgstr "Oddialiť"
+
+#: src/bin/ephoto_thumb_browser.c:413 src/bin/ephoto_thumb_browser.c:830
+#: src/bin/ephoto_single_browser.c:1529
+msgid "Settings"
+msgstr "Nastavenie"
+
+#: src/bin/ephoto_thumb_browser.c:424
+msgid "Show the file selector"
+msgstr "Zobraziť výber súborov"
+
+#: src/bin/ephoto_thumb_browser.c:694
+msgid "There are no images in this directory"
+msgstr "V tomto adresári nie sú žiadne obrázky"
+
+#: src/bin/ephoto_thumb_browser.c:699 src/bin/ephoto_thumb_browser.c:736
+msgid "Total"
+msgstr "Celkom"
+
+#: src/bin/ephoto_thumb_browser.c:699 src/bin/ephoto_thumb_browser.c:736
+msgid "image"
+msgid_plural "images"
+msgstr[0] "obrázek"
+msgstr[1] "obrázky"
+msgstr[2] "obrázkov"
+
+#: src/bin/ephoto_thumb_browser.c:699 src/bin/ephoto_thumb_browser.c:736
+msgid "Size"
+msgstr "Veľkosť"
+
+#: src/bin/ephoto_thumb_browser.c:699 src/bin/ephoto_thumb_browser.c:714
+#: src/bin/ephoto_single_browser.c:518
+msgid "B"
+msgid_plural "B"
+msgstr[0] "KB"
+msgstr[1] "B"
+msgstr[2] "B"
+
+#: src/bin/ephoto_thumb_browser.c:718 src/bin/ephoto_single_browser.c:522
+msgid "KB"
+msgid_plural "KB"
+msgstr[0] "KB"
+msgstr[1] "KB"
+msgstr[2] "KB"
+
+#: src/bin/ephoto_thumb_browser.c:722 src/bin/ephoto_single_browser.c:526
+msgid "MB"
+msgid_plural "MB"
+msgstr[0] "MB"
+msgstr[1] "MB"
+msgstr[2] "MB"
+
+#: src/bin/ephoto_thumb_browser.c:726 src/bin/ephoto_single_browser.c:530
+msgid "GB"
+msgid_plural "GB"
+msgstr[0] "GB"
+msgstr[1] "GB"
+msgstr[2] "GB"
+
+#: src/bin/ephoto_thumb_browser.c:730 src/bin/ephoto_single_browser.c:534
+msgid "TB"
+msgid_plural "TB"
+msgstr[0] "TB"
+msgstr[1] "TB"
+msgstr[2] "TB"
+
+#: src/bin/ephoto_thumb_browser.c:867
+msgid "Up"
+msgstr "Hore"
+
+#: src/bin/ephoto_thumb_browser.c:880
+msgid "Home"
+msgstr "Domov"
+
+#: src/bin/ephoto_thumb_browser.c:901
+msgid "Hide the file selector"
+msgstr "Skrýť výber súborov"
+
+#: src/bin/ephoto_single_browser.c:595
+msgid "Apply"
+msgstr "Použiť"
+
+#: src/bin/ephoto_single_browser.c:617 src/bin/ephoto_single_browser.c:1217
+msgid "Type"
+msgstr "Typ"
+
+#: src/bin/ephoto_single_browser.c:617 src/bin/ephoto_single_browser.c:1217
+msgid "Resolution"
+msgstr "Rozlíšenie"
+
+#: src/bin/ephoto_single_browser.c:618 src/bin/ephoto_single_browser.c:1218
+msgid "File Size"
+msgstr "Veľkosť súboru"
+
+#: src/bin/ephoto_single_browser.c:642
+msgid "This image does not exist or is corrupted!"
+msgstr "Tento obrázok neexistuje alebo je poškodený!"
+
+#: src/bin/ephoto_single_browser.c:647
+msgid "Bad Image"
+msgstr "Chybný obrázok"
+
+#: src/bin/ephoto_single_browser.c:818
+msgid "Are you sure you want to reset your changes?"
+msgstr "Naozaj chcete resetovať zmeny?"
+
+#: src/bin/ephoto_single_browser.c:837 src/bin/ephoto_single_browser.c:970
+#: src/bin/ephoto_single_browser.c:1076
+msgid "Yes"
+msgstr "Áno"
+
+#: src/bin/ephoto_single_browser.c:849 src/bin/ephoto_single_browser.c:982
+#: src/bin/ephoto_single_browser.c:1088
+msgid "No"
+msgstr "Nie"
+
+#: src/bin/ephoto_single_browser.c:875
+msgid "Error: Image could not be saved here!"
+msgstr "Chyba: obrázok tu nemôže byť uložený!"
+
+#: src/bin/ephoto_single_browser.c:887
+msgid "Ok"
+msgstr "Ok"
+
+#: src/bin/ephoto_single_browser.c:951 src/bin/ephoto_single_browser.c:1057
+msgid "Are you sure you want to overwrite this image?"
+msgstr "Opravdu chcete přepsat tento obrázek?"
+
+#: src/bin/ephoto_single_browser.c:1135
+msgid "Image Files"
+msgstr "Obrázky"
+
+#: src/bin/ephoto_single_browser.c:1496
+msgid "Back"
+msgstr "Späť"
+
+#: src/bin/ephoto_single_browser.c:1497
+msgid "Edit"
+msgstr "Upraviť"
+
+#: src/bin/ephoto_single_browser.c:1502
+msgid "Reset"
+msgstr "Resetovať"
+
+#: src/bin/ephoto_single_browser.c:1504
+msgid "Save As"
+msgstr "Uložiť jako"
+
+#: src/bin/ephoto_single_browser.c:1505
+msgid "Crop"
+msgstr "Orezať"
+
+#: src/bin/ephoto_single_browser.c:1506
+msgid "Rotate Left"
+msgstr "Otočiť doľava"
+
+#: src/bin/ephoto_single_browser.c:1507
+msgid "Rotate Right"
+msgstr "Otočiť doprava"
+
+#: src/bin/ephoto_single_browser.c:1508
+msgid "Flip Horizontal"
+msgstr "Preklopiť vodorovne"
+
+#: src/bin/ephoto_single_browser.c:1509
+msgid "Flip Vertical"
+msgstr "Preklopiť zvisle"
+
+#: src/bin/ephoto_single_browser.c:1514
+msgid "First"
+msgstr "Prvý"
+
+#: src/bin/ephoto_single_browser.c:1515
+msgid "Previous"
+msgstr "Predchádzajúci"
+
+#: src/bin/ephoto_single_browser.c:1516
+msgid "Next"
+msgstr "Ďalší"
+
+#: src/bin/ephoto_single_browser.c:1517
+msgid "Last"
+msgstr "Posledný"
+
+#: src/bin/ephoto_single_browser.c:1523
+msgid "Zoom Fit"
+msgstr "Prispôsobiť oknu"
+
+#: src/bin/ephoto_single_browser.c:1524
+msgid "Zoom 1:1"
+msgstr "Zoom 1:1"
+
+#~ msgid "bytes"
+#~ msgstr "bajtov"
+
+#~ msgid "OK"
+#~ msgstr "OK"

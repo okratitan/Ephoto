@@ -507,7 +507,7 @@ _last_entry_find(Ephoto_Single_Browser *sb)
    return eina_list_last_data_get(sb->ephoto->entries);
 }
 
-static const char *
+static char *
 _ephoto_get_file_size(const char *path)
 {
    char isize[PATH_MAX];

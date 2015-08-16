@@ -611,11 +611,13 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
                }
              else
                {
+                  char *tmp = _ephoto_get_file_size(sb->entry->path);
                   evas_object_image_size_get(elm_image_object_get(v->image), &w, &h);
                   snprintf(image_info, PATH_MAX,
                            "<b>%s:</b> %s        <b>%s:</b> %dx%d        <b>%s:</b> %s",
                            _("Type"), efreet_mime_type_get(sb->entry->path), _("Resolution"), w, h,
-                           _("File Size"), _ephoto_get_file_size(sb->entry->path));
+                           _("File Size"), tmp);
+                  free(tmp);
                   sb->botbox = evas_object_rectangle_add(evas_object_evas_get(sb->table));
                   evas_object_color_set(sb->botbox, 0, 0, 0, 0);
                   evas_object_size_hint_min_set(sb->botbox, 0, sb->ephoto->bottom_bar_size);
@@ -1154,7 +1156,7 @@ _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
    Evas_Object *crop;
 
    const char *path, *key, *type;;
-   char tmp_path[PATH_MAX], image_info[PATH_MAX];
+   char tmp_path[PATH_MAX], image_info[PATH_MAX], *tmp;
    int x, y, w, h, cx, cy, cw, ch, iw, ih;
    int nx, ny, nw, nh, i, j, tmpx, tmpy, ind, index;
    double scalex, scaley, scalew, scaleh;
@@ -1212,10 +1214,12 @@ _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
    evas_object_show(sb->viewer);
 
    evas_object_del(sb->botbox);
+   tmp = _ephoto_get_file_size(tmp_path);
    snprintf(image_info, PATH_MAX,
              "<b>%s:</b> %s        <b>%s:</b> %dx%d        <b>%s:</b> %s",
              _("Type"), efreet_mime_type_get(tmp_path), _("Resolution"), nw, nh,
-             _("File Size"), _ephoto_get_file_size(tmp_path));
+             _("File Size"), tmp);
+   free(tmp);
    sb->botbox = evas_object_rectangle_add(evas_object_evas_get(sb->table));
    evas_object_color_set(sb->botbox, 0, 0, 0, 0);
    evas_object_size_hint_min_set(sb->botbox, 0, sb->ephoto->bottom_bar_size);

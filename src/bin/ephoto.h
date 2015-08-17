@@ -55,7 +55,7 @@ Evas_Object *ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent);
 void         ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
 void         ephoto_single_browser_path_pending_set(Evas_Object *obj, const char *path);
 void         ephoto_single_browser_image_data_update(Evas_Object *main, Evas_Object *image, Eina_Bool finished, unsigned int *image_data, int w, int h);
-void         ephoto_single_browser_cancel_editing(Evas_Object *main);
+void         ephoto_single_browser_cancel_editing(Evas_Object *main, Evas_Object *image);
 Evas_Object *ephoto_cropper_add(Evas_Object *main, Evas_Object *toolbar, Evas_Object *parent, Evas_Object *image);
 void         ephoto_bcg_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);
 void         ephoto_hsv_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);

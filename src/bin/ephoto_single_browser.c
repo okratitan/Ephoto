@@ -24,6 +24,9 @@ struct _Ephoto_Single_Browser
    Eina_List *handlers;
    Eina_Bool editing:1;
    Eina_Bool cropping:1;
+   unsigned int *edited_image_data;
+   int ew;
+   int eh;
 };
 
 struct _Ephoto_Viewer
@@ -1291,6 +1294,8 @@ _main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *e
         if (!strncmp(bname, "tmp", 3))
           ecore_file_unlink(info->path);
      }
+   if (sb->edited_image_data)
+     free(sb->edited_image_data);
    free(sb);
 }
 
@@ -1325,7 +1330,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
 {
    Evas_Object *box = elm_box_add(parent);
    Elm_Object_Item *icon;
-   Evas_Object *menu;
+   Evas_Object *menu, *menu_it;
    Ephoto_Single_Browser *sb;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(box, NULL);
@@ -1370,8 +1375,9 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_menu_item_add(menu, NULL, "object-flip-horizontal", _("Flip Horizontal"), _go_flip_horiz, sb);
    elm_menu_item_add(menu, NULL, "object-flip-vertical", _("Flip Vertical"), _go_flip_vert, sb);
    elm_menu_item_add(menu, NULL, "edit-cut", _("Crop"), _crop_image, sb);
-   elm_menu_item_add(menu, NULL, "document-properties", _("Brightness/Contrast/Gamma"), _go_bcg, sb);
-   elm_menu_item_add(menu, NULL, "document-properties", _("Hue/Saturation/Value"), _go_hsv, sb);
+   menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("Enhance"), NULL, NULL);
+   elm_menu_item_add(menu, menu_it, NULL, _("Brightness/Contrast/Gamma"), _go_bcg, sb);
+   elm_menu_item_add(menu, menu_it, NULL, _("Hue/Saturation/Value"), _go_hsv, sb);
    /*FIXME: Use separators once they don't mess up homogeneous toolbar*/
    //elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
 
@@ -1442,6 +1448,9 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
      ephoto_entry_free_listener_add(entry, _entry_free, sb);
 
    _ephoto_single_browser_recalc(sb);
+   if (sb->edited_image_data)
+     free(sb->edited_image_data);
+   sb->edited_image_data = NULL;
 
    if (sb->viewer)
      _zoom_fit(sb);
@@ -1496,6 +1505,10 @@ ephoto_single_browser_image_data_update(Evas_Object *main, Evas_Object *image, E
              elm_table_pack(sb->table, sb->infolabel, 0, 2, 4, 1);
              evas_object_show(sb->infolabel);
 
+             sb->edited_image_data = image_data;
+             sb->ew = w;
+             sb->eh = h;
+
              evas_object_freeze_events_set(sb->bar, EINA_FALSE);
              elm_object_disabled_set(sb->bar, EINA_FALSE);
              sb->editing = EINA_FALSE;
@@ -1505,7 +1518,7 @@ ephoto_single_browser_image_data_update(Evas_Object *main, Evas_Object *image, E
 }
 
 void
-ephoto_single_browser_cancel_editing(Evas_Object *main)
+ephoto_single_browser_cancel_editing(Evas_Object *main, Evas_Object *image)
 {
    Ephoto_Single_Browser *sb = evas_object_data_get(main, "single_browser");
    if (sb->editing)
@@ -1515,7 +1528,33 @@ ephoto_single_browser_cancel_editing(Evas_Object *main)
         sb->editing = EINA_FALSE;
         if (sb->cropping)
           sb->cropping = EINA_FALSE;
-        ephoto_single_browser_entry_set(sb->main, sb->entry);       
+        if (sb->edited_image_data)
+          {
+             evas_object_image_size_set(elm_image_object_get(image), sb->ew, sb->eh);
+             evas_object_image_data_set(elm_image_object_get(image), sb->edited_image_data);
+             evas_object_image_data_update_add(elm_image_object_get(image), 0, 0, sb->ew, sb->eh);
+          }
+        else
+          {
+             const char *group = NULL;
+             const char *ext = strrchr(sb->entry->path, '.');
+             if (ext)
+               {
+                  ext++;
+                  if ((strcasecmp(ext, "edj") == 0))
+                    {
+                       if (edje_file_group_exists(sb->entry->path, "e/desktop/background"))
+                         group = "e/desktop/background";
+                       else
+                        {
+                           Eina_List *g = edje_file_collection_list(sb->entry->path);
+                           group = eina_list_data_get(g);
+                           edje_file_collection_list_free(g);
+                        }
+                   }
+                }
+             elm_image_file_set(image, sb->entry->path, group);
+          }  
      }
 }
 

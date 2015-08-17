@@ -273,7 +273,7 @@ static void
 _hsv_cancel(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_HSV *ehsv = data;
-   ephoto_single_browser_cancel_editing(ehsv->main);
+   ephoto_single_browser_cancel_editing(ehsv->main, ehsv->image);
    evas_object_del(ehsv->frame);
 }
 

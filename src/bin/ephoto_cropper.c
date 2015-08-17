@@ -77,7 +77,10 @@ _cancel_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNU
    elm_table_unpack(ec->parent, ec->box);
    elm_layout_content_unset(ec->layout, "ephoto.swallow.image");
    elm_table_pack(ec->parent, ec->image, 0, 0, 1, 1);
-   ephoto_single_browser_cancel_editing(ec->main);
+   ephoto_single_browser_cancel_editing(ec->main, ec->image);
+   evas_object_del(ec->cropper);
+   evas_object_del(ec->layout);
+   evas_object_del(ec->box);
 }
 
 static void

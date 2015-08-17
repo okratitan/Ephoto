@@ -255,7 +255,6 @@ _bcg_apply(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSE
    image_data = evas_object_image_data_get(elm_image_object_get(ebcg->image), EINA_FALSE);
    evas_object_image_size_get(elm_image_object_get(ebcg->image), &w, &h);
    ephoto_single_browser_image_data_update(ebcg->main, ebcg->image, EINA_TRUE, image_data, w, h);
-   ephoto_single_browser_cancel_editing(ebcg->main);
    evas_object_del(ebcg->frame);
 }
 
@@ -263,7 +262,7 @@ static void
 _bcg_cancel(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_BCG *ebcg = data;
-   ephoto_single_browser_cancel_editing(ebcg->main);
+   ephoto_single_browser_cancel_editing(ebcg->main, ebcg->image);
    evas_object_del(ebcg->frame);
 }
 

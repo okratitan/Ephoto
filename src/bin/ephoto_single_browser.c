@@ -314,6 +314,9 @@ _orient_apply(Ephoto_Single_Browser *sb)
    elm_table_unpack(v->table, v->image);
    elm_object_content_unset(v->scroller);
    elm_image_object_size_get(v->image, &w, &h);
+   sb->edited_image_data = evas_object_image_data_get(elm_image_object_get(v->image), EINA_FALSE);
+   sb->ew = w;
+   sb->eh = h;
    evas_object_size_hint_min_set(v->image, w, h);
    evas_object_size_hint_max_set(v->image, w, h);
    elm_table_pack(v->table, v->image, 0, 0, 1, 1);
@@ -1294,8 +1297,6 @@ _main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *e
         if (!strncmp(bname, "tmp", 3))
           ecore_file_unlink(info->path);
      }
-   if (sb->edited_image_data)
-     free(sb->edited_image_data);
    free(sb);
 }
 
@@ -1449,9 +1450,12 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
 
    _ephoto_single_browser_recalc(sb);
    if (sb->edited_image_data)
-     free(sb->edited_image_data);
-   sb->edited_image_data = NULL;
-
+     {
+        free(sb->edited_image_data);
+        sb->edited_image_data = NULL;
+        sb->ew = 0;
+        sb->eh = 0;
+     }
    if (sb->viewer)
      _zoom_fit(sb);
 }

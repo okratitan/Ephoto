@@ -279,6 +279,7 @@ static void
 _orient_apply(Ephoto_Single_Browser *sb)
 {
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+   char image_info[PATH_MAX];
    int w, h;
    EINA_SAFETY_ON_NULL_RETURN(v);
 
@@ -321,6 +322,28 @@ _orient_apply(Ephoto_Single_Browser *sb)
    evas_object_size_hint_max_set(v->image, w, h);
    elm_table_pack(v->table, v->image, 0, 0, 1, 1);
    elm_object_content_set(v->scroller, v->table);
+   evas_object_del(sb->botbox);
+   evas_object_del(sb->infolabel);
+   snprintf(image_info, PATH_MAX,
+            "<b>%s:</b> %s        <b>%s:</b> %dx%d        <b>%s:</b> %s",
+             _("Type"), efreet_mime_type_get(sb->entry->path), _("Resolution"), w, h,
+             _("File Size"), _("N/A"));
+   sb->botbox = evas_object_rectangle_add(evas_object_evas_get(sb->table));
+   evas_object_color_set(sb->botbox, 0, 0, 0, 0);
+   evas_object_size_hint_min_set(sb->botbox, 0, sb->ephoto->bottom_bar_size);
+   evas_object_size_hint_weight_set(sb->botbox, EVAS_HINT_EXPAND, 0.0);
+   evas_object_size_hint_fill_set(sb->botbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_table_pack(sb->table, sb->botbox, 0, 2, 4, 1);
+   evas_object_show(sb->botbox);
+
+   sb->infolabel = elm_label_add(sb->table);
+   elm_label_line_wrap_set(sb->infolabel, ELM_WRAP_NONE);
+   elm_object_text_set(sb->infolabel, image_info);
+   evas_object_size_hint_weight_set(sb->infolabel, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(sb->infolabel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_table_pack(sb->table, sb->infolabel, 0, 2, 4, 1);
+   evas_object_show(sb->infolabel);
+
    if (v->fit)
      _viewer_zoom_fit_apply(v);
    else
@@ -1476,7 +1499,6 @@ ephoto_single_browser_image_data_update(Evas_Object *main, Evas_Object *image, E
    Ephoto_Single_Browser *sb = evas_object_data_get(main, "single_browser");
    if (sb->editing)
      {
-        char image_info[PATH_MAX];
         if (sb->cropping)
           {
              evas_object_image_size_set(elm_image_object_get(image), w, h);
@@ -1487,12 +1509,14 @@ ephoto_single_browser_image_data_update(Evas_Object *main, Evas_Object *image, E
 
         if (finished)
           {
+             char image_info[PATH_MAX];
+
              evas_object_del(sb->botbox);
              evas_object_del(sb->infolabel);
              snprintf(image_info, PATH_MAX,
                       "<b>%s:</b> %s        <b>%s:</b> %dx%d        <b>%s:</b> %s",
-                      _("Type"), _("Unsaved"), _("Resolution"), w, h,
-                      _("File Size"), _("Unsaved"));
+                      _("Type"), efreet_mime_type_get(sb->entry->path), _("Resolution"), w, h,
+                      _("File Size"), _("N/A"));
              sb->botbox = evas_object_rectangle_add(evas_object_evas_get(sb->table));
              evas_object_color_set(sb->botbox, 0, 0, 0, 0);
              evas_object_size_hint_min_set(sb->botbox, 0, sb->ephoto->bottom_bar_size);

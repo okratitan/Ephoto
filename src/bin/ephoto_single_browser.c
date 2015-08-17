@@ -1536,13 +1536,9 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
      ephoto_entry_free_listener_add(entry, _entry_free, sb);
 
    _ephoto_single_browser_recalc(sb);
-   if (sb->edited_image_data)
-     {
-        free(sb->edited_image_data);
-        sb->edited_image_data = NULL;
-        sb->ew = 0;
-        sb->eh = 0;
-     }
+   sb->edited_image_data = NULL;
+   sb->ew = 0;
+   sb->eh = 0;
    if (sb->viewer)
      _zoom_fit(sb);
 }

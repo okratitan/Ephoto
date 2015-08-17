@@ -1210,6 +1210,62 @@ _go_hsv(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 }
 
 static void
+_go_blur(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   if (sb->viewer)
+     {
+        sb->editing = EINA_TRUE;
+        elm_object_disabled_set(sb->bar, EINA_TRUE);
+        evas_object_freeze_events_set(sb->bar, EINA_TRUE);
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+        ephoto_filter_blur(sb->main, v->image);
+     }
+}
+
+static void
+_go_sharpen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   if (sb->viewer)
+     {
+        sb->editing = EINA_TRUE;
+        elm_object_disabled_set(sb->bar, EINA_TRUE);
+        evas_object_freeze_events_set(sb->bar, EINA_TRUE);
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+        ephoto_filter_sharpen(sb->main, v->image);
+     }
+}
+
+static void
+_go_black_and_white(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   if (sb->viewer)
+     {
+        sb->editing = EINA_TRUE;
+        elm_object_disabled_set(sb->bar, EINA_TRUE);
+        evas_object_freeze_events_set(sb->bar, EINA_TRUE);
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+        ephoto_filter_black_and_white(sb->main, v->image);
+     }
+}
+
+static void
+_go_old_photo(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   if (sb->viewer)
+     {
+        sb->editing = EINA_TRUE;
+        elm_object_disabled_set(sb->bar, EINA_TRUE);
+        evas_object_freeze_events_set(sb->bar, EINA_TRUE);
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+        ephoto_filter_old_photo(sb->main, v->image);
+     }
+}
+
+static void
 _slideshow(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
@@ -1394,14 +1450,22 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_menu_item_add(menu, NULL, "edit-undo", _("Reset"), _reset_image, sb);
    elm_menu_item_add(menu, NULL, "document-save", _("Save"), _save_image, sb);
    elm_menu_item_add(menu, NULL, "document-save-as", _("Save As"), _save_image_as, sb);
+   elm_menu_item_separator_add(menu, NULL);
    elm_menu_item_add(menu, NULL, "object-rotate-left", _("Rotate Left"), _go_rotate_counterclock, sb);
    elm_menu_item_add(menu, NULL, "object-rotate-right", _("Rotate Right"), _go_rotate_clock, sb);
    elm_menu_item_add(menu, NULL, "object-flip-horizontal", _("Flip Horizontal"), _go_flip_horiz, sb);
    elm_menu_item_add(menu, NULL, "object-flip-vertical", _("Flip Vertical"), _go_flip_vert, sb);
+   elm_menu_item_separator_add(menu, NULL);
    elm_menu_item_add(menu, NULL, "edit-cut", _("Crop"), _crop_image, sb);
    menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("Enhance"), NULL, NULL);
-   elm_menu_item_add(menu, menu_it, NULL, _("Brightness/Contrast/Gamma"), _go_bcg, sb);
-   elm_menu_item_add(menu, menu_it, NULL, _("Hue/Saturation/Value"), _go_hsv, sb);
+   elm_menu_item_add(menu, menu_it, "insert-image", _("Blur"), _go_blur, sb);
+   elm_menu_item_add(menu, menu_it, "insert-image", _("Sharpen"), _go_sharpen, sb);
+   elm_menu_item_separator_add(menu, menu_it);
+   elm_menu_item_add(menu, menu_it, "insert-image", _("Brightness/Contrast/Gamma"), _go_bcg, sb);
+   elm_menu_item_add(menu, menu_it, "insert-image", _("Hue/Saturation/Value"), _go_hsv, sb);
+   menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("Filters"), NULL, NULL);
+   elm_menu_item_add(menu, menu_it, "insert-image", _("Black and White"), _go_black_and_white, sb);
+   elm_menu_item_add(menu, menu_it, "insert-image", _("Old Photo"), _go_old_photo, sb);
    /*FIXME: Use separators once they don't mess up homogeneous toolbar*/
    //elm_toolbar_item_separator_set(elm_toolbar_item_append(sb->bar, NULL, NULL, NULL, NULL), EINA_TRUE);
 

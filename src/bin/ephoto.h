@@ -56,13 +56,9 @@ void         ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *ent
 void         ephoto_single_browser_path_pending_set(Evas_Object *obj, const char *path);
 void         ephoto_single_browser_image_data_update(Evas_Object *main, Evas_Object *image, Eina_Bool finished, unsigned int *image_data, int w, int h);
 void         ephoto_single_browser_cancel_editing(Evas_Object *main, Evas_Object *image);
-Evas_Object *ephoto_cropper_add(Evas_Object *main, Evas_Object *toolbar, Evas_Object *parent, Evas_Object *image);
-void         ephoto_bcg_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);
-void         ephoto_hsv_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);
  /* smart callbacks called:
   * "back" - the user wants to go back to the previous screen.
   */
-
 Evas_Object *ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent);
 void         ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
  /* smart callbacks called:
@@ -74,6 +70,14 @@ Evas_Object *ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent);
 /* smart callbacks called:
  * "selected" - an item in the thumb browser is selected. The selected Ephoto_Entry is passed as event_info argument.
  */
+
+Evas_Object *ephoto_cropper_add(Evas_Object *main, Evas_Object *toolbar, Evas_Object *parent, Evas_Object *image);
+void         ephoto_bcg_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);
+void         ephoto_hsv_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);
+void         ephoto_filter_blur(Evas_Object *main, Evas_Object *image);
+void         ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image);
+void         ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image);
+void         ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image);
 
 enum _Ephoto_State
 {

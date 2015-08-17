@@ -298,7 +298,7 @@ void ephoto_bcg_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
 
    ebcg->frame = elm_frame_add(parent);
    elm_object_text_set(ebcg->frame, "Brightness/Contrast/Gamma");
-   evas_object_size_hint_weight_set(ebcg->frame, 0.3, EVAS_HINT_EXPAND);
+   evas_object_size_hint_weight_set(ebcg->frame, 0.2, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(ebcg->frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_box_pack_end(parent, ebcg->frame);
    evas_object_data_set(ebcg->frame, "ebcg", ebcg);
@@ -343,7 +343,7 @@ void ephoto_bcg_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    elm_slider_min_max_set(slider, 0.1, 3);
    elm_slider_step_set(slider, .1);
    elm_slider_value_set(slider, 1);
-   elm_slider_unit_format_set(slider, "%1.1f");
+   elm_slider_unit_format_set(slider, "%1.2f");
    evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed", _gamma_slider_changed, ebcg);

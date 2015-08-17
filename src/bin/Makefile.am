@@ -22,7 +22,8 @@ ephoto_SOURCES = \
         ephoto_slideshow.c \
         ephoto_cropper.c \
         ephoto_bcg.c \
-        ephoto_hsv.c
+        ephoto_hsv.c \
+        ephoto_filters.c
 
 noinst_HEADERS = ephoto.h gettext.h
 EXTRA_DIST = ephoto.h gettext.h

@@ -3,6 +3,8 @@
 typedef struct _Ephoto_Cropper Ephoto_Cropper;
 struct _Ephoto_Cropper
 {
+   Evas_Object *main;
+   Evas_Object *parent;
    Evas_Object *box;
    Evas_Object *image;
    Evas_Object *cropper;
@@ -13,6 +15,70 @@ struct _Ephoto_Cropper
    int offsety;
    int resizing;
 };
+
+static void _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED);
+static void _cancel_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED);
+
+static void
+_apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Ephoto_Cropper *ec = data;
+   Evas_Object *edje = elm_layout_edje_get(ec->layout);
+
+   const char *path, *key, *type;;
+   int x, y, w, h, cx, cy, cw, ch, iw, ih;
+   int nx, ny, nw, nh, i, j, tmpx, tmpy, ind, index;
+   double scalex, scaley, scalew, scaleh;
+   unsigned int *idata, *idata_new;
+
+   evas_object_geometry_get(ec->layout, &x, &y, &w, &h);
+   edje_object_part_geometry_get(edje, "ephoto.swallow.cropper", &cx, &cy, &cw, &ch);
+   evas_object_image_size_get(elm_image_object_get(ec->image), &iw, &ih);
+
+   idata = evas_object_image_data_get(elm_image_object_get(ec->image), EINA_FALSE);
+
+   scalex = (double)cx/(double)w;
+   scaley = (double)cy/(double)h;
+   scalew = (double)cw/(double)w;
+   scaleh = (double)ch/(double)h;
+
+   nx = iw*scalex;
+   ny = ih*scaley;
+   nw = iw*scalew;
+   nh = ih*scaleh;
+
+   index = 0;
+   idata_new = malloc(sizeof(unsigned int)*nw*nh);
+
+   for (i = 0; i < nh; i++)
+     {
+        tmpy = (i+ny)*iw;
+        for (j = 0; j < nw; j++)
+          {
+             tmpx = j+nx;
+             ind = tmpy+tmpx;
+             idata_new[index] = idata[ind];
+             index++;
+          }
+     }
+   elm_table_unpack(ec->parent, ec->box);
+   elm_layout_content_unset(ec->layout, "ephoto.swallow.image");
+   elm_table_pack(ec->parent, ec->image, 0, 0, 1, 1);
+   ephoto_single_browser_image_data_update(ec->main, ec->image, EINA_TRUE, idata_new, nw, nh);
+   evas_object_del(ec->cropper);
+   evas_object_del(ec->layout);
+   evas_object_del(ec->box);
+}
+
+static void
+_cancel_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Ephoto_Cropper *ec = data;
+   elm_table_unpack(ec->parent, ec->box);
+   elm_layout_content_unset(ec->layout, "ephoto.swallow.image");
+   elm_table_pack(ec->parent, ec->image, 0, 0, 1, 1);
+   ephoto_single_browser_cancel_editing(ec->main);
+}
 
 static void
 _calculate_cropper_size(Ephoto_Cropper *ec)
@@ -352,22 +418,58 @@ _image_resize(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, voi
 }
 
 static void
-_cropper_free(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+_cropper_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Cropper *ec = data;
    free(ec);
 }
 
 Evas_Object *
-ephoto_cropper_add(Evas_Object *parent, const char *file, const char *key)
+ephoto_cropper_add(Evas_Object *main, Evas_Object *toolbar, Evas_Object *parent, Evas_Object *image)
 {
    Ephoto_Cropper *ec = calloc(1, sizeof(Ephoto_Cropper));
+   Evas_Object *hbox, *ic, *button;
+
    ec->resizing = 0;
+   ec->main = main;
+   ec->parent = parent;
+   ec->image = image;
 
    ec->box = elm_box_add(parent);
    evas_object_size_hint_weight_set(ec->box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(ec->box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_table_pack(parent, ec->box, 0, 0, 1, 1);
    evas_object_show(ec->box);
+
+   hbox = elm_box_add(ec->box);
+   elm_box_homogeneous_set(hbox, EINA_TRUE);
+   elm_box_horizontal_set(hbox, EINA_TRUE);
+   evas_object_size_hint_weight_set(hbox, EVAS_HINT_EXPAND, 0.0);
+   evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_after(ec->main, hbox, toolbar);
+   evas_object_show(hbox);
+
+   ic = elm_icon_add(hbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "document-save");
+   button = elm_button_add(hbox);
+   elm_object_text_set(button, _("Apply"));
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _apply_crop, ec);
+   elm_box_pack_end(hbox, button);
+   evas_object_show(button);
+
+   ic = elm_icon_add(hbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "window-close");
+   button = elm_button_add(hbox);
+   elm_object_text_set(button, _("Cancel"));
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _cancel_crop, ec);
+   elm_box_pack_end(hbox, button);
+   evas_object_show(button);
 
    ec->layout = elm_layout_add(ec->box);
    elm_layout_file_set(ec->layout, PACKAGE_DATA_DIR "/themes/crop.edj", "ephoto,image,cropper,base");
@@ -376,12 +478,10 @@ ephoto_cropper_add(Evas_Object *parent, const char *file, const char *key)
    elm_box_pack_end(ec->box, ec->layout);
    evas_object_show(ec->layout);
 
-   ec->image = elm_image_add(ec->layout);
-   elm_image_file_set(ec->image, file, key);
    evas_object_size_hint_weight_set(ec->image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(ec->image, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_layout_content_set(ec->layout, "ephoto.swallow.image", ec->image);
-   evas_object_show(ec->image);
+   evas_object_show(ec->image);   
 
    ec->cropper = edje_object_add(evas_object_evas_get(ec->layout));
    edje_object_file_set(ec->cropper, PACKAGE_DATA_DIR "/themes/crop.edj", "ephoto,image,cropper");
@@ -398,10 +498,8 @@ ephoto_cropper_add(Evas_Object *parent, const char *file, const char *key)
    edje_object_signal_callback_add(ec->cropper, "mouse,down,1", "handle7", _cropper_resize_both, ec);
    edje_object_signal_callback_add(ec->cropper, "mouse,down,1", "handle8", _cropper_resize_horiz, ec);
 
-   evas_object_data_set(ec->box, "image", ec->image);
-   evas_object_data_set(ec->box, "layout", ec->layout);
    evas_object_event_callback_add(ec->layout, EVAS_CALLBACK_RESIZE, _image_resize, ec);
-   evas_object_event_callback_add(ec->box, EVAS_CALLBACK_FREE, _cropper_free, ec);
+   evas_object_event_callback_add(ec->box, EVAS_CALLBACK_DEL, _cropper_del, ec);
 
    return ec->box;
 }

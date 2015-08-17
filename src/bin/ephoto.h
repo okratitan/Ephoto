@@ -17,6 +17,7 @@
 #include <Eio.h>
 #include <Ethumb_Client.h>
 #include <limits.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -53,7 +54,11 @@ void         ephoto_config_window(Ephoto *em);
 Evas_Object *ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent);
 void         ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
 void         ephoto_single_browser_path_pending_set(Evas_Object *obj, const char *path);
-Evas_Object *ephoto_cropper_add(Evas_Object *parent, const char *file, const char *key);
+void         ephoto_single_browser_image_data_update(Evas_Object *main, Evas_Object *image, Eina_Bool finished, unsigned int *image_data, int w, int h);
+void         ephoto_single_browser_cancel_editing(Evas_Object *main);
+Evas_Object *ephoto_cropper_add(Evas_Object *main, Evas_Object *toolbar, Evas_Object *parent, Evas_Object *image);
+void         ephoto_bcg_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);
+void         ephoto_hsv_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);
  /* smart callbacks called:
   * "back" - the user wants to go back to the previous screen.
   */

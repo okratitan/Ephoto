@@ -78,6 +78,7 @@ void         ephoto_filter_blur(Evas_Object *main, Evas_Object *image);
 void         ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image);
 void         ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image);
 void         ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image);
+void         ephoto_filter_histogram_eq(Evas_Object *main, Evas_Object *image);
 
 enum _Ephoto_State
 {

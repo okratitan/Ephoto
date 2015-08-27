@@ -17,12 +17,41 @@ struct _Ephoto_BCG
    unsigned int *original_im_data;
 };
 
+static int
+_normalize_color(int color)
+{
+   if (color < 0)
+     return 0;
+   else if (color > 255)
+     return 255;
+   else
+     return color;
+}
+
+static int
+_mul_color_alpha(int color, int alpha)
+{
+   if (alpha > 0 && alpha < 255)
+     return (color * (255 / alpha));
+   else
+     return color;
+}
+
+static int
+_demul_color_alpha(int color, int alpha)
+{
+   if (alpha > 0 && alpha < 255)
+     return ((color * alpha) / 255);
+   else
+     return color;
+}
+
 unsigned int *
 _ephoto_bcg_adjust_brightness(Ephoto_BCG *ebcg, int brightness, unsigned int *image_data)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
    int x, y, w, h;
-   int a, r, g, b, nb, ng, nr;
+   int a, r, g, b, bb, gg, rr;
 
    im_data = malloc(sizeof(unsigned int) * ebcg->w * ebcg->h);
    if (image_data)
@@ -43,28 +72,19 @@ _ephoto_bcg_adjust_brightness(Ephoto_BCG *ebcg, int brightness, unsigned int *im
              g = (int)((*p1 >> 8) & 0xff);
              r = (int)((*p1 >> 16) & 0xff);
              a = (int)((*p1 >> 24) & 0xff);
-             if (a > 0 && a < 255)
-               {
-                  b = b * (255 / a);
-                  g = g * (255 / a);
-                  r = r * (255 / a);
-               }
-             nb = (int)b+ebcg->brightness;
-             ng = (int)g+ebcg->brightness;
-             nr = (int)r+ebcg->brightness;
-             if (nb < 0) nb = 0;
-             if (nb > 255) nb = 255;
-             if (ng < 0) ng = 0;
-             if (ng > 255) ng = 255;
-             if (nr < 0) nr = 0;
-             if (nr > 255) nr = 255;
-             if (a > 0 && a < 255)
-               {
-                  nb = (nb * a) / 255;
-                  ng = (ng * a) / 255;
-                  nr = (nr * a) / 255;
-               }
-             *p2 = (a << 24) | (nr << 16) | (ng << 8) | nb;
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);
+             bb = (int)b+ebcg->brightness;
+             gg = (int)g+ebcg->brightness;
+             rr = (int)r+ebcg->brightness;
+             bb = _normalize_color(bb);
+             gg = _normalize_color(gg);
+             rr = _normalize_color(rr);
+             bb = _demul_color_alpha(bb, a);
+             gg = _demul_color_alpha(gg, a);
+             rr = _demul_color_alpha(rr, a);
+             *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
              p2++;
              p1++;
           }
@@ -79,7 +99,7 @@ _ephoto_bcg_adjust_contrast(Ephoto_BCG *ebcg, int contrast, unsigned int *image_
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
    int x, y, w, h, top, bottom;
-   int a, r, g, b, nb, ng, nr;
+   int a, r, g, b, bb, gg, rr;
    float factor;
 
    im_data = malloc(sizeof(unsigned int) * ebcg->w * ebcg->h);
@@ -104,28 +124,19 @@ _ephoto_bcg_adjust_contrast(Ephoto_BCG *ebcg, int contrast, unsigned int *image_
              g = (int)((*p1 >> 8) & 0xff);
              r = (int)((*p1 >> 16) & 0xff);
              a = (int)((*p1 >> 24) & 0xff);
-             if (a > 0 && a < 255)
-               {
-                  b = b * (255 / a);
-                  g = g * (255 / a);
-                  r = r * (255 / a);
-               }
-             nb = (int)((factor * (b - 128)) + 128);
-             ng = (int)((factor * (g - 128)) + 128);
-             nr = (int)((factor * (r - 128)) + 128);
-             if (nb < 0) nb = 0;
-             if (nb > 255) nb = 255;
-             if (ng < 0) ng = 0;
-             if (ng > 255) ng = 255;
-             if (nr < 0) nr = 0;
-             if (nr > 255) nr = 255;
-             if (a > 0 && a < 255)
-               {
-                  nb = (nb * a) / 255;
-                  ng = (ng * a) / 255;
-                  nr = (nr * a) / 255;
-               }
-             *p2 = (a << 24) | (nr << 16) | (ng << 8) | nb;
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);
+             bb = (int)((factor * (b - 128)) + 128);
+             gg = (int)((factor * (g - 128)) + 128);
+             rr = (int)((factor * (r - 128)) + 128);
+             bb = _normalize_color(bb);
+             gg = _normalize_color(gg);
+             rr = _normalize_color(rr);
+             bb = _demul_color_alpha(bb, a);
+             gg = _demul_color_alpha(gg, a);
+             rr = _demul_color_alpha(rr, a);
+             *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
              p2++;
              p1++;
           }
@@ -140,7 +151,7 @@ _ephoto_bcg_adjust_gamma(Ephoto_BCG *ebcg, double gamma, unsigned int *image_dat
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
    int x, y, w, h;
-   int a, r, g, b, nb, ng, nr;
+   int a, r, g, b, bb, gg, rr;
 
    im_data = malloc(sizeof(unsigned int) * ebcg->w * ebcg->h);
    if (image_data)
@@ -161,28 +172,19 @@ _ephoto_bcg_adjust_gamma(Ephoto_BCG *ebcg, double gamma, unsigned int *image_dat
              g = (int)((*p1 >> 8) & 0xff);
              r = (int)((*p1 >> 16) & 0xff);
              a = (int)((*p1 >> 24) & 0xff);
-             if (a > 0 && a < 255)
-               {
-                  b = b * (255 / a);
-                  g = g * (255 / a);
-                  r = r * (255 / a);
-               }
-             nb = (int)(pow(((double)b/255), ebcg->gamma) * 255);
-             ng = (int)(pow(((double)g/255), ebcg->gamma) * 255);
-             nr = (int)(pow(((double)r/255), ebcg->gamma) * 255);
-             if (nb < 0) nb = 0;
-             if (nb > 255) nb = 255;
-             if (ng < 0) ng = 0;
-             if (ng > 255) ng = 255;
-             if (nr < 0) nr = 0;
-             if (nr > 255) nr = 255;
-             if (a > 0 && a < 255)
-               {
-                  nb = (nb * a) / 255;
-                  ng = (ng * a) / 255;
-                  nr = (nr * a) / 255;
-               }
-             *p2 = (a << 24) | (nr << 16) | (ng << 8) | nb;
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);
+             bb = (int)(pow(((double)b/255), ebcg->gamma) * 255);
+             gg = (int)(pow(((double)g/255), ebcg->gamma) * 255);
+             rr = (int)(pow(((double)r/255), ebcg->gamma) * 255);
+             bb = _normalize_color(bb);
+             gg = _normalize_color(gg);
+             rr = _normalize_color(rr);
+             bb = _demul_color_alpha(bb, a);
+             gg = _demul_color_alpha(gg, a);
+             rr = _demul_color_alpha(rr, a);
+             *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
              p2++;
              p1++;
           }

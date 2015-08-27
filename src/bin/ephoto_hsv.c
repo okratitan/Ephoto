@@ -17,12 +17,41 @@ struct _Ephoto_HSV
    unsigned int *original_im_data;
 };
 
+static int
+_normalize_color(int color)
+{
+   if (color < 0)
+     return 0;
+   else if (color > 255)
+     return 255;
+   else
+     return color;
+}
+
+static int
+_mul_color_alpha(int color, int alpha)
+{
+   if (alpha > 0 && alpha < 255)
+     return (color * (255 / alpha));
+   else
+     return color;
+}
+
+static int
+_demul_color_alpha(int color, int alpha)
+{
+   if (alpha > 0 && alpha < 255)
+     return ((color * alpha) / 255);
+   else
+     return color;
+}
+
 unsigned int *
 _ephoto_hsv_adjust_hue(Ephoto_HSV *ehsv, double hue, unsigned int *image_data)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
    int x, y, w, h;
-   int a, r, g, b, nb, ng, nr;
+   int a, r, g, b, bb, gg, rr;
    float hh, s, v;
 
    im_data = malloc(sizeof(unsigned int) * ehsv->w * ehsv->h);
@@ -43,32 +72,23 @@ _ephoto_hsv_adjust_hue(Ephoto_HSV *ehsv, double hue, unsigned int *image_data)
              g = (int)((*p1 >> 8) & 0xff);
              r = (int)((*p1 >> 16) & 0xff);
              a = (int)((*p1 >> 24) & 0xff);
-             if (a > 0 && a < 255)
-               {
-                  b = b * (255 / a);
-                  g = g * (255 / a);
-                  r = r * (255 / a);
-               }
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);               
              evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
              hh += hue;
              if (hh < 0)
                hh += 360;
              if (hh > 360)
                hh -= 360;
-             evas_color_hsv_to_rgb(hh, s, v, &nr, &ng, &nb);
-             if (nb < 0) nb = 0;
-             if (nb > 255) nb = 255;
-             if (ng < 0) ng = 0;
-             if (ng > 255) ng = 255;
-             if (nr < 0) nr = 0;
-             if (nr > 255) nr = 255;
-             if (a > 0 && a < 255)
-               {
-                  nb = (nb * a) / 255;
-                  ng = (ng * a) / 255;
-                  nr = (nr * a) / 255;
-               }
-             *p2 = (a << 24) | (nr << 16) | (ng << 8) | nb;
+             evas_color_hsv_to_rgb(hh, s, v, &rr, &gg, &bb);
+             bb = _normalize_color(bb);
+             gg = _normalize_color(gg);
+             rr = _normalize_color(rr);
+             bb = _demul_color_alpha(bb, a);
+             gg = _demul_color_alpha(gg, a);
+             rr = _demul_color_alpha(rr, a);
+             *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
              p2++;
              p1++;
           }
@@ -84,7 +104,7 @@ _ephoto_hsv_adjust_saturation(Ephoto_HSV *ehsv, double saturation, unsigned int 
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
    int x, y, w, h;
-   int a, r, g, b, nb, ng, nr;
+   int a, r, g, b, bb, gg, rr;
    float hh, s, v;
    
    im_data = malloc(sizeof(unsigned int) * ehsv->w * ehsv->h);
@@ -105,32 +125,23 @@ _ephoto_hsv_adjust_saturation(Ephoto_HSV *ehsv, double saturation, unsigned int 
              g = (int)((*p1 >> 8) & 0xff);
              r = (int)((*p1 >> 16) & 0xff);
              a = (int)((*p1 >> 24) & 0xff);
-             if (a > 0 && a < 255)
-               {
-                  b = b * (255 / a);
-                  g = g * (255 / a);
-                  r = r * (255 / a);
-               }
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);
              evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
              s += s*((float)saturation / 100);
              if (s < 0)
                s = 0;
              if (s > 1)
                s = 1;
-             evas_color_hsv_to_rgb(hh, s, v, &nr, &ng, &nb);
-             if (nb < 0) nb = 0;
-             if (nb > 255) nb = 255;
-             if (ng < 0) ng = 0;
-             if (ng > 255) ng = 255;
-             if (nr < 0) nr = 0;
-             if (nr > 255) nr = 255;
-             if (a > 0 && a < 255)
-               {
-                  nb = (nb * a) / 255;
-                  ng = (ng * a) / 255;
-                  nr = (nr * a) / 255;
-               }
-             *p2 = (a << 24) | (nr << 16) | (ng << 8) | nb;
+             evas_color_hsv_to_rgb(hh, s, v, &rr, &gg, &bb);
+             bb = _normalize_color(bb);
+             gg = _normalize_color(gg);
+             rr = _normalize_color(rr);
+             bb = _demul_color_alpha(bb, a);
+             gg = _demul_color_alpha(gg, a);
+             rr = _demul_color_alpha(rr, a);
+             *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
              p2++;
              p1++;
           }
@@ -146,7 +157,7 @@ _ephoto_hsv_adjust_value(Ephoto_HSV *ehsv, double value, unsigned int *image_dat
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
    int x, y, w, h;
-   int a, r, g, b, nb, ng, nr;
+   int a, r, g, b, bb, gg, rr;
    float hh, s, v;
 
    im_data = malloc(sizeof(unsigned int) * ehsv->w * ehsv->h);
@@ -167,32 +178,23 @@ _ephoto_hsv_adjust_value(Ephoto_HSV *ehsv, double value, unsigned int *image_dat
              g = (int)((*p1 >> 8) & 0xff);
              r = (int)((*p1 >> 16) & 0xff);
              a = (int)((*p1 >> 24) & 0xff);
-             if (a > 0 && a < 255)
-               {
-                  b = b * (255 / a);
-                  g = g * (255 / a);
-                  r = r * (255 / a);
-               }
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);
              evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
              v += (v*((float)value/100));
              if (v < 0)
                v = 0;
              if (v > 1)
                v = 1;
-             evas_color_hsv_to_rgb(hh, s, v, &nr, &ng, &nb);
-             if (nb < 0) nb = 0;
-             if (nb > 255) nb = 255;
-             if (ng < 0) ng = 0;
-             if (ng > 255) ng = 255;
-             if (nr < 0) nr = 0;
-             if (nr > 255) nr = 255;
-             if (a > 0 && a < 255)
-               {
-                  nb = (nb * a) / 255;
-                  ng = (ng * a) / 255;
-                  nr = (nr * a) / 255;
-               }
-             *p2 = (a << 24) | (nr << 16) | (ng << 8) | nb;
+             evas_color_hsv_to_rgb(hh, s, v, &rr, &gg, &bb);
+             bb = _normalize_color(bb);
+             gg = _normalize_color(gg);
+             rr = _normalize_color(rr);
+             bb = _demul_color_alpha(bb, a);
+             gg = _demul_color_alpha(gg, a);
+             rr = _demul_color_alpha(rr, a);
+             *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
              p2++;
              p1++;
           }

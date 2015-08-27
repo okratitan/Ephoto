@@ -1,5 +1,34 @@
 #include "ephoto.h"
 
+static int
+_normalize_color(int color)
+{
+   if (color < 0)
+     return 0;
+   else if (color > 255)
+     return 255;
+   else
+     return color;
+}
+
+static int
+_mul_color_alpha(int color, int alpha)
+{
+   if (alpha > 0 && alpha < 255)
+     return (color * (255 / alpha));
+   else
+     return color;
+}
+
+static int
+_demul_color_alpha(int color, int alpha)
+{
+   if (alpha > 0 && alpha < 255)
+     return ((color * alpha) / 255);
+   else
+     return color;
+}   
+
 void
 ephoto_filter_blur(Evas_Object *main, Evas_Object *image)
 {
@@ -168,12 +197,9 @@ ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image)
         g = (int)((im_data[i] >> 8) & 0xff);
         r = (int)((im_data[i] >> 16) & 0xff);
         a = (int)((im_data[i] >> 24) & 0xff);
-        if (a > 0 && a < 255) 
-          {
-             b = b * (255 / a);
-             g = g * (255 / a);
-             r = r * (255 / a);
-          }
+        b = _mul_color_alpha(b, a);
+        g = _mul_color_alpha(g, a);
+        r = _mul_color_alpha(r, a);
         gray = (int)((0.3 * r) + (0.59 * g) + (0.11 * b));
         if (a >= 0 && a < 255) 
           gray = (gray * a) / 255;
@@ -197,34 +223,89 @@ ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image)
         g = (int)((im_data[i] >> 8) & 0xff);
         r = (int)((im_data[i] >> 16) & 0xff);
         a = (int)((im_data[i] >> 24) & 0xff);
-        if (a > 0 && a < 255)
-          {
-             b = b * (255 / a);
-             g = g * (255 / a);
-             r = r * (255 / a);
-          }
+        b = _mul_color_alpha(b, a);
+        g = _mul_color_alpha(g, a);
+        r = _mul_color_alpha(r, a);
         rr = (int)((r* .393) + (g*.769) + (b*.189));
-        if (rr < 0)
-          rr = 0;
-        if (rr > 255)
-          rr = 255;
+        rr = _normalize_color(rr);
         gg = (int)((r* .349) + (g*.686) + (b*.168));
-        if (gg < 0)
-          gg = 0;
-        if (gg > 255)
-          gg = 255;
+        gg = _normalize_color(gg);
         bb = (int)((r* .272) + (g*.534) + (b*.131));              
-        if (bb < 0)
-          bb = 0;
-        if (bb > 255)
-          bb = 255;
-        if (a >= 0 && a < 255)
-          {
-             rr = (rr * a) / 255;
-             gg = (gg * a) / 255;
-             bb = (bb * a) / 255;
-          }
+        bb = _normalize_color(bb);
+        bb = _demul_color_alpha(bb, a);
+        gg = _demul_color_alpha(gg, a);
+        rr = _demul_color_alpha(rr, a);
         im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
      }
    ephoto_single_browser_image_data_update(main, image, EINA_TRUE, im_data_new, w, h);
 }
+
+void
+ephoto_filter_histogram_eq(Evas_Object *main, Evas_Object *image)
+{
+   unsigned int *im_data, *im_data_new, *p1, *p2;
+   int x, y, w, h, i, hist[256], cdf[256];
+   int a, r, g, b, bb, gg, rr, norm, total;
+   float hh, s, v, nv, sum;
+
+   im_data = evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
+   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
+   im_data_new = malloc(sizeof(unsigned int) * w * h);
+   total = w * h;
+   for (i = 0; i < 256; i++)
+     hist[i] = 0;
+   for (y = 0; y < h; y++)
+     {
+        p1 = im_data + (y * w);
+        for (x = 0; x < w; x++)
+          {
+             b = (int)((*p1) & 0xff);
+             g = (int)((*p1 >> 8) & 0xff);
+             r = (int)((*p1 >> 16) & 0xff);
+             a = (int)((*p1 >> 24) & 0xff);
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);
+             evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
+             norm = (int)round((double)v * (double)255);
+             hist[norm] += 1;
+             p1++;
+          }
+     }
+   sum = 0;
+   for (i = 0; i < 256; i++)
+     {
+        sum += ((double)hist[i] / (double)total);
+        cdf[i] = (int)round(sum * 255);
+     }
+   for (y = 0; y < h; y++)
+     {
+        p1 = im_data + (y * w);
+        p2 = im_data_new + (y * w);
+        for (x = 0; x < w; x++)
+          {
+             b = (int)((*p1) & 0xff);
+             g = (int)((*p1 >> 8) & 0xff);
+             r = (int)((*p1 >> 16) & 0xff);
+             a = (int)((*p1 >> 24) & 0xff);
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);
+             evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
+             norm = (int)round((double)v * (double)255);
+             nv = (float)cdf[norm] / (float)255;
+             evas_color_hsv_to_rgb(hh, s, nv, &rr, &gg, &bb);
+             bb = _normalize_color(bb);
+             gg = _normalize_color(gg);
+             rr = _normalize_color(rr);
+             bb = _demul_color_alpha(bb, a);
+             gg = _demul_color_alpha(gg, a);
+             rr = _demul_color_alpha(rr, a);
+             *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
+             p2++;
+             p1++;
+          }
+     }
+   ephoto_single_browser_image_data_update(main, image, EINA_TRUE, im_data_new, w, h);
+}
+

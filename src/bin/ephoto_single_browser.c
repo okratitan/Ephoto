@@ -1210,6 +1210,20 @@ _go_hsv(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 }
 
 static void
+_go_auto_eq(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   if (sb->viewer)
+     {
+        sb->editing = EINA_TRUE;
+        elm_object_disabled_set(sb->bar, EINA_TRUE);
+        evas_object_freeze_events_set(sb->bar, EINA_TRUE);
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+        ephoto_filter_histogram_eq(sb->main, v->image);
+     }
+}
+
+static void
 _go_blur(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
@@ -1464,6 +1478,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_menu_item_add(menu, menu_it, "insert-image", _("Brightness/Contrast/Gamma"), _go_bcg, sb);
    elm_menu_item_add(menu, menu_it, "insert-image", _("Hue/Saturation/Value"), _go_hsv, sb);
    menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("Filters"), NULL, NULL);
+   elm_menu_item_add(menu, menu_it, "insert-image", _("Auto Equalize"), _go_auto_eq, sb);
    elm_menu_item_add(menu, menu_it, "insert-image", _("Black and White"), _go_black_and_white, sb);
    elm_menu_item_add(menu, menu_it, "insert-image", _("Old Photo"), _go_old_photo, sb);
    /*FIXME: Use separators once they don't mess up homogeneous toolbar*/
@@ -1536,9 +1551,13 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
      ephoto_entry_free_listener_add(entry, _entry_free, sb);
 
    _ephoto_single_browser_recalc(sb);
-   sb->edited_image_data = NULL;
-   sb->ew = 0;
-   sb->eh = 0;
+   if (sb->edited_image_data)
+     {
+        free(sb->edited_image_data);
+        sb->edited_image_data = NULL;
+        sb->ew = 0;
+        sb->eh = 0;
+     }
    if (sb->viewer)
      _zoom_fit(sb);
 }

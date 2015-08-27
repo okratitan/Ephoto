@@ -45,7 +45,21 @@ static void
 _mouse_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Slideshow *ss = data;
-   evas_object_smart_callback_call(ss->slideshow, "back", ss->entry);
+   Evas_Object *win = ss->ephoto->win;
+   Elm_Object_Item *slideshow_item;
+   Ephoto_Entry *entry;
+
+   if (elm_win_fullscreen_get(win))
+     {
+        elm_win_fullscreen_set(win, EINA_FALSE);
+        return;
+     }
+
+   slideshow_item = elm_slideshow_item_current_get(ss->slideshow);
+   if (slideshow_item) entry = elm_object_item_data_get(slideshow_item);
+   else      entry = ss->entry;
+   evas_object_smart_callback_call(ss->slideshow, "back", entry);
+   elm_slideshow_clear(ss->slideshow);
 }
 
 static void

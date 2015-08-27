@@ -1571,7 +1571,7 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
    _ephoto_single_browser_recalc(sb);
    if (sb->edited_image_data)
      {
-        free(sb->edited_image_data);
+        
         sb->edited_image_data = NULL;
         sb->ew = 0;
         sb->eh = 0;

@@ -74,6 +74,7 @@ Evas_Object *ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent);
 Evas_Object *ephoto_cropper_add(Evas_Object *main, Evas_Object *toolbar, Evas_Object *parent, Evas_Object *image);
 void         ephoto_bcg_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);
 void         ephoto_hsv_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);
+void         ephoto_color_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);
 void         ephoto_filter_blur(Evas_Object *main, Evas_Object *image);
 void         ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image);
 void         ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image);

@@ -1177,7 +1177,7 @@ _crop_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
         evas_object_freeze_events_set(sb->bar, EINA_TRUE);
         Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
         elm_table_unpack(v->table, v->image);
-        ephoto_cropper_add(sb->main, sb->bar, v->table, v->image);
+        ephoto_cropper_add(sb->main, sb->mhbox, v->table, v->image);
      }
 }
 
@@ -1648,9 +1648,6 @@ ephoto_single_browser_cancel_editing(Evas_Object *main, Evas_Object *image)
    Ephoto_Single_Browser *sb = evas_object_data_get(main, "single_browser");
    if (sb->editing)
      {
-        evas_object_freeze_events_set(sb->bar, EINA_FALSE);
-        elm_object_disabled_set(sb->bar, EINA_FALSE);
-        sb->editing = EINA_FALSE;
         if (sb->cropping)
           sb->cropping = EINA_FALSE;
         if (sb->edited_image_data)
@@ -1661,8 +1658,10 @@ ephoto_single_browser_cancel_editing(Evas_Object *main, Evas_Object *image)
           }
         else
           {
+             unsigned int *image_data;
+             int w, h;
              const char *group = NULL;
-             const char *ext = strrchr(sb->entry->path, '.');
+             const char *ext = strrchr(sb->entry->path, '.'); 
              if (ext)
                {
                   ext++;
@@ -1671,15 +1670,19 @@ ephoto_single_browser_cancel_editing(Evas_Object *main, Evas_Object *image)
                        if (edje_file_group_exists(sb->entry->path, "e/desktop/background"))
                          group = "e/desktop/background";
                        else
-                        {
-                           Eina_List *g = edje_file_collection_list(sb->entry->path);
-                           group = eina_list_data_get(g);
-                           edje_file_collection_list_free(g);
-                        }
+                         {
+                            Eina_List *g = edje_file_collection_list(sb->entry->path);
+                            group = eina_list_data_get(g);
+                            edje_file_collection_list_free(g);
+                         }
+                      elm_image_file_set(image, sb->entry->path, group);
                    }
-                }
-             elm_image_file_set(image, sb->entry->path, group);
-          }  
+               }  
+           }
+        evas_object_freeze_events_set(sb->bar, EINA_FALSE);
+        elm_object_disabled_set(sb->bar, EINA_FALSE);
+        sb->editing = EINA_FALSE;
+        _zoom_fit(sb);
      }
 }
 

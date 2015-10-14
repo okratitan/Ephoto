@@ -5,7 +5,9 @@ struct _Ephoto_Cropper
 {
    Evas_Object *main;
    Evas_Object *parent;
+   Evas_Object *image_parent;
    Evas_Object *box;
+   Evas_Object *frame;
    Evas_Object *image;
    Evas_Object *cropper;
    Evas_Object *layout;
@@ -61,10 +63,11 @@ _apply_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
              index++;
           }
      }
-   elm_table_unpack(ec->parent, ec->box);
+   elm_table_unpack(ec->image_parent, ec->box);
    elm_layout_content_unset(ec->layout, "ephoto.swallow.image");
-   elm_table_pack(ec->parent, ec->image, 0, 0, 1, 1);
+   elm_table_pack(ec->image_parent, ec->image, 0, 0, 1, 1);
    ephoto_single_browser_image_data_update(ec->main, ec->image, EINA_TRUE, idata_new, nw, nh);
+   evas_object_del(ec->frame);
    evas_object_del(ec->cropper);
    evas_object_del(ec->layout);
    evas_object_del(ec->box);
@@ -74,10 +77,12 @@ static void
 _cancel_crop(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Cropper *ec = data;
-   elm_table_unpack(ec->parent, ec->box);
+
+   elm_table_unpack(ec->image_parent, ec->box);
    elm_layout_content_unset(ec->layout, "ephoto.swallow.image");
-   elm_table_pack(ec->parent, ec->image, 0, 0, 1, 1);
+   elm_table_pack(ec->image_parent, ec->image, 0, 0, 1, 1);
    ephoto_single_browser_cancel_editing(ec->main, ec->image);
+   evas_object_del(ec->frame);
    evas_object_del(ec->cropper);
    evas_object_del(ec->layout);
    evas_object_del(ec->box);
@@ -427,52 +432,30 @@ _cropper_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void
    free(ec);
 }
 
-Evas_Object *
-ephoto_cropper_add(Evas_Object *main, Evas_Object *toolbar, Evas_Object *parent, Evas_Object *image)
+void
+ephoto_cropper_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image_parent, Evas_Object *image)
 {
-   Ephoto_Cropper *ec = calloc(1, sizeof(Ephoto_Cropper));
-   Evas_Object *hbox, *ic, *button;
+   Evas_Object *vbox, *ic, *button; //, *cropw, *croph, *label;
+   Ephoto_Cropper *ec;
+
+   EINA_SAFETY_ON_NULL_GOTO(image, error);
+
+   ec = calloc(1, sizeof(Ephoto_Cropper));
+   EINA_SAFETY_ON_NULL_GOTO(ec, error);
 
    ec->resizing = 0;
    ec->main = main;
    ec->parent = parent;
+   ec->image_parent = image_parent;
    ec->image = image;
 
-   ec->box = elm_box_add(parent);
+   ec->box = elm_box_add(image_parent);
+   elm_box_homogeneous_set(ec->box, EINA_TRUE);
+   elm_box_horizontal_set(ec->box, EINA_TRUE);
    evas_object_size_hint_weight_set(ec->box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(ec->box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_table_pack(parent, ec->box, 0, 0, 1, 1);
+   elm_table_pack(image_parent, ec->box, 0, 0, 1, 1);
    evas_object_show(ec->box);
-
-   hbox = elm_box_add(ec->box);
-   elm_box_homogeneous_set(hbox, EINA_TRUE);
-   elm_box_horizontal_set(hbox, EINA_TRUE);
-   evas_object_size_hint_weight_set(hbox, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_after(ec->main, hbox, toolbar);
-   evas_object_show(hbox);
-
-   ic = elm_icon_add(hbox);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "document-save");
-   button = elm_button_add(hbox);
-   elm_object_text_set(button, _("Apply"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _apply_crop, ec);
-   elm_box_pack_end(hbox, button);
-   evas_object_show(button);
-
-   ic = elm_icon_add(hbox);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "window-close");
-   button = elm_button_add(hbox);
-   elm_object_text_set(button, _("Cancel"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _cancel_crop, ec);
-   elm_box_pack_end(hbox, button);
-   evas_object_show(button);
 
    ec->layout = elm_layout_add(ec->box);
    elm_layout_file_set(ec->layout, PACKAGE_DATA_DIR "/themes/crop.edj", "ephoto,image,cropper,base");
@@ -504,5 +487,61 @@ ephoto_cropper_add(Evas_Object *main, Evas_Object *toolbar, Evas_Object *parent,
    evas_object_event_callback_add(ec->layout, EVAS_CALLBACK_RESIZE, _image_resize, ec);
    evas_object_event_callback_add(ec->box, EVAS_CALLBACK_DEL, _cropper_del, ec);
 
-   return ec->box;
+   ec->frame = elm_frame_add(parent);
+   elm_object_text_set(ec->frame, "Crop Image");
+   evas_object_size_hint_weight_set(ec->frame, 0.2, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(ec->frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(parent, ec->frame);
+   evas_object_data_set(ec->frame, "ec", ec);
+   evas_object_show(ec->frame);
+
+   vbox = elm_box_add(ec->frame);
+   elm_box_horizontal_set(vbox, EINA_FALSE);
+   evas_object_size_hint_weight_set(vbox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(vbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_object_content_set(ec->frame, vbox);
+   evas_object_show(vbox);
+
+   /*cropw = elm_entry_add(vbox);
+   elm_entry_single_line_set(cropw, EINA_TRUE);
+   elm_entry_scrollable_set(cropw, EINA_TRUE);
+   elm_scroller_policy_set(cropw, ELM_SCROLLER_POLICY_OFF, ELM_SCROLLER_POLICY_OFF);
+   evas_object_size_hint_weight_set(cropw, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(cropw, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(vbox, cropw);
+   evas_object_smart_callback_add(cropw, "activated", NULL, ec);
+   evas_object_show(cropw);*/
+
+   ic = elm_icon_add(vbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "document-save");
+
+   button = elm_button_add(vbox);
+   elm_object_text_set(button, _("Apply"));
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _apply_crop, ec);
+   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(vbox, button);
+   evas_object_show(button);
+
+   ic = elm_icon_add(vbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "window-close");
+
+   button = elm_button_add(vbox);
+   elm_object_text_set(button, _("Cancel"));
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _cancel_crop, ec);
+   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(vbox, button);
+   evas_object_show(button);
+
+   return;
+
+   error:
+      return;
 }

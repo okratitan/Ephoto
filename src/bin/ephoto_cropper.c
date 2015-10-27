@@ -607,7 +607,7 @@ ephoto_cropper_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image_pa
    evas_object_size_hint_weight_set(ec->cropw, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(ec->cropw, EVAS_HINT_FILL, 0.5);
    elm_box_pack_end(vbox, ec->cropw);
-   evas_object_smart_callback_add(ec->cropw, "changed", _cropper_changed_width, ec);
+   evas_object_smart_callback_add(ec->cropw, "slider,drag,stop", _cropper_changed_width, ec);
    evas_object_show(ec->cropw);
 
    ec->croph = elm_slider_add(vbox);
@@ -618,7 +618,7 @@ ephoto_cropper_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image_pa
    evas_object_size_hint_weight_set(ec->croph, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(ec->croph, EVAS_HINT_FILL, 0.5);
    elm_box_pack_end(vbox, ec->croph);
-   evas_object_smart_callback_add(ec->croph, "changed", _cropper_changed_height, ec);
+   evas_object_smart_callback_add(ec->croph, "slider,drag,stop", _cropper_changed_height, ec);
    evas_object_show(ec->croph);
 
    ic = elm_icon_add(vbox);

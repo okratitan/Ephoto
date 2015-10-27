@@ -289,8 +289,8 @@ void ephoto_color_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image
    memcpy(eco->original_im_data, im_data, sizeof(unsigned int) * eco->w * eco->h);
 
    eco->frame = elm_frame_add(parent);
-   elm_object_text_set(eco->frame, "Adjust Color Levels");
-   evas_object_size_hint_weight_set(eco->frame, 0.2, EVAS_HINT_EXPAND);
+   elm_object_text_set(eco->frame, _("Adjust Color Levels"));
+   evas_object_size_hint_weight_set(eco->frame, 0.3, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(eco->frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_box_pack_end(parent, eco->frame);
    evas_object_data_set(eco->frame, "eco", eco);

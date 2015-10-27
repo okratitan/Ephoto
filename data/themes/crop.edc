@@ -126,11 +126,18 @@ collections {
                   set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
                }
                if (movetype == 10) {
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, 0, 0);
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, 0, 0);
+               }
+               if (movetype == 11) {
                   new buf[32];
                   snprintf(buf, sizeof(buf), "%dx%d", cox, coy);
                   set_text(PART:"ephoto.cropper.size", buf);
                }
                set_state(PART:"ephoto.swallow.cropper", "custom", 0.0);
+               if (movetype != 0) {
+                 emit("cropper,changed", "ephoto.swallow.cropper");
+               }
             }
          }
       }

@@ -299,8 +299,8 @@ void ephoto_bcg_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    memcpy(ebcg->original_im_data, im_data, sizeof(unsigned int) * ebcg->w * ebcg->h);
 
    ebcg->frame = elm_frame_add(parent);
-   elm_object_text_set(ebcg->frame, "Brightness/Contrast/Gamma");
-   evas_object_size_hint_weight_set(ebcg->frame, 0.2, EVAS_HINT_EXPAND);
+   elm_object_text_set(ebcg->frame, _("Brightness/Contrast/Gamma"));
+   evas_object_size_hint_weight_set(ebcg->frame, 0.3, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(ebcg->frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_box_pack_end(parent, ebcg->frame);
    evas_object_data_set(ebcg->frame, "ebcg", ebcg);

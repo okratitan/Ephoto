@@ -310,8 +310,8 @@ void ephoto_hsv_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    memcpy(ehsv->original_im_data, im_data, sizeof(unsigned int) * ehsv->w * ehsv->h);
 
    ehsv->frame = elm_frame_add(parent);
-   elm_object_text_set(ehsv->frame, "Hue/Saturation/Value");
-   evas_object_size_hint_weight_set(ehsv->frame, 0.2, EVAS_HINT_EXPAND);
+   elm_object_text_set(ehsv->frame, _("Hue/Saturation/Value"));
+   evas_object_size_hint_weight_set(ehsv->frame, 0.3, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(ehsv->frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_box_pack_end(parent, ehsv->frame);
    evas_object_data_set(ehsv->frame, "ehsv", ehsv);

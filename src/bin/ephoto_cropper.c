@@ -18,119 +18,130 @@ struct _Ephoto_Cropper
    int offsetx;
    int offsety;
    int resizing; 
-   int sliding;
 };
 
 static void
 _calculate_cropper_size(void *data, Evas_Object *obj EINA_UNUSED, const char *emission EINA_UNUSED, const char *source EINA_UNUSED)
 {
    Ephoto_Cropper *ec = data;
+   Edje_Message_Int_Set *msg;
+   char buf[PATH_MAX];
+   int w, h, cw, ch, iw, ih, nw, nh;
+   double scalew, scaleh;
 
-   if (!ec->sliding)
-     {
-        Edje_Message_Int_Set *msg;
-        char buf[PATH_MAX];
-        int w, h, cw, ch, iw, ih, nw, nh;
-        double scalew, scaleh;
-
-        evas_object_geometry_get(ec->layout, 0, 0, &w, &h);
-        edje_object_part_geometry_get(elm_layout_edje_get(ec->layout),
+   evas_object_geometry_get(ec->layout, 0, 0, &w, &h);
+   edje_object_part_geometry_get(elm_layout_edje_get(ec->layout),
                                       "ephoto.swallow.cropper", 0, 0, &cw, &ch);
-        evas_object_image_size_get(elm_image_object_get(ec->image), &iw, &ih);
+   evas_object_image_size_get(elm_image_object_get(ec->image), &iw, &ih);
 
-        scalew = (double)cw/(double)w;
-        scaleh = (double)ch/(double)h;
+   scalew = (double)cw/(double)w;
+   scaleh = (double)ch/(double)h;
 
-        nw = iw*scalew;
-        nh = ih*scaleh;
+   nw = iw*scalew;
+   nh = ih*scaleh;
 
-        elm_slider_value_set(ec->cropw, nw);
-        elm_slider_value_set(ec->croph, nh); 
+   elm_slider_value_set(ec->cropw, nw);
+   elm_slider_value_set(ec->croph, nh); 
 
-        msg = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
-        msg->count = 3;
-        msg->val[0] = 11;
-        msg->val[1] = nw;
-        msg->val[2] = nh;
-        edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
-     }
+   msg = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
+   msg->count = 3;
+   msg->val[0] = 11;
+   msg->val[1] = nw;
+   msg->val[2] = nh;
+   edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
 }
 
 static void
 _cropper_changed_width(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Cropper *ec = data;
-   Edje_Message_Int_Set *msg;
-   int mw, cx, cw, ch, nw, nh, lx, lw, iw;
+   Edje_Message_Int_Set *msgl, *msgr;
+   int mw, cx, cw, nw, lx, lw, iw, left, right;
    double scalew;
-
-   ec->sliding = 1;
 
    mw = elm_slider_value_get(ec->cropw);
 
-   evas_object_geometry_get(ec->cropper, &cx, 0, &cw, &ch);
    evas_object_geometry_get(ec->layout, &lx, 0, &lw, 0);
+   evas_object_geometry_get(ec->cropper, &cx, 0, &cw, 0);
    evas_object_image_size_get(elm_image_object_get(ec->image), &iw, 0);
 
-   scalew = (double)lw/(double)iw;
-   nw = mw * scalew;
-   nh = ch;
+   scalew = (double)mw/(double)iw;
 
-   msg = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
-   msg->count = 3;
-   if ((nw+cx) >= (lx+lw))
-     {
-        msg->val[0] = 8;
-        nw = cw-nw;
-     }
-   else
-     {
-        msg->val[0] = 4;
-        nw -= cw;
-     }
-   msg->val[1] = nw;
-   msg->val[2] = 0;
-   edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
+   nw = lw*scalew;
+   left = (nw-cw)/2;
+   right = (nw-cw)/2;
 
-   ec->sliding = 0;
+   if ((cx+cw+right) >= (lx+lw))
+     {
+        right = (lx+lw)-(cx+cw);
+        left += left - right;
+     }
+   else if ((cx-left) <= lx)
+     {
+        left = cx-lx;
+        right += right - left;
+     }
+   left *= -1;
+
+   msgl = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
+   msgl->count = 3;
+   msgl->val[0] = 8;
+   msgl->val[1] = left;
+   msgl->val[2] = 0;
+   edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msgl);
+
+   msgr = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
+   msgr->count = 3;
+   msgr->val[0] = 4;
+   msgr->val[1] = right;
+   msgr->val[2] = 0;
+   edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msgr);
 }
 
 static void
 _cropper_changed_height(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Cropper *ec = data;
-   Edje_Message_Int_Set *msg;
-   int mh, ch, cy, nh, lh, ly, ih;
+   Edje_Message_Int_Set *msgt, *msgb;
+   int mh, ch, cy, nh, lh, ly, ih, left, top, bottom;
    double scaleh;
-
-   ec->sliding = 1;
 
    mh = elm_slider_value_get(ec->croph);
 
-   evas_object_geometry_get(ec->cropper, 0, &cy, 0, &ch);
    evas_object_geometry_get(ec->layout, 0, &ly, 0, &lh);
+   evas_object_geometry_get(ec->cropper, 0, &cy, 0, &ch);
    evas_object_image_size_get(elm_image_object_get(ec->image), 0, &ih);
 
-   scaleh = (double)lh/(double)ih;
-   nh = mh * scaleh;
+   scaleh = (double)mh/(double)ih;
+   nh = lh*scaleh;
+   top = (nh-ch)/2;
+   bottom = (nh-ch)/2;
 
-   msg = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
-   msg->count = 3;
-   if ((nh+cy) >= (ly+lh))
+   if ((cy+ch+bottom) >= (ly+lh))
      {
-        msg->val[0] = 2;
-        nh = ch-nh;
+        bottom = (ly+lh)-(cy+ch);
+        top += top - bottom;
      }
-   else
+   else if ((cy-top) <= ly)
      {
-        msg->val[0] = 6;
-        nh -= ch;
+        top = cy-ly;
+        bottom += bottom - top;
      }
-   msg->val[1] = 0;
-   msg->val[2] = nh;
-   edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msg);
+   top *= -1;
 
-   ec->sliding = 0;
+   msgt = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
+   msgt->count = 3;
+   msgt->val[0] = 2;
+   msgt->val[1] = 0;
+   msgt->val[2] = top;
+   edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msgt);
+
+   msgb = alloca(sizeof(Edje_Message_Int_Set) + (3*sizeof(int)));
+   msgb->count = 3;
+   msgb->val[0] = 6;
+   msgb->val[1] = 0;
+   msgb->val[2] = bottom;
+   edje_object_message_send(elm_layout_edje_get(ec->layout), EDJE_MESSAGE_INT_SET, 1, msgb);
 }
 
 static void

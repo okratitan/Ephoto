@@ -27,6 +27,9 @@ struct _Ephoto_Single_Browser
    unsigned int *edited_image_data;
    int ew;
    int eh;
+   Ecore_Con_Url *url_up;
+   char *url_ret;
+   char *upload_error;
 };
 
 struct _Ephoto_Viewer
@@ -761,35 +764,36 @@ _last_entry(Ephoto_Single_Browser *sb)
 static void
 _reset_yes(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
-   Evas_Object *win = data;
-   Ephoto_Single_Browser *sb = evas_object_data_get(win, "single_browser");
+   Evas_Object *popup = data;
+   Ephoto_Single_Browser *sb = evas_object_data_get(popup, "single_browser");
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
    sb->orient = EPHOTO_ORIENT_0;
    ephoto_single_browser_entry_set(sb->main, sb->entry);
-   evas_object_del(win);
+   evas_object_del(popup);
 }
 
 static void
 _reset_no(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
-   Evas_Object *win = data;
-   evas_object_del(win);
+   Evas_Object *popup = data;
+   evas_object_del(popup);
 }
 
 static void
 _reset_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
-   Evas_Object *win, *box, *label, *hbox, *ic, *button;
+   Evas_Object *popup, *box, *label, *ic, *button;
 
-   win = elm_win_inwin_add(sb->ephoto->win);
-   elm_object_style_set(win, "minimal");
-   evas_object_show(win);
+   popup = elm_popup_add(sb->ephoto->win);
+   elm_object_part_text_set(popup, "title,text", _("Reset Image"));
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP); 
 
-   box = elm_box_add(win);
+   box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(box);
 
    label = elm_label_add(box);
    elm_object_text_set(label, _("Are you sure you want to reset your changes?"));
@@ -798,55 +802,49 @@ _reset_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNU
    elm_box_pack_end(box, label);
    evas_object_show(label);
 
-   hbox = elm_box_add(win);
-   elm_box_horizontal_set(hbox, EINA_TRUE);
-   evas_object_size_hint_weight_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, hbox);
-   evas_object_show(hbox);
-
-   ic = elm_icon_add(hbox);
+   ic = elm_icon_add(popup);
    elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "document-save");
 
-   button = elm_button_add(hbox);
+   button = elm_button_add(popup);
    elm_object_text_set(button, _("Yes"));
    elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _reset_yes, win);
-   elm_box_pack_end(hbox, button);
+   evas_object_smart_callback_add(button, "clicked", _reset_yes, popup);
+   elm_object_part_content_set(popup, "button1", button);
    evas_object_show(button);
 
-   ic = elm_icon_add(hbox);
+   ic = elm_icon_add(popup);
    elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
-   button = elm_button_add(hbox);
+   button = elm_button_add(popup);
    elm_object_text_set(button, _("No"));
    elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _reset_no, win);
-   elm_box_pack_end(hbox, button);
+   evas_object_smart_callback_add(button, "clicked", _reset_no, popup);
+   elm_object_part_content_set(popup, "button2", button);
    evas_object_show(button);
 
-   evas_object_data_set(win, "single_browser", sb);
-   elm_win_inwin_content_set(win, box);
-   evas_object_show(box);
+   evas_object_data_set(popup, "single_browser", sb);
+   elm_object_part_content_set(popup, "default", box);
+   evas_object_show(popup);
 }
 
 static void
 _failed_save(Ephoto_Single_Browser *sb)
 {
-   Evas_Object *win, *box, *label, *ic, *button;
+   Evas_Object *popup, *box, *label, *ic, *button;
 
-   win = elm_win_inwin_add(sb->ephoto->win);
-   elm_object_style_set(win, "minimal");
-   evas_object_show(win);
+   popup = elm_popup_add(sb->ephoto->win);
+   elm_object_part_text_set(popup, "title,text", _("Save Failed"));
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP);
 
-   box = elm_box_add(win);
+   box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(box);
 
    label = elm_label_add(box);
    elm_object_text_set(label, _("Error: Image could not be saved here!"));
@@ -855,28 +853,28 @@ _failed_save(Ephoto_Single_Browser *sb)
    elm_box_pack_end(box, label);
    evas_object_show(label);
 
-   ic = elm_icon_add(box);
+   ic = elm_icon_add(popup);
    elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
-   button = elm_button_add(box);
+   button = elm_button_add(popup);
    elm_object_text_set(button, _("Ok"));
    elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _reset_no, win);
-   elm_box_pack_end(box, button);
+   evas_object_smart_callback_add(button, "clicked", _reset_no, popup);
+   elm_object_part_content_set(popup, "button1", button);
    evas_object_show(button);
 
-   evas_object_data_set(win, "single_browser", sb);
-   elm_win_inwin_content_set(win, box);
-   evas_object_show(box);
+   evas_object_data_set(popup, "single_browser", sb);
+   elm_object_part_content_set(popup, "default", box);
+   evas_object_show(popup);
 }
 
 static void
 _save_yes(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
-   Evas_Object *win = data;
-   Ephoto_Single_Browser *sb = evas_object_data_get(win, "single_browser");
+   Evas_Object *popup = data;
+   Ephoto_Single_Browser *sb = evas_object_data_get(popup, "single_browser");
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
    Eina_Bool success;
    if (ecore_file_exists(sb->entry->path))
@@ -886,7 +884,7 @@ _save_yes(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED
           {
              _failed_save(sb);
              ephoto_single_browser_entry_set(sb->main, sb->entry);
-             evas_object_del(win);
+             evas_object_del(popup);
              return;
           }
      }
@@ -894,30 +892,31 @@ _save_yes(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED
    if (!success)
      _failed_save(sb);
    ephoto_single_browser_entry_set(sb->main, sb->entry);
-   evas_object_del(win);
+   evas_object_del(popup);
 }
 
 static void
 _save_no(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
-   Evas_Object *win = data;
-   evas_object_del(win);
+   Evas_Object *popup = data;
+   evas_object_del(popup);
 }
 
 static void
 _save_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
-   Evas_Object *win, *box, *label, *hbox, *ic, *button;
+   Evas_Object *popup, *box, *label, *ic, *button;
 
-   win = elm_win_inwin_add(sb->ephoto->win);
-   elm_object_style_set(win, "minimal");
-   evas_object_show(win);
+   popup = elm_popup_add(sb->ephoto->win);
+   elm_object_part_text_set(popup, "title,text", _("Save Image"));
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP);
 
-   box = elm_box_add(win);
+   box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(box);
 
    label = elm_label_add(box);
    elm_object_text_set(label, _("Are you sure you want to overwrite this image?"));
@@ -926,48 +925,41 @@ _save_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
    elm_box_pack_end(box, label);
    evas_object_show(label);
 
-   hbox = elm_box_add(win);
-   elm_box_horizontal_set(hbox, EINA_TRUE);
-   evas_object_size_hint_weight_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, hbox);
-   evas_object_show(hbox);
-
-   ic = elm_icon_add(hbox);
+   ic = elm_icon_add(popup);
    elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "document-save");
 
-   button = elm_button_add(hbox);
+   button = elm_button_add(popup);
    elm_object_text_set(button, _("Yes"));
    elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _save_yes, win);
-   elm_box_pack_end(hbox, button);
+   evas_object_smart_callback_add(button, "clicked", _save_yes, popup);
+   elm_object_part_content_set(popup, "button1", button);
    evas_object_show(button);
 
-   ic = elm_icon_add(hbox);
+   ic = elm_icon_add(popup);
    elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
-   button = elm_button_add(hbox);
+   button = elm_button_add(popup);
    elm_object_text_set(button, _("No"));
    elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _save_no, win);
-   elm_box_pack_end(hbox, button);
+   evas_object_smart_callback_add(button, "clicked", _save_no, popup);
+   elm_object_part_content_set(popup, "button2", button);
    evas_object_show(button);
 
-   evas_object_data_set(win, "single_browser", sb);
-   elm_win_inwin_content_set(win, box);
-   evas_object_show(box);
+   evas_object_data_set(popup, "single_browser", sb);
+   elm_object_part_content_set(popup, "default", box);
+   evas_object_show(popup);
 }
 
 static void
 _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
-   Evas_Object *win = data;
-   const char *file = evas_object_data_get(win, "file");
-   Ephoto_Single_Browser *sb = evas_object_data_get(win, "single_browser");
+   Evas_Object *popup = data;
+   const char *file = evas_object_data_get(popup, "file");
+   Ephoto_Single_Browser *sb = evas_object_data_get(popup, "single_browser");
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
    Eina_Bool success;
    if (ecore_file_exists(file))
@@ -977,7 +969,7 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED, void *event_i
           {
              _failed_save(sb);
              ephoto_single_browser_entry_set(sb->main, sb->entry);
-             evas_object_del(win);
+             evas_object_del(popup);
              return;
           }
      }
@@ -992,18 +984,18 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED, void *event_i
         ephoto_single_browser_path_pending_set(sb->ephoto->single_browser, file);
      }
    ephoto_single_browser_entry_set(sb->main, sb->entry);
-   evas_object_del(win);
+   evas_object_del(popup);
 }
 
 static void
 _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    const char *selected = event_info;
-   Evas_Object *win = data;
+   Evas_Object *opopup = data;
 
    if (selected)
      {
-        Ephoto_Single_Browser *sb = evas_object_data_get(win, "single_browser");
+        Ephoto_Single_Browser *sb = evas_object_data_get(opopup, "single_browser");
         Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
         Eina_Bool success;
 
@@ -1014,16 +1006,17 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
           snprintf(buf, PATH_MAX, "%s", selected);
         if (ecore_file_exists(buf))
           {
-             Evas_Object *inwin, *box, *label, *hbox, *ic, *button;
+             Evas_Object *popup, *box, *label, *ic, *button;
 
-             inwin = elm_win_inwin_add(sb->ephoto->win);
-             elm_object_style_set(inwin, "minimal");
-             evas_object_show(inwin);
+             popup = elm_popup_add(sb->ephoto->win);
+             elm_object_part_text_set(popup, "title,text", _("Overwite Image"));
+             elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP);
 
-             box = elm_box_add(inwin);
+             box = elm_box_add(popup);
              elm_box_horizontal_set(box, EINA_FALSE);
              evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
              evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+             evas_object_show(box);
 
              label = elm_label_add(box);
              elm_object_text_set(label, _("Are you sure you want to overwrite this image?"));
@@ -1032,41 +1025,34 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
              elm_box_pack_end(box, label);
              evas_object_show(label);
 
-             hbox = elm_box_add(inwin);
-             elm_box_horizontal_set(hbox, EINA_TRUE);
-             evas_object_size_hint_weight_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-             evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-             elm_box_pack_end(box, hbox);
-             evas_object_show(hbox);
-
-             ic = elm_icon_add(hbox);
+             ic = elm_icon_add(popup);
              elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
              elm_icon_standard_set(ic, "document-save");
           
-             button = elm_button_add(hbox);
+             button = elm_button_add(popup);
              elm_object_text_set(button, _("Yes"));
              elm_object_part_content_set(button, "icon", ic);
-             evas_object_smart_callback_add(button, "clicked", _save_image_as_overwrite, inwin);
-             elm_box_pack_end(hbox, button);
+             evas_object_smart_callback_add(button, "clicked", _save_image_as_overwrite, popup);
+             elm_object_part_content_set(popup, "button1", button);
              evas_object_show(button);
 
-             ic = elm_icon_add(hbox);
+             ic = elm_icon_add(popup);
              elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
              elm_icon_standard_set(ic, "window-close");
 
-             button = elm_button_add(hbox);
+             button = elm_button_add(popup);
              elm_object_text_set(button, _("No"));
              elm_object_part_content_set(button, "icon", ic);
-             evas_object_smart_callback_add(button, "clicked", _save_no, inwin);
-             elm_box_pack_end(hbox, button);
+             evas_object_smart_callback_add(button, "clicked", _save_no, popup);
+             elm_object_part_content_set(popup, "button2", button);
              evas_object_show(button);
 
-             evas_object_data_set(inwin, "single_browser", sb);
-             evas_object_data_set(inwin, "file", strdup(buf));
-             elm_win_inwin_content_set(inwin, box);
-             evas_object_show(box);
+             evas_object_data_set(popup, "single_browser", sb);
+             evas_object_data_set(popup, "file", strdup(buf));
+             elm_object_part_content_set(popup, "default", box);
+             evas_object_show(popup);
           }
         else
           {
@@ -1082,19 +1068,24 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
                }
           }
      }
-   evas_object_del(win);
+   evas_object_del(opopup);
 }
 
 static void
 _save_image_as(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
-   Evas_Object *win, *fsel;
+   Evas_Object *win, *box, *fsel;
 
    win = elm_win_inwin_add(sb->ephoto->win);
    evas_object_show(win);
 
-   fsel = elm_fileselector_add(win);
+   box = elm_box_add(win);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+
+   fsel = elm_fileselector_add(box);
    elm_fileselector_is_save_set(fsel, EINA_TRUE);
    elm_fileselector_expandable_set(fsel, EINA_FALSE);
    elm_fileselector_path_set(fsel, sb->ephoto->config->directory);
@@ -1103,10 +1094,274 @@ _save_image_as(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_U
    evas_object_size_hint_weight_set(fsel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_smart_callback_add(fsel, "done", _save_image_as_done, win);
-
-   evas_object_data_set(win, "single_browser", sb);
-   elm_win_inwin_content_set(win, fsel);
+   elm_box_pack_end(box, fsel);
    evas_object_show(fsel);
+
+   evas_object_show(box);
+   evas_object_data_set(win, "single_browser", sb);
+   elm_win_inwin_content_set(win, box);
+}
+
+static void
+_upload_image_cancel(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *popup = data;
+   evas_object_del(popup);
+}
+
+static void
+_upload_entry_anchor_bt(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   char buf[PATH_MAX];
+   Evas_Object *av = data;
+
+   elm_entry_anchor_hover_end(av);
+   snprintf(buf, PATH_MAX, "xdg-open %s", evas_object_data_get(av, "link"));
+   printf("%s\n", buf);
+   ecore_exe_run(buf, NULL);
+}
+
+static void
+_upload_entry_anchor(void *data, Evas_Object *obj, void *event_info)
+{
+   Evas_Object *av = data;
+   Evas_Object *button;
+   Elm_Entry_Anchor_Hover_Info *ei = event_info;
+
+   button = elm_button_add(obj);
+   elm_object_text_set(button, _("Open Link In Browser"));
+   elm_object_part_content_set(ei->hover, "middle", button);
+   evas_object_smart_callback_add(button, "clicked", _upload_entry_anchor_bt, av);
+   evas_object_show(button);
+}
+
+static Eina_Bool
+_upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
+{
+   Evas_Object *ppopup = data;
+   Ephoto_Single_Browser *sb = evas_object_data_get(ppopup, "single_browser");
+   Ecore_Con_Event_Url_Complete *ev = event;
+   Evas_Object *popup, *box, *label, *entry, *ic, *button;
+
+   if (ev->url_con != sb->url_up) return ECORE_CALLBACK_RENEW;
+
+   evas_object_del(ppopup);
+
+   popup = elm_popup_add(sb->ephoto->win);
+   elm_object_part_text_set(popup, "title,text", _("Image Uploaded"));
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP);
+
+   box = elm_box_add(popup);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(box);
+
+   label = elm_label_add(box);
+   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, label);
+   evas_object_show(label);
+
+   entry = elm_entry_add(box);
+   elm_entry_anchor_hover_style_set(entry, "popout");
+   elm_entry_anchor_hover_parent_set(entry, sb->main);
+   elm_entry_editable_set(entry, EINA_FALSE);
+   elm_entry_scrollable_set(entry, EINA_TRUE);
+   elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF, ELM_SCROLLER_POLICY_OFF);
+   evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_smart_callback_add(entry, "anchor,hover,opened", _upload_entry_anchor, entry);
+   elm_box_pack_end(box, entry);
+   evas_object_show(entry);
+
+   ic = elm_icon_add(popup);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "window-close");
+
+   button = elm_button_add(popup);
+   elm_object_text_set(button, _("Ok"));
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _upload_image_cancel, popup);
+   elm_object_part_content_set(popup, "button1", button);
+   evas_object_show(button);
+
+   evas_object_data_set(popup, "single_browser", sb);
+   elm_object_part_content_set(popup, "default", box);
+   evas_object_show(popup);
+
+   if (!sb->url_ret  || ev->status != 200)
+     {
+        elm_object_text_set(label, _("There was an error uploading your image!"));
+        elm_entry_single_line_set(entry, EINA_TRUE);
+        elm_object_text_set(entry, sb->upload_error);
+        evas_object_show(popup);
+        ecore_con_url_free(sb->url_up);
+        free(sb->upload_error);
+        return EINA_FALSE;
+     }
+   else
+     {
+        char buf[PATH_MAX], link[PATH_MAX];
+        snprintf(buf, PATH_MAX, "<a href=\"%s\"><link>%s</link</a>", sb->url_ret, sb->url_ret);
+        snprintf(link, PATH_MAX, "%s", sb->url_ret);
+        evas_object_data_set(entry, "link", strdup(link));
+        elm_object_text_set(label, _("Your image was uploaded to the following link:"));
+        elm_entry_single_line_set(entry, EINA_TRUE);
+        elm_object_text_set(entry, buf);
+        evas_object_show(popup);
+        ecore_con_url_free(sb->url_up);
+        free(sb->url_ret);
+        return ECORE_CALLBACK_RENEW;
+     }
+}
+
+static Eina_Bool
+_upload_image_xml_parse(void *data, Eina_Simple_XML_Type type, const char *content, unsigned offset EINA_UNUSED, unsigned length EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   char *linkf, *linkl;
+ 
+   if (type == EINA_SIMPLE_XML_OPEN)
+     {
+        if (!strncmp("link>", content, strlen("link>")))
+          {
+             linkf = strchr(content, '>')+1;
+             linkl = strtok(linkf, "<");
+             sb->url_ret = strdup(linkl);
+          }
+     }
+   return EINA_TRUE;
+}
+
+static Eina_Bool
+_upload_image_cb(void *data, int ev_type EINA_UNUSED, void *event)
+{
+   Ephoto_Single_Browser *sb = data;
+   Ecore_Con_Event_Url_Data *ev = event;
+
+   if (ev->url_con != sb->url_up) return EINA_TRUE;
+   eina_simple_xml_parse(ev->data, strlen(ev->data)+1, EINA_TRUE, _upload_image_xml_parse, sb);
+   if (!sb->url_ret)  sb->upload_error = strdup(ev->data);
+}
+
+static void
+_upload_image_confirm(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *ppopup = data;
+   Evas_Object *popup, *box, *label, *pb;
+   Ephoto_Single_Browser *sb = evas_object_data_get(ppopup, "single_browser");
+   char buf[PATH_MAX];
+   FILE *f;
+   unsigned char *fdata;
+   int fsize;
+
+   evas_object_del(ppopup);
+   
+   popup = elm_popup_add(sb->ephoto->win);
+   elm_object_part_text_set(popup, "title,text", _("Uploading..."));
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP);
+
+   box = elm_box_add(popup);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(box);
+
+   label = elm_label_add(box);
+   elm_object_text_set(label, _("Please wait while your image is uploaded..."));
+   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, label);
+   evas_object_show(label);  
+
+   pb = elm_progressbar_add(box);
+   evas_object_size_hint_weight_set(pb, EVAS_HINT_EXPAND, 0.0);
+   evas_object_size_hint_align_set(pb, EVAS_HINT_FILL, 0.5);
+   elm_object_style_set(pb, "wheel");
+   elm_progressbar_pulse_set(pb, EINA_TRUE);
+   elm_box_pack_end(box, pb);
+   evas_object_show(pb);
+   elm_progressbar_pulse(pb, EINA_TRUE);
+
+   evas_object_data_set(popup, "single_browser", sb);
+   elm_object_part_content_set(popup, "default", box);
+   evas_object_show(popup);
+
+   f = fopen(sb->entry->path, "rb");
+   fseek(f, 0, SEEK_END);
+   fsize = ftell(f);
+   rewind(f);
+   fdata = malloc(fsize);
+   fread(fdata, fsize, 1, f);
+   fclose(f);
+
+   snprintf(buf, PATH_MAX, "image=%u", fdata);
+
+   sb->handlers = eina_list_append
+      (sb->handlers, ecore_event_handler_add
+       (ECORE_CON_EVENT_URL_DATA, _upload_image_cb, sb));
+   sb->handlers = eina_list_append
+      (sb->handlers, ecore_event_handler_add
+       (ECORE_CON_EVENT_URL_COMPLETE, _upload_image_complete_cb, popup));
+  
+   sb->url_up = ecore_con_url_new("https://api.imgur.com/3/image.xml");
+   ecore_con_url_additional_header_add(sb->url_up, "Authorization", "Client-ID 67aecc7e6662370");
+   ecore_con_url_http_version_set(sb->url_up, ECORE_CON_URL_HTTP_VERSION_1_0);
+   ecore_con_url_post(sb->url_up, fdata, fsize, NULL);
+}
+
+static void
+_upload_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   Evas_Object *popup, *box, *label, *ic, *button;
+
+   popup = elm_popup_add(sb->ephoto->win);
+   elm_object_part_text_set(popup, "title,text", _("Upload Image"));
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP);
+
+   box = elm_box_add(popup);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(box);
+
+   label = elm_label_add(box);
+   elm_object_text_set(label, _("Are you sure you want to upload this image publically to imgur.com?"));
+   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, label);
+   evas_object_show(label);
+
+   ic = elm_icon_add(popup);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "document-save");
+
+   button = elm_button_add(popup);
+   elm_object_text_set(button, _("Yes"));
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _upload_image_confirm, popup);
+   elm_object_part_content_set(popup, "button1", button);
+   evas_object_show(button);
+
+   ic = elm_icon_add(popup);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "window-close");
+
+   button = elm_button_add(popup);
+   elm_object_text_set(button, _("No"));
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _upload_image_cancel, popup);
+   elm_object_part_content_set(popup, "button2", button);
+   evas_object_show(button);
+
+   evas_object_data_set(popup, "single_browser", sb);
+   elm_object_part_content_set(popup, "default", box);
+   evas_object_show(popup);
 }
 
 static void
@@ -1478,6 +1733,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_menu_item_add(menu, NULL, "edit-undo", _("Reset"), _reset_image, sb);
    elm_menu_item_add(menu, NULL, "document-save", _("Save"), _save_image, sb);
    elm_menu_item_add(menu, NULL, "document-save-as", _("Save As"), _save_image_as, sb);
+   elm_menu_item_add(menu, NULL, "document-send", _("Upload"), _upload_image, sb);
    elm_menu_item_separator_add(menu, NULL);
    menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("Transform"), NULL, NULL);
    elm_menu_item_add(menu, menu_it, "edit-cut", _("Crop"), _crop_image, sb);

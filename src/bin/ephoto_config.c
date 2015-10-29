@@ -123,6 +123,7 @@ _add_slideshow_config(Evas_Object *parent, Ephoto *ephoto)
    elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(box);
 
    scroller = elm_scroller_add(box);
    evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -227,6 +228,7 @@ _add_about_config(Evas_Object *parent, Ephoto *ephoto)
    elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(box);
 
    scroller = elm_scroller_add(box);
    evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -329,7 +331,7 @@ ephoto_config_window(Ephoto *ephoto)
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_show(box);
 
-   toolbar = elm_toolbar_add(win);
+   toolbar = elm_toolbar_add(box);
    elm_toolbar_horizontal_set(toolbar, EINA_TRUE);
    elm_toolbar_homogeneous_set(toolbar, EINA_TRUE);
    elm_toolbar_shrink_mode_set(toolbar, ELM_TOOLBAR_SHRINK_SCROLL);
@@ -340,7 +342,7 @@ ephoto_config_window(Ephoto *ephoto)
    elm_box_pack_end(box, toolbar);
    evas_object_show(toolbar);
 
-   pager = elm_naviframe_add(win);
+   pager = elm_naviframe_add(box);
    elm_naviframe_prev_btn_auto_pushed_set(pager, EINA_FALSE);
    evas_object_size_hint_weight_set
      (pager, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);

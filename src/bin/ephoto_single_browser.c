@@ -1075,17 +1075,29 @@ static void
 _save_image_as(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
-   Evas_Object *win, *box, *fsel;
+   Evas_Object *popup, *frame, *fsel, *rect, *table;
+   int h;
 
-   win = elm_win_inwin_add(sb->ephoto->win);
-   evas_object_show(win);
+   evas_object_geometry_get(sb->ephoto->win, 0, 0, 0, &h);
 
-   box = elm_box_add(win);
-   elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   popup = elm_popup_add(sb->ephoto->win);
+   elm_popup_scrollable_set(popup, EINA_TRUE);
+   elm_object_part_text_set(popup, "title,text", _("Save Image As"));
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
 
-   fsel = elm_fileselector_add(box);
+   table = elm_table_add(popup);
+   evas_object_size_hint_weight_set(table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
+
+   rect = evas_object_rectangle_add(evas_object_evas_get(popup));
+   evas_object_color_set(rect, 0, 0, 0, 0);
+   evas_object_size_hint_min_set(rect, 0, h/1.5);
+   evas_object_size_hint_weight_set(rect, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_fill_set(rect, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_table_pack(table, rect, 0, 0, 1, 1);
+   evas_object_show(rect);
+
+   fsel = elm_fileselector_add(table);
    elm_fileselector_is_save_set(fsel, EINA_TRUE);
    elm_fileselector_expandable_set(fsel, EINA_FALSE);
    elm_fileselector_path_set(fsel, sb->ephoto->config->directory);
@@ -1093,13 +1105,14 @@ _save_image_as(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_U
    elm_fileselector_mime_types_filter_append(fsel, "image/*", _("Image Files"));
    evas_object_size_hint_weight_set(fsel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_smart_callback_add(fsel, "done", _save_image_as_done, win);
-   elm_box_pack_end(box, fsel);
+   evas_object_smart_callback_add(fsel, "done", _save_image_as_done, popup);
+   elm_table_pack(table, fsel, 0, 0, 1, 1);
    evas_object_show(fsel);
 
-   evas_object_show(box);
-   evas_object_data_set(win, "single_browser", sb);
-   elm_win_inwin_content_set(win, box);
+   evas_object_show(table);
+   evas_object_data_set(popup, "single_browser", sb);
+   elm_object_content_set(popup, table);
+   evas_object_show(popup);
 }
 
 static void

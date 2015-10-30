@@ -1,5 +1,10 @@
 src/bin/ephoto.c
+src/bin/ephoto_bcg.c
 src/bin/ephoto_config.c
+src/bin/ephoto_color.c
+src/bin/ephoto_cropper.c
+src/bin/ephoto_filters.c
+src/bin/ephoto_hsv.c
 src/bin/ephoto_main.c
 src/bin/ephoto_thumb_browser.c
 src/bin/ephoto_single_browser.c

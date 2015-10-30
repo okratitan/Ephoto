@@ -228,6 +228,7 @@ static void
 _color_reset(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Color *eco = data;
+
    elm_slider_value_set(eco->rslider, 0);
    elm_slider_value_set(eco->gslider, 0);
    elm_slider_value_set(eco->bslider, 0);
@@ -254,6 +255,14 @@ static void
 _color_cancel(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Color *eco = data;
+
+   elm_slider_value_set(eco->rslider, 0);
+   elm_slider_value_set(eco->gslider, 0);
+   elm_slider_value_set(eco->bslider, 0);
+   eco->red = 0;
+   eco->green = 0;
+   eco->blue = 0;
+   _red_slider_changed(eco, eco->rslider, NULL);
    ephoto_single_browser_cancel_editing(eco->main, eco->image);
    evas_object_del(eco->frame);
 }

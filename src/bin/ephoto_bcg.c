@@ -238,6 +238,7 @@ static void
 _bcg_reset(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_BCG *ebcg = data;
+
    elm_slider_value_set(ebcg->bslider, 0);
    elm_slider_value_set(ebcg->cslider, 0);
    elm_slider_value_set(ebcg->gslider, 1);
@@ -264,6 +265,14 @@ static void
 _bcg_cancel(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_BCG *ebcg = data;
+
+   elm_slider_value_set(ebcg->bslider, 0);
+   elm_slider_value_set(ebcg->cslider, 0);
+   elm_slider_value_set(ebcg->gslider, 1);
+   ebcg->brightness = 0;
+   ebcg->contrast = 0;
+   ebcg->gamma = 1;
+   _brightness_slider_changed(ebcg, ebcg->bslider, NULL);
    ephoto_single_browser_cancel_editing(ebcg->main, ebcg->image);
    evas_object_del(ebcg->frame);
 }

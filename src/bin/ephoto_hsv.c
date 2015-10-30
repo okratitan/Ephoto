@@ -249,6 +249,7 @@ static void
 _hsv_reset(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_HSV *ehsv = data;
+
    elm_slider_value_set(ehsv->hslider, 0);
    elm_slider_value_set(ehsv->sslider, 0);
    elm_slider_value_set(ehsv->vslider, 0);
@@ -275,6 +276,14 @@ static void
 _hsv_cancel(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_HSV *ehsv = data;
+
+   elm_slider_value_set(ehsv->hslider, 0);
+   elm_slider_value_set(ehsv->sslider, 0);
+   elm_slider_value_set(ehsv->vslider, 0);
+   ehsv->hue = 0;
+   ehsv->saturation = 0;
+   ehsv->value = 0;
+   _hue_slider_changed(ehsv, ehsv->hslider, NULL);
    ephoto_single_browser_cancel_editing(ehsv->main, ehsv->image);
    evas_object_del(ehsv->frame);
 }

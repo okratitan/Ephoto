@@ -787,7 +787,7 @@ _reset_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNU
 
    popup = elm_popup_add(sb->ephoto->win);
    elm_object_part_text_set(popup, "title,text", _("Reset Image"));
-   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP); 
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER); 
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
@@ -838,7 +838,7 @@ _failed_save(Ephoto_Single_Browser *sb)
 
    popup = elm_popup_add(sb->ephoto->win);
    elm_object_part_text_set(popup, "title,text", _("Save Failed"));
-   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP);
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
@@ -910,7 +910,7 @@ _save_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUS
 
    popup = elm_popup_add(sb->ephoto->win);
    elm_object_part_text_set(popup, "title,text", _("Save Image"));
-   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP);
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
@@ -1010,7 +1010,7 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 
              popup = elm_popup_add(sb->ephoto->win);
              elm_object_part_text_set(popup, "title,text", _("Overwite Image"));
-             elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP);
+             elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
 
              box = elm_box_add(popup);
              elm_box_horizontal_set(box, EINA_FALSE);
@@ -1149,7 +1149,7 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
 
    popup = elm_popup_add(sb->ephoto->win);
    elm_object_part_text_set(popup, "title,text", _("Image Uploaded"));
-   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP);
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
@@ -1261,7 +1261,7 @@ _upload_image_confirm(void *data, Evas_Object *obj EINA_UNUSED, void *event_info
    
    popup = elm_popup_add(sb->ephoto->win);
    elm_object_part_text_set(popup, "title,text", _("Uploading..."));
-   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP);
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
@@ -1320,7 +1320,7 @@ _upload_image(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UN
 
    popup = elm_popup_add(sb->ephoto->win);
    elm_object_part_text_set(popup, "title,text", _("Upload Image"));
-   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_TOP);
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
@@ -1564,12 +1564,81 @@ _back(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 }
 
 static void
+_slideshow_settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *popup = data;
+   Ephoto_Single_Browser *sb = evas_object_data_get(popup, "single_browser");
+
+   ephoto_config_slideshow(sb->ephoto);
+}
+
+static void
+_about_settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *popup = data;
+   Ephoto_Single_Browser *sb = evas_object_data_get(popup, "single_browser");
+
+   ephoto_config_about(sb->ephoto);
+}
+
+static void
+_close_settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *popup = data;
+
+   evas_object_del(popup);
+}
+
+static void
 _settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
+   Evas_Object *popup, *list, *button, *ic;
 
-   if (sb->ephoto)
-     ephoto_config_window(sb->ephoto);
+   popup = elm_popup_add(sb->ephoto->win);
+   elm_popup_scrollable_set(popup, EINA_TRUE);
+   elm_object_part_text_set(popup, "title,text", _("Settings Panel"));
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
+
+   list = elm_list_add(popup);
+   evas_object_size_hint_weight_set(list, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(list, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_list_mode_set(list, ELM_LIST_EXPAND);
+
+   ic = elm_icon_add(list);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "media-playback-start");
+   evas_object_show(ic);
+   elm_list_item_append(list, _("Slideshow Settings"), ic, NULL,
+                        _slideshow_settings, popup);
+
+   ic = elm_icon_add(list);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "help-about");
+   evas_object_show(ic);
+   elm_list_item_append(list, _("About Ephoto"), ic, NULL,
+                        _about_settings, popup);
+
+   ic = elm_icon_add(popup);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "window-close");
+
+   button = elm_button_add(popup);
+   elm_object_text_set(button, _("Close"));
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _close_settings, popup);
+   elm_object_part_content_set(popup, "button1", button);
+   evas_object_show(button);
+
+   elm_list_go(list);
+   evas_object_show(list);
+
+   evas_object_data_set(popup, "single_browser", sb);
+   elm_object_content_set(popup, list);
+   evas_object_show(popup);
 }
 
 static void

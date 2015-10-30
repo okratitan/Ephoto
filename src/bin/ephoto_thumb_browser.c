@@ -354,12 +354,81 @@ _slideshow(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSE
 }
 
 static void
+_slideshow_settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *popup = data;
+   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
+
+   ephoto_config_slideshow(tb->ephoto);
+}
+
+static void
+_about_settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *popup = data;
+   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
+
+   ephoto_config_about(tb->ephoto);
+}
+
+static void
+_close_settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *popup = data;
+
+   evas_object_del(popup);
+}
+
+static void
 _settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
+   Evas_Object *popup, *list, *button, *ic;
 
-   if (tb->ephoto)
-     ephoto_config_window(tb->ephoto);
+   popup = elm_popup_add(tb->ephoto->win);
+   elm_popup_scrollable_set(popup, EINA_TRUE);
+   elm_object_part_text_set(popup, "title,text", _("Settings Panel"));
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
+   
+   list = elm_list_add(popup);
+   evas_object_size_hint_weight_set(list, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(list, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_list_mode_set(list, ELM_LIST_EXPAND);
+
+   ic = elm_icon_add(list);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "media-playback-start");
+   evas_object_show(ic);
+   elm_list_item_append(list, _("Slideshow Settings"), ic, NULL,
+                        _slideshow_settings, popup);
+
+   ic = elm_icon_add(list);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "help-about");
+   evas_object_show(ic);
+   elm_list_item_append(list, _("About Ephoto"), ic, NULL,
+                        _about_settings, popup);
+
+   ic = elm_icon_add(popup);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "window-close");
+
+   button = elm_button_add(popup);
+   elm_object_text_set(button, _("Close"));
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _close_settings, popup);
+   elm_object_part_content_set(popup, "button1", button);
+   evas_object_show(button);
+
+   elm_list_go(list);
+   evas_object_show(list);
+
+   evas_object_data_set(popup, "thumb_browser", tb);
+   elm_object_content_set(popup, list);
+   evas_object_show(popup);
 }
 
 static void
@@ -382,7 +451,8 @@ static void
 _ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
-   Evas_Object *icon, *max, *min, *but, *ic;
+   Elm_Object_Item *icon;
+   Evas_Object *max, *min, *but, *ic;
 
    evas_object_hide(tb->leftbox);
    elm_box_unpack(tb->main, tb->leftbox);

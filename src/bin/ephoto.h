@@ -49,7 +49,8 @@ void         ephoto_directory_set(Ephoto *ephoto, const char *path);
 Eina_Bool    ephoto_config_init(Ephoto *em);
 void         ephoto_config_save(Ephoto *em);
 void         ephoto_config_free(Ephoto *em);
-void         ephoto_config_window(Ephoto *em);
+void         ephoto_config_slideshow(Ephoto *em);
+void         ephoto_config_about(Ephoto *em);
 
 Evas_Object *ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent);
 void         ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
@@ -118,7 +119,6 @@ struct _Ephoto_Config
    const char *editor;
    int window_width;
    int window_height;
-   Evas_Object *window;
    Evas_Object *slide_time;
    Evas_Object *slide_trans;
    int fsel_hide;

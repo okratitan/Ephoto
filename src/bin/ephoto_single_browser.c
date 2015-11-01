@@ -1149,6 +1149,16 @@ _upload_entry_anchor(void *data, Evas_Object *obj, void *event_info)
    evas_object_show(button);
 }
 
+
+static void
+_upload_image_url_copy(void *data EINA_UNUSED, Evas_Object *obj, void *event_info EINA_UNUSED)
+{
+   Evas_Object *entry = data;
+   elm_entry_select_all(entry);
+   elm_entry_selection_copy(entry);
+   elm_entry_select_none(entry);
+}
+  
 static Eina_Bool
 _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
 {
@@ -1156,7 +1166,7 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
    Ephoto_Single_Browser *sb = evas_object_data_get(ppopup, "single_browser");
    Ecore_Con_Event_Url_Complete *ev = event;
    Ecore_Event_Handler *handler;
-   Evas_Object *popup, *box, *label, *entry, *ic, *button;
+   Evas_Object *popup, *box, *hbox, *label, *entry, *ic, *button;
 
    if (ev->url_con != sb->url_up) return ECORE_CALLBACK_RENEW;
 
@@ -1178,17 +1188,37 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
    elm_box_pack_end(box, label);
    evas_object_show(label);
 
-   entry = elm_entry_add(box);
+   hbox = elm_box_add(box);
+   elm_box_horizontal_set(hbox, EINA_TRUE);
+   evas_object_size_hint_weight_set(hbox, EVAS_HINT_FILL, 0.0);
+   evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, hbox);
+   evas_object_show(hbox);
+
+   entry = elm_entry_add(hbox);
    elm_entry_anchor_hover_style_set(entry, "popout");
    elm_entry_anchor_hover_parent_set(entry, sb->main);
-   elm_entry_editable_set(entry, EINA_FALSE);
+   elm_entry_editable_set(entry, EINA_TRUE);
    elm_entry_scrollable_set(entry, EINA_TRUE);
+   elm_entry_context_menu_disabled_set(entry, EINA_TRUE);
    elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF, ELM_SCROLLER_POLICY_OFF);
    evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_smart_callback_add(entry, "anchor,hover,opened", _upload_entry_anchor, entry);
-   elm_box_pack_end(box, entry);
+   elm_box_pack_end(hbox, entry);
    evas_object_show(entry);
+
+   ic = elm_icon_add(hbox);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_HORIZONTAL, 1, 1);
+   elm_icon_standard_set(ic, "edit-copy");
+
+   button = elm_button_add(hbox);
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _upload_image_url_copy, entry);
+   elm_box_pack_end(hbox, button);
+   evas_object_show(button);
+
    ic = elm_icon_add(popup);
    elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);

@@ -22,6 +22,7 @@ struct _Ephoto_Single_Browser
    Ephoto_Entry *entry;
    Ephoto_Orient orient;
    Eina_List *handlers;
+   Eina_List *upload_handlers;
    Eina_Bool editing:1;
    Eina_Bool cropping:1;
    unsigned int *edited_image_data;
@@ -1154,6 +1155,7 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
    Evas_Object *ppopup = data;
    Ephoto_Single_Browser *sb = evas_object_data_get(ppopup, "single_browser");
    Ecore_Con_Event_Url_Complete *ev = event;
+   Ecore_Event_Handler *handler;
    Evas_Object *popup, *box, *label, *entry, *ic, *button;
 
    if (ev->url_con != sb->url_up) return ECORE_CALLBACK_RENEW;
@@ -1187,7 +1189,6 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
    evas_object_smart_callback_add(entry, "anchor,hover,opened", _upload_entry_anchor, entry);
    elm_box_pack_end(box, entry);
    evas_object_show(entry);
-
    ic = elm_icon_add(popup);
    elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
@@ -1204,6 +1205,9 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
    elm_object_part_content_set(popup, "default", box);
    evas_object_show(popup);
 
+   EINA_LIST_FREE(sb->upload_handlers, handler)
+      ecore_event_handler_del(handler);
+
    if (!sb->url_ret  || ev->status != 200)
      {
         elm_object_text_set(label, _("There was an error uploading your image!"));
@@ -1211,7 +1215,9 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
         elm_object_text_set(entry, sb->upload_error);
         evas_object_show(popup);
         ecore_con_url_free(sb->url_up);
+        sb->url_up = NULL;
         free(sb->upload_error);
+        sb->upload_error = NULL;
         return EINA_FALSE;
      }
    else
@@ -1225,7 +1231,9 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
         elm_object_text_set(entry, buf);
         evas_object_show(popup);
         ecore_con_url_free(sb->url_up);
+        sb->url_up = NULL;
         free(sb->url_ret);
+        sb->url_ret = NULL;
         return ECORE_CALLBACK_RENEW;
      }
 }
@@ -1257,6 +1265,7 @@ _upload_image_cb(void *data, int ev_type EINA_UNUSED, void *event)
    if (ev->url_con != sb->url_up) return EINA_TRUE;
    eina_simple_xml_parse(ev->data, strlen(ev->data)+1, EINA_TRUE, _upload_image_xml_parse, sb);
    if (!sb->url_ret)  sb->upload_error = strdup(ev->data);
+   return EINA_FALSE;
 }
 
 static void
@@ -1334,11 +1343,11 @@ _upload_image_confirm(void *data, Evas_Object *obj EINA_UNUSED, void *event_info
 
    snprintf(buf, PATH_MAX, "image=%u", fdata);
 
-   sb->handlers = eina_list_append
-      (sb->handlers, ecore_event_handler_add
+   sb->upload_handlers = eina_list_append
+      (sb->upload_handlers, ecore_event_handler_add
        (ECORE_CON_EVENT_URL_DATA, _upload_image_cb, sb));
-   sb->handlers = eina_list_append
-      (sb->handlers, ecore_event_handler_add
+   sb->upload_handlers = eina_list_append
+      (sb->upload_handlers, ecore_event_handler_add
        (ECORE_CON_EVENT_URL_COMPLETE, _upload_image_complete_cb, popup));
   
    sb->url_up = ecore_con_url_new("https://api.imgur.com/3/image.xml");
@@ -1751,6 +1760,11 @@ _main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *e
 
    EINA_LIST_FREE(sb->handlers, handler)
       ecore_event_handler_del(handler);
+   if (sb->upload_handlers)
+     {
+        EINA_LIST_FREE(sb->upload_handlers, handler)
+           ecore_event_handler_del(handler);
+     }
    if (sb->entry)
      ephoto_entry_free_listener_del(sb->entry, _entry_free, sb);
    if (sb->pending_path)
@@ -1763,6 +1777,12 @@ _main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *e
         if (!strncmp(bname, "tmp", 3))
           ecore_file_unlink(info->path);
      }
+   if (sb->url_up)
+     ecore_con_url_free(sb->url_up);
+   if (sb->url_ret)
+     free(sb->url_ret);
+   if (sb->upload_error)
+     free(sb->upload_error);
    free(sb);
 }
 

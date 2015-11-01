@@ -1265,7 +1265,7 @@ _upload_image_confirm(void *data, Evas_Object *obj EINA_UNUSED, void *event_info
    Evas_Object *ppopup = data;
    Evas_Object *popup, *box, *label, *pb;
    Ephoto_Single_Browser *sb = evas_object_data_get(ppopup, "single_browser");
-   char buf[PATH_MAX];
+   char buf[PATH_MAX], tmp_path[PATH_MAX];
    FILE *f;
    unsigned char *fdata;
    int fsize;
@@ -1302,13 +1302,35 @@ _upload_image_confirm(void *data, Evas_Object *obj EINA_UNUSED, void *event_info
    elm_object_part_content_set(popup, "default", box);
    evas_object_show(popup);
 
-   f = fopen(sb->entry->path, "rb");
+   if (sb->edited_image_data)
+     {
+        const char *ext = strrchr(sb->entry->path, '.');
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+        Eina_Bool success;
+
+        ext++;
+        snprintf(tmp_path, PATH_MAX, "%s/.config/ephoto/tmp.%s", getenv("HOME"), ext);
+        success = evas_object_image_save(elm_image_object_get(v->image), tmp_path, NULL, NULL);
+        if (!success)
+          {
+             _failed_save(sb);
+             return;
+          }
+        f = fopen(tmp_path, "rb");
+     }
+   else
+     {
+        f = fopen(sb->entry->path, "rb");
+     }
    fseek(f, 0, SEEK_END);
    fsize = ftell(f);
    rewind(f);
    fdata = malloc(fsize);
    fread(fdata, fsize, 1, f);
    fclose(f);
+
+   if (sb->edited_image_data && tmp_path)
+     ecore_file_unlink(tmp_path);
 
    snprintf(buf, PATH_MAX, "image=%u", fdata);
 

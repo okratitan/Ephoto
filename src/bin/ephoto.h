@@ -49,6 +49,7 @@ void         ephoto_directory_set(Ephoto *ephoto, const char *path);
 Eina_Bool    ephoto_config_init(Ephoto *em);
 void         ephoto_config_save(Ephoto *em);
 void         ephoto_config_free(Ephoto *em);
+void         ephoto_config_general(Ephoto *em);
 void         ephoto_config_slideshow(Ephoto *em);
 void         ephoto_config_about(Ephoto *em);
 
@@ -116,12 +117,16 @@ struct _Ephoto_Config
    const char *directory;
    double slideshow_timeout;
    const char *slideshow_transition;
-   const char *editor;
    int window_width;
    int window_height;
+   int fsel_hide;
+   int tool_hide;
+   const char *open;
    Evas_Object *slide_time;
    Evas_Object *slide_trans;
-   int fsel_hide;
+   Evas_Object *hide_toolbar;
+   Evas_Object *open_dir;
+   Evas_Object *open_dir_custom;
 };
 
 struct _Ephoto

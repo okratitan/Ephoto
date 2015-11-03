@@ -1638,6 +1638,15 @@ _back(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 }
 
 static void
+_general_settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *popup = data;
+   Ephoto_Single_Browser *sb = evas_object_data_get(popup, "single_browser");
+
+   ephoto_config_general(sb->ephoto);
+}
+
+static void
 _slideshow_settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
@@ -1678,6 +1687,14 @@ _settings(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED
    evas_object_size_hint_weight_set(list, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(list, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_list_mode_set(list, ELM_LIST_EXPAND);
+
+   ic = elm_icon_add(list);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "preferences-system");
+   evas_object_show(ic);
+   elm_list_item_append(list, _("General Settings"), ic, NULL,
+                        _general_settings, popup);
 
    ic = elm_icon_add(list);
    elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
@@ -1768,7 +1785,33 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *e
    else if (!strcmp(k, "F11"))
      {
         Evas_Object *win = sb->ephoto->win;
+        
+        if (!elm_win_fullscreen_get(sb->ephoto->win))
+          {
+             if (sb->ephoto->config->tool_hide)
+               {
+                  evas_object_hide(sb->bar);
+                  elm_box_unpack(sb->main, sb->bar);
+                  evas_object_hide(sb->botbox);
+                  elm_table_unpack(sb->table, sb->botbox);
+                  evas_object_hide(sb->infolabel);
+                  elm_table_unpack(sb->table, sb->infolabel);
+               }
+          }
+        else
+          {
+             if (!evas_object_visible_get(sb->bar))
+               {
+                  elm_box_pack_start(sb->main, sb->bar);
+                  evas_object_show(sb->bar);
+                  elm_table_pack(sb->table, sb->botbox, 0, 2, 4, 1);
+                  evas_object_show(sb->botbox);
+                  elm_table_pack(sb->table, sb->infolabel, 0, 2, 4, 1);
+                  evas_object_show(sb->infolabel);
+               }
+          }
         elm_win_fullscreen_set(win, !elm_win_fullscreen_get(win));
+        elm_object_focus_set(sb->main, EINA_TRUE);
      }
 }
 
@@ -1988,6 +2031,31 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
      }
    if (sb->viewer)
      _zoom_fit(sb);
+   if (elm_win_fullscreen_get(sb->ephoto->win))
+     {
+        if (sb->ephoto->config->tool_hide)
+          {
+             evas_object_hide(sb->bar);
+             elm_box_unpack(sb->main, sb->bar);
+             evas_object_hide(sb->botbox);
+             elm_table_unpack(sb->table, sb->botbox);
+             evas_object_hide(sb->infolabel);
+             elm_table_unpack(sb->table, sb->infolabel);
+          }
+     }
+   else
+     {
+        if (!evas_object_visible_get(sb->bar))
+          {
+             elm_box_pack_start(sb->main, sb->bar);
+             evas_object_show(sb->bar);
+             elm_table_pack(sb->table, sb->botbox, 0, 2, 4, 1);
+             evas_object_show(sb->botbox);
+             elm_table_pack(sb->table, sb->infolabel, 0, 2, 4, 1);
+             evas_object_show(sb->infolabel);
+          }
+     }
+   elm_object_focus_set(sb->main, EINA_TRUE);
 }
 
 void

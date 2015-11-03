@@ -1,6 +1,6 @@
 #include "ephoto.h"
 
-#define CONFIG_VERSION 10
+#define CONFIG_VERSION 11
 
 static int _ephoto_config_load(Ephoto *ephoto);
 static Eina_Bool _ephoto_on_config_save(void *data);
@@ -35,10 +35,11 @@ ephoto_config_init(Ephoto *ephoto)
    C_VAL(D, T, directory, EET_T_STRING);
    C_VAL(D, T, slideshow_timeout, EET_T_DOUBLE);
    C_VAL(D, T, slideshow_transition, EET_T_STRING);
-   C_VAL(D, T, editor, EET_T_STRING);
    C_VAL(D, T, window_width, EET_T_INT);
    C_VAL(D, T, window_height, EET_T_INT);
    C_VAL(D, T, fsel_hide, EET_T_INT);
+   C_VAL(D, T, tool_hide, EET_T_INT);
+   C_VAL(D, T, open, EET_T_STRING);
    switch (_ephoto_config_load(ephoto))
      {
       case 0:
@@ -46,10 +47,10 @@ ephoto_config_init(Ephoto *ephoto)
          ephoto->config->config_version = CONFIG_VERSION;
          ephoto->config->slideshow_timeout = 4.0;
          ephoto->config->slideshow_transition = eina_stringshare_add("fade");
-         ephoto->config->editor = eina_stringshare_add("gimp %s");
          ephoto->config->window_width = 900;
          ephoto->config->window_height = 600;
          ephoto->config->fsel_hide = 0;
+         ephoto->config->tool_hide = 0;
          break;
       default:
          return EINA_TRUE;
@@ -78,6 +79,130 @@ _close(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
    Evas_Object *popup = data;
 
    evas_object_del(popup);
+}
+
+static void
+_save_general(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+{
+   Evas_Object *popup = data;
+   Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
+   const char *path;
+   const char *text = elm_object_text_get(ephoto->config->open_dir);
+
+   if (!strcmp(text, _("Root Directory")))
+     path = "/";
+   else if (!strcmp(text, _("Home Directory")))
+     path = getenv("HOME");
+   else if (!strcmp(text, _("Last Open Directory")))
+     path = "Last";
+   else
+     path = elm_object_text_get(ephoto->config->open_dir_custom);
+
+   if (ecore_file_is_dir(path) || !strcmp(path, "Last"))
+     eina_stringshare_replace(&ephoto->config->open, path);
+   ephoto->config->tool_hide = elm_check_state_get(ephoto->config->hide_toolbar);
+
+   evas_object_del(popup);
+}
+
+
+static void
+_open_hv_select(void *data, Evas_Object *obj, void *event_info)
+{
+   Ephoto *ephoto = data;
+
+   elm_object_text_set(obj, elm_object_item_text_get(event_info));
+
+   if (!strcmp(elm_object_item_text_get(event_info), _("Custom Directory"))) 
+     elm_object_disabled_set(ephoto->config->open_dir_custom, EINA_FALSE);
+   else
+     elm_object_disabled_set(ephoto->config->open_dir_custom, EINA_TRUE);
+}
+
+void
+ephoto_config_general(Ephoto *ephoto)
+{
+   Evas_Object *popup, *box, *table, *check, *label, *hoversel, *entry, *ic, *button;
+
+   popup = elm_popup_add(ephoto->win);
+   elm_popup_scrollable_set(popup, EINA_TRUE);
+   elm_object_part_text_set(popup, "title,text", _("General Settings"));
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
+
+   box = elm_box_add(popup);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, 0.0, 0.0);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(box);
+
+   table = elm_table_add(box);
+   evas_object_size_hint_weight_set(table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(table);
+
+   check = elm_check_add(table);
+   elm_object_text_set(check, _("Hide Toolbar On Fullscreen"));
+   evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
+   elm_check_state_set(check, ephoto->config->tool_hide);
+   elm_table_pack(table, check, 0, 1, 1, 1);
+   evas_object_show(check);  
+   ephoto->config->hide_toolbar = check;
+
+   hoversel = elm_hoversel_add(table);
+   elm_hoversel_hover_parent_set(hoversel, ephoto->win);
+   elm_hoversel_item_add(hoversel, _("Root Directory"), NULL, 0, _open_hv_select, ephoto);
+   elm_hoversel_item_add(hoversel, _("Home Directory"), NULL, 0, _open_hv_select, ephoto);
+   elm_hoversel_item_add(hoversel, _("Last Open Directory"), NULL, 0, _open_hv_select, ephoto);
+   elm_hoversel_item_add(hoversel, _("Custom Directory"), NULL, 0, _open_hv_select, ephoto);
+   elm_object_text_set(hoversel, _("Directory To Open Ephoto In"));
+   evas_object_data_set(hoversel, "ephoto", ephoto);
+   evas_object_size_hint_weight_set(hoversel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(hoversel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_table_pack(table, hoversel, 0, 2, 1, 1);
+   evas_object_show(hoversel);
+   ephoto->config->open_dir = hoversel;
+
+   entry = elm_entry_add(table);
+   elm_entry_single_line_set(entry, EINA_TRUE);
+   elm_entry_scrollable_set(entry, EINA_TRUE);
+   elm_object_text_set(entry, _("Custom Directory"));
+   elm_object_disabled_set(entry, EINA_TRUE);
+   elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF, ELM_SCROLLER_POLICY_OFF);
+   evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_table_pack(table, entry, 0, 3, 1, 1);
+   evas_object_show(entry);
+   ephoto->config->open_dir_custom = entry;
+
+   elm_box_pack_end(box, table);
+
+   ic = elm_icon_add(popup);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "document-save");
+
+   button = elm_button_add(popup);
+   elm_object_text_set(button, _("Save"));
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _save_general, popup);
+   elm_object_part_content_set(popup, "button1", button);
+   evas_object_show(button);
+
+   ic = elm_icon_add(popup);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "window-close");
+
+   button = elm_button_add(popup);
+   elm_object_text_set(button, _("Cancel"));
+   elm_object_part_content_set(button, "icon", ic);
+   evas_object_smart_callback_add(button, "clicked", _close, popup);
+   elm_object_part_content_set(popup, "button2", button);
+   evas_object_show(button);
+
+   evas_object_data_set(popup, "ephoto", ephoto);
+   elm_object_part_content_set(popup, "default", box);
+   evas_object_show(popup);
 }
 
 static void

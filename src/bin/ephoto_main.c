@@ -231,12 +231,15 @@ ephoto_window_add(const char *path)
 
    if ((!path) || (!ecore_file_exists(path)))
      {
-        if (!strcmp(ephoto->config->open, "Last"))
-          path = ephoto->config->directory;
-        else
-          path = ephoto->config->open;
-        if ((path) && (!ecore_file_exists(path))) path = NULL;
-        if (!path)
+        if (ephoto->config->open)
+          {
+             if (!strcmp(ephoto->config->open, "Last"))
+               path = ephoto->config->directory;
+             else
+               path = ephoto->config->open;
+             if ((path) && (!ecore_file_exists(path))) path = NULL;
+          }
+        else if (!ephoto->config->open || path)
           {
              if (getcwd(buf, sizeof(buf)))
                path = buf;

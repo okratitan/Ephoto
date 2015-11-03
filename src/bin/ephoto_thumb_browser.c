@@ -38,6 +38,7 @@ struct _Ephoto_Thumb_Browser
    Eina_List *todo_items;
    Eina_List *grid_items;
    Eina_List *handlers;
+   int contracted;
    int totimages;
    double totsize;
    struct {
@@ -90,10 +91,13 @@ _on_list_contracted(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
    Ephoto_Thumb_Browser *tb = data;
    Elm_Widget_Item *it = event_info;
    const char *path = elm_object_item_data_get(it);
+   char p[PATH_MAX];
 
+   snprintf(p, PATH_MAX, "%s", tb->ephoto->config->directory);
    elm_genlist_item_subitems_clear(it);
-   ephoto_directory_set(tb->ephoto, path);
-   ephoto_title_set(tb->ephoto, path);
+   tb->contracted = 1;
+   ephoto_directory_set(tb->ephoto, dirname(p));
+   ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 }
 
 static void
@@ -226,20 +230,22 @@ _todo_items_process(void *data)
 
    EINA_LIST_FREE(tb->todo_items, entry)
      {
-        if (entry->is_dir)
+        if (!tb->contracted && entry->is_dir)
           {
              if (tb->fsel_parent)
                _entry_dir_item_add(tb, entry, tb->fsel_parent);
              else
                _entry_dir_item_add(tb, entry, NULL);
           }
-        else
+        else if (!entry->is_dir)
           _entry_thumb_item_add(tb, entry);
      }
 
    if (!tb->animator.todo_items)
-     tb->fsel_parent = NULL;
-
+     {
+        tb->fsel_parent = NULL;
+        tb->contracted = 0;
+     }
    return EINA_FALSE;
 }
 
@@ -882,6 +888,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    _ephoto_dir_class.func.del = _ephoto_dir_item_del;
 
    tb->ephoto = ephoto;
+   tb->contracted = 0;
    tb->main = box;
    elm_box_horizontal_set(tb->main, EINA_TRUE);
    evas_object_size_hint_weight_set(tb->main, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);

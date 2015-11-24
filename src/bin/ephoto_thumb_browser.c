@@ -162,13 +162,16 @@ _ephoto_dir_item_icon_get(void *data EINA_UNUSED, Evas_Object *obj,
 
 static Evas_Object *
 _ephoto_thumb_file_icon_get(void *data, Evas_Object *obj,
-    const char *part EINA_UNUSED)
+    const char *part)
 {
    Ephoto_Entry *e = data;
    Evas_Object *thumb = NULL;
 
+   if (strcmp(part, "elm.swallow.icon"))
+     return NULL;
+
    if (e)
-      thumb = ephoto_thumb_add(e->ephoto, obj, e->path);
+     thumb = ephoto_thumb_add(e->ephoto, obj, e->path);
    return thumb;
 }
 
@@ -3340,15 +3343,11 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(tb->grid, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->grid, EVAS_HINT_FILL, EVAS_HINT_FILL);
-
    elm_gengrid_align_set(tb->grid, 0.5, 0.0);
    elm_gengrid_multi_select_set(tb->grid, EINA_TRUE);
    elm_gengrid_multi_select_mode_set(tb->grid,
-       ELM_OBJECT_MULTI_SELECT_MODE_DEFAULT);
+       ELM_OBJECT_MULTI_SELECT_MODE_WITH_CONTROL);
    elm_scroller_bounce_set(tb->grid, EINA_FALSE, EINA_TRUE);
-   evas_object_size_hint_align_set(tb->grid, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_weight_set(tb->grid, EVAS_HINT_EXPAND,
-       EVAS_HINT_EXPAND);
    evas_object_smart_callback_add(tb->grid, "activated",
        _ephoto_thumb_activated, tb);
    evas_object_event_callback_add(tb->grid, EVAS_CALLBACK_MOUSE_UP,

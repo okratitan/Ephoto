@@ -29,5 +29,5 @@ ephoto_SOURCES = \
         ephoto_filters.c \
         ephoto_color.c
 
-noinst_HEADERS = ephoto.h gettext.h
-EXTRA_DIST = ephoto.h gettext.h
+noinst_HEADERS = ephoto.h
+EXTRA_DIST = ephoto.h

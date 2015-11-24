@@ -6,6 +6,9 @@ ephoto_CPPFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src/bin \
 	-DPACKAGE_DATA_DIR=\"$(datadir)/$(PACKAGE)\" \
+        -Wall \
+        -Wextra \
+        -Wshadow \
 	@EFL_CFLAGS@
 ephoto_LDADD =	@EFL_LIBS@
 if HAVE_PO

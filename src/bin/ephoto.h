@@ -1,34 +1,38 @@
 #ifndef _EPHOTO_H_
-#define _EPHOTO_H_
+# define _EPHOTO_H_
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+# ifdef HAVE_CONFIG_H
+#  include "config.h"
+# endif
 
-#include <Eet.h>
-#include <Ecore.h>
-#include <Ecore_Evas.h>
-#include <Ecore_File.h>
-#include <Efreet_Mime.h>
-#include <Elementary.h>
-#include <Eina.h>
-#include <Edje.h>
-#include <Evas.h>
-#include <Eio.h>
-#include <Ethumb_Client.h>
-#include <limits.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <dirent.h>
+# include <Eet.h>
+# include <Ecore.h>
+# include <Ecore_Evas.h>
+# include <Ecore_File.h>
+# include <Efreet_Mime.h>
+# include <Elementary.h>
+# include <Elementary_Cursor.h>
+# include <Eina.h>
+# include <Edje.h>
+# include <Evas.h>
+# include <Eio.h>
+# include <Ethumb_Client.h>
+# include <limits.h>
+# include <math.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <dirent.h>
 
-#ifdef HAVE_PO
-#include <locale.h>
-#endif
+# ifdef HAVE_PO
+#  include <locale.h>
+# endif
 
-#ifdef HAVE_GETTEXT
-#include "gettext.h"
+#if HAVE_GETTEXT && ENABLE_NLS
+#define _(string) gettext (string)
+#else
+#define _(string) (string)
+#define ngettext(String1, String2, Var) Var == 1 ? String1 : String2
 #endif
 
 typedef struct _Ephoto_Config Ephoto_Config;
@@ -38,77 +42,88 @@ typedef struct _Ephoto_Event_Entry_Create Ephoto_Event_Entry_Create;
 
 typedef enum _Ephoto_State Ephoto_State;
 typedef enum _Ephoto_Orient Ephoto_Orient;
+typedef enum _Ephoto_Sort Ephoto_Sort;
 
 Evas_Object *ephoto_window_add(const char *path);
-void         ephoto_title_set(Ephoto *ephoto, const char *title);
-void         ephoto_thumb_size_set(Ephoto *ephoto, int size);
-Evas_Object *ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, const char *path);
-void         ephoto_thumb_path_set(Evas_Object *obj, const char *path);
-void         ephoto_directory_set(Ephoto *ephoto, const char *path);
+void ephoto_title_set(Ephoto *ephoto, const char *title);
+void ephoto_thumb_size_set(Ephoto *ephoto, int size);
+Evas_Object *ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent,
+    const char *path);
+void ephoto_thumb_path_set(Evas_Object *obj, const char *path);
+void ephoto_directory_set(Ephoto *ephoto, const char *path,
+    Elm_Widget_Item *expanded, Eina_Bool dirs_only);
 
-Eina_Bool    ephoto_config_init(Ephoto *em);
-void         ephoto_config_save(Ephoto *em);
-void         ephoto_config_free(Ephoto *em);
-void         ephoto_config_general(Ephoto *em);
-void         ephoto_config_slideshow(Ephoto *em);
-void         ephoto_config_about(Ephoto *em);
+Eina_Bool ephoto_config_init(Ephoto *em);
+void ephoto_config_save(Ephoto *em);
+void ephoto_config_free(Ephoto *em);
+void ephoto_config_general(Ephoto *em);
+void ephoto_config_slideshow(Ephoto *em);
+void ephoto_config_about(Ephoto *em);
 
 Evas_Object *ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent);
-void         ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
-void         ephoto_single_browser_path_pending_set(Evas_Object *obj, const char *path);
-void         ephoto_single_browser_image_data_update(Evas_Object *main, Evas_Object *image, Eina_Bool finished, unsigned int *image_data, int w, int h);
-void         ephoto_single_browser_cancel_editing(Evas_Object *main, Evas_Object *image);
- /* smart callbacks called:
-  * "back" - the user wants to go back to the previous screen.
-  */
+void ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
+void ephoto_single_browser_path_pending_set(Evas_Object *obj,
+    const char *path);
+void ephoto_single_browser_image_data_update(Evas_Object *main,
+    Evas_Object *image, Eina_Bool finished, unsigned int *image_data, int w,
+    int h);
+void ephoto_single_browser_cancel_editing(Evas_Object *main,
+    Evas_Object *image);
+/* smart callbacks called: "back" - the user wants to go back to the previous
+ * screen. */
 Evas_Object *ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent);
-void         ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
- /* smart callbacks called:
-  * "back" - the user wants to go back to the previous screen.
-  */
+void ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
+
+/* smart callbacks called: "back" - the user wants to go back to the previous
+ * screen. */
 
 Evas_Object *ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent);
+void ephoto_thumb_browser_fsel_clear(Ephoto *ephoto);
 
-/* smart callbacks called:
- * "selected" - an item in the thumb browser is selected. The selected Ephoto_Entry is passed as event_info argument.
- */
+/* smart callbacks called: "selected" - an item in the thumb browser is
+ * selected. The selected Ephoto_Entry is passed as event_info argument. */
 
-void         ephoto_cropper_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image_parent, Evas_Object *image);
-void         ephoto_bcg_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);
-void         ephoto_hsv_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);
-void         ephoto_color_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image);
-void         ephoto_filter_blur(Evas_Object *main, Evas_Object *image);
-void         ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image);
-void         ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image);
-void         ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image);
-void         ephoto_filter_histogram_eq(Evas_Object *main, Evas_Object *image);
+void ephoto_cropper_add(Evas_Object *main, Evas_Object *parent,
+    Evas_Object *image_parent, Evas_Object *image);
+void ephoto_bcg_add(Evas_Object *main, Evas_Object *parent,
+    Evas_Object *image);
+void ephoto_hsv_add(Evas_Object *main, Evas_Object *parent,
+    Evas_Object *image);
+void ephoto_color_add(Evas_Object *main, Evas_Object *parent,
+    Evas_Object *image);
+void ephoto_filter_blur(Evas_Object *main, Evas_Object *image);
+void ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image);
+void ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image);
+void ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image);
+void ephoto_filter_histogram_eq(Evas_Object *main, Evas_Object *image);
 
 enum _Ephoto_State
 {
-  EPHOTO_STATE_THUMB,
-  EPHOTO_STATE_SINGLE,
-  EPHOTO_STATE_SLIDESHOW
+   EPHOTO_STATE_THUMB,
+   EPHOTO_STATE_SINGLE,
+   EPHOTO_STATE_SLIDESHOW
 };
 
-enum _Ephoto_Orient /* matches with exif orientation tag */
+enum _Ephoto_Orient
 {
-  EPHOTO_ORIENT_0 = 1,
-  EPHOTO_ORIENT_FLIP_HORIZ = 2,
-  EPHOTO_ORIENT_180 = 3,
-  EPHOTO_ORIENT_FLIP_VERT = 4,
-  EPHOTO_ORIENT_FLIP_VERT_90 = 5,
-  EPHOTO_ORIENT_90 = 6,
-  EPHOTO_ORIENT_FLIP_HORIZ_90 = 7,
-  EPHOTO_ORIENT_270 = 8
+   EPHOTO_ORIENT_0 = 1,
+   EPHOTO_ORIENT_FLIP_HORIZ = 2,
+   EPHOTO_ORIENT_180 = 3,
+   EPHOTO_ORIENT_FLIP_VERT = 4,
+   EPHOTO_ORIENT_FLIP_VERT_90 = 5,
+   EPHOTO_ORIENT_90 = 6,
+   EPHOTO_ORIENT_FLIP_HORIZ_90 = 7,
+   EPHOTO_ORIENT_270 = 8
 };
 
-/* TODO: split into window & global config, allow multi window
- *
- * This also requires single instance, as 2 instances changing the
- * same configuration will lead to problems.
- *
- * Single instance is better done as DBus, using FDO standard methods.
- */
+enum _Ephoto_Sort
+{
+   EPHOTO_SORT_ALPHABETICAL_ASCENDING,
+   EPHOTO_SORT_ALPHABETICAL_DESCENDING,
+   EPHOTO_SORT_MODTIME_ASCENDING,
+   EPHOTO_SORT_MODTIME_DESCENDING
+};
+
 struct _Ephoto_Config
 {
    int config_version;
@@ -122,11 +137,15 @@ struct _Ephoto_Config
    int fsel_hide;
    int tool_hide;
    const char *open;
+   int prompts;
+   int drop;
    Evas_Object *slide_time;
    Evas_Object *slide_trans;
    Evas_Object *hide_toolbar;
    Evas_Object *open_dir;
    Evas_Object *open_dir_custom;
+   Evas_Object *show_prompts;
+   Evas_Object *move_drop;
 };
 
 struct _Ephoto
@@ -144,14 +163,16 @@ struct _Ephoto
 
    Eina_List *entries;
    Eina_List *direntries;
-   Eina_List *thumbs; /* live thumbs that need to be regenerated on changes */
+   Eina_List *thumbs;
 
-   int thumb_gen_size; /* pending value for thumb_regen */
-   Evas_Coord  bottom_bar_size;
-   struct {
+   int thumb_gen_size;
+   Evas_Coord bottom_bar_size;
+   struct
+   {
       Ecore_Timer *thumb_regen;
    } timer;
-   struct {
+   struct
+   {
       Ecore_Job *change_dir;
    } job;
 
@@ -166,10 +187,11 @@ struct _Ephoto
 struct _Ephoto_Entry
 {
    const char *path;
-   const char *basename; /* pointer inside path */
+   const char *basename;
    const char *label;
    Ephoto *ephoto;
    Elm_Object_Item *item;
+   Elm_Object_Item *parent;
    Eina_List *free_listeners;
    Eina_Bool is_dir;
 };
@@ -179,17 +201,15 @@ struct _Ephoto_Event_Entry_Create
    Ephoto_Entry *entry;
 };
 
-Ephoto_Entry *ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label, Eina_File_Type type);
-void          ephoto_entry_free(Ephoto_Entry *entry);
-void          ephoto_entry_free_listener_add(Ephoto_Entry *entry, void (*cb)(void *data, const Ephoto_Entry *entry), const void *data);
-void          ephoto_entry_free_listener_del(Ephoto_Entry *entry, void (*cb)(void *data, const Ephoto_Entry *entry), const void *data);
-void          ephoto_entries_free(Ephoto *ephoto);
-int	      ephoto_entries_cmp(const void *pa, const void *pb);
-
-extern int __log_domain;
-#define DBG(...) EINA_LOG_DOM_DBG(__log_domain, __VA_ARGS__)
-#define INF(...) EINA_LOG_DOM_INFO(__log_domain, __VA_ARGS__)
-#define ERR(...) EINA_LOG_DOM_ERR(__log_domain, __VA_ARGS__)
+Ephoto_Entry *ephoto_entry_new(Ephoto *ephoto, const char *path,
+    const char *label, Eina_File_Type type);
+void ephoto_entry_free(Ephoto_Entry *entry);
+void ephoto_entry_free_listener_add(Ephoto_Entry *entry,
+    void (*cb) (void *data, const Ephoto_Entry *entry), const void *data);
+void ephoto_entry_free_listener_del(Ephoto_Entry *entry,
+    void (*cb) (void *data, const Ephoto_Entry *entry), const void *data);
+void ephoto_entries_free(Ephoto *ephoto);
+int ephoto_entries_cmp(const void *pa, const void *pb);
 
 static inline Eina_Bool
 _ephoto_eina_file_direct_info_image_useful(const Eina_File_Direct_Info *info)
@@ -197,29 +217,28 @@ _ephoto_eina_file_direct_info_image_useful(const Eina_File_Direct_Info *info)
    const char *type, *bname;
    int i = 0;
 
-   const char *filters[] =
-   {
-     "png", "jpeg", "jpg", "eet", "xpm", "tiff", "gif", "svg", "webp", "pmaps",
-     "bmp", "tga", "wbmp", "ico", "psd", "jp2k", "generic"
+   const char *filters[] = {
+      "png", "jpeg", "jpg", "eet", "xpm", "tiff", "gif", "svg", "webp", "pmaps",
+      "bmp", "tga", "wbmp", "ico", "psd", "jp2k", "generic"
    };
 
    bname = info->path + info->name_start;
-   if (bname[0] == '.') return EINA_FALSE;
+   if (bname[0] == '.')
+      return EINA_FALSE;
    if ((info->type != EINA_FILE_REG) && (info->type != EINA_FILE_UNKNOWN))
-     return EINA_FALSE;
+      return EINA_FALSE;
 
    type = strrchr(bname, '.');
-   if(!type) return EINA_FALSE;
-   int count = sizeof(filters)/sizeof(filters[0]);
-   for (i=0; i < count; i++)
+   if (!type)
+      return EINA_FALSE;
+   int count = sizeof(filters) / sizeof(filters[0]);
+
+   for (i = 0; i < count; i++)
      {
-        if (!strcasecmp(type+1, filters[i]))
-          return evas_object_image_extension_can_load_get(bname);
+	if (!strcasecmp(type + 1, filters[i]))
+	   return evas_object_image_extension_can_load_get(bname);
      }
    return EINA_FALSE;
-   /* seems that this does not play nice with threads */
-   //if (!(type = efreet_mime_type_get(info->path))) return EINA_FALSE;
-   //return strncmp(type, "image/", sizeof("image/") - 1) == 0;
 }
 
 extern int EPHOTO_EVENT_ENTRY_CREATE;

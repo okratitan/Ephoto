@@ -26,15 +26,13 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *nolabel;
    Evas_Object *infolabel;
    Evas_Object *bar;
-   Evas_Object *vbar;
    Evas_Object *fsel;
    Evas_Object *min;
    Evas_Object *max;
    Evas_Object *leftbox;
-   Evas_Object *bleftbox;
    Evas_Object *direntry;
    Evas_Object *dir_loading;
-   Evas_Object *hoversel;
+   Evas_Object *ficon;
    Elm_Object_Item *dir_current;
    Ephoto_Sort sort;
    Eio_File *ls;
@@ -44,6 +42,7 @@ struct _Ephoto_Thumb_Browser
    Eina_List *idler_pos;
    Eina_List *todo_items;
    Ecore_Idler *idler;
+   Ecore_Job *change_dir_job;
    int thumbs_only;
    int dirs_only;
    int totimages;
@@ -62,6 +61,11 @@ struct _Ephoto_Thumb_Browser
 static Elm_Gengrid_Item_Class _ephoto_thumb_file_class;
 static Elm_Genlist_Item_Class _ephoto_dir_class;
 
+static void _ephoto_dir_hide_folders(void *data, Evas_Object *obj,
+    void *event_info);
+static void _ephoto_dir_show_folders(void *data, Evas_Object *obj,
+    void *event_info);
+
 static void
 _todo_items_free(Ephoto_Thumb_Browser *tb)
 {
@@ -70,11 +74,14 @@ _todo_items_free(Ephoto_Thumb_Browser *tb)
 }
 
 static void
-_on_list_expand_req(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
+_on_list_expand_req(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info)
 {
-   Elm_Widget_Item *it = event_info;
+   Ephoto_Thumb_Browser *tb = data;
+   Elm_Object_Item *it = event_info;
 
+   ecore_job_del(tb->change_dir_job);
+   tb->change_dir_job = NULL;
    elm_genlist_item_expanded_set(it, EINA_TRUE);
 }
 
@@ -82,8 +89,11 @@ static void
 _on_list_contract_req(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info)
 {
-   Elm_Widget_Item *it = event_info;
+   Ephoto_Thumb_Browser *tb = data;
+   Elm_Object_Item *it = event_info;
 
+   ecore_job_del(tb->change_dir_job);
+   tb->change_dir_job = NULL;
    elm_genlist_item_expanded_set(it, EINA_FALSE);
 }
 
@@ -91,44 +101,90 @@ static void
 _on_list_expanded(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
-   Elm_Widget_Item *it = event_info;
+   Elm_Object_Item *it = event_info;
    const char *path = elm_object_item_data_get(it);
-
+   
+   tb->dirs_only = 0;
    if (strlen(path) == strlen(tb->ephoto->config->directory))
      {
 	if (!strcmp(path, tb->ephoto->config->directory))
-	   tb->dirs_only = 1;
+	  tb->dirs_only = 1;
+        else
+          tb->dirs_only = 0;
      }
-   ephoto_directory_set(tb->ephoto, path, it, tb->dirs_only);
-   ephoto_title_set(tb->ephoto, path);
+   tb->thumbs_only = 0;
+   ephoto_directory_set(tb->ephoto, path, it, tb->dirs_only, tb->thumbs_only);
+   ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 }
 
 static void
 _on_list_contracted(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
-   Elm_Widget_Item *it = event_info;
+   Elm_Object_Item *it = event_info;
    const char *path = elm_object_item_data_get(it);
 
-   elm_genlist_item_subitems_clear(it);
+   elm_genlist_item_subitems_clear(it); 
+   tb->dirs_only = 0;
+   tb->thumbs_only = 1;
    if (strlen(path) == strlen(tb->ephoto->config->directory))
      {
 	if (!strcmp(path, tb->ephoto->config->directory))
-	   tb->dirs_only = 1;
+          {
+             return;
+          }
+        else
+          {
+             tb->thumbs_only = 1;
+             tb->dirs_only = 0;
+             ephoto_directory_set(tb->ephoto, path, NULL,
+                 tb->dirs_only, tb->thumbs_only);
+             ephoto_title_set(tb->ephoto,
+                 tb->ephoto->config->directory);
+          }
      }
+}
+
+static void
+_dir_job(void *data)
+{
+   Elm_Object_Item *it = data;
+   Ephoto_Thumb_Browser *tb = evas_object_data_get(it, "thumb_browser");
+   const char *path = elm_object_item_data_get(it);
+
+   tb->change_dir_job = NULL;
    tb->thumbs_only = 1;
-   ephoto_directory_set(tb->ephoto, path, NULL, tb->dirs_only);
+   tb->dirs_only = 0;
+   ephoto_directory_set(tb->ephoto, path, NULL,
+       tb->dirs_only, tb->thumbs_only);
    ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 }
 
 static void
-_on_list_selected(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
+_wait_job(void *data)
+{
+   Elm_Object_Item *it = data;
+   Ephoto_Thumb_Browser *tb = evas_object_data_get(it, "thumb_browser");
+
+   if (tb->change_dir_job)
+     ecore_job_del(tb->change_dir_job);
+   tb->change_dir_job = ecore_job_add(_dir_job, it);
+}
+
+static void
+_on_list_selected(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
-   Elm_Widget_Item *it = event_info;
+   Elm_Object_Item *it = event_info;
 
+   evas_object_data_set(it, "thumb_browser", tb);
    if (!tb->dragging)
-     tb->dir_current = it;
+     {
+        tb->dir_current = it;
+
+        ecore_job_add(_wait_job, it);        
+     }
 }
 
 static char *
@@ -190,8 +246,8 @@ _ephoto_thumb_item_del(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED)
 static int
 _entry_cmp(const void *pa, const void *pb)
 {
-   const Elm_Widget_Item *ia = pa;
-   const Elm_Widget_Item *ib = pb;
+   const Elm_Object_Item *ia = pa;
+   const Elm_Object_Item *ib = pb;
    const char *a, *b;
 
    a = elm_object_item_data_get(ia);
@@ -277,7 +333,6 @@ _entry_cmp_grid_mod_desc(const void *pa, const void *pb)
      }
 }
 
-
 static void
 _sort_alpha_asc(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_data EINA_UNUSED)
@@ -286,9 +341,9 @@ _sort_alpha_asc(void *data, Evas_Object *obj EINA_UNUSED,
 
    tb->sort = EPHOTO_SORT_ALPHABETICAL_ASCENDING;
    tb->thumbs_only = 1;
+   tb->dirs_only = 0;
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
-       NULL, EINA_FALSE);
-   elm_object_text_set(tb->hoversel, _("Alphabetical Ascending"));
+       NULL, tb->dirs_only, tb->thumbs_only);
 }
 
 static void
@@ -299,9 +354,9 @@ _sort_alpha_desc(void *data, Evas_Object *obj EINA_UNUSED,
 
    tb->sort = EPHOTO_SORT_ALPHABETICAL_DESCENDING;
    tb->thumbs_only = 1;
+   tb->dirs_only = 0;
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
-       NULL, EINA_FALSE);
-   elm_object_text_set(tb->hoversel, _("Alphabetical Descending"));
+       NULL, tb->dirs_only, tb->thumbs_only);
 }
 
 static void
@@ -312,9 +367,9 @@ _sort_mod_asc(void *data, Evas_Object *obj EINA_UNUSED,
 
    tb->sort = EPHOTO_SORT_MODTIME_ASCENDING;
    tb->thumbs_only = 1;
+   tb->dirs_only = 0;
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
-       NULL, EINA_FALSE);
-   elm_object_text_set(tb->hoversel, _("Modification Time Ascending"));
+       NULL, tb->dirs_only, tb->thumbs_only);
 }
 
 static void
@@ -325,9 +380,29 @@ _sort_mod_desc(void *data, Evas_Object *obj EINA_UNUSED,
 
    tb->sort = EPHOTO_SORT_MODTIME_DESCENDING;
    tb->thumbs_only = 1;
+   tb->dirs_only = 0;
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
-       NULL, EINA_FALSE);
-   elm_object_text_set(tb->hoversel, _("Modification Time Descending"));
+       NULL, tb->dirs_only, tb->thumbs_only);
+}
+
+static Eina_Bool
+_check_for_subdirs(Ephoto_Entry *entry)
+{
+   Eina_Iterator *ls = eina_file_direct_ls(entry->path);
+   Eina_File_Direct_Info *info;
+
+   if (!ls)
+     return EINA_FALSE;
+   EINA_ITERATOR_FOREACH(ls, info)
+     {
+        if (info->type == EINA_FILE_DIR)
+          {
+             eina_iterator_free(ls);
+             return EINA_TRUE;
+          }
+     }
+   eina_iterator_free(ls);
+   return EINA_FALSE;
 }
 
 static Eina_Bool
@@ -367,9 +442,14 @@ _todo_items_process(void *data)
 
 	   ic = &_ephoto_dir_class;
 	   path = eina_stringshare_add(entry->path);
-           entry->item =
-               elm_genlist_item_sorted_insert(tb->fsel, ic, path,
-               entry->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp, NULL, NULL);
+           if (_check_for_subdirs(entry))
+             entry->item =
+                 elm_genlist_item_sorted_insert(tb->fsel, ic, path,
+                 entry->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp, NULL, NULL);
+           else
+             entry->item =
+                 elm_genlist_item_sorted_insert(tb->fsel, ic, path,
+                 entry->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp, NULL, NULL);
 	   if (!entry->item)
 	     {
 		ephoto_entry_free(entry);
@@ -413,15 +493,6 @@ _todo_items_process(void *data)
 }
 
 static void
-_ephoto_dir_double_clicked(void *data EINA_UNUSED,
-    Evas_Object *obj EINA_UNUSED, void *event_info)
-{
-   Elm_Widget_Item *it = event_info;
-
-   elm_genlist_item_expanded_set(it, !elm_genlist_item_expanded_get(it));
-}
-
-static void
 _ephoto_dir_go_home(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
@@ -429,8 +500,10 @@ _ephoto_dir_go_home(void *data, Evas_Object *obj EINA_UNUSED,
 
    elm_genlist_clear(tb->fsel);
    tb->thumbs_only = 0;
+   tb->dirs_only = 0;
 
-   ephoto_directory_set(tb->ephoto, getenv("HOME"), NULL, tb->dirs_only);
+   ephoto_directory_set(tb->ephoto, getenv("HOME"), NULL,
+       tb->dirs_only, tb->thumbs_only);
    ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 }
 
@@ -447,8 +520,10 @@ _ephoto_dir_go_up(void *data, Evas_Object *obj EINA_UNUSED,
 	snprintf(path, PATH_MAX, "%s", tb->ephoto->config->directory);
 	elm_genlist_clear(tb->fsel);
 	tb->thumbs_only = 0;
+        tb->dirs_only = 0;
 
-	ephoto_directory_set(tb->ephoto, dirname(path), NULL, tb->dirs_only);
+	ephoto_directory_set(tb->ephoto, dirname(path), NULL,
+            tb->dirs_only, tb->thumbs_only);
 	ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
      }
 }
@@ -465,8 +540,10 @@ _ephoto_dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
       ecore_file_mkpath(path);
    elm_genlist_clear(tb->fsel);
    tb->thumbs_only = 0;
+   tb->dirs_only = 0;
 
-   ephoto_directory_set(tb->ephoto, path, NULL, tb->dirs_only);
+   ephoto_directory_set(tb->ephoto, path, NULL,
+       tb->dirs_only, tb->thumbs_only);
    ephoto_title_set(tb->ephoto, _("Trash"));
 }
 
@@ -481,7 +558,11 @@ _ephoto_direntry_go(void *data, Evas_Object *obj EINA_UNUSED,
    if (ecore_file_is_dir(dir))
      {
 	elm_genlist_clear(tb->fsel);
-	ephoto_directory_set(tb->ephoto, dir, NULL, tb->dirs_only);
+        tb->thumbs_only = 0;
+        tb->dirs_only = 0;
+
+	ephoto_directory_set(tb->ephoto, dir, NULL,
+            tb->dirs_only, tb->thumbs_only);
 	ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
      }
 }
@@ -491,7 +572,7 @@ _ephoto_thumb_activated(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
-   Elm_Widget_Item *it = event_info;
+   Elm_Object_Item *it = event_info;
    Ephoto_Entry *e = elm_object_item_data_get(it);
 
    evas_object_smart_callback_call(tb->main, "view", e);
@@ -544,7 +625,7 @@ _slideshow(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
-   Elm_Widget_Item *it = elm_gengrid_selected_item_get(tb->grid);
+   Elm_Object_Item *it = elm_gengrid_selected_item_get(tb->grid);
    Ephoto_Entry *entry;
 
    if (it)
@@ -668,13 +749,19 @@ _ephoto_dir_show_folders(void *data, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto_Thumb_Browser *tb = data;
 
-   elm_box_unpack(tb->main, tb->bleftbox);
-   evas_object_del(tb->bleftbox);
-   tb->bleftbox = NULL;
-   tb->vbar = NULL;
-
    evas_object_show(tb->leftbox);
-   elm_box_pack_start(tb->main, tb->leftbox);
+   elm_table_pack(tb->table, tb->leftbox, 0, 0, 1, 1);
+   if (tb->nolabel)
+     {
+        elm_table_unpack(tb->table, tb->nolabel);
+        elm_table_pack(tb->table, tb->nolabel, 1, 0, 4, 1);
+     } 
+   elm_table_unpack(tb->table, tb->grid);
+   elm_table_pack(tb->table, tb->grid, 1, 0, 4, 1);
+
+   elm_object_item_del(tb->ficon);
+   tb->ficon = elm_toolbar_item_prepend(tb->bar, "system-file-manager", _("Folders"),
+       _ephoto_dir_hide_folders, tb);
 
    tb->ephoto->config->fsel_hide = 0;
 }
@@ -684,59 +771,20 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
-   Elm_Widget_Item *icon;
-   Evas_Object *max, *min, *but, *ic;
 
    evas_object_hide(tb->leftbox);
-   elm_box_unpack(tb->main, tb->leftbox);
+   elm_table_unpack(tb->table, tb->leftbox);
+   if (tb->nolabel)
+     {
+        elm_table_unpack(tb->table, tb->nolabel);
+        elm_table_pack(tb->table, tb->nolabel, 0, 0, 5, 1);
+     }
+   elm_table_unpack(tb->table, tb->grid);
+   elm_table_pack(tb->table, tb->grid, 0, 0, 5, 1);
 
-   tb->bleftbox = elm_box_add(tb->main);
-   evas_object_size_hint_weight_set(tb->bleftbox, 0.0, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(tb->bleftbox, EVAS_HINT_FILL,
-       EVAS_HINT_FILL);
-   elm_box_pack_start(tb->main, tb->bleftbox);
-   evas_object_show(tb->bleftbox);
-
-   tb->vbar = elm_toolbar_add(tb->main);
-   elm_toolbar_horizontal_set(tb->vbar, EINA_FALSE);
-   elm_toolbar_homogeneous_set(tb->vbar, EINA_TRUE);
-   elm_toolbar_shrink_mode_set(tb->vbar, ELM_TOOLBAR_SHRINK_NONE);
-   elm_toolbar_select_mode_set(tb->vbar, ELM_OBJECT_SELECT_MODE_NONE);
-   elm_toolbar_icon_order_lookup_set(tb->vbar, ELM_ICON_LOOKUP_FDO_THEME);
-   elm_toolbar_align_set(tb->vbar, 0.0);
-   elm_object_tree_focus_allow_set(tb->vbar, EINA_FALSE);
-   evas_object_size_hint_weight_set(tb->vbar, 0.0, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(tb->vbar, EVAS_HINT_FILL, EVAS_HINT_FILL);
-
-   icon =
-       elm_toolbar_item_append(tb->vbar, "zoom-in", _("Zoom In"), _zoom_in, tb);
-   max = elm_object_item_widget_get(icon);
-   icon =
-       elm_toolbar_item_append(tb->vbar, "zoom-out", _("Zoom Out"), _zoom_out,
-       tb);
-   min = elm_object_item_widget_get(icon);
-   evas_object_data_set(max, "min", min);
-   evas_object_data_set(min, "max", max);
-   elm_toolbar_item_append(tb->vbar, "media-playback-start", _("Slideshow"),
-       _slideshow, tb);
-   elm_toolbar_item_append(tb->vbar, "preferences-system", _("Settings"),
-       _settings, tb);
-
-   elm_box_pack_end(tb->bleftbox, tb->vbar);
-   evas_object_show(tb->vbar);
-
-   ic = elm_icon_add(tb->bleftbox);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   elm_icon_standard_set(ic, "go-next");
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   but = elm_button_add(tb->bleftbox);
-   elm_object_part_content_set(but, "icon", ic);
-   elm_object_tooltip_text_set(but, _("Show the file selector"));
-   evas_object_size_hint_weight_set(but, 0.0, 0.0);
-   evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_smart_callback_add(but, "clicked", _ephoto_dir_show_folders, tb);
-   elm_box_pack_end(tb->bleftbox, but);
-   evas_object_show(but);
+   elm_object_item_del(tb->ficon);
+   tb->ficon = elm_toolbar_item_prepend(tb->bar, "system-file-manager", _("Folders"),
+       _ephoto_dir_show_folders, tb);
 
    tb->ephoto->config->fsel_hide = 1;
 }
@@ -861,8 +909,9 @@ _move_idler_cb(void *data)
 	  }
 	tb->file_errors = 0;
 	tb->thumbs_only = 1;
-	ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory, NULL,
-            tb->dirs_only);
+	
+        ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory, NULL,
+            tb->dirs_only, tb->thumbs_only);
 	ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 
 	evas_object_del(popup);
@@ -957,8 +1006,9 @@ _copy_idler_cb(void *data)
 	  }
 	tb->file_errors = 0;
 	tb->thumbs_only = 1;
-	ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory, NULL,
-            tb->dirs_only);
+	
+        ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory, NULL,
+            tb->dirs_only, tb->thumbs_only);
 	ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 
 	evas_object_del(popup);
@@ -1046,17 +1096,18 @@ _new_dir_confirm(void *data, Evas_Object *obj EINA_UNUSED,
    else
      {
         tb->dirs_only = 1;
+        tb->thumbs_only = 0;
         if (item)
           {
              elm_genlist_item_subitems_clear(item);
              ephoto_directory_set(tb->ephoto, file, item,
-                 tb->dirs_only);
+                 tb->dirs_only, tb->thumbs_only);
           }
         else
           {
              elm_genlist_clear(tb->fsel);
              ephoto_directory_set(tb->ephoto, file, NULL,
-                 tb->dirs_only);
+                 tb->dirs_only, tb->thumbs_only);
           }
         ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
      }
@@ -1179,24 +1230,26 @@ _rename_confirm(void *data, Evas_Object *obj EINA_UNUSED,
              Elm_Object_Item *item = elm_genlist_selected_item_get(tb->fsel);
              Elm_Object_Item *parent = elm_genlist_item_parent_get(item);
              tb->dirs_only = 1;
+             tb->thumbs_only = 0;
              if (parent)
                {
                   elm_genlist_item_subitems_clear(parent);
                   ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
-                      parent, tb->dirs_only);
+                      parent, tb->dirs_only, tb->thumbs_only);
                }
              else
                {
                   elm_genlist_clear(tb->fsel);
                   ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
-                      NULL, tb->dirs_only);
+                      NULL, tb->dirs_only, tb->thumbs_only);
                }
           }
         else
           {
 	     tb->thumbs_only = 1;
+             tb->dirs_only = 0;
 	     ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory, NULL,
-                 tb->dirs_only);
+                 tb->dirs_only, tb->thumbs_only);
           }
 	ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
      }
@@ -1323,7 +1376,7 @@ _delete_idler_cb(void *data)
 	tb->file_errors = 0;
 	tb->thumbs_only = 1;
 	ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory, NULL,
-            tb->dirs_only);
+            tb->dirs_only, tb->thumbs_only);
 	ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 
 	evas_object_del(popup);
@@ -1446,11 +1499,13 @@ _delete_dir_idler_cb(void *data)
    eina_list_free(tb->idler_pos);
         
    tb->file_errors = 0;
+   tb->dirs_only = 0;
+   tb->thumbs_only = 0;
    if (parent)
      {
         elm_genlist_item_subitems_clear(parent);
         ephoto_directory_set(tb->ephoto, elm_object_item_data_get(parent),
-            parent, tb->dirs_only);
+            parent, tb->dirs_only, tb->thumbs_only);
      }
    else
      {
@@ -1459,7 +1514,7 @@ _delete_dir_idler_cb(void *data)
         snprintf(fp, PATH_MAX, "%s", dir);
         elm_genlist_clear(tb->fsel);
         ephoto_directory_set(tb->ephoto, dirname(fp), NULL,
-            tb->dirs_only);
+            tb->dirs_only, tb->thumbs_only);
      }
    ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 
@@ -1517,7 +1572,8 @@ _empty_trash_idler_cb(void *data)
         tb->dirs_only = 0;
         tb->thumbs_only = 0;
         elm_genlist_clear(tb->fsel);
-	ephoto_directory_set(tb->ephoto, trash, NULL, tb->dirs_only);
+	ephoto_directory_set(tb->ephoto, trash, NULL,
+            tb->dirs_only, tb->thumbs_only);
 	ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 
 	evas_object_del(popup);
@@ -1730,6 +1786,8 @@ static Eina_Bool
 _drop_dropcb(void *data EINA_UNUSED, Evas_Object *obj, Elm_Object_Item *it,
     Elm_Selection_Data *ev, int xposret EINA_UNUSED, int yposret EINA_UNUSED)
 {
+   EINA_SAFETY_ON_NULL_RETURN_VAL(it, EINA_TRUE);
+
    const char *path = elm_object_item_data_get(it);
    printf("%s\n", path);
    Eina_List *files = NULL;
@@ -1903,7 +1961,7 @@ _dnd_drag_data_build(Eina_List **items)
    if (*items)
      {
 	Eina_List *l;
-	Elm_Widget_Item *it;
+	Elm_Object_Item *it;
 	Ephoto_Entry *e;
 	unsigned int len = 0;
 
@@ -1974,7 +2032,7 @@ _dnd_icons_get(void *data)
 
    evas_pointer_canvas_xy_get(evas_object_evas_get(data), &xm, &ym);
    Eina_List *items = eina_list_clone(elm_gengrid_selected_items_get(data));
-   Elm_Widget_Item *gli = elm_gengrid_at_xy_item_get(data, xm, ym, 0, 0);
+   Elm_Object_Item *gli = elm_gengrid_at_xy_item_get(data, xm, ym, 0, 0);
 
    if (gli)
      {
@@ -2015,7 +2073,7 @@ _dnd_icons_get(void *data)
 }
 
 static const char *
-_dnd_get_drag_data(Evas_Object *obj, Elm_Widget_Item *it, Eina_List **items)
+_dnd_get_drag_data(Evas_Object *obj, Elm_Object_Item *it, Eina_List **items)
 {
    const char *drag_data = NULL;
 
@@ -2030,18 +2088,18 @@ _dnd_get_drag_data(Evas_Object *obj, Elm_Widget_Item *it, Eina_List **items)
    return drag_data;
 }
 
-static Elm_Widget_Item *
+static Elm_Object_Item *
 _dnd_item_get(Evas_Object *obj, Evas_Coord x, Evas_Coord y, int *xposret,
     int *yposret)
 {
-   Elm_Widget_Item *item;
+   Elm_Object_Item *item;
 
    item = elm_gengrid_at_xy_item_get(obj, x, y, xposret, yposret);
    return item;
 }
 
 static Eina_Bool
-_dnd_item_data_get(Evas_Object *obj, Elm_Widget_Item *it,
+_dnd_item_data_get(Evas_Object *obj, Elm_Object_Item *it,
     Elm_Drag_User_Info *info)
 {
    info->format = ELM_SEL_FORMAT_TARGETS;
@@ -2645,8 +2703,8 @@ _menu_dismissed_cb(void *data, Evas_Object *obj,
 }
 
 static void
-_fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
-    Evas_Object *obj EINA_UNUSED, void *event_info)
+_fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
+    void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
    Evas_Object *menu;
@@ -2655,14 +2713,16 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    char trash[PATH_MAX];
    int x, y;
 
-   if (info->button != 3)
-      return;
-
-   snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
-
    evas_pointer_canvas_xy_get(evas_object_evas_get(tb->fsel), &x, &y);
    item = elm_genlist_at_xy_item_get(tb->fsel, x, y, 0);
-   if (item)
+   if (info->button == 1 && item)
+     _on_list_selected(tb, NULL, item);
+
+   if (info->button != 3)
+     return;
+
+   snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
+   if (item && strncmp(tb->ephoto->config->directory, trash, strlen(trash)))
      {
         elm_genlist_item_selected_set(item, EINA_TRUE);
         menu = elm_menu_add(tb->main);
@@ -2674,12 +2734,18 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
               _fsel_menu_paste_cb, tb);
         elm_menu_item_add(menu, NULL, "edit", _("Rename"),
             _fsel_menu_rename_cb, tb);
-        if (strncmp(tb->ephoto->config->directory, trash, strlen(trash)))
-          elm_menu_item_add(menu, NULL, "edit-delete", _("Delete"),
-              _fsel_menu_delete_cb, tb);
-        else
-          elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
-               _grid_menu_empty_cb, tb);
+        elm_menu_item_add(menu, NULL, "edit-delete", _("Delete"),
+            _fsel_menu_delete_cb, tb);
+        evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
+            tb);
+        evas_object_show(menu);
+     }
+   else if (item && !strncmp(tb->ephoto->config->directory, trash, strlen(trash)))
+     {
+        menu = elm_menu_add(tb->main);
+        elm_menu_move(menu, x, y);
+        elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
+             _grid_menu_empty_cb, tb);
         evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
             tb);
         evas_object_show(menu);
@@ -2688,8 +2754,9 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
      {
         menu = elm_menu_add(tb->main);
         elm_menu_move(menu, x, y);
-        elm_menu_item_add(menu, NULL, "folder-new", _("New Folder"),
-            _fsel_menu_new_dir_cb, tb);
+        if (strncmp(tb->ephoto->config->directory, trash, strlen(trash)))
+          elm_menu_item_add(menu, NULL, "folder-new", _("New Folder"),
+              _fsel_menu_new_dir_cb, tb);
         if (tb->cut_items || tb->copy_items)
           elm_menu_item_add(menu, NULL, "edit-paste", _("Paste"),
               _fsel_menu_paste_cb, tb);
@@ -2703,8 +2770,8 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 }       
 
 static void
-_grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
-    Evas_Object *obj EINA_UNUSED, void *event_info)
+_grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
+    void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
    Evas_Object *menu;
@@ -2794,32 +2861,6 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 }
 
 static void
-_sort_mouse_up_cb(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
-{
-   Evas_Object *menu;
-   Ephoto_Thumb_Browser *tb = data;
-   int x, y;
-
-   evas_pointer_canvas_xy_get(evas_object_evas_get(tb->main), &x, &y);
-   if (elm_gengrid_items_count(tb->grid) <= 0)
-     return;
-
-   menu = elm_menu_add(tb->main);
-   elm_menu_move(menu, x, y);
-   elm_menu_item_add(menu, NULL, "view-sort-ascending",
-       _("Alphabetical Ascending"), _sort_alpha_asc, tb);
-   elm_menu_item_add(menu, NULL, "view-sort-descending",
-       _("Alphabetical Descending"), _sort_alpha_desc, tb);
-   elm_menu_item_add(menu, NULL, "view-sort-ascending",
-       _("Modification Time Ascending"), _sort_mod_asc, tb);
-   elm_menu_item_add(menu, NULL, "view-sort-descending",
-       _("Modification Time Descending"), _sort_mod_desc, tb);
-   evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-            tb);
-   evas_object_show(menu);
-}
-
-static void
 _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info)
 {
@@ -2844,7 +2885,7 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 	  }
 	else if (!strcmp(k, "Tab"))
 	  {
-	     Elm_Widget_Item *it = elm_gengrid_selected_item_get(tb->grid);
+	     Elm_Object_Item *it = elm_gengrid_selected_item_get(tb->grid);
 	     Ephoto_Entry *entry;
 
 	     if (it)
@@ -2890,7 +2931,7 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      }
    if (!strcmp(k, "F5"))
      {
-	Elm_Widget_Item *it = elm_gengrid_selected_item_get(tb->grid);
+	Elm_Object_Item *it = elm_gengrid_selected_item_get(tb->grid);
 	Ephoto_Entry *entry;
 
 	if (it)
@@ -3021,9 +3062,17 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
 		 EVAS_HINT_EXPAND);
 	     evas_object_size_hint_align_set(tb->nolabel, EVAS_HINT_FILL,
 		 EVAS_HINT_FILL);
-	     elm_table_pack(tb->table, tb->nolabel, 0, 0, 4, 1);
-	     evas_object_show(tb->nolabel);
-	     elm_table_pack(tb->table, tb->grid, 0, 0, 4, 1);
+             evas_object_show(tb->nolabel);
+             if (!tb->ephoto->config->fsel_hide)
+               {
+	          elm_table_pack(tb->table, tb->nolabel, 1, 0, 4, 1);
+	          elm_table_pack(tb->table, tb->grid, 1, 0, 4, 1);
+               }
+             else
+               {
+                  elm_table_pack(tb->table, tb->nolabel, 0, 0, 5, 1);
+                  elm_table_pack(tb->table, tb->grid, 0, 0, 5, 1);
+               }
 	     snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s",
 		 _("Total"), ngettext("image", "images", 0), _("Size"),
 		 ngettext("B", "B", 0));
@@ -3150,8 +3199,7 @@ Evas_Object *
 ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
 {
    Evas_Object *box = elm_box_add(parent);
-   Evas_Object *icon, *hbox, *botbox, *but, *sep, *ic;
-   Evas_Coord w, h;
+   Evas_Object *icon, *hbox, *but, *ic, *menu;  
    Ephoto_Thumb_Browser *tb;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(box, NULL);
@@ -3165,7 +3213,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    _ephoto_thumb_file_class.func.state_get = NULL;
    _ephoto_thumb_file_class.func.del = _ephoto_thumb_item_del;
 
-   _ephoto_dir_class.item_style = "default";
+   _ephoto_dir_class.item_style = "tree_effect";
    _ephoto_dir_class.func.text_get = _ephoto_dir_item_text_get;
    _ephoto_dir_class.func.content_get = _ephoto_dir_item_icon_get;
    _ephoto_dir_class.func.state_get = NULL;
@@ -3178,10 +3226,11 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    tb->cut_items = NULL;
    tb->copy_items = NULL;
    tb->dir_current = NULL;
+   tb->change_dir_job = NULL;
    tb->sort = EPHOTO_SORT_ALPHABETICAL_ASCENDING;
    tb->main = box;
 
-   elm_box_horizontal_set(tb->main, EINA_TRUE);
+   elm_box_horizontal_set(tb->main, EINA_FALSE);
    evas_object_size_hint_weight_set(tb->main, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->main, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -3190,13 +3239,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
        tb);
    evas_object_data_set(tb->main, "thumb_browser", tb);
 
-   tb->leftbox = elm_box_add(tb->main);
-   evas_object_size_hint_weight_set(tb->leftbox, 0.0, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(tb->leftbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(tb->main, tb->leftbox);
-   evas_object_show(tb->leftbox);
-
-   tb->bar = elm_toolbar_add(tb->leftbox);
+   tb->bar = elm_toolbar_add(tb->ephoto->win);
    elm_toolbar_horizontal_set(tb->bar, EINA_TRUE);
    elm_toolbar_homogeneous_set(tb->bar, EINA_TRUE);
    elm_toolbar_shrink_mode_set(tb->bar, ELM_TOOLBAR_SHRINK_NONE);
@@ -3206,6 +3249,25 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(tb->bar, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(tb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
+   if (!tb->ephoto->config->fsel_hide)
+     tb->ficon = elm_toolbar_item_prepend(tb->bar, "system-file-manager", _("Folders"),
+         _ephoto_dir_hide_folders, tb);
+   else
+     tb->ficon = elm_toolbar_item_prepend(tb->bar, "system-file-manager", _("Folders"),
+         _ephoto_dir_show_folders, tb);
+   icon =
+       elm_toolbar_item_append(tb->bar, "view-sort-descending", _("Sort"), NULL, NULL);
+   elm_toolbar_item_menu_set(icon, EINA_TRUE);
+   elm_toolbar_menu_parent_set(tb->bar, tb->ephoto->win);
+   menu = elm_toolbar_item_menu_get(icon);
+   elm_menu_item_add(menu, NULL, "view-sort-ascending",
+       _("Alphabetical Ascending"), _sort_alpha_asc, tb);
+   elm_menu_item_add(menu, NULL, "view-sort-descending",
+       _("Alphabetical Descending"), _sort_alpha_desc, tb);
+   elm_menu_item_add(menu, NULL, "view-sort-ascending",
+       _("Modification Time Ascending"), _sort_mod_asc, tb);
+   elm_menu_item_add(menu, NULL, "view-sort-descending",
+       _("Modification Time Descending"), _sort_mod_desc, tb); 
    icon =
        elm_toolbar_item_append(tb->bar, "zoom-in", _("Zoom In"), _zoom_in, tb);
    tb->max = elm_object_item_widget_get(icon);
@@ -3220,32 +3282,20 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_toolbar_item_append(tb->bar, "preferences-system", _("Settings"),
        _settings, tb);
 
-   elm_box_pack_end(tb->leftbox, tb->bar);
+   elm_box_pack_end(tb->main, tb->bar);
    evas_object_show(tb->bar);
 
-   evas_object_size_hint_min_get(tb->bar, &w, 0);
-   evas_object_size_hint_min_set(tb->leftbox, w, 0);
+   tb->table = elm_table_add(tb->main);
+   evas_object_size_hint_weight_set(tb->table, EVAS_HINT_EXPAND,
+       EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(tb->table, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(tb->main, tb->table);
+   evas_object_show(tb->table);
 
-   sep = elm_separator_add(tb->leftbox);
-   elm_separator_horizontal_set(sep, EINA_TRUE);
-   evas_object_size_hint_min_set(sep, 0, 20);
-   elm_box_pack_end(tb->leftbox, sep);
-   evas_object_show(sep);
-
-   tb->direntry = elm_entry_add(tb->leftbox);
-   elm_entry_single_line_set(tb->direntry, EINA_TRUE);
-   elm_entry_scrollable_set(tb->direntry, EINA_TRUE);
-   elm_scroller_policy_set(tb->direntry, ELM_SCROLLER_POLICY_OFF,
-       ELM_SCROLLER_POLICY_OFF);
-   evas_object_size_hint_weight_set(tb->direntry, EVAS_HINT_EXPAND,
-       EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(tb->direntry, EVAS_HINT_FILL,
-       EVAS_HINT_FILL);
-   elm_box_pack_end(tb->leftbox, tb->direntry);
-   evas_object_smart_callback_add(tb->direntry, "activated",
-       _ephoto_direntry_go, tb);
-   evas_object_show(tb->direntry);
-
+   tb->leftbox = elm_box_add(tb->table);
+   evas_object_size_hint_weight_set(tb->leftbox, 0.1, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(tb->leftbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   
    hbox = elm_box_add(tb->leftbox);
    elm_box_horizontal_set(hbox, EINA_TRUE);
    evas_object_size_hint_weight_set(hbox, EVAS_HINT_EXPAND, 0.0);
@@ -3292,15 +3342,27 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_box_pack_end(hbox, but);
    evas_object_show(but);
 
+   tb->direntry = elm_entry_add(tb->leftbox);
+   elm_entry_single_line_set(tb->direntry, EINA_TRUE);
+   elm_entry_scrollable_set(tb->direntry, EINA_TRUE);
+   elm_scroller_policy_set(tb->direntry, ELM_SCROLLER_POLICY_OFF,
+       ELM_SCROLLER_POLICY_OFF);
+   evas_object_size_hint_weight_set(tb->direntry, EVAS_HINT_EXPAND,
+       EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(tb->direntry, EVAS_HINT_FILL,
+       EVAS_HINT_FILL);
+   elm_box_pack_end(tb->leftbox, tb->direntry);
+   evas_object_smart_callback_add(tb->direntry, "activated",
+       _ephoto_direntry_go, tb);
+   evas_object_show(tb->direntry);
+
    tb->fsel = elm_genlist_add(tb->leftbox);
    elm_genlist_homogeneous_set(tb->fsel, EINA_TRUE);
-   elm_genlist_select_mode_set(tb->fsel, ELM_OBJECT_SELECT_MODE_DEFAULT);
+   elm_genlist_select_mode_set(tb->fsel, ELM_OBJECT_SELECT_MODE_ALWAYS);
    evas_object_size_hint_weight_set(tb->fsel, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_box_pack_end(tb->leftbox, tb->fsel);
-   evas_object_smart_callback_add(tb->fsel, "clicked,double",
-       _ephoto_dir_double_clicked, tb);
    evas_object_smart_callback_add(tb->fsel, "expand,request",
        _on_list_expand_req, tb);
    evas_object_smart_callback_add(tb->fsel, "contract,request",
@@ -3308,7 +3370,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_smart_callback_add(tb->fsel, "expanded", _on_list_expanded, tb);
    evas_object_smart_callback_add(tb->fsel, "contracted", _on_list_contracted,
        tb);
-   evas_object_smart_callback_add(tb->fsel, "selected", _on_list_selected, tb);
+   //evas_object_smart_callback_add(tb->fsel, "selected", _on_list_selected, tb);
    evas_object_event_callback_add(tb->fsel, EVAS_CALLBACK_MOUSE_UP,
        _fsel_mouse_up_cb, tb);
    evas_object_data_set(tb->fsel, "thumb_browser", tb);
@@ -3317,27 +3379,13 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
        _drop_item_getcb, _drop_enter, tb, _drop_leave, tb, _drop_pos, tb,
        _drop_dropcb, NULL);
 
-   ic = elm_icon_add(hbox);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   elm_icon_standard_set(ic, "go-previous");
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   but = elm_button_add(hbox);
-   elm_object_part_content_set(but, "icon", ic);
-   elm_object_tooltip_text_set(but, _("Hide the file selector"));
-   evas_object_size_hint_weight_set(but, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_smart_callback_add(but, "clicked", _ephoto_dir_hide_folders, tb);
-   elm_box_pack_end(tb->leftbox, but);
-   evas_object_show(but);
-   evas_object_size_hint_min_get(but, 0, &h);
-   tb->ephoto->bottom_bar_size = h;
-
-   tb->table = elm_table_add(tb->main);
-   evas_object_size_hint_weight_set(tb->table, EVAS_HINT_EXPAND,
-       EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(tb->table, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(tb->main, tb->table);
-   evas_object_show(tb->table);
+   if (!tb->ephoto->config->fsel_hide)
+     {
+        elm_table_pack(tb->table, tb->leftbox, 0, 0, 1, 1);
+        evas_object_show(tb->leftbox);
+     }
+   else
+        evas_object_hide(tb->leftbox);
 
    tb->grid = elm_gengrid_add(tb->table);
    evas_object_size_hint_weight_set(tb->grid, EVAS_HINT_EXPAND,
@@ -3359,7 +3407,10 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    _zoom_set(tb, tb->ephoto->config->thumb_size);
 
    evas_object_show(tb->grid);
-   elm_table_pack(tb->table, tb->grid, 0, 0, 4, 1);
+   if (!tb->ephoto->config->fsel_hide)
+     elm_table_pack(tb->table, tb->grid, 1, 0, 4, 1);
+   else
+     elm_table_pack(tb->table, tb->grid, 0, 0, 5, 1);
 
    tb->infolabel = elm_label_add(tb->table);
    elm_label_line_wrap_set(tb->infolabel, ELM_WRAP_WORD);
@@ -3369,24 +3420,8 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
        EVAS_HINT_FILL);
    evas_object_size_hint_aspect_set(tb->infolabel, EVAS_ASPECT_CONTROL_VERTICAL,
        1, 1);
-   elm_table_pack(tb->table, tb->infolabel, 0, 1, 3, 1);
    evas_object_show(tb->infolabel);
-
-   but = elm_button_add(tb->table);
-   elm_object_text_set(but, _("Sort Images"));
-   evas_object_size_hint_weight_set(but, 0.0, 0.0);
-   evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_smart_callback_add(but, "clicked", _sort_mouse_up_cb, tb);
-   elm_table_pack(tb->table, but, 3, 1, 1, 1);
-   evas_object_show(but);
-   tb->hoversel = but;
-   
-   botbox = elm_box_add(tb->table);
-   evas_object_size_hint_min_set(botbox, 0, h);
-   evas_object_size_hint_weight_set(botbox, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_fill_set(botbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_table_pack(tb->table, botbox, 0, 1, 4, 1);
-   evas_object_show(botbox);
+   elm_table_pack(tb->table, tb->infolabel, 0, 1, 5, 1);
 
    tb->handlers =
        eina_list_append(tb->handlers,
@@ -3407,9 +3442,6 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
        eina_list_append(tb->handlers,
        ecore_event_handler_add(EPHOTO_EVENT_ENTRY_CREATE,
 	   _ephoto_thumb_entry_create, tb));
-
-   if (tb->ephoto->config->fsel_hide)
-      evas_object_smart_callback_call(but, "clicked", tb);
 
    return tb->main;
 

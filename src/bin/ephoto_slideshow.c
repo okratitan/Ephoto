@@ -9,10 +9,10 @@ struct _Ephoto_Slideshow
    Evas_Object *notify;
    Evas_Object *bar;
    Evas_Object *event;
-   Elm_Widget_Item *pause;
-   Elm_Widget_Item *pause_after;
-   Elm_Widget_Item *fullscreen;
-   Elm_Widget_Item *fullscreen_after;
+   Elm_Object_Item *pause;
+   Elm_Object_Item *pause_after;
+   Elm_Object_Item *fullscreen;
+   Elm_Object_Item *fullscreen_after;
    Ephoto_Entry *entry;
    int playing;
 };

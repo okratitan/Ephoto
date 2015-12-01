@@ -16,8 +16,9 @@ typedef struct _Ephoto_Dir_Data Ephoto_Dir_Data;
 struct _Ephoto_Dir_Data
 {
    Ephoto *ephoto;
-   Elm_Widget_Item *expanded;
+   Elm_Object_Item *expanded;
    Eina_Bool dirs_only;
+   Eina_Bool thumbs_only;
 };
 
 static void
@@ -271,14 +272,14 @@ ephoto_window_add(const char *path)
 
    if (ecore_file_is_dir(path))
      {
-	ephoto_directory_set(ephoto, path, NULL, EINA_FALSE);
+	ephoto_directory_set(ephoto, path, NULL, EINA_FALSE, EINA_FALSE);
 	_ephoto_thumb_browser_show(ephoto, NULL);
      }
    else
      {
 	char *dir = ecore_file_dir_get(path);
 
-	ephoto_directory_set(ephoto, dir, NULL, EINA_FALSE);
+	ephoto_directory_set(ephoto, dir, NULL, EINA_FALSE, EINA_FALSE);
 	free(dir);
 	ephoto_single_browser_path_pending_set(ephoto->single_browser, path);
 
@@ -387,7 +388,9 @@ _ephoto_populate_filter(void *data, Eio_File *handler EINA_UNUSED,
    if (bname[0] == '.')
       return EINA_FALSE;
    if (info->type == EINA_FILE_DIR)
-      return EINA_TRUE;
+     {
+        return EINA_TRUE;
+     }
    if (!ed->dirs_only)
      return _ephoto_eina_file_direct_info_image_useful(info);
    else
@@ -419,10 +422,13 @@ _ephoto_populate_entries(Ephoto_Dir_Data *ed)
 {
    Ephoto_Entry *entry;
 
-   if (!ed->dirs_only)
-     ephoto_entries_free(ed->ephoto);
-   else
+   if (ed->dirs_only)
      EINA_LIST_FREE(ed->ephoto->direntries, entry) ephoto_entry_free(entry);
+   else if (ed->thumbs_only)
+     EINA_LIST_FREE(ed->ephoto->entries, entry) ephoto_entry_free(entry);
+   else
+     ephoto_entries_free(ed->ephoto);
+
    ed->ephoto->ls =
        eio_file_stat_ls(ed->ephoto->config->directory, _ephoto_populate_filter,
        _ephoto_populate_main, _ephoto_populate_end, _ephoto_populate_error, ed);
@@ -441,7 +447,7 @@ _ephoto_change_dir(void *data)
 
 void
 ephoto_directory_set(Ephoto *ephoto, const char *path, Evas_Object *expanded,
-    Eina_Bool dirs_only)
+    Eina_Bool dirs_only, Eina_Bool thumbs_only)
 {
    Ephoto_Dir_Data *ed;
 
@@ -449,6 +455,7 @@ ephoto_directory_set(Ephoto *ephoto, const char *path, Evas_Object *expanded,
    ed->ephoto = ephoto;
    ed->expanded = expanded;
    ed->dirs_only = dirs_only;
+   ed->thumbs_only = thumbs_only;
 
    ephoto_title_set(ephoto, NULL);
    eina_stringshare_replace(&ephoto->config->directory, path);

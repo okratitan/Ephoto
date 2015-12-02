@@ -131,15 +131,15 @@ _image_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 
    if ((ev->button == 1) && (ev->flags == EVAS_BUTTON_DOUBLE_CLICK))
      {
-         ecore_timer_del(_1s_hold);
-         _1s_hold = NULL;
-         elm_win_fullscreen_set(sb->ephoto->win,
+        elm_win_fullscreen_set(sb->ephoto->win,
             !elm_win_fullscreen_get(sb->ephoto->win));
      }
    else if (ev->button == 3)
      {
         _edit_menu(sb);
      }
+   ecore_timer_del(_1s_hold);
+   _1s_hold = NULL;
 }
 
 static Evas_Object *

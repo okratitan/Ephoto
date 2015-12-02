@@ -43,6 +43,7 @@ struct _Ephoto_Thumb_Browser
    Eina_List *todo_items;
    Ecore_Idler *idler;
    Ecore_Job *change_dir_job;
+   Ecore_Timer *click_timer;
    int thumbs_only;
    int dirs_only;
    int totimages;
@@ -82,6 +83,8 @@ _on_list_expand_req(void *data, Evas_Object *obj EINA_UNUSED,
 
    ecore_job_del(tb->change_dir_job);
    tb->change_dir_job = NULL;
+   ecore_timer_del(tb->click_timer);
+   tb->click_timer = NULL;
    elm_genlist_item_expanded_set(it, EINA_TRUE);
 }
 
@@ -94,6 +97,8 @@ _on_list_contract_req(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 
    ecore_job_del(tb->change_dir_job);
    tb->change_dir_job = NULL;
+   ecore_timer_del(tb->click_timer);
+   tb->click_timer = NULL;
    elm_genlist_item_expanded_set(it, EINA_FALSE);
 }
 
@@ -125,24 +130,19 @@ _on_list_contracted(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
    const char *path = elm_object_item_data_get(it);
 
    elm_genlist_item_subitems_clear(it); 
-   tb->dirs_only = 0;
-   tb->thumbs_only = 1;
    if (strlen(path) == strlen(tb->ephoto->config->directory))
      {
 	if (!strcmp(path, tb->ephoto->config->directory))
           {
              return;
           }
-        else
-          {
-             tb->thumbs_only = 1;
-             tb->dirs_only = 0;
-             ephoto_directory_set(tb->ephoto, path, NULL,
-                 tb->dirs_only, tb->thumbs_only);
-             ephoto_title_set(tb->ephoto,
-                 tb->ephoto->config->directory);
-          }
      }
+   tb->thumbs_only = 1;
+   tb->dirs_only = 0;
+   ephoto_directory_set(tb->ephoto, path, NULL,
+       tb->dirs_only, tb->thumbs_only);
+   ephoto_title_set(tb->ephoto,
+       tb->ephoto->config->directory);
 }
 
 static void
@@ -786,6 +786,7 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED,
    tb->ficon = elm_toolbar_item_prepend(tb->bar, "system-file-manager", _("Folders"),
        _ephoto_dir_show_folders, tb);
 
+   elm_object_focus_set(tb->main, EINA_TRUE);
    tb->ephoto->config->fsel_hide = 1;
 }
 
@@ -2702,6 +2703,20 @@ _menu_dismissed_cb(void *data, Evas_Object *obj,
    elm_object_focus_set(tb->main, EINA_TRUE);
 }
 
+static Eina_Bool
+_click_timer_cb(void *data)
+{
+   Elm_Object_Item *item = data;
+   Ephoto_Thumb_Browser *tb = evas_object_data_get(item, "thumb_browser");
+
+   printf("No\n");
+
+   _on_list_selected(tb, NULL, item);
+   tb->click_timer = NULL;
+
+   return ECORE_CALLBACK_CANCEL;
+}
+
 static void
 _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info)
@@ -2715,9 +2730,31 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 
    evas_pointer_canvas_xy_get(evas_object_evas_get(tb->fsel), &x, &y);
    item = elm_genlist_at_xy_item_get(tb->fsel, x, y, 0);
-   if (info->button == 1 && item)
-     _on_list_selected(tb, NULL, item);
 
+   if (info->button == 1 && item)
+     {
+        if (info->flags == EVAS_BUTTON_DOUBLE_CLICK)
+          {
+             if (elm_genlist_item_type_get(item) == ELM_GENLIST_ITEM_TREE)
+               {
+                  if (tb->click_timer)
+                    {
+                       ecore_timer_del(tb->click_timer);
+                       tb->click_timer = NULL;
+                       elm_genlist_item_expanded_set(item,
+                           !elm_genlist_item_expanded_get(item));
+                    }
+               }
+          }
+        else
+          {
+             evas_object_data_set(item, "thumb_browser", tb);
+             if (elm_genlist_item_type_get(item) == ELM_GENLIST_ITEM_TREE)
+               tb->click_timer = ecore_timer_add(.3, _click_timer_cb, item);
+             else
+               _on_list_selected(tb, NULL, item);
+          }
+     }
    if (info->button != 3)
      return;
 
@@ -2867,11 +2904,22 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    Ephoto_Thumb_Browser *tb = data;
    Evas_Event_Key_Down *ev = event_info;
    Eina_Bool ctrl = evas_key_modifier_is_set(ev->modifiers, "Control");
+   Eina_Bool shift = evas_key_modifier_is_set(ev->modifiers, "Shift");
    const char *k = ev->keyname;
    
    if (ctrl)
      {
-	if ((!strcmp(k, "plus")) || (!strcmp(k, "equal")))
+        if (shift)
+          {
+             if (!strcmp(k, "f"))
+               {
+                  if (evas_object_visible_get(tb->leftbox))
+                    _ephoto_dir_hide_folders(tb, NULL, NULL);
+                  else
+                    _ephoto_dir_show_folders(tb, NULL, NULL);
+               }
+          }
+	else if ((!strcmp(k, "plus")) || (!strcmp(k, "equal")))
 	  {
 	     int zoom = tb->ephoto->config->thumb_size + ZOOM_STEP;
 
@@ -2913,11 +2961,11 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
              _grid_menu_select_all_cb(tb, NULL, NULL);
           }
      }
-   if (!strcmp(k, "F1"))
+   else if (!strcmp(k, "F1"))
      {
         _settings(tb, NULL, NULL);
      }
-   if (!strcmp(k, "F2"))
+   else if (!strcmp(k, "F2"))
      {
         Elm_Object_Item *it = NULL;
 
@@ -2929,7 +2977,7 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
              _grid_menu_rename_cb(it, NULL, NULL);
           }
      }
-   if (!strcmp(k, "F5"))
+   else if (!strcmp(k, "F5"))
      {
 	Elm_Object_Item *it = elm_gengrid_selected_item_get(tb->grid);
 	Ephoto_Entry *entry;

@@ -365,10 +365,61 @@ ephoto_config_slideshow(Ephoto *ephoto)
    evas_object_show(popup);
 }
 
+static void
+_link_anchor_bt(void *data, Evas_Object *obj,
+    void *event_info EINA_UNUSED)
+{
+   char buf[PATH_MAX];
+   Evas_Object *av = data;
+   const char *link = evas_object_data_get(obj, "link");
+
+   elm_entry_anchor_hover_end(av);
+   snprintf(buf, PATH_MAX, "xdg-open %s", link);
+   ecore_exe_run(buf, NULL);
+}
+
+static void
+_copy_anchor_bt(void *data, Evas_Object *obj,
+    void *event_info EINA_UNUSED)
+{
+   char buf[PATH_MAX];
+   Evas_Object *av = data;
+   const char *link = evas_object_data_get(obj, "link");
+
+   elm_entry_anchor_hover_end(av);
+   snprintf(buf, PATH_MAX, "%s", link);
+   elm_cnp_selection_set(av, ELM_SEL_TYPE_CLIPBOARD, ELM_SEL_FORMAT_MARKUP,
+       buf, strlen(buf));
+}
+
+static void
+_link_anchor(void *data, Evas_Object *obj, void *event_info)
+{
+   Evas_Object *av = data;
+   Evas_Object *button;
+   Elm_Entry_Anchor_Hover_Info *ei = event_info;
+
+   button = elm_button_add(obj);
+   elm_object_text_set(button, _("Open Link In Browser"));
+   elm_object_part_content_set(ei->hover, "middle", button);
+   evas_object_smart_callback_add(button, "clicked", _link_anchor_bt,
+       av);
+   evas_object_data_set(button, "link", strdup(ei->anchor_info->name));
+   evas_object_show(button);
+
+   button = elm_button_add(obj);
+   elm_object_text_set(button, _("Copy Link"));
+   elm_object_part_content_set(ei->hover, "bottom", button);
+   evas_object_smart_callback_add(button, "clicked", _copy_anchor_bt,
+       av);
+   evas_object_data_set(button, "link", strdup(ei->anchor_info->name));
+   evas_object_show(button);
+}
+
 void
 ephoto_config_about(Ephoto *ephoto)
 {
-   Evas_Object *popup, *box, *ic, *button, *label;
+   Evas_Object *popup, *box, *bb, *entry, *ic, *button;
    Eina_Strbuf *sbuf = eina_strbuf_new();
    FILE *f;
 
@@ -383,15 +434,29 @@ ephoto_config_about(Ephoto *ephoto)
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_show(box);
 
-   label = elm_label_add(box);
-   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   bb = elm_bubble_add(box);
+   evas_object_size_hint_weight_set(bb, 0.0, 0.0);
+   evas_object_size_hint_align_set(bb, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, bb);
+   evas_object_show(bb);
+
+   entry = elm_entry_add(bb);
+   elm_entry_anchor_hover_style_set(entry, "popout");
+   elm_entry_anchor_hover_parent_set(entry, popup);
+   elm_entry_editable_set(entry, EINA_FALSE);
+   elm_entry_context_menu_disabled_set(entry, EINA_TRUE);
+   elm_entry_line_wrap_set(entry, ELM_WRAP_NONE);
+   evas_object_size_hint_weight_set(entry, 0.0, 0.0);
+   evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
    eina_strbuf_append_printf(sbuf,
        _("Ephoto is a comprehensive image viewer based on the EFL.<br/>"
-	   "For more information, please visit the Ephoto project page on the Enlightenment wiki:<br/>"
-	   "https://phab.enlightenment.org/w/projects/ephoto<br/>"
+	   "For more information, please visit the Ephoto project page on<br/>"
+           "the Enlightenment wiki:<br/>"
+	   "<a href=https://phab.enlightenment.org/w/projects/ephoto>"
+           "https://phab.enlightenment.org/w/projects/ephoto</a><br/><br/>"
 	   "Ephoto's source can be found through Enlightenment's git:<br/>"
-	   "http://git.enlightenment.org/apps/ephoto.git<br/>" "<br/>"
+	   "<a href=http://git.enlightenment.org/apps/ephoto.git>"
+           "http://git.enlightenment.org/apps/ephoto.git</a><br/><br/>"
 	   "<b>Authors:</b><br/>"));
    f = fopen(PACKAGE_DATA_DIR "/AUTHORS", "r");
    if (f)
@@ -428,17 +493,19 @@ ephoto_config_about(Ephoto *ephoto)
 			       *p = 0;
 			 }
 		       while (p);
-		       eina_strbuf_append_printf(sbuf, "%s<br>", buf);
+		       eina_strbuf_append_printf(sbuf, "%s<br/>", buf);
 		    }
 		  if (len == 0)
-		     eina_strbuf_append_printf(sbuf, "<br>");
+		     eina_strbuf_append_printf(sbuf, "<br/>");
 	       }
 	  }
 	fclose(f);
      }
-   elm_object_text_set(label, eina_strbuf_string_get(sbuf));
-   elm_box_pack_end(box, label);
-   evas_object_show(label);
+   elm_object_text_set(entry, eina_strbuf_string_get(sbuf));
+   evas_object_smart_callback_add(entry, "anchor,hover,opened",
+       _link_anchor, entry);
+   elm_object_content_set(bb, entry);
+   evas_object_show(entry);
 
    ic = elm_icon_add(box);
    elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);

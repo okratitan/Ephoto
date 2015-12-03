@@ -460,7 +460,7 @@ ephoto_directory_set(Ephoto *ephoto, const char *path, Evas_Object *expanded,
    ed->thumbs_only = thumbs_only;
 
    ephoto_title_set(ephoto, NULL);
-   eina_stringshare_replace(&ephoto->config->directory, path);
+   eina_stringshare_replace(&ephoto->config->directory, ecore_file_realpath(path));
 
    if (ed->ephoto->job.change_dir)
       ecore_job_del(ed->ephoto->job.change_dir);

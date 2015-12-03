@@ -1007,7 +1007,17 @@ _copy_idler_cb(void *data)
 	  }
 	tb->file_errors = 0;
 	tb->thumbs_only = 1;
-	
+        if (strlen(destination) == strlen(tb->ephoto->config->directory))
+          {
+             if (strcmp(destination, tb->ephoto->config->directory))
+               {
+                  evas_object_del(popup);
+                  evas_object_freeze_events_set(tb->main, EINA_FALSE);
+                  elm_object_focus_set(tb->main, EINA_TRUE);
+
+                  return EINA_FALSE;
+               }
+          }
         ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory, NULL,
             tb->dirs_only, tb->thumbs_only);
 	ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
@@ -1790,7 +1800,6 @@ _drop_dropcb(void *data EINA_UNUSED, Evas_Object *obj, Elm_Object_Item *it,
    EINA_SAFETY_ON_NULL_RETURN_VAL(it, EINA_TRUE);
 
    const char *path = elm_object_item_data_get(it);
-   printf("%s\n", path);
    Eina_List *files = NULL;
    Ephoto_Thumb_Browser *tb = evas_object_data_get(obj, "thumb_browser");
 
@@ -1971,7 +1980,6 @@ _dnd_drag_data_build(Eina_List **items)
 	     e = elm_object_item_data_get(it);
 	     if (e->path)
 	        len += strlen(e->path);
-             printf("%s\n", e->path);
 	  }
 
 	drag_data =

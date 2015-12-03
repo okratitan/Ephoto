@@ -39,12 +39,19 @@ _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    ephoto_title_set(ephoto, ephoto->config->directory);
 
    if ((entry) && (entry->item))
-      elm_gengrid_item_bring_in(entry->item, ELM_GENGRID_ITEM_SCROLLTO_IN);
+     {
+        elm_gengrid_item_selected_set(entry->item, EINA_TRUE);
+        elm_gengrid_item_bring_in(entry->item, ELM_GENGRID_ITEM_SCROLLTO_IN);
+     }
 }
 
 static void
 _ephoto_single_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
 {
+   if (ephoto->selentries)
+     ephoto_single_browser_entries_set(ephoto->single_browser, ephoto->selentries);
+   else
+     ephoto_single_browser_entries_set(ephoto->single_browser, ephoto->entries);
    ephoto_single_browser_entry_set(ephoto->single_browser, entry);
    elm_naviframe_item_simple_promote(ephoto->pager, ephoto->single_browser);
    elm_object_focus_set(ephoto->single_browser, EINA_TRUE);
@@ -54,6 +61,10 @@ _ephoto_single_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
 static void
 _ephoto_slideshow_show(Ephoto *ephoto, Ephoto_Entry *entry)
 {
+   if (ephoto->selentries)
+     ephoto_slideshow_entries_set(ephoto->slideshow, ephoto->selentries);
+   else
+     ephoto_slideshow_entries_set(ephoto->slideshow, ephoto->entries);
    ephoto_slideshow_entry_set(ephoto->slideshow, entry);
    elm_naviframe_item_simple_promote(ephoto->pager, ephoto->slideshow);
    elm_object_focus_set(ephoto->slideshow, EINA_TRUE);
@@ -67,6 +78,7 @@ _ephoto_single_browser_back(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto *ephoto = data;
    Ephoto_Entry *entry = event_info;
 
+   ephoto->selentries = NULL;
    _ephoto_thumb_browser_show(ephoto, entry);
 }
 
@@ -84,10 +96,12 @@ _ephoto_slideshow_back(void *data, Evas_Object *obj EINA_UNUSED,
 	  break;
 
        case EPHOTO_STATE_THUMB:
+          ephoto->selentries = NULL;
 	  _ephoto_thumb_browser_show(ephoto, entry);
 	  break;
 
        default:
+          ephoto->selentries = NULL;
 	  _ephoto_thumb_browser_show(ephoto, entry);
      }
 }
@@ -108,6 +122,7 @@ _ephoto_thumb_browser_changed_directory(void *data,
 {
    Ephoto *ephoto = data;
 
+   ephoto->selentries = NULL;
    ephoto_single_browser_entry_set(ephoto->single_browser, NULL);
    ephoto_slideshow_entry_set(ephoto->slideshow, NULL);
 }
@@ -172,6 +187,7 @@ ephoto_window_add(const char *path)
    EPHOTO_EVENT_POPULATE_END = ecore_event_type_new();
    EPHOTO_EVENT_POPULATE_ERROR = ecore_event_type_new();
 
+   ephoto->selentries = NULL;
    ephoto->win = elm_win_util_standard_add("ephoto", "Ephoto");
    if (!ephoto->win)
      {
@@ -642,6 +658,11 @@ ephoto_entry_free(Ephoto *ephoto, Ephoto_Entry *entry)
      {
         node = eina_list_data_find_list(ephoto->entries, entry);
         ephoto->entries = eina_list_remove_list(ephoto->entries, node);
+        if (ephoto->selentries)
+          {
+             node = eina_list_data_find_list(ephoto->selentries, entry);
+             ephoto->selentries = eina_list_remove_list(ephoto->selentries, node);
+          }
      }
    eina_stringshare_del(entry->path);
    eina_stringshare_del(entry->label);

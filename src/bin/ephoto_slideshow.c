@@ -9,6 +9,7 @@ struct _Ephoto_Slideshow
    Evas_Object *notify;
    Evas_Object *bar;
    Evas_Object *event;
+   Eina_List *entries;
    Elm_Object_Item *pause;
    Elm_Object_Item *pause_after;
    Elm_Object_Item *fullscreen;
@@ -479,6 +480,15 @@ static const Elm_Slideshow_Item_Class _item_cls =
     { {_slideshow_item_get, NULL} };
 
 void
+ephoto_slideshow_entries_set(Evas_Object *obj, Eina_List *entries)
+{
+   Ephoto_Slideshow *ss = evas_object_data_get(obj, "slideshow");
+
+   if (entries)
+     ss->entries = entries;
+}
+
+void
 ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
 {
    Ephoto_Slideshow *ss = evas_object_data_get(obj, "slideshow");
@@ -529,7 +539,7 @@ ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
 	  }
      }
 
-   EINA_LIST_FOREACH(ss->ephoto->entries, l, itr)
+   EINA_LIST_FOREACH(ss->entries, l, itr)
      {
         Elm_Object_Item *slideshow_item;
 

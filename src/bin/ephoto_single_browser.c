@@ -25,6 +25,7 @@ struct _Ephoto_Single_Browser
    Ephoto_Orient orient;
    Eina_List *handlers;
    Eina_List *upload_handlers;
+   Eina_List *entries;
    Eina_Bool editing:1;
    Eina_Bool cropping:1;
    unsigned int *edited_image_data;
@@ -598,13 +599,13 @@ _mouse_wheel(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 static Ephoto_Entry *
 _first_entry_find(Ephoto_Single_Browser *sb)
 {
-   return eina_list_nth(sb->ephoto->entries, 0);
+   return eina_list_nth(sb->entries, 0);
 }
 
 static Ephoto_Entry *
 _last_entry_find(Ephoto_Single_Browser *sb)
 {
-   return eina_list_last_data_get(sb->ephoto->entries);
+   return eina_list_last_data_get(sb->entries);
 }
 
 static char *
@@ -819,7 +820,7 @@ _next_entry(Ephoto_Single_Browser *sb)
    Ephoto_Entry *entry = NULL;
    Eina_List *node;
 
-   node = eina_list_data_find_list(sb->ephoto->entries, sb->entry);
+   node = eina_list_data_find_list(sb->entries, sb->entry);
    if (!node)
       return;
    if ((node = node->next))
@@ -837,7 +838,7 @@ _prev_entry(Ephoto_Single_Browser *sb)
 {
    Eina_List *node;
    Ephoto_Entry *entry = NULL;
-   node = eina_list_data_find_list(sb->ephoto->entries, sb->entry);
+   node = eina_list_data_find_list(sb->entries, sb->entry);
    if (!node)
       return;
    if ((node = node->prev))
@@ -2429,7 +2430,7 @@ _entry_free(void *data, const Ephoto_Entry *entry)
    if (entry == sb->entry)
      {
         elm_object_item_del(entry->item);
-        if (eina_list_count(sb->ephoto->entries) <= 1)
+        if (eina_list_count(sb->entries) <= 1)
           evas_object_smart_callback_call(sb->main, "back", NULL);
         else
           _next_entry(sb);
@@ -2679,6 +2680,15 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
   error:
    evas_object_del(sb->main);
    return NULL;
+}
+
+void
+ephoto_single_browser_entries_set(Evas_Object *obj, Eina_List *entries)
+{
+   Ephoto_Single_Browser *sb = evas_object_data_get(obj, "single_browser");
+
+   if (entries)
+     sb->entries = entries;
 }
 
 void

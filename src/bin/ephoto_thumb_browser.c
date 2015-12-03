@@ -572,9 +572,24 @@ _ephoto_thumb_activated(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
+   Eina_List *selected, *s;
+   Elm_Object_Item *item;
    Elm_Object_Item *it = event_info;
    Ephoto_Entry *e = elm_object_item_data_get(it);
 
+   elm_gengrid_item_selected_set(it, EINA_TRUE);
+   selected =
+       eina_list_clone(elm_gengrid_selected_items_get(tb->grid));
+   if (eina_list_count(selected) <= 1)
+     tb->ephoto->selentries = NULL;
+   else
+     {
+        EINA_LIST_FOREACH(selected, s, item)
+          {
+             tb->ephoto->selentries = eina_list_append(tb->ephoto->selentries,
+                 elm_object_item_data_get(item));
+          }
+     }
    evas_object_smart_callback_call(tb->main, "view", e);
 }
 
@@ -625,6 +640,8 @@ _slideshow(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
+   Eina_List *selected, *s;
+   Elm_Object_Item *item;
    Elm_Object_Item *it = elm_gengrid_selected_item_get(tb->grid);
    Ephoto_Entry *entry;
 
@@ -635,6 +652,18 @@ _slideshow(void *data, Evas_Object *obj EINA_UNUSED,
 
    if (!entry)
       return;
+   selected =
+       eina_list_clone(elm_gengrid_selected_items_get(tb->grid));
+   if (eina_list_count(selected) <= 1)
+     tb->ephoto->selentries = NULL;
+   else
+     {
+        EINA_LIST_FOREACH(selected, s, item)
+          {
+             tb->ephoto->selentries = eina_list_append(tb->ephoto->selentries,
+                 elm_object_item_data_get(item));
+          }
+     }
    evas_object_smart_callback_call(tb->main, "slideshow", entry);
 }
 
@@ -3450,7 +3479,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_gengrid_align_set(tb->grid, 0.5, 0.0);
    elm_gengrid_multi_select_set(tb->grid, EINA_TRUE);
    elm_gengrid_multi_select_mode_set(tb->grid,
-       ELM_OBJECT_MULTI_SELECT_MODE_WITH_CONTROL);
+       ELM_OBJECT_MULTI_SELECT_MODE_DEFAULT);
    elm_scroller_bounce_set(tb->grid, EINA_FALSE, EINA_TRUE);
    evas_object_smart_callback_add(tb->grid, "activated",
        _ephoto_thumb_activated, tb);

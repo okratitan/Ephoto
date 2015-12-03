@@ -780,11 +780,10 @@ _ephoto_dir_show_folders(void *data, Evas_Object *obj EINA_UNUSED,
 
    evas_object_show(tb->leftbox);
    elm_table_pack(tb->table, tb->leftbox, 0, 0, 1, 1);
-   if (tb->nolabel)
-     {
-        elm_table_unpack(tb->table, tb->nolabel);
-        elm_table_pack(tb->table, tb->nolabel, 1, 0, 4, 1);
-     } 
+   
+   elm_table_unpack(tb->table, tb->nolabel);
+   elm_table_pack(tb->table, tb->nolabel, 1, 0, 4, 1);
+    
    elm_table_unpack(tb->table, tb->grid);
    elm_table_pack(tb->table, tb->grid, 1, 0, 4, 1);
 
@@ -803,11 +802,10 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED,
 
    evas_object_hide(tb->leftbox);
    elm_table_unpack(tb->table, tb->leftbox);
-   if (tb->nolabel)
-     {
-        elm_table_unpack(tb->table, tb->nolabel);
-        elm_table_pack(tb->table, tb->nolabel, 0, 0, 5, 1);
-     }
+   
+   elm_table_unpack(tb->table, tb->nolabel);
+   elm_table_pack(tb->table, tb->nolabel, 0, 0, 5, 1);
+   
    elm_table_unpack(tb->table, tb->grid);
    elm_table_pack(tb->table, tb->grid, 0, 0, 5, 1);
 
@@ -3134,46 +3132,21 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
      }
    if (!tb->ephoto->entries)
      {
-	if (!tb->nolabel)
-	  {
-	     char buf[PATH_MAX];
+        char buf[PATH_MAX];
 
-	     elm_table_unpack(tb->table, tb->grid);
-	     tb->nolabel = elm_label_add(tb->table);
-	     elm_label_line_wrap_set(tb->nolabel, ELM_WRAP_WORD);
-	     elm_object_text_set(tb->nolabel,
-		 _("There are no images in this directory"));
-	     evas_object_size_hint_weight_set(tb->nolabel, EVAS_HINT_EXPAND,
-		 EVAS_HINT_EXPAND);
-	     evas_object_size_hint_align_set(tb->nolabel, EVAS_HINT_FILL,
-		 EVAS_HINT_FILL);
-             evas_object_show(tb->nolabel);
-             if (!tb->ephoto->config->fsel_hide)
-               {
-	          elm_table_pack(tb->table, tb->nolabel, 1, 0, 4, 1);
-	          elm_table_pack(tb->table, tb->grid, 1, 0, 4, 1);
-               }
-             else
-               {
-                  elm_table_pack(tb->table, tb->nolabel, 0, 0, 5, 1);
-                  elm_table_pack(tb->table, tb->grid, 0, 0, 5, 1);
-               }
-	     snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s",
-		 _("Total"), ngettext("image", "images", 0), _("Size"),
-		 ngettext("B", "B", 0));
-	     elm_object_text_set(tb->infolabel, buf);
-	  }
+        elm_object_text_set(tb->nolabel,
+            _("There are no images in this directory"));
+	snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s",
+	    _("Total"), ngettext("image", "images", 0), _("Size"),
+	ngettext("B", "B", 0));
+	elm_object_text_set(tb->infolabel, buf);
      }
    else if (!tb->dirs_only)
      {
-	if (tb->nolabel)
-	  {
-	     elm_table_unpack(tb->table, tb->nolabel);
-	     evas_object_del(tb->nolabel);
-	     tb->nolabel = NULL;
-	  }
 	char isize[PATH_MAX];
 	char image_info[PATH_MAX];
+
+        elm_object_text_set(tb->nolabel, " ");
 
 	if (tb->totsize < 1024.0)
 	   snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize, ngettext("B",
@@ -3454,8 +3427,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
        _on_list_contract_req, tb);
    evas_object_smart_callback_add(tb->fsel, "expanded", _on_list_expanded, tb);
    evas_object_smart_callback_add(tb->fsel, "contracted", _on_list_contracted,
-       tb);
-   //evas_object_smart_callback_add(tb->fsel, "selected", _on_list_selected, tb);
+       tb); 
    evas_object_event_callback_add(tb->fsel, EVAS_CALLBACK_MOUSE_UP,
        _fsel_mouse_up_cb, tb);
    evas_object_data_set(tb->fsel, "thumb_browser", tb);
@@ -3471,6 +3443,22 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
      }
    else
         evas_object_hide(tb->leftbox);
+
+   tb->nolabel = elm_label_add(tb->table);
+   elm_label_line_wrap_set(tb->nolabel, ELM_WRAP_WORD);
+   elm_object_text_set(tb->nolabel,
+       _("There are no images in this directory"));
+   evas_object_size_hint_weight_set(tb->nolabel, EVAS_HINT_EXPAND,
+       EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(tb->nolabel, EVAS_HINT_FILL,
+       EVAS_HINT_FILL);
+   evas_object_size_hint_aspect_set(tb->nolabel, EVAS_ASPECT_CONTROL_VERTICAL,
+       1, 1);
+   evas_object_show(tb->nolabel);
+   if (!tb->ephoto->config->fsel_hide)
+     elm_table_pack(tb->table, tb->nolabel, 1, 0, 4, 1);
+   else
+     elm_table_pack(tb->table, tb->nolabel, 0, 0, 5, 1);
 
    tb->grid = elm_gengrid_add(tb->table);
    evas_object_size_hint_weight_set(tb->grid, EVAS_HINT_EXPAND,

@@ -2429,6 +2429,7 @@ _entry_free(void *data, const Ephoto_Entry *entry)
    if (entry == sb->entry)
      {
         _next_entry(sb);
+        elm_object_item_del(entry->item);
      }
 }
 

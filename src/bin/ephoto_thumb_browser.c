@@ -480,7 +480,7 @@ _todo_items_process(void *data)
 	   if (entry->item)
 	     {
 		elm_object_item_data_set(entry->item, entry);
-	     }
+             }
            else
 	     {
 		ephoto_entry_free(tb->ephoto, entry);

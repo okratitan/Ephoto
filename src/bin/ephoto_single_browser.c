@@ -2428,8 +2428,11 @@ _entry_free(void *data, const Ephoto_Entry *entry)
 
    if (entry == sb->entry)
      {
-        _next_entry(sb);
         elm_object_item_del(entry->item);
+        if (eina_list_count(sb->ephoto->entries) <= 1)
+          evas_object_smart_callback_call(sb->main, "back", NULL);
+        else
+          _next_entry(sb);
      }
 }
 

@@ -837,8 +837,6 @@ _prev_entry(Ephoto_Single_Browser *sb)
 {
    Eina_List *node;
    Ephoto_Entry *entry = NULL;
-   printf("Hi\n");
-   printf("%s\n", sb->entry->path);
    node = eina_list_data_find_list(sb->ephoto->entries, sb->entry);
    if (!node)
       return;
@@ -1799,10 +1797,7 @@ _delete_apply(void *data, Evas_Object *obj EINA_UNUSED,
         elm_object_focus_set(sb->event, EINA_TRUE);
         evas_object_freeze_events_set(sb->event, EINA_FALSE);
      }
-   ephoto_directory_set(sb->ephoto, sb->ephoto->config->directory,
-       NULL, EINA_FALSE, EINA_TRUE);
-   ephoto_title_set(sb->ephoto, sb->ephoto->config->directory);
-   evas_object_smart_callback_call(sb->main, "back", NULL);
+   ephoto_entry_free(sb->ephoto, sb->entry);
 }
 
 static void
@@ -2427,11 +2422,14 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
-_entry_free(void *data, const Ephoto_Entry *entry EINA_UNUSED)
+_entry_free(void *data, const Ephoto_Entry *entry)
 {
    Ephoto_Single_Browser *sb = data;
 
-   sb->entry = NULL;
+   if (entry == sb->entry)
+     {
+        _next_entry(sb);
+     }
 }
 
 static void

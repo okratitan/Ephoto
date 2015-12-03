@@ -423,9 +423,11 @@ _ephoto_populate_entries(Ephoto_Dir_Data *ed)
    Ephoto_Entry *entry;
 
    if (ed->dirs_only)
-     EINA_LIST_FREE(ed->ephoto->direntries, entry) ephoto_entry_free(entry);
+     EINA_LIST_FREE(ed->ephoto->direntries, entry)
+       ephoto_entry_free(entry->ephoto, entry);
    else if (ed->thumbs_only)
-     EINA_LIST_FREE(ed->ephoto->entries, entry) ephoto_entry_free(entry);
+     EINA_LIST_FREE(ed->ephoto->entries, entry)
+       ephoto_entry_free(entry->ephoto, entry);
    else
      ephoto_entries_free(ed->ephoto);
 
@@ -621,14 +623,25 @@ ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label,
 }
 
 void
-ephoto_entry_free(Ephoto_Entry *entry)
+ephoto_entry_free(Ephoto *ephoto, Ephoto_Entry *entry)
 {
    Ephoto_Entry_Free_Listener *fl;
+   Eina_List *node;
 
    EINA_LIST_FREE(entry->free_listeners, fl)
      {
         fl->cb((void *) fl->data, entry);
         free(fl);
+     }
+   if (entry->is_dir)
+     {
+        node = eina_list_data_find_list(ephoto->direntries, entry);
+        ephoto->direntries = eina_list_remove_list(ephoto->direntries, node);
+     }
+   else
+     {
+        node = eina_list_data_find_list(ephoto->entries, entry);
+        ephoto->entries = eina_list_remove_list(ephoto->entries, node);
      }
    eina_stringshare_del(entry->path);
    eina_stringshare_del(entry->label);
@@ -670,6 +683,6 @@ ephoto_entries_free(Ephoto *ephoto)
 {
    Ephoto_Entry *entry;
 
-   EINA_LIST_FREE(ephoto->entries, entry) ephoto_entry_free(entry);
-   EINA_LIST_FREE(ephoto->direntries, entry) ephoto_entry_free(entry);
+   EINA_LIST_FREE(ephoto->entries, entry) ephoto_entry_free(ephoto, entry);
+   EINA_LIST_FREE(ephoto->direntries, entry) ephoto_entry_free(ephoto, entry);
 }

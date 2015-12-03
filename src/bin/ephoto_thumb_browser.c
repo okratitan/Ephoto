@@ -452,7 +452,7 @@ _todo_items_process(void *data)
                  entry->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp, NULL, NULL);
 	   if (!entry->item)
 	     {
-		ephoto_entry_free(entry);
+		ephoto_entry_free(tb->ephoto, entry);
 	     }
         }
       else
@@ -483,7 +483,7 @@ _todo_items_process(void *data)
 	     }
            else
 	     {
-		ephoto_entry_free(entry);
+		ephoto_entry_free(tb->ephoto, entry);
 	     }
 	}
       tb->animator.processed++;

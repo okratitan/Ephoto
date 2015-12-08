@@ -246,8 +246,8 @@ _viewer_zoom_fit_apply(Ephoto_Viewer *v)
    EINA_SAFETY_ON_TRUE_RETURN(iw <= 0);
    EINA_SAFETY_ON_TRUE_RETURN(ih <= 0);
 
-   zx = (double) (cw-10) / (double) iw;
-   zy = (double) (ch-10) / (double) ih;
+   zx = (double) (cw-15) / (double) iw;
+   zy = (double) (ch-15) / (double) ih;
 
    zoom = (zx < zy) ? zx : zy;
    _viewer_zoom_apply(v, zoom);

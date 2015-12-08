@@ -6,10 +6,9 @@ Add more effects, filters as necessary
 Clean up Cropper
 -Thumb Browser:
 Add ability to view more info on image(Exif perhaps?)
-Add ability to delete images
-Turn file selector into a tree.
+Add ability to search
 -Slideshow:
 Possibly look at implementing moving slideshows.
--Other:
+-Other Possibilities:
 Exporting to flickr, facebook, etc..
 Read straight from a camera

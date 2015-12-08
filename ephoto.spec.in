@@ -4,14 +4,16 @@ Version: @VERSION@
 Release: 0.%(date '+%Y%m%d')
 License: BSD
 Group: Applications/Multimedia
-URL: http://www.smhouston.us
+URL: http://www.smhouston.us/ephoto
 Source: %{name}-%{version}.tar.gz
 Packager: %{?_packager:%{_packager}}%{!?_packager:Stephen Houston <smhouston88@gmail.com>}
-Vendor: %{?_vendorinfo:%{_vendorinfo}}%{!?_vendorinfo:Okra Project (http://www.smhouston.us/)}
+Vendor: %{?_vendorinfo:%{_vendorinfo}}%{!?_vendorinfo:Okra Project (http://www.smhouston.us)}
 Distribution: %{?_distribution:%{_distribution}}%{!?_distribution:%{_vendor}}
 #BuildSuggests: xorg-x11-devel
-Requires: efl edje ethumb
-BuildRequires: efl-devel edje-devel ethumb-devel
+Requires: efl
+Requires: elementary >= 1.13.0
+Requires: evsa-generic-loaders >= 1.13.0
+BuildRequires: efl-devel edje-devel elementary-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %description

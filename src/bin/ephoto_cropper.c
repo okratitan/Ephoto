@@ -29,7 +29,8 @@ _calculate_cropper_size(void *data, Evas_Object *obj EINA_UNUSED,
    int w, h, cw, ch, iw, ih, nw, nh;
    double scalew, scaleh;
 
-   evas_object_geometry_get(ec->layout, 0, 0, &w, &h);
+   edje_object_part_geometry_get(elm_layout_edje_get(ec->layout),
+       "ephoto.swallow.image", 0, 0, &w, &h);
    edje_object_part_geometry_get(elm_layout_edje_get(ec->layout),
        "ephoto.swallow.cropper", 0, 0, &cw, &ch);
    evas_object_image_size_get(elm_image_object_get(ec->image), &iw, &ih);
@@ -63,8 +64,10 @@ _cropper_changed_width(void *data, Evas_Object *obj EINA_UNUSED,
 
    mw = elm_slider_value_get(ec->cropw);
 
-   evas_object_geometry_get(ec->layout, &lx, 0, &lw, 0);
-   evas_object_geometry_get(ec->cropper, &cx, 0, &cw, 0);
+   edje_object_part_geometry_get(elm_layout_edje_get(ec->layout),
+       "ephoto.swallow.image", &lx, 0, &lw, 0);
+   edje_object_part_geometry_get(elm_layout_edje_get(ec->layout),
+       "ephoto.swallow.cropper", &cx, 0, &cw, 0);
    evas_object_image_size_get(elm_image_object_get(ec->image), &iw, 0);
 
    scalew = (double) mw / (double) iw;
@@ -113,8 +116,10 @@ _cropper_changed_height(void *data, Evas_Object *obj EINA_UNUSED,
 
    mh = elm_slider_value_get(ec->croph);
 
-   evas_object_geometry_get(ec->layout, 0, &ly, 0, &lh);
-   evas_object_geometry_get(ec->cropper, 0, &cy, 0, &ch);
+   edje_object_part_geometry_get(elm_layout_edje_get(ec->layout),
+       "ephoto.swallow.image", 0, &ly, 0, &lh);
+   edje_object_part_geometry_get(elm_layout_edje_get(ec->layout),
+       "ephoto.swallow.cropper", 0, &cy, 0, &ch);
    evas_object_image_size_get(elm_image_object_get(ec->image), 0, &ih);
 
    scaleh = (double) mh / (double) ih;
@@ -179,7 +184,7 @@ _apply_crop(void *data, Evas_Object *obj EINA_UNUSED,
    double scalex, scaley, scalew, scaleh;
    unsigned int *idata, *idata_new;
 
-   evas_object_geometry_get(ec->layout, &x, &y, &w, &h);
+   edje_object_part_geometry_get(edje, "ephoto.swallow.image", &x, &y, &w, &h);
    edje_object_part_geometry_get(edje, "ephoto.swallow.cropper", &cx, &cy, &cw,
        &ch);
    evas_object_image_size_get(elm_image_object_get(ec->image), &iw, &ih);
@@ -187,8 +192,8 @@ _apply_crop(void *data, Evas_Object *obj EINA_UNUSED,
    idata =
        evas_object_image_data_get(elm_image_object_get(ec->image), EINA_FALSE);
 
-   scalex = (double) cx / (double) w;
-   scaley = (double) cy / (double) h;
+   scalex = (double) (cx-x) / (double) w;
+   scaley = (double) (cy-y) / (double) h;
    scalew = (double) cw / (double) w;
    scaleh = (double) ch / (double) h;
 

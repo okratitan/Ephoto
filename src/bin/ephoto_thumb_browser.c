@@ -34,6 +34,7 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *dir_loading;
    Evas_Object *ficon;
    Elm_Object_Item *dir_current;
+   Elm_Object_Item *last_sel;
    Ephoto_Sort sort;
    Eio_File *ls;
    Eina_List *cut_items;
@@ -44,6 +45,7 @@ struct _Ephoto_Thumb_Browser
    Ecore_Idler *idler;
    Ecore_Job *change_dir_job;
    Ecore_Timer *click_timer;
+   Ecore_Timer *dc_timer;
    int thumbs_only;
    int dirs_only;
    int totimages;
@@ -56,6 +58,13 @@ struct _Ephoto_Thumb_Browser
       int count;
       int processed;
    } animator;
+   struct
+   {
+      Elm_Object_Item *item;
+      Eina_Bool control;
+      Eina_Bool shift;
+      Eina_List *selected;
+   } egsd;
    Eina_Bool main_deleted:1;
 };
 
@@ -2694,8 +2703,6 @@ _click_timer_cb(void *data)
    Elm_Object_Item *item = data;
    Ephoto_Thumb_Browser *tb = evas_object_data_get(item, "thumb_browser");
 
-   printf("No\n");
-
    _on_list_selected(tb, NULL, item);
    tb->click_timer = NULL;
 
@@ -2791,6 +2798,69 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      }
 }       
 
+static Eina_Bool
+_dc_timer_cb(void *data)
+{
+   Ephoto_Thumb_Browser *tb = data;
+  
+   if (tb->egsd.control)
+     {
+        tb->last_sel = tb->egsd.item;
+     }
+   else if (tb->egsd.shift)
+     {
+        if (tb->last_sel)
+          {
+             int one, two, i;
+             Elm_Object_Item *it, *cur = tb->last_sel;
+             one = elm_gengrid_item_index_get(tb->last_sel);
+             two = elm_gengrid_item_index_get(tb->egsd.item);
+             if (two < one)
+               {
+                  for (i = one; i > (two+1); i--)
+                    {
+                       it = elm_gengrid_item_prev_get(cur);
+                       elm_gengrid_item_selected_set(it, EINA_TRUE);
+                       cur = it;
+                    }
+               }
+             else if (two > one)
+               {
+                  for (i = one; i < (two-1); i++)
+                    {
+                       it = elm_gengrid_item_next_get(cur);
+                       elm_gengrid_item_selected_set(it, EINA_TRUE);
+                       cur = it;
+                    }
+               }
+             tb->last_sel = tb->egsd.item;
+          }
+        else
+          {
+             tb->last_sel = tb->egsd.item;
+          }
+     }
+   else
+     {
+        Eina_List *node;
+        Elm_Object_Item *it;
+        if (eina_list_count(tb->egsd.selected) > 0)
+          {
+             EINA_LIST_FOREACH(tb->egsd.selected, node, it)
+               {
+                  elm_gengrid_item_selected_set(it, EINA_FALSE);
+               }
+          }
+        tb->last_sel = tb->egsd.item;
+     }
+   tb->dc_timer = NULL;
+   eina_list_free(tb->egsd.selected);
+   tb->egsd.selected = NULL;
+   tb->egsd.item = NULL;
+   return ECORE_CALLBACK_CANCEL;
+}
+
+
 static void
 _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info)
@@ -2803,13 +2873,36 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    const Eina_List *selected = elm_gengrid_selected_items_get(tb->grid);
    int x, y;
 
+   evas_pointer_canvas_xy_get(evas_object_evas_get(tb->grid), &x, &y);
+   item = elm_gengrid_at_xy_item_get(tb->grid, x, y, 0, 0);
+
+   if (info->button == 1 && item)
+     {
+        if (info->flags == EVAS_BUTTON_DOUBLE_CLICK)
+          {
+             ecore_timer_del(tb->dc_timer);
+             tb->dc_timer = NULL;
+             eina_list_free(tb->egsd.selected);
+             tb->egsd.selected = NULL;
+             tb->egsd.item = NULL;
+             return;
+          }
+        else
+          {
+             tb->egsd.item = item;
+             tb->egsd.shift = evas_key_modifier_is_set(info->modifiers,
+                 "Shift");
+             tb->egsd.control = evas_key_modifier_is_set(info->modifiers,
+                 "Control");
+             tb->egsd.selected = eina_list_clone(selected);
+             tb->dc_timer = ecore_timer_add(0.3, _dc_timer_cb, tb);
+          }
+     }
    if (info->button != 3)
       return;
 
    snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
 
-   evas_pointer_canvas_xy_get(evas_object_evas_get(tb->grid), &x, &y);
-   item = elm_gengrid_at_xy_item_get(tb->grid, x, y, 0, 0);
    if (item)
       elm_gengrid_item_selected_set(item, EINA_TRUE);
    if (eina_list_count(selected) > 0 || item)
@@ -3235,6 +3328,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    tb->copy_items = NULL;
    tb->dir_current = NULL;
    tb->change_dir_job = NULL;
+   tb->last_sel = NULL;
    tb->sort = EPHOTO_SORT_ALPHABETICAL_ASCENDING;
    tb->main = box;
 
@@ -3416,8 +3510,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_align_set(tb->grid, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_gengrid_align_set(tb->grid, 0.5, 0.0);
    elm_gengrid_multi_select_set(tb->grid, EINA_TRUE);
-   elm_gengrid_multi_select_mode_set(tb->grid,
-       ELM_OBJECT_MULTI_SELECT_MODE_WITH_CONTROL);
+   elm_gengrid_multi_select_mode_set(tb->grid, ELM_OBJECT_MULTI_SELECT_MODE_DEFAULT);
    elm_scroller_bounce_set(tb->grid, EINA_FALSE, EINA_TRUE);
    evas_object_smart_callback_add(tb->grid, "activated",
        _ephoto_thumb_activated, tb);

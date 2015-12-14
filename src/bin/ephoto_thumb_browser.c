@@ -2021,6 +2021,7 @@ _dnd_drag_data_build(Eina_List **items)
 	       {
 		  strcat((char *) drag_data, FILESEP);
 		  strcat((char *) drag_data, e->path);
+                  strcat((char *) drag_data, "\n");
 	       }
 	  }
      }
@@ -2059,55 +2060,6 @@ _dnd_create_icon(void *data, Evas_Object *win, Evas_Coord *xoff,
    return icon;
 }
 
-static Eina_List *
-_dnd_icons_get(void *data)
-{
-   Eina_List *l;
-   Eina_List *icons = NULL;
-   Evas_Coord xm, ym;
-
-   evas_pointer_canvas_xy_get(evas_object_evas_get(data), &xm, &ym);
-   Eina_List *items = eina_list_clone(elm_gengrid_selected_items_get(data));
-   Elm_Object_Item *gli = elm_gengrid_at_xy_item_get(data, xm, ym, 0, 0);
-
-   if (gli)
-     {
-	void *p = eina_list_search_sorted(items,
-            _entry_cmp_grid_alpha_asc, gli);
-
-	if (!p)
-	   items = eina_list_append(items, gli);
-     }
-
-   EINA_LIST_FOREACH(items, l, gli)
-     {
-        Evas_Object *o =
-	    elm_object_item_part_content_get(gli, "elm.swallow.icon");
-
-        if (o)
-	  {
-	     int x, y, w, h;
-	     const char *f, *g;
-
-	     elm_image_file_get(o, &f, &g);
-	     Evas_Object *ic = elm_icon_add(data);
-
-	     elm_image_file_set(ic, f, g);
-	     evas_object_geometry_get(o, &x, &y, &w, &h);
-	     evas_object_size_hint_align_set(ic, EVAS_HINT_FILL, EVAS_HINT_FILL);
-	     evas_object_size_hint_weight_set(ic, EVAS_HINT_EXPAND,
-	         EVAS_HINT_EXPAND);
-	     evas_object_move(ic, x, y);
-	     evas_object_resize(ic, w, h);
-	     evas_object_show(ic);
-	     icons = eina_list_append(icons, ic);
-	  }
-     }
-
-   eina_list_free(items);
-   return icons;
-}
-
 static const char *
 _dnd_get_drag_data(Evas_Object *obj, Elm_Object_Item *it, Eina_List **items)
 {
@@ -2142,7 +2094,7 @@ _dnd_item_data_get(Evas_Object *obj, Elm_Object_Item *it,
    info->createicon = _dnd_create_icon;
    info->createdata = it;
    info->dragstart = _dnd_drag_start;
-   info->icons = _dnd_icons_get(obj);
+   info->icons = NULL;
    info->dragdone = _dnd_drag_done;
    info->data = _dnd_get_drag_data(obj, it, (Eina_List **) & info->donecbdata);
    info->acceptdata = info->donecbdata;

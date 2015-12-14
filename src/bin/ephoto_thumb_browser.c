@@ -45,7 +45,6 @@ struct _Ephoto_Thumb_Browser
    Ecore_Idler *idler;
    Ecore_Job *change_dir_job;
    Ecore_Timer *click_timer;
-   Ecore_Timer *dc_timer;
    int thumbs_only;
    int dirs_only;
    int totimages;
@@ -58,13 +57,6 @@ struct _Ephoto_Thumb_Browser
       int count;
       int processed;
    } animator;
-   struct
-   {
-      Elm_Object_Item *item;
-      Eina_Bool control;
-      Eina_Bool shift;
-      Eina_List *selected;
-   } egsd;
    Eina_Bool main_deleted:1;
 };
 
@@ -2067,6 +2059,55 @@ _dnd_create_icon(void *data, Evas_Object *win, Evas_Coord *xoff,
    return icon;
 }
 
+static Eina_List *
+_dnd_icons_get(void *data)
+{
+   Eina_List *l;
+   Eina_List *icons = NULL;
+   Evas_Coord xm, ym;
+
+   evas_pointer_canvas_xy_get(evas_object_evas_get(data), &xm, &ym);
+   Eina_List *items = eina_list_clone(elm_gengrid_selected_items_get(data));
+   Elm_Object_Item *gli = elm_gengrid_at_xy_item_get(data, xm, ym, 0, 0);
+
+   if (gli)
+     {
+	void *p = eina_list_search_sorted(items,
+            _entry_cmp_grid_alpha_asc, gli);
+
+	if (!p)
+	   items = eina_list_append(items, gli);
+     }
+
+   EINA_LIST_FOREACH(items, l, gli)
+     {
+        Evas_Object *o =
+	    elm_object_item_part_content_get(gli, "elm.swallow.icon");
+
+        if (o)
+	  {
+	     int x, y, w, h;
+	     const char *f, *g;
+
+	     elm_image_file_get(o, &f, &g);
+	     Evas_Object *ic = elm_icon_add(data);
+
+	     elm_image_file_set(ic, f, g);
+	     evas_object_geometry_get(o, &x, &y, &w, &h);
+	     evas_object_size_hint_align_set(ic, EVAS_HINT_FILL, EVAS_HINT_FILL);
+	     evas_object_size_hint_weight_set(ic, EVAS_HINT_EXPAND,
+	         EVAS_HINT_EXPAND);
+	     evas_object_move(ic, x, y);
+	     evas_object_resize(ic, w, h);
+	     evas_object_show(ic);
+	     icons = eina_list_append(icons, ic);
+	  }
+     }
+
+   eina_list_free(items);
+   return icons;
+}
+
 static const char *
 _dnd_get_drag_data(Evas_Object *obj, Elm_Object_Item *it, Eina_List **items)
 {
@@ -2101,7 +2142,7 @@ _dnd_item_data_get(Evas_Object *obj, Elm_Object_Item *it,
    info->createicon = _dnd_create_icon;
    info->createdata = it;
    info->dragstart = _dnd_drag_start;
-   info->icons = NULL;
+   info->icons = _dnd_icons_get(obj);
    info->dragdone = _dnd_drag_done;
    info->data = _dnd_get_drag_data(obj, it, (Eina_List **) & info->donecbdata);
    info->acceptdata = info->donecbdata;
@@ -2798,69 +2839,6 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      }
 }       
 
-static Eina_Bool
-_dc_timer_cb(void *data)
-{
-   Ephoto_Thumb_Browser *tb = data;
-  
-   if (tb->egsd.control)
-     {
-        tb->last_sel = tb->egsd.item;
-     }
-   else if (tb->egsd.shift)
-     {
-        if (tb->last_sel)
-          {
-             int one, two, i;
-             Elm_Object_Item *it, *cur = tb->last_sel;
-             one = elm_gengrid_item_index_get(tb->last_sel);
-             two = elm_gengrid_item_index_get(tb->egsd.item);
-             if (two < one)
-               {
-                  for (i = one; i > (two+1); i--)
-                    {
-                       it = elm_gengrid_item_prev_get(cur);
-                       elm_gengrid_item_selected_set(it, EINA_TRUE);
-                       cur = it;
-                    }
-               }
-             else if (two > one)
-               {
-                  for (i = one; i < (two-1); i++)
-                    {
-                       it = elm_gengrid_item_next_get(cur);
-                       elm_gengrid_item_selected_set(it, EINA_TRUE);
-                       cur = it;
-                    }
-               }
-             tb->last_sel = tb->egsd.item;
-          }
-        else
-          {
-             tb->last_sel = tb->egsd.item;
-          }
-     }
-   else
-     {
-        Eina_List *node;
-        Elm_Object_Item *it;
-        if (eina_list_count(tb->egsd.selected) > 0)
-          {
-             EINA_LIST_FOREACH(tb->egsd.selected, node, it)
-               {
-                  elm_gengrid_item_selected_set(it, EINA_FALSE);
-               }
-          }
-        tb->last_sel = tb->egsd.item;
-     }
-   tb->dc_timer = NULL;
-   eina_list_free(tb->egsd.selected);
-   tb->egsd.selected = NULL;
-   tb->egsd.item = NULL;
-   return ECORE_CALLBACK_CANCEL;
-}
-
-
 static void
 _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info)
@@ -2878,24 +2856,57 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 
    if (info->button == 1 && item)
      {
-        if (info->flags == EVAS_BUTTON_DOUBLE_CLICK)
+        if (evas_key_modifier_is_set(info->modifiers, "Control"))
           {
-             ecore_timer_del(tb->dc_timer);
-             tb->dc_timer = NULL;
-             eina_list_free(tb->egsd.selected);
-             tb->egsd.selected = NULL;
-             tb->egsd.item = NULL;
-             return;
+             tb->last_sel = item;
+          }
+        else if (evas_key_modifier_is_set(info->modifiers, "Shift"))
+          {
+             if (tb->last_sel)
+               {
+                  int one, two, i;
+                  Elm_Object_Item *it, *cur = tb->last_sel;
+                  one = elm_gengrid_item_index_get(tb->last_sel);
+                  two = elm_gengrid_item_index_get(item);
+                  if (two < one)
+                    {
+                       for (i = one; i > (two+1); i--)
+                         {
+                            it = elm_gengrid_item_prev_get(cur);
+                            elm_gengrid_item_selected_set(it, EINA_TRUE);
+                            cur = it;
+                         }
+                    }
+                  else if (two > one)
+                    {
+                       for (i = one; i < (two-1); i++)
+                         {
+                            it = elm_gengrid_item_next_get(cur);
+                            elm_gengrid_item_selected_set(it, EINA_TRUE);
+                            cur = it;
+                         }
+                    }
+                  tb->last_sel = item;
+               }
+             else
+               {
+                  tb->last_sel = item;
+               }
           }
         else
           {
-             tb->egsd.item = item;
-             tb->egsd.shift = evas_key_modifier_is_set(info->modifiers,
-                 "Shift");
-             tb->egsd.control = evas_key_modifier_is_set(info->modifiers,
-                 "Control");
-             tb->egsd.selected = eina_list_clone(selected);
-             tb->dc_timer = ecore_timer_add(0.3, _dc_timer_cb, tb);
+             Eina_List *sel = eina_list_clone(selected);
+             Eina_List *node;
+             Elm_Object_Item *it;
+             if (eina_list_count(sel) > 0)
+               {
+                  EINA_LIST_FOREACH(sel, node, it)
+                    {
+                       elm_gengrid_item_selected_set(it, EINA_FALSE);
+                    }
+                  eina_list_free(sel);
+               }
+             tb->last_sel = item;
           }
      }
    if (info->button != 3)

@@ -31,7 +31,6 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *max;
    Evas_Object *leftbox;
    Evas_Object *direntry;
-   Evas_Object *dir_loading;
    Evas_Object *ficon;
    Elm_Object_Item *dir_current;
    Elm_Object_Item *last_sel;
@@ -417,13 +416,7 @@ _todo_items_process(void *data)
      {
         if (tb->animator.count == 0)
           return EINA_TRUE;
-	if (tb->dir_loading)
-	  {
-	     evas_object_del(tb->dir_loading);
-             evas_object_freeze_events_set(tb->main, EINA_FALSE);
-             elm_object_focus_set(tb->main, EINA_TRUE);
-	  }
-	tb->animator.todo_items = NULL;
+        tb->animator.todo_items = NULL;
 	return EINA_FALSE;
      }
    if ((tb->ls) && (eina_list_count(tb->todo_items) < TODO_ITEM_MIN_BATCH))
@@ -3105,10 +3098,6 @@ _ephoto_thumb_populate_start(void *data, int type EINA_UNUSED,
 
    evas_object_smart_callback_call(tb->main, "changed,directory", NULL);
 
-   tb->dir_loading =
-       _processing(tb, _("Loading Directory"),
-       _("Please wait while the directory is loaded."));
-   evas_object_show(tb->dir_loading);
    tb->animator.processed = 0;
    tb->animator.count = 0;
 
@@ -3189,12 +3178,6 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
 		tb->totimages), _("Size"), isize);
 	elm_object_text_set(tb->infolabel, image_info);
      }
-   if (tb->dir_loading && (tb->animator.processed == tb->animator.count))
-     {
-	evas_object_del(tb->dir_loading);
-        evas_object_freeze_events_set(tb->main, EINA_FALSE);
-        elm_object_focus_set(tb->main, EINA_TRUE);
-     }
    tb->dirs_only = 0;
    tb->thumbs_only = 0;
 
@@ -3207,12 +3190,6 @@ _ephoto_thumb_populate_error(void *data, int type EINA_UNUSED,
 {
    Ephoto_Thumb_Browser *tb = data;
 
-   if (tb->dir_loading)
-     {
-        evas_object_del(tb->dir_loading);
-        evas_object_freeze_events_set(tb->main, EINA_FALSE);
-        elm_object_focus_set(tb->main, EINA_TRUE);
-     }
    tb->dirs_only = 0;
    tb->thumbs_only = 0;
 

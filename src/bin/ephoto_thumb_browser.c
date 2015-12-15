@@ -2854,6 +2854,20 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
              tb->last_sel = item;
           }
      }
+   if (info->button == 1 && !item)
+     {
+        Eina_List *sel = eina_list_clone(selected);
+        Eina_List *node;
+        Elm_Object_Item *it;
+        if (eina_list_count(sel) > 0)
+          {
+             EINA_LIST_FOREACH(sel, node, it)
+               {
+                  elm_gengrid_item_selected_set(it, EINA_FALSE);
+               }
+             eina_list_free(sel);
+          }
+     }
    if (info->button != 3)
       return;
 

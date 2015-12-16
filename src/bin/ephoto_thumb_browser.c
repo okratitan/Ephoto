@@ -613,6 +613,8 @@ _ephoto_search_cancel(void *data, Evas_Object *obj EINA_UNUSED,
 
    elm_object_focus_set(tb->main, EINA_TRUE);
    tb->last_search = NULL;
+   evas_object_del(tb->search);
+   tb->search = NULL;
    elm_box_unpack(tb->gridbox, hbox);
    evas_object_del(hbox);
    tb->searching = 0;

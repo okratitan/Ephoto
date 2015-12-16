@@ -124,7 +124,6 @@ _on_list_expanded(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
    tb->thumbs_only = 0;
    ephoto_directory_set(tb->ephoto, path, it, tb->dirs_only, tb->thumbs_only);
    ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
-   elm_object_focus_set(tb->main, EINA_TRUE);
 }
 
 static void
@@ -148,7 +147,6 @@ _on_list_contracted(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
        tb->dirs_only, tb->thumbs_only);
    ephoto_title_set(tb->ephoto,
        tb->ephoto->config->directory);
-   elm_object_focus_set(tb->main, EINA_TRUE);
 }
 
 static void
@@ -164,7 +162,6 @@ _dir_job(void *data)
    ephoto_directory_set(tb->ephoto, path, NULL,
        tb->dirs_only, tb->thumbs_only);
    ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
-   elm_object_focus_set(tb->main, EINA_TRUE);
 }
 
 static void
@@ -526,7 +523,6 @@ _ephoto_dir_go_up(void *data, Evas_Object *obj EINA_UNUSED,
 	ephoto_directory_set(tb->ephoto, dirname(path), NULL,
             tb->dirs_only, tb->thumbs_only);
 	ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
-        elm_object_focus_set(tb->main, EINA_TRUE);
      }
 }
 
@@ -547,7 +543,6 @@ _ephoto_dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
    ephoto_directory_set(tb->ephoto, path, NULL,
        tb->dirs_only, tb->thumbs_only);
    ephoto_title_set(tb->ephoto, _("Trash"));
-   elm_object_focus_set(tb->main, EINA_TRUE);
 }
 
 static void
@@ -567,7 +562,6 @@ _ephoto_direntry_go(void *data, Evas_Object *obj EINA_UNUSED,
 	ephoto_directory_set(tb->ephoto, dir, NULL,
             tb->dirs_only, tb->thumbs_only);
 	ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
-        elm_object_focus_set(tb->main, EINA_TRUE);
      }
 }
 
@@ -617,7 +611,7 @@ _ephoto_search_cancel(void *data, Evas_Object *obj EINA_UNUSED,
    Evas_Object *hbox = evas_object_data_get(search, "parent");
    Ephoto_Thumb_Browser *tb = evas_object_data_get(search, "thumb_browser");
 
-   evas_object_del(tb->last_search);
+   elm_object_focus_set(tb->main, EINA_TRUE);
    tb->last_search = NULL;
    elm_box_unpack(tb->gridbox, hbox);
    evas_object_del(hbox);

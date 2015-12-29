@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ephoto 0.1.1\n"
 "Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2015-12-29 18:20+0100\n"
-"PO-Revision-Date: 2015-12-29 19:25+0100\n"
+"PO-Revision-Date: 2015-12-29 19:45+0100\n"
 "Last-Translator: Stefan Uram <the_waiter@bodhi.sk>\n"
 "Language-Team: none\n"
 "Language: sk\n"
@@ -56,7 +56,7 @@ msgstr "Zrušiť"
 
 #: src/bin/ephoto_config.c:98 src/bin/ephoto_config.c:176
 msgid "Root Directory"
-msgstr "Domovský priečinok"
+msgstr "Koreňový priečinok"
 
 #: src/bin/ephoto_config.c:100 src/bin/ephoto_config.c:178
 msgid "Home Directory"
@@ -147,8 +147,8 @@ msgid ""
 "git>http://git.enlightenment.org/apps/ephoto.git</a><br/><br/><b>Authors:</"
 "b><br/>"
 msgstr ""
-"<b>O programe Ephoto</b><br/>Ephoto je kompletní prohlížeč obrázků založený "
-"na EFL.<br/>Pre viac informácií navštívte projektovú stránku na "
+"<b>O programe Ephoto</b><br/>Ephoto je kompletný prehliadač obrázkov "
+"založený na EFL.<br/>Pre viac informácií navštívte projektovú stránku na "
 "Enlightenment wiki:<br/>https://phab.enlightenment.org/w/projects/ephoto<br/"
 ">Zdrojový kód Ephoto môžete nájsť v Gite Enlightenmentu:<br/>http://git."
 "enlightenment.org/apps/ephoto.git<br/><br/><b>Autoři:</b><br/>"
@@ -542,7 +542,7 @@ msgstr "Veľkosť súboru"
 
 #: src/bin/ephoto_single_browser.c:382 src/bin/ephoto_single_browser.c:2798
 msgid "N/A"
-msgstr "N/Á"
+msgstr "N/A"
 
 #: src/bin/ephoto_single_browser.c:723
 msgid "This image does not exist or is corrupted!"
@@ -678,7 +678,7 @@ msgstr "Rozmazať"
 
 #: src/bin/ephoto_single_browser.c:2165 src/bin/ephoto_single_browser.c:2616
 msgid "Sharpen"
-msgstr "Ostrosť"
+msgstr "Zvýšiť ostrosť"
 
 #: src/bin/ephoto_single_browser.c:2168 src/bin/ephoto_single_browser.c:2619
 msgid "Black and White"

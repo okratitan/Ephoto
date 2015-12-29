@@ -2350,6 +2350,10 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
              else
                _flip_vert(sb);
           }
+        else if (!strcmp(k, "Delete"))
+          {
+             _delete_image(sb, NULL, NULL);
+          }
 	return;
      }
 

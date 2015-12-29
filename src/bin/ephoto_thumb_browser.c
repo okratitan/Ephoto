@@ -3197,6 +3197,8 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      {
         if (tb->searching)
           _ephoto_search_cancel(tb->search, NULL, NULL);
+        else
+          _grid_menu_clear_cb(tb, NULL, NULL);
      }
 }
 

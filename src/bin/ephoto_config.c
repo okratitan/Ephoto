@@ -1,6 +1,6 @@
 #include "ephoto.h"
 
-#define CONFIG_VERSION 13
+#define CONFIG_VERSION 14
 
 static int _ephoto_config_load(Ephoto *ephoto);
 static Eina_Bool _ephoto_on_config_save(void *data);

@@ -7,274 +7,744 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ephoto 0.1.1\n"
 "Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2015-08-11 21:42+0200\n"
-"PO-Revision-Date: 2015-08-11 16:21+0100\n"
-"Last-Translator: Štefan Uram <uram@szm.sk>\n"
+"POT-Creation-Date: 2015-12-29 18:20+0100\n"
+"PO-Revision-Date: 2015-12-29 19:25+0100\n"
+"Last-Translator: Stefan Uram <the_waiter@bodhi.sk>\n"
 "Language-Team: none\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Poedit 1.8.4\n"
+"X-Generator: Poedit 1.5.4\n"
 
-#: src/bin/ephoto_config.c:110
+#: src/bin/ephoto_bcg.c:338 src/bin/ephoto_single_browser.c:2155
+#: src/bin/ephoto_single_browser.c:2606
+msgid "Brightness/Contrast/Gamma"
+msgstr "Jas/Konstrast/Gamma"
+
+#: src/bin/ephoto_bcg.c:355
+msgid "Brightness"
+msgstr "Jas"
+
+#: src/bin/ephoto_bcg.c:369
+msgid "Contrast"
+msgstr "Kontrast"
+
+#: src/bin/ephoto_bcg.c:383
+msgid "Gamma"
+msgstr "Gamma"
+
+#: src/bin/ephoto_bcg.c:402 src/bin/ephoto_color.c:385
+#: src/bin/ephoto_cropper.c:720 src/bin/ephoto_hsv.c:409
+#: src/bin/ephoto_single_browser.c:2123 src/bin/ephoto_single_browser.c:2574
+msgid "Reset"
+msgstr "Resetovať"
+
+#: src/bin/ephoto_bcg.c:416 src/bin/ephoto_color.c:399
+#: src/bin/ephoto_cropper.c:734 src/bin/ephoto_hsv.c:423
+msgid "Apply"
+msgstr "Použiť"
+
+#: src/bin/ephoto_bcg.c:430 src/bin/ephoto_config.c:226
+#: src/bin/ephoto_config.c:357 src/bin/ephoto_color.c:413
+#: src/bin/ephoto_cropper.c:748 src/bin/ephoto_hsv.c:437
+#: src/bin/ephoto_thumb_browser.c:746 src/bin/ephoto_thumb_browser.c:1338
+#: src/bin/ephoto_thumb_browser.c:1491
+msgid "Cancel"
+msgstr "Zrušiť"
+
+#: src/bin/ephoto_config.c:98 src/bin/ephoto_config.c:176
+msgid "Root Directory"
+msgstr "Domovský priečinok"
+
+#: src/bin/ephoto_config.c:100 src/bin/ephoto_config.c:178
+msgid "Home Directory"
+msgstr "Domovský priečinok"
+
+#: src/bin/ephoto_config.c:102 src/bin/ephoto_config.c:180
+msgid "Last Open Directory"
+msgstr "Posledný oitvorený priečinok"
+
+#: src/bin/ephoto_config.c:123 src/bin/ephoto_config.c:182
+#: src/bin/ephoto_config.c:196
+msgid "Custom Directory"
+msgstr "Voliteľný priečinok"
+
+#: src/bin/ephoto_config.c:136 src/bin/ephoto_thumb_browser.c:854
+#: src/bin/ephoto_single_browser.c:2277 src/bin/ephoto_slideshow.c:243
+msgid "General Settings"
+msgstr "Všeobecné nastavenie"
+
+#: src/bin/ephoto_config.c:151
+msgid "Hide Toolbar On Fullscreen"
+msgstr "Skryť lištu s nástrojmi pri celej obrazovke"
+
+#: src/bin/ephoto_config.c:159
+msgid "Prompt Before Changing The Filesystem"
+msgstr "Upozornenie pred vykonaním systémových operácií"
+
+#: src/bin/ephoto_config.c:167
+msgid "Move Files When Dropped"
+msgstr "Presúnúť súbory po uvoľnení"
+
+#: src/bin/ephoto_config.c:184
+msgid "Directory To Open Ephoto In"
+msgstr "Východzí priečinok"
+
+#: src/bin/ephoto_config.c:214 src/bin/ephoto_config.c:345
+#: src/bin/ephoto_thumb_browser.c:1326 src/bin/ephoto_single_browser.c:2124
+#: src/bin/ephoto_single_browser.c:2575
+msgid "Save"
+msgstr "Uložiť"
+
+#: src/bin/ephoto_config.c:266
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "sekunda"
 msgstr[1] "sekundy"
 msgstr[2] "sekúnd"
 
-#: src/bin/ephoto_config.c:139
-msgid "Slideshow Options"
-msgstr "Možnosti prezentácie"
+#: src/bin/ephoto_config.c:280 src/bin/ephoto_thumb_browser.c:862
+#: src/bin/ephoto_single_browser.c:2285 src/bin/ephoto_slideshow.c:251
+msgid "Slideshow Settings"
+msgstr "Možnosti prezentácie "
 
-#: src/bin/ephoto_config.c:146
+#: src/bin/ephoto_config.c:296
 msgid "Show Each Slide For"
 msgstr "Zobrazit každý obrázok"
 
-#: src/bin/ephoto_config.c:155
+#: src/bin/ephoto_config.c:305
 msgid "seconds"
 msgstr "sekúnd"
 
-#: src/bin/ephoto_config.c:167
+#: src/bin/ephoto_config.c:317
 msgid "Slide Transition"
 msgstr "Prechod obrázkov"
 
-#: src/bin/ephoto_config.c:198 src/bin/ephoto_single_browser.c:1503
-msgid "Save"
-msgstr "Uložiť"
+#: src/bin/ephoto_config.c:403 src/bin/ephoto_single_browser.c:1357
+msgid "Open Link In Browser"
+msgstr "Otvor adresu v prehliadači"
 
-#: src/bin/ephoto_config.c:210 src/bin/ephoto_single_browser.c:606
-msgid "Cancel"
-msgstr "Zrušiť"
+#: src/bin/ephoto_config.c:411
+msgid "Copy Link"
+msgstr "Kopírovať link"
 
-#: src/bin/ephoto_config.c:240
+#: src/bin/ephoto_config.c:428 src/bin/ephoto_thumb_browser.c:870
+#: src/bin/ephoto_single_browser.c:2293 src/bin/ephoto_slideshow.c:258
+msgid "About Ephoto"
+msgstr "O programe"
+
+#: src/bin/ephoto_config.c:452
 msgid ""
-"<b>About Ephoto</b><br/>Ephoto is a comprehensive image viewer based on the "
-"EFL.<br/>For more information, please visit the Ephoto project page on the "
-"Enlightenment wiki:<br/>https://phab.enlightenment.org/w/projects/ephoto<br/"
-">Ephoto's source can be found through Enlightenment's git:<br/>http://git."
-"enlightenment.org/apps/ephoto.git<br/><br/><b>Authors:</b><br/>"
+"Ephoto is a comprehensive image viewer based on the EFL.<br/>For more "
+"information, please visit the Ephoto project page:<br/><a href=http://www."
+"smhouston.us/ephoto/>http://www.smhouston.us/ephoto/</a><br/><br/>Ephoto "
+"also has a page on the Enlightenment wiki:<br/><a href=https://phab."
+"enlightenment.org/w/projects/ephoto>https://phab.enlightenment.org/w/"
+"projects/ephoto</a><br/><br/>Ephoto's source can be found through "
+"Enlightenment's git:<br/><a href=http://git.enlightenment.org/apps/ephoto."
+"git>http://git.enlightenment.org/apps/ephoto.git</a><br/><br/><b>Authors:</"
+"b><br/>"
 msgstr ""
-"<b>O programu Ephoto</b><br/>Ephoto je kompletní prohlížeč obrázků založený "
+"<b>O programe Ephoto</b><br/>Ephoto je kompletní prohlížeč obrázků založený "
 "na EFL.<br/>Pre viac informácií navštívte projektovú stránku na "
 "Enlightenment wiki:<br/>https://phab.enlightenment.org/w/projects/ephoto<br/"
 ">Zdrojový kód Ephoto môžete nájsť v Gite Enlightenmentu:<br/>http://git."
 "enlightenment.org/apps/ephoto.git<br/><br/><b>Autoři:</b><br/>"
 
-#: src/bin/ephoto_config.c:298
+#: src/bin/ephoto_config.c:518 src/bin/ephoto_thumb_browser.c:879
+#: src/bin/ephoto_single_browser.c:2302 src/bin/ephoto_slideshow.c:267
 msgid "Close"
 msgstr "Zavrieť"
 
-#: src/bin/ephoto_config.c:355 src/bin/ephoto_thumb_browser.c:412
-#: src/bin/ephoto_thumb_browser.c:829 src/bin/ephoto_single_browser.c:1528
-msgid "Slideshow"
-msgstr "Prezentácia"
+#: src/bin/ephoto_color.c:321
+msgid "Adjust Color Levels"
+msgstr "Úprava farieb"
 
-#: src/bin/ephoto_config.c:360
-msgid "About"
-msgstr "O programe"
+#: src/bin/ephoto_color.c:338
+msgid "Red"
+msgstr "Červená"
 
-#: src/bin/ephoto_thumb_browser.c:406 src/bin/ephoto_thumb_browser.c:823
-#: src/bin/ephoto_single_browser.c:1521
-msgid "Zoom In"
-msgstr "Priblížiť"
+#: src/bin/ephoto_color.c:352
+msgid "Green"
+msgstr "Zelená"
 
-#: src/bin/ephoto_thumb_browser.c:408 src/bin/ephoto_thumb_browser.c:825
-#: src/bin/ephoto_single_browser.c:1522
-msgid "Zoom Out"
-msgstr "Oddialiť"
+#: src/bin/ephoto_color.c:366
+msgid "Blue"
+msgstr "Modrá"
 
-#: src/bin/ephoto_thumb_browser.c:413 src/bin/ephoto_thumb_browser.c:830
-#: src/bin/ephoto_single_browser.c:1529
-msgid "Settings"
-msgstr "Nastavenie"
+#: src/bin/ephoto_cropper.c:674
+msgid "Crop Image"
+msgstr "Orezať obrázok"
 
-#: src/bin/ephoto_thumb_browser.c:424
-msgid "Show the file selector"
-msgstr "Zobraziť výber súborov"
+#: src/bin/ephoto_cropper.c:692
+msgid "Width"
+msgstr "Šírka"
 
-#: src/bin/ephoto_thumb_browser.c:694
+#: src/bin/ephoto_cropper.c:705
+msgid "Height"
+msgstr "Výška"
+
+#: src/bin/ephoto_hsv.c:345 src/bin/ephoto_single_browser.c:2156
+#: src/bin/ephoto_single_browser.c:2607
+msgid "Hue/Saturation/Value"
+msgstr "Odtieň/Sýtosť/Hodnota"
+
+#: src/bin/ephoto_hsv.c:362
+msgid "Hue"
+msgstr "Odtieň"
+
+#: src/bin/ephoto_hsv.c:376
+msgid "Saturation"
+msgstr "Sýtosť"
+
+#: src/bin/ephoto_hsv.c:390
+msgid "Value"
+msgstr "Hodnota"
+
+#: src/bin/ephoto_thumb_browser.c:545 src/bin/ephoto_thumb_browser.c:3530
+msgid "Trash"
+msgstr "Kôš"
+
+#: src/bin/ephoto_thumb_browser.c:712 src/bin/ephoto_thumb_browser.c:733
+#: src/bin/ephoto_thumb_browser.c:3470
+msgid "Search"
+msgstr "Hľadať"
+
+#: src/bin/ephoto_thumb_browser.c:841 src/bin/ephoto_single_browser.c:2264
+#: src/bin/ephoto_slideshow.c:230
+msgid "Settings Panel"
+msgstr "Nastavenie "
+
+#: src/bin/ephoto_thumb_browser.c:909 src/bin/ephoto_thumb_browser.c:931
+#: src/bin/ephoto_thumb_browser.c:3443 src/bin/ephoto_thumb_browser.c:3446
+msgid "Folders"
+msgstr "Priečinky"
+
+#: src/bin/ephoto_thumb_browser.c:980 src/bin/ephoto_single_browser.c:996
+#: src/bin/ephoto_single_browser.c:1453 src/bin/ephoto_single_browser.c:1784
+msgid "Ok"
+msgstr "Ok"
+
+#: src/bin/ephoto_thumb_browser.c:1052
+msgid "There was an error moving"
+msgstr "Pri presúvaní vznikla chyba"
+
+#: src/bin/ephoto_thumb_browser.c:1053 src/bin/ephoto_thumb_browser.c:1150
+#: src/bin/ephoto_thumb_browser.c:1529 src/bin/ephoto_thumb_browser.c:1724
+msgid "file"
+msgid_plural "files"
+msgstr[0] "súbor"
+msgstr[1] "súbory"
+msgstr[2] "soborov"
+
+#: src/bin/ephoto_thumb_browser.c:1054 src/bin/ephoto_thumb_browser.c:1151
+#: src/bin/ephoto_thumb_browser.c:1250 src/bin/ephoto_thumb_browser.c:1378
+#: src/bin/ephoto_thumb_browser.c:1380 src/bin/ephoto_thumb_browser.c:1530
+#: src/bin/ephoto_thumb_browser.c:1651 src/bin/ephoto_thumb_browser.c:1725
+#: src/bin/ephoto_single_browser.c:1762
+msgid "Error"
+msgstr "Chyba"
+
+#: src/bin/ephoto_thumb_browser.c:1114
+msgid "Moving Files"
+msgstr "Presunúť súbory"
+
+#: src/bin/ephoto_thumb_browser.c:1115
+msgid "Please wait while your files are moved."
+msgstr "Moment, súbory sa presúvajú..."
+
+#: src/bin/ephoto_thumb_browser.c:1149
+msgid "There was an error copying"
+msgstr "Pri kopírovaní vznilkla chyba"
+
+#: src/bin/ephoto_thumb_browser.c:1220
+msgid "Copying Files"
+msgstr "Kopírovanie súborov"
+
+#: src/bin/ephoto_thumb_browser.c:1221
+msgid "Please wait while your files are copied."
+msgstr "Moment, súbory sa kopírujú..."
+
+#: src/bin/ephoto_thumb_browser.c:1250
+msgid "There was an error creating this directory."
+msgstr "V tomto priečinku nie sú žiadne obrázky"
+
+#: src/bin/ephoto_thumb_browser.c:1295 src/bin/ephoto_thumb_browser.c:1310
+msgid "New Directory"
+msgstr "Nový priečinok"
+
+#: src/bin/ephoto_thumb_browser.c:1378
+msgid "There was an error renaming this directory."
+msgstr "Vznikla chyba pri premenovaní priečinku"
+
+#: src/bin/ephoto_thumb_browser.c:1380
+msgid "There was an error renaming this file."
+msgstr "Pri premenovaní vznikla chyba!"
+
+#: src/bin/ephoto_thumb_browser.c:1440
+msgid "Rename Directory"
+msgstr "Premenovať priečinok"
+
+#: src/bin/ephoto_thumb_browser.c:1442
+msgid "Rename File"
+msgstr "Premenovať súbor"
+
+#: src/bin/ephoto_thumb_browser.c:1479 src/bin/ephoto_thumb_browser.c:2874
+#: src/bin/ephoto_thumb_browser.c:3020
+msgid "Rename"
+msgstr "Premenovať"
+
+#: src/bin/ephoto_thumb_browser.c:1528 src/bin/ephoto_thumb_browser.c:1723
+msgid "There was an error deleting"
+msgstr "Pri vymazávaní vznikla chyba"
+
+#: src/bin/ephoto_thumb_browser.c:1586
+msgid "Deleting Files"
+msgstr "Vymazávanie súborov"
+
+#: src/bin/ephoto_thumb_browser.c:1587 src/bin/ephoto_thumb_browser.c:1766
+msgid "Please wait while your files are deleted."
+msgstr "Moment, súbory sa vymazávajú..."
+
+#: src/bin/ephoto_thumb_browser.c:1650
+msgid "There was an error deleting this directory"
+msgstr "Pri mazaní priečinky vznikla chyba"
+
+#: src/bin/ephoto_thumb_browser.c:1687
+msgid "Deleting Directory"
+msgstr "Vymazávanie priečinka"
+
+#: src/bin/ephoto_thumb_browser.c:1688
+msgid "Please wait while your directory is deleted."
+msgstr "Moment, priečinok sa vymazáva..."
+
+#: src/bin/ephoto_thumb_browser.c:1765
+msgid "Emptying Trash"
+msgstr "Vyprázdňovanie koša"
+
+#: src/bin/ephoto_thumb_browser.c:1979
+msgid "Are you sure you want to drop these files in"
+msgstr "Naozaj sem chcete vložiť tieto súbory?"
+
+#: src/bin/ephoto_thumb_browser.c:1981
+msgid "Drop Files"
+msgstr "Vložiť súbory"
+
+#: src/bin/ephoto_thumb_browser.c:1990 src/bin/ephoto_thumb_browser.c:2366
+#: src/bin/ephoto_thumb_browser.c:2419 src/bin/ephoto_thumb_browser.c:2480
+#: src/bin/ephoto_thumb_browser.c:2533 src/bin/ephoto_thumb_browser.c:2631
+#: src/bin/ephoto_thumb_browser.c:2697 src/bin/ephoto_thumb_browser.c:2770
+#: src/bin/ephoto_single_browser.c:942 src/bin/ephoto_single_browser.c:1095
+#: src/bin/ephoto_single_browser.c:1221 src/bin/ephoto_single_browser.c:1675
+#: src/bin/ephoto_single_browser.c:1853
+msgid "Yes"
+msgstr "Áno"
+
+#: src/bin/ephoto_thumb_browser.c:2008 src/bin/ephoto_thumb_browser.c:2380
+#: src/bin/ephoto_thumb_browser.c:2433 src/bin/ephoto_thumb_browser.c:2494
+#: src/bin/ephoto_thumb_browser.c:2547 src/bin/ephoto_thumb_browser.c:2645
+#: src/bin/ephoto_thumb_browser.c:2711 src/bin/ephoto_thumb_browser.c:2784
+#: src/bin/ephoto_single_browser.c:954 src/bin/ephoto_single_browser.c:1107
+#: src/bin/ephoto_single_browser.c:1235 src/bin/ephoto_single_browser.c:1688
+#: src/bin/ephoto_single_browser.c:1867
+msgid "No"
+msgstr "Nie"
+
+#: src/bin/ephoto_thumb_browser.c:2356 src/bin/ephoto_thumb_browser.c:2470
+msgid "Move Files"
+msgstr "Presunúť súbory"
+
+#: src/bin/ephoto_thumb_browser.c:2357 src/bin/ephoto_thumb_browser.c:2471
+msgid "Are you sure you want to move these files here?"
+msgstr "Naozaj sem chcete presunúť tieto súbory?"
+
+#: src/bin/ephoto_thumb_browser.c:2409 src/bin/ephoto_thumb_browser.c:2523
+msgid "Paste Files"
+msgstr "Vložiť obrázky"
+
+#: src/bin/ephoto_thumb_browser.c:2410 src/bin/ephoto_thumb_browser.c:2524
+msgid "Are you sure you want to paste these files here?"
+msgstr "Naozaj sem chcete vložiť tieto súbory?"
+
+#: src/bin/ephoto_thumb_browser.c:2621
+msgid "Delete Directory"
+msgstr "Vymazať priečinok"
+
+#: src/bin/ephoto_thumb_browser.c:2622
+msgid "Are you sure you want to delete this directory?"
+msgstr "Naozaj chcete zmazať tento priečinok?"
+
+#: src/bin/ephoto_thumb_browser.c:2687
+msgid "Delete Files"
+msgstr "Zmazať obrázky"
+
+#: src/bin/ephoto_thumb_browser.c:2688
+msgid "Are you sure you want to delete these files?"
+msgstr "Opravdu chcete zmazať tieto obrázky?"
+
+#: src/bin/ephoto_thumb_browser.c:2760 src/bin/ephoto_thumb_browser.c:2886
+#: src/bin/ephoto_thumb_browser.c:2903 src/bin/ephoto_thumb_browser.c:3027
+#: src/bin/ephoto_thumb_browser.c:3042 src/bin/ephoto_thumb_browser.c:3054
+msgid "Empty Trash"
+msgstr "Vyprázdniť kôš"
+
+#: src/bin/ephoto_thumb_browser.c:2761
+msgid "Are you sure you want to empty the trash?"
+msgstr "Naozaj chcete vyprázdniť kôš?"
+
+#: src/bin/ephoto_thumb_browser.c:2869 src/bin/ephoto_thumb_browser.c:2897
+msgid "New Folder"
+msgstr "Nový priečinok"
+
+#: src/bin/ephoto_thumb_browser.c:2872 src/bin/ephoto_thumb_browser.c:2900
+#: src/bin/ephoto_thumb_browser.c:3015 src/bin/ephoto_thumb_browser.c:3039
+msgid "Paste"
+msgstr "Vložiť"
+
+#: src/bin/ephoto_thumb_browser.c:2876 src/bin/ephoto_thumb_browser.c:3024
+#: src/bin/ephoto_single_browser.c:2129 src/bin/ephoto_single_browser.c:2580
+msgid "Delete"
+msgstr "Vymazať"
+
+#: src/bin/ephoto_thumb_browser.c:3006 src/bin/ephoto_thumb_browser.c:3037
+#: src/bin/ephoto_thumb_browser.c:3052 src/bin/ephoto_thumb_browser.c:3064
+msgid "Select All"
+msgstr "Vyber všetko"
+
+#: src/bin/ephoto_thumb_browser.c:3008
+msgid "Select None"
+msgstr "Zrušiť výber"
+
+#: src/bin/ephoto_thumb_browser.c:3010
+msgid "Cut"
+msgstr "Vystrihnúť"
+
+#: src/bin/ephoto_thumb_browser.c:3012
+msgid "Copy"
+msgstr "Kopírovať"
+
+#: src/bin/ephoto_thumb_browser.c:3280 src/bin/ephoto_thumb_browser.c:3586
 msgid "There are no images in this directory"
 msgstr "V tomto adresári nie sú žiadne obrázky"
 
-#: src/bin/ephoto_thumb_browser.c:699 src/bin/ephoto_thumb_browser.c:736
+#: src/bin/ephoto_thumb_browser.c:3282 src/bin/ephoto_thumb_browser.c:3324
 msgid "Total"
 msgstr "Celkom"
 
-#: src/bin/ephoto_thumb_browser.c:699 src/bin/ephoto_thumb_browser.c:736
+#: src/bin/ephoto_thumb_browser.c:3282 src/bin/ephoto_thumb_browser.c:3324
 msgid "image"
 msgid_plural "images"
 msgstr[0] "obrázek"
 msgstr[1] "obrázky"
 msgstr[2] "obrázkov"
 
-#: src/bin/ephoto_thumb_browser.c:699 src/bin/ephoto_thumb_browser.c:736
+#: src/bin/ephoto_thumb_browser.c:3282 src/bin/ephoto_thumb_browser.c:3325
 msgid "Size"
 msgstr "Veľkosť"
 
-#: src/bin/ephoto_thumb_browser.c:699 src/bin/ephoto_thumb_browser.c:714
-#: src/bin/ephoto_single_browser.c:518
+#: src/bin/ephoto_thumb_browser.c:3283 src/bin/ephoto_thumb_browser.c:3294
+#: src/bin/ephoto_single_browser.c:622
 msgid "B"
 msgid_plural "B"
-msgstr[0] "KB"
+msgstr[0] "B"
 msgstr[1] "B"
 msgstr[2] "B"
 
-#: src/bin/ephoto_thumb_browser.c:718 src/bin/ephoto_single_browser.c:522
+#: src/bin/ephoto_thumb_browser.c:3301 src/bin/ephoto_single_browser.c:628
 msgid "KB"
 msgid_plural "KB"
 msgstr[0] "KB"
 msgstr[1] "KB"
 msgstr[2] "KB"
 
-#: src/bin/ephoto_thumb_browser.c:722 src/bin/ephoto_single_browser.c:526
+#: src/bin/ephoto_thumb_browser.c:3307 src/bin/ephoto_single_browser.c:634
 msgid "MB"
 msgid_plural "MB"
 msgstr[0] "MB"
 msgstr[1] "MB"
 msgstr[2] "MB"
 
-#: src/bin/ephoto_thumb_browser.c:726 src/bin/ephoto_single_browser.c:530
+#: src/bin/ephoto_thumb_browser.c:3313 src/bin/ephoto_single_browser.c:641
 msgid "GB"
 msgid_plural "GB"
 msgstr[0] "GB"
 msgstr[1] "GB"
 msgstr[2] "GB"
 
-#: src/bin/ephoto_thumb_browser.c:730 src/bin/ephoto_single_browser.c:534
+#: src/bin/ephoto_thumb_browser.c:3318 src/bin/ephoto_single_browser.c:646
 msgid "TB"
 msgid_plural "TB"
 msgstr[0] "TB"
 msgstr[1] "TB"
 msgstr[2] "TB"
 
-#: src/bin/ephoto_thumb_browser.c:867
+#: src/bin/ephoto_thumb_browser.c:3449
+msgid "Sort"
+msgstr "Triediť"
+
+#: src/bin/ephoto_thumb_browser.c:3454
+msgid "Alphabetical Ascending"
+msgstr "Vzostupne podľa názvu"
+
+#: src/bin/ephoto_thumb_browser.c:3456
+msgid "Alphabetical Descending"
+msgstr "Zostupne podľa názvu"
+
+#: src/bin/ephoto_thumb_browser.c:3458
+msgid "Modification Time Ascending"
+msgstr "Vzostupne podľa času"
+
+#: src/bin/ephoto_thumb_browser.c:3460
+msgid "Modification Time Descending"
+msgstr "Zostupne podľa času"
+
+#: src/bin/ephoto_thumb_browser.c:3462 src/bin/ephoto_single_browser.c:2633
+msgid "Zoom In"
+msgstr "Priblížiť"
+
+#: src/bin/ephoto_thumb_browser.c:3465 src/bin/ephoto_single_browser.c:2636
+msgid "Zoom Out"
+msgstr "Oddialiť"
+
+#: src/bin/ephoto_thumb_browser.c:3472 src/bin/ephoto_single_browser.c:2646
+msgid "Slideshow"
+msgstr "Prezentácia"
+
+#: src/bin/ephoto_thumb_browser.c:3474 src/bin/ephoto_single_browser.c:2649
+#: src/bin/ephoto_slideshow.c:422
+msgid "Settings"
+msgstr "Nastavenie"
+
+#: src/bin/ephoto_thumb_browser.c:3504
 msgid "Up"
 msgstr "Hore"
 
-#: src/bin/ephoto_thumb_browser.c:880
+#: src/bin/ephoto_thumb_browser.c:3517
 msgid "Home"
 msgstr "Domov"
 
-#: src/bin/ephoto_thumb_browser.c:901
-msgid "Hide the file selector"
-msgstr "Skrýť výber súborov"
-
-#: src/bin/ephoto_single_browser.c:595
-msgid "Apply"
-msgstr "Použiť"
-
-#: src/bin/ephoto_single_browser.c:617 src/bin/ephoto_single_browser.c:1217
+#: src/bin/ephoto_single_browser.c:380 src/bin/ephoto_single_browser.c:693
+#: src/bin/ephoto_single_browser.c:2797
 msgid "Type"
 msgstr "Typ"
 
-#: src/bin/ephoto_single_browser.c:617 src/bin/ephoto_single_browser.c:1217
+#: src/bin/ephoto_single_browser.c:381 src/bin/ephoto_single_browser.c:694
+#: src/bin/ephoto_single_browser.c:2798
 msgid "Resolution"
 msgstr "Rozlíšenie"
 
-#: src/bin/ephoto_single_browser.c:618 src/bin/ephoto_single_browser.c:1218
+#: src/bin/ephoto_single_browser.c:382 src/bin/ephoto_single_browser.c:694
+#: src/bin/ephoto_single_browser.c:2798
 msgid "File Size"
 msgstr "Veľkosť súboru"
 
-#: src/bin/ephoto_single_browser.c:642
+#: src/bin/ephoto_single_browser.c:382 src/bin/ephoto_single_browser.c:2798
+msgid "N/A"
+msgstr "N/Á"
+
+#: src/bin/ephoto_single_browser.c:723
 msgid "This image does not exist or is corrupted!"
 msgstr "Tento obrázok neexistuje alebo je poškodený!"
 
-#: src/bin/ephoto_single_browser.c:647
+#: src/bin/ephoto_single_browser.c:730
 msgid "Bad Image"
 msgstr "Chybný obrázok"
 
-#: src/bin/ephoto_single_browser.c:818
+#: src/bin/ephoto_single_browser.c:919
+msgid "Reset Image"
+msgstr "Resetovať obrázok"
+
+#: src/bin/ephoto_single_browser.c:930
 msgid "Are you sure you want to reset your changes?"
 msgstr "Naozaj chcete resetovať zmeny?"
 
-#: src/bin/ephoto_single_browser.c:837 src/bin/ephoto_single_browser.c:970
-#: src/bin/ephoto_single_browser.c:1076
-msgid "Yes"
-msgstr "Áno"
+#: src/bin/ephoto_single_browser.c:974
+msgid "Save Failed"
+msgstr "Ukladanie zlyhalo"
 
-#: src/bin/ephoto_single_browser.c:849 src/bin/ephoto_single_browser.c:982
-#: src/bin/ephoto_single_browser.c:1088
-msgid "No"
-msgstr "Nie"
-
-#: src/bin/ephoto_single_browser.c:875
+#: src/bin/ephoto_single_browser.c:984
 msgid "Error: Image could not be saved here!"
 msgstr "Chyba: obrázok tu nemôže byť uložený!"
 
-#: src/bin/ephoto_single_browser.c:887
-msgid "Ok"
-msgstr "Ok"
+#: src/bin/ephoto_single_browser.c:1072
+msgid "Save Image"
+msgstr "Uložiť obrázok"
 
-#: src/bin/ephoto_single_browser.c:951 src/bin/ephoto_single_browser.c:1057
+#: src/bin/ephoto_single_browser.c:1083 src/bin/ephoto_single_browser.c:1206
 msgid "Are you sure you want to overwrite this image?"
-msgstr "Opravdu chcete přepsat tento obrázek?"
+msgstr "Opravdu chcete prepísať tento obrázok?"
 
-#: src/bin/ephoto_single_browser.c:1135
+#: src/bin/ephoto_single_browser.c:1193
+msgid "Overwite Image"
+msgstr "Prepísať súbor"
+
+#: src/bin/ephoto_single_browser.c:1289
+msgid "Save Image As"
+msgstr "Uložiť ako..."
+
+#: src/bin/ephoto_single_browser.c:1308
 msgid "Image Files"
 msgstr "Obrázky"
 
-#: src/bin/ephoto_single_browser.c:1496
-msgid "Back"
-msgstr "Späť"
+#: src/bin/ephoto_single_browser.c:1398
+msgid "Image Uploaded"
+msgstr "Obrázok zverejnený!"
 
-#: src/bin/ephoto_single_browser.c:1497
-msgid "Edit"
+#: src/bin/ephoto_single_browser.c:1470
+msgid "There was an error uploading your image!"
+msgstr "Pri nhrávaní vznikla chyba!"
+
+#: src/bin/ephoto_single_browser.c:1489
+msgid "Your image was uploaded to the following link:"
+msgstr "Váš obrázok bol uložený na nasleujúcu adresu:"
+
+#: src/bin/ephoto_single_browser.c:1561 src/bin/ephoto_single_browser.c:1651
+msgid "Upload Image"
+msgstr "Upload obrázku"
+
+#: src/bin/ephoto_single_browser.c:1571
+msgid "Please wait while your image is uploaded."
+msgstr "Strpenie, obrázok sa nahráva na server..."
+
+#: src/bin/ephoto_single_browser.c:1663
+msgid "Are you sure you want to upload this image publically to imgur.com?"
+msgstr "Naozaj chcete tento obrázek nahrať na zverejniť na imgur.com?"
+
+#: src/bin/ephoto_single_browser.c:1772
+msgid "There was an error deleting this file"
+msgstr "Počas vymazávania vznikla chyba"
+
+#: src/bin/ephoto_single_browser.c:1830
+msgid "Delete File"
+msgstr "Vymazať súbor"
+
+#: src/bin/ephoto_single_browser.c:1840
+msgid "Are you sure you want to delete this file?"
+msgstr "Naozaj chcete prepísať tento obrázok?"
+
+#: src/bin/ephoto_single_browser.c:2125 src/bin/ephoto_single_browser.c:2576
+msgid "Save As"
+msgstr "Uložiť ako"
+
+#: src/bin/ephoto_single_browser.c:2127 src/bin/ephoto_single_browser.c:2578
+msgid "Upload"
+msgstr "Upload"
+
+#: src/bin/ephoto_single_browser.c:2134 src/bin/ephoto_single_browser.c:2585
+msgid "Transform"
 msgstr "Upraviť"
 
-#: src/bin/ephoto_single_browser.c:1502
-msgid "Reset"
-msgstr "Resetovať"
-
-#: src/bin/ephoto_single_browser.c:1504
-msgid "Save As"
-msgstr "Uložiť jako"
-
-#: src/bin/ephoto_single_browser.c:1505
+#: src/bin/ephoto_single_browser.c:2136 src/bin/ephoto_single_browser.c:2587
 msgid "Crop"
 msgstr "Orezať"
 
-#: src/bin/ephoto_single_browser.c:1506
+#: src/bin/ephoto_single_browser.c:2138 src/bin/ephoto_single_browser.c:2589
 msgid "Rotate Left"
 msgstr "Otočiť doľava"
 
-#: src/bin/ephoto_single_browser.c:1507
+#: src/bin/ephoto_single_browser.c:2140 src/bin/ephoto_single_browser.c:2591
 msgid "Rotate Right"
 msgstr "Otočiť doprava"
 
-#: src/bin/ephoto_single_browser.c:1508
+#: src/bin/ephoto_single_browser.c:2143 src/bin/ephoto_single_browser.c:2594
 msgid "Flip Horizontal"
 msgstr "Preklopiť vodorovne"
 
-#: src/bin/ephoto_single_browser.c:1509
+#: src/bin/ephoto_single_browser.c:2144 src/bin/ephoto_single_browser.c:2595
 msgid "Flip Vertical"
 msgstr "Preklopiť zvisle"
 
-#: src/bin/ephoto_single_browser.c:1514
+#: src/bin/ephoto_single_browser.c:2149 src/bin/ephoto_single_browser.c:2600
+msgid "Color"
+msgstr "Farba"
+
+#: src/bin/ephoto_single_browser.c:2151 src/bin/ephoto_single_browser.c:2602
+msgid "Auto Equalize"
+msgstr "Auto úprava"
+
+#: src/bin/ephoto_single_browser.c:2158 src/bin/ephoto_single_browser.c:2609
+msgid "Color Levels"
+msgstr "Farebné úrovne"
+
+#: src/bin/ephoto_single_browser.c:2162 src/bin/ephoto_single_browser.c:2613
+msgid "Filters"
+msgstr "Filtre"
+
+#: src/bin/ephoto_single_browser.c:2164 src/bin/ephoto_single_browser.c:2615
+msgid "Blur"
+msgstr "Rozmazať"
+
+#: src/bin/ephoto_single_browser.c:2165 src/bin/ephoto_single_browser.c:2616
+msgid "Sharpen"
+msgstr "Ostrosť"
+
+#: src/bin/ephoto_single_browser.c:2168 src/bin/ephoto_single_browser.c:2619
+msgid "Black and White"
+msgstr "Čierno-biela"
+
+#: src/bin/ephoto_single_browser.c:2170 src/bin/ephoto_single_browser.c:2621
+msgid "Old Photo"
+msgstr "Stará fotografia"
+
+#: src/bin/ephoto_single_browser.c:2566 src/bin/ephoto_slideshow.c:406
+msgid "Back"
+msgstr "Späť"
+
+#: src/bin/ephoto_single_browser.c:2568
+msgid "Edit"
+msgstr "Upraviť"
+
+#: src/bin/ephoto_single_browser.c:2625 src/bin/ephoto_slideshow.c:407
 msgid "First"
 msgstr "Prvý"
 
-#: src/bin/ephoto_single_browser.c:1515
+#: src/bin/ephoto_single_browser.c:2627 src/bin/ephoto_slideshow.c:409
 msgid "Previous"
 msgstr "Predchádzajúci"
 
-#: src/bin/ephoto_single_browser.c:1516
+#: src/bin/ephoto_single_browser.c:2629 src/bin/ephoto_slideshow.c:415
 msgid "Next"
 msgstr "Ďalší"
 
-#: src/bin/ephoto_single_browser.c:1517
+#: src/bin/ephoto_single_browser.c:2630 src/bin/ephoto_slideshow.c:417
 msgid "Last"
 msgstr "Posledný"
 
-#: src/bin/ephoto_single_browser.c:1523
+#: src/bin/ephoto_single_browser.c:2639
 msgid "Zoom Fit"
 msgstr "Prispôsobiť oknu"
 
-#: src/bin/ephoto_single_browser.c:1524
+#: src/bin/ephoto_single_browser.c:2642
 msgid "Zoom 1:1"
 msgstr "Zoom 1:1"
+
+#: src/bin/ephoto_slideshow.c:120 src/bin/ephoto_slideshow.c:412
+msgid "Play"
+msgstr "Spustiť"
+
+#: src/bin/ephoto_slideshow.c:129 src/bin/ephoto_slideshow.c:522
+msgid "Pause"
+msgstr "Pauza"
+
+#: src/bin/ephoto_slideshow.c:161 src/bin/ephoto_slideshow.c:419
+#: src/bin/ephoto_slideshow.c:538
+msgid "Fullscreen"
+msgstr "Celá obrazovka"
+
+#: src/bin/ephoto_slideshow.c:168 src/bin/ephoto_slideshow.c:532
+msgid "Normal"
+msgstr "Normálne"
+
+#~ msgid "About"
+#~ msgstr "O programe"
+
+#~ msgid "Show the file selector"
+#~ msgstr "Zobraziť výber súborov"
+
+#~ msgid "Hide the file selector"
+#~ msgstr "Skrýť výber súborov"
 
 #~ msgid "bytes"
 #~ msgstr "bajtov"

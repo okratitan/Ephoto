@@ -2336,6 +2336,20 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 	     else
 		_zoom_set(sb, 1.0);
 	  }
+        else if (!strcmp(k, "l") && !sb->editing)
+          {
+             if (!shift)
+               _rotate_counterclock(sb);
+             else
+               _flip_horiz(sb);
+          }
+        else if (!strcmp(k, "r") && !sb->editing)
+          {
+             if (!shift)
+               _rotate_clock(sb);
+             else
+               _flip_vert(sb);
+          }
 	return;
      }
 
@@ -2356,20 +2370,6 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
       _first_entry(sb);
    else if (!strcmp(k, "End") && !sb->editing)
       _last_entry(sb);
-   else if (!strcmp(k, "bracketleft") && !sb->editing)
-     {
-	if (!shift)
-	   _rotate_counterclock(sb);
-	else
-	   _flip_horiz(sb);
-     }
-   else if (!strcmp(k, "bracketright") && !sb->editing)
-     {
-	if (!shift)
-	   _rotate_clock(sb);
-	else
-	   _flip_vert(sb);
-     }
    else if (!strcmp(k, "F2"))
      {
         _settings(sb, NULL, NULL);

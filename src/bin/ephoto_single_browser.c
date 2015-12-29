@@ -2374,7 +2374,7 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
       _first_entry(sb);
    else if (!strcmp(k, "End") && !sb->editing)
       _last_entry(sb);
-   else if (!strcmp(k, "F2"))
+   else if (!strcmp(k, "F1"))
      {
         _settings(sb, NULL, NULL);
      }

@@ -420,9 +420,8 @@ _ephoto_populate_end(void *data, Eio_File *handler EINA_UNUSED)
 
    ed->ephoto->ls = NULL;
 
-   if (!ed->ephoto->selentries)
-     ephoto_single_browser_entries_set(ed->ephoto->single_browser,
-         ed->ephoto->entries);
+   ephoto_single_browser_entries_set(ed->ephoto->single_browser,
+       ed->ephoto->entries);
    ecore_event_add(EPHOTO_EVENT_POPULATE_END, NULL, NULL, NULL);
    free(ed);
 }

@@ -50,8 +50,11 @@ _ephoto_single_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
 {
    if (ephoto->selentries)
      ephoto_single_browser_entries_set(ephoto->single_browser, ephoto->selentries);
+   else if (ephoto->searchentries)
+     ephoto_single_browser_entries_set(ephoto->single_browser, ephoto->searchentries);
    else
      ephoto_single_browser_entries_set(ephoto->single_browser, ephoto->entries);
+
    ephoto_single_browser_entry_set(ephoto->single_browser, entry);
    elm_naviframe_item_simple_promote(ephoto->pager, ephoto->single_browser);
    elm_object_focus_set(ephoto->single_browser, EINA_TRUE);
@@ -63,6 +66,8 @@ _ephoto_slideshow_show(Ephoto *ephoto, Ephoto_Entry *entry)
 {
    if (ephoto->selentries)
      ephoto_slideshow_entries_set(ephoto->slideshow, ephoto->selentries);
+   else if (ephoto->searchentries)
+     ephoto_slideshow_entries_set(ephoto->slideshow, ephoto->searchentries);
    else
      ephoto_slideshow_entries_set(ephoto->slideshow, ephoto->entries);
    ephoto_slideshow_entry_set(ephoto->slideshow, entry);

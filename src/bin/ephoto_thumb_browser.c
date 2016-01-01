@@ -24,6 +24,7 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *table;
    Evas_Object *gridbox;
    Evas_Object *grid;
+   Evas_Object *original_grid;
    Evas_Object *nolabel;
    Evas_Object *infolabel;
    Evas_Object *bar;
@@ -36,7 +37,6 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *search;
    Elm_Object_Item *dir_current;
    Elm_Object_Item *last_sel;
-   Elm_Object_Item *last_search;
    Ephoto_Sort sort;
    Eio_File *ls;
    Eina_List *cut_items;
@@ -44,6 +44,8 @@ struct _Ephoto_Thumb_Browser
    Eina_List *handlers;
    Eina_List *idler_pos;
    Eina_List *todo_items;
+   Eina_List *entries;
+   Eina_List *searchentries;
    Ecore_Idler *idler;
    Ecore_Job *change_dir_job;
    Ecore_Timer *click_timer;
@@ -53,6 +55,7 @@ struct _Ephoto_Thumb_Browser
    int file_errors;
    int dragging;
    int searching;
+   int processing;
    double totsize;
    struct
    {
@@ -70,6 +73,15 @@ static void _ephoto_dir_hide_folders(void *data, Evas_Object *obj,
     void *event_info);
 static void _ephoto_dir_show_folders(void *data, Evas_Object *obj,
     void *event_info);
+static Elm_Object_Item *_dnd_item_get(Evas_Object *obj, Evas_Coord x,
+    Evas_Coord y, int *xposret, int *yposret);
+static Eina_Bool _dnd_item_data_get(Evas_Object *obj, Elm_Object_Item *it,
+    Elm_Drag_User_Info *info);
+static void _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
+    Evas_Object *obj EINA_UNUSED, void *event_info);
+static void _ephoto_thumb_activated(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_info);
+static void _zoom_set(Ephoto_Thumb_Browser *tb, int zoom);
 
 static void
 _todo_items_free(Ephoto_Thumb_Browser *tb)
@@ -421,12 +433,14 @@ _todo_items_process(void *data)
         if (tb->animator.count == 0)
           return EINA_TRUE;
         tb->animator.todo_items = NULL;
+        tb->processing = 0;
 	return EINA_FALSE;
      }
    if ((tb->ls) && (eina_list_count(tb->todo_items) < TODO_ITEM_MIN_BATCH))
       return EINA_TRUE;
 
    tb->animator.todo_items = NULL;
+   tb->processing = 1;
 
    EINA_LIST_FREE(tb->todo_items, entry)
    {
@@ -571,19 +585,26 @@ _ephoto_search_go(void *data, Evas_Object *obj EINA_UNUSED,
 {
    Evas_Object *search = data;
    Ephoto_Thumb_Browser *tb = evas_object_data_get(search, "thumb_browser");
+   if (tb->processing)
+     return;
    Elm_Object_Item *next = NULL;
    Elm_Object_Item *found = NULL;
    Elm_Object_Item *o = NULL;
    Eina_List *sel = eina_list_clone(elm_gengrid_selected_items_get(tb->grid));
-   Eina_List *l;
+   Eina_List *l, *results = NULL;
    const char *search_text = elm_object_text_get(search);
    char pattern[PATH_MAX];
 
-   if (tb->last_search)
-     next = elm_gengrid_item_next_get(tb->last_search);
-   if (!next)
-     next = elm_gengrid_first_item_get(tb->grid);
-
+   if (tb->original_grid)
+     {
+        elm_gengrid_clear(tb->grid);
+        elm_box_unpack(tb->gridbox, tb->grid);
+        evas_object_del(tb->grid);
+        tb->grid = tb->original_grid;
+        elm_box_pack_end(tb->gridbox, tb->grid);
+        evas_object_show(tb->grid);
+        next = elm_gengrid_first_item_get(tb->grid);
+     }
    snprintf(pattern, PATH_MAX, "*%s*", search_text);
 
    EINA_LIST_FOREACH(sel, l, o)
@@ -594,12 +615,149 @@ _ephoto_search_go(void *data, Evas_Object *obj EINA_UNUSED,
 
    found = elm_gengrid_search_by_text_item_get(tb->grid, next, NULL, pattern, 
        ELM_GLOB_MATCH_NOCASE);
-   tb->last_search = found;
-   if (found)
+   while (found)
      {
-        elm_gengrid_item_selected_set(found, EINA_TRUE);
-        elm_gengrid_item_bring_in(found, ELM_GENGRID_ITEM_SCROLLTO_MIDDLE);
-        elm_object_focus_set(search, EINA_TRUE);
+        results = eina_list_append(results, found);
+        if (found == elm_gengrid_last_item_get(tb->grid))
+          break;
+        next = elm_gengrid_item_next_get(found);
+        found = elm_gengrid_search_by_text_item_get(tb->grid, next, NULL, pattern,
+            ELM_GLOB_MATCH_NOCASE);
+     }
+
+   tb->original_grid = tb->grid;
+   elm_box_unpack(tb->gridbox, tb->original_grid);
+   evas_object_hide(tb->original_grid);
+   tb->grid = elm_gengrid_add(tb->gridbox);
+   evas_object_size_hint_weight_set(tb->grid, EVAS_HINT_EXPAND,
+       EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(tb->grid, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_gengrid_align_set(tb->grid, 0.5, 0.0);
+   elm_gengrid_multi_select_set(tb->grid, EINA_TRUE);
+   elm_gengrid_multi_select_mode_set(tb->grid, ELM_OBJECT_MULTI_SELECT_MODE_DEFAULT);
+   elm_scroller_bounce_set(tb->grid, EINA_FALSE, EINA_TRUE);
+   evas_object_smart_callback_add(tb->grid, "activated",
+       _ephoto_thumb_activated, tb);
+   evas_object_event_callback_add(tb->grid, EVAS_CALLBACK_MOUSE_UP,
+       _grid_mouse_up_cb, tb);
+   elm_drag_item_container_add(tb->grid, ANIM_TIME, DRAG_TIMEOUT, _dnd_item_get,
+       _dnd_item_data_get);
+   evas_object_data_set(tb->grid, "thumb_browser", tb);
+
+   _zoom_set(tb, tb->ephoto->config->thumb_size);
+
+   elm_box_pack_end(tb->gridbox, tb->grid);
+   evas_object_show(tb->grid);
+
+   if (!tb->ephoto->config->fsel_hide)
+     elm_table_pack(tb->table, tb->gridbox, 1, 0, 4, 1);
+   else
+     elm_table_pack(tb->table, tb->gridbox, 0, 0, 5, 1);
+
+   if (tb->searchentries)
+      eina_list_free(tb->searchentries);
+   tb->searchentries = NULL;
+
+   if (results)
+     {
+        char isize[PATH_MAX];
+        char image_info[PATH_MAX];
+        double totsize = 0;
+        int totimages = 0;
+
+        EINA_LIST_FOREACH(results, l, o)
+          {
+             const Elm_Gengrid_Item_Class *ic = NULL;
+             Ephoto_Entry *entry = NULL, *e = NULL;
+
+             ic = &_ephoto_thumb_file_class;
+             entry = elm_object_item_data_get(o);
+             e = ephoto_entry_new(tb->ephoto, entry->path, entry->label,
+                 EINA_FILE_REG);
+
+             if (tb->sort == EPHOTO_SORT_ALPHABETICAL_ASCENDING)
+               e->item =
+                   elm_gengrid_item_sorted_insert(tb->grid, ic, e,
+                   _entry_cmp_grid_alpha_asc, NULL, NULL);
+             else if (tb->sort == EPHOTO_SORT_ALPHABETICAL_DESCENDING)
+               e->item =
+                   elm_gengrid_item_sorted_insert(tb->grid, ic, e,
+                   _entry_cmp_grid_alpha_desc, NULL, NULL);
+             else if (tb->sort == EPHOTO_SORT_MODTIME_ASCENDING)
+               e->item =
+                   elm_gengrid_item_sorted_insert(tb->grid, ic, e,
+                   _entry_cmp_grid_mod_asc, NULL, NULL);
+             else if (tb->sort == EPHOTO_SORT_MODTIME_DESCENDING)
+               e->item =
+                   elm_gengrid_item_sorted_insert(tb->grid, ic, e,
+                   _entry_cmp_grid_mod_desc, NULL, NULL);
+             if (e->item)
+               {
+                  Eina_File *f;
+
+                  elm_object_item_data_set(e->item, e);
+                  totimages++;
+                  f = eina_file_open(e->path, EINA_FALSE);
+                  totsize += (double) eina_file_size_get(f);
+                  eina_file_close(f);
+                  tb->searchentries = eina_list_append(tb->searchentries, e);
+               }
+             else
+               {
+                  ephoto_entry_free(tb->ephoto, e);
+               }
+          }
+        tb->entries = tb->searchentries;
+        elm_object_text_set(tb->nolabel, " ");
+
+        if (totsize < 1024.0)
+           snprintf(isize, sizeof(isize), "%'.0f%s", totsize, ngettext("B",
+                   "B", totsize));
+        else
+          {
+             totsize /= 1024.0;
+             if (totsize < 1024)
+                snprintf(isize, sizeof(isize), "%'.0f%s", totsize,
+                    ngettext("KB", "KB", totsize));
+             else
+               {
+                  totsize /= 1024.0;
+                  if (totsize < 1024)
+                     snprintf(isize, sizeof(isize), "%'.1f%s", totsize,
+                         ngettext("MB", "MB", totsize));
+                  else
+                    {
+                       totsize /= 1024.0;
+                       if (totsize < 1024)
+                          snprintf(isize, sizeof(isize), "%'.1f%s", totsize,
+                              ngettext("GB", "GB", totsize));
+                       else
+                         {
+                            totsize /= 1024.0;
+                            snprintf(isize, sizeof(isize), "%'.1f%s",
+                                totsize, ngettext("TB", "TB", totsize));
+                         }
+                    }
+               }
+          }
+        snprintf(image_info, PATH_MAX, "<b>%s:</b> %d %s        <b>%s:</b> %s",
+            _("Total"), totimages, ngettext("image", "images",
+                totimages), _("Size"), isize);
+        elm_object_text_set(tb->infolabel, image_info);
+        eina_list_free(results);
+     }
+   else
+     {
+        char buf[PATH_MAX];
+
+        elm_object_text_set(tb->nolabel,
+            _("No images matched your search"));
+        snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s",
+            _("Total"), ngettext("image", "images", 0), _("Size"),
+        ngettext("B", "B", 0));
+        elm_object_text_set(tb->infolabel, buf);
+        tb->searchentries = NULL;
+        tb->entries = NULL;
      }
 }
 
@@ -608,11 +766,82 @@ _ephoto_search_cancel(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Evas_Object *search = data;
+   if (!search)
+     return;
    Evas_Object *hbox = evas_object_data_get(search, "parent");
    Ephoto_Thumb_Browser *tb = evas_object_data_get(search, "thumb_browser");
 
+   tb->entries = tb->ephoto->entries;
+   if (tb->ephoto->searchentries)
+      eina_list_free(tb->ephoto->searchentries);
+   if (tb->searchentries)
+      eina_list_free(tb->searchentries);
+   tb->ephoto->searchentries = NULL;
+   tb->searchentries = NULL;
+   if (tb->original_grid)
+     {
+        elm_gengrid_clear(tb->grid);
+        elm_box_unpack(tb->gridbox, tb->grid);
+        evas_object_del(tb->grid);
+        tb->grid = tb->original_grid;
+        elm_box_pack_end(tb->gridbox, tb->grid);
+        evas_object_show(tb->grid);
+        tb->original_grid = NULL;
+     }
+   if (!tb->ephoto->entries)
+     {
+        char buf[PATH_MAX];
+
+        elm_object_text_set(tb->nolabel,
+            _("There are no images in this directory"));
+        snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s",
+            _("Total"), ngettext("image", "images", 0), _("Size"),
+        ngettext("B", "B", 0));
+        elm_object_text_set(tb->infolabel, buf);
+     }
+   else
+     {
+        char isize[PATH_MAX];
+        char image_info[PATH_MAX];
+
+        elm_object_text_set(tb->nolabel, " ");
+
+        if (tb->totsize < 1024.0)
+           snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize, ngettext("B",
+                   "B", tb->totsize));
+        else
+          {
+             tb->totsize /= 1024.0;
+             if (tb->totsize < 1024)
+                snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize,
+                    ngettext("KB", "KB", tb->totsize));
+             else
+               {
+                  tb->totsize /= 1024.0;
+                  if (tb->totsize < 1024)
+                     snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize,
+                         ngettext("MB", "MB", tb->totsize));
+                  else
+                    {
+                       tb->totsize /= 1024.0;
+                       if (tb->totsize < 1024)
+                          snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize,
+                              ngettext("GB", "GB", tb->totsize));
+                       else
+                         {
+                            tb->totsize /= 1024.0;
+                            snprintf(isize, sizeof(isize), "%'.1f%s",
+                                tb->totsize, ngettext("TB", "TB", tb->totsize));
+                         }
+                    }
+               }
+          }
+        snprintf(image_info, PATH_MAX, "<b>%s:</b> %d %s        <b>%s:</b> %s",
+            _("Total"), tb->totimages, ngettext("image", "images",
+                tb->totimages), _("Size"), isize);
+        elm_object_text_set(tb->infolabel, image_info);
+     }
    elm_object_focus_set(tb->main, EINA_TRUE);
-   tb->last_search = NULL;
    evas_object_del(tb->search);
    tb->search = NULL;
    elm_box_unpack(tb->gridbox, hbox);
@@ -633,9 +862,14 @@ _ephoto_thumb_activated(void *data, Evas_Object *obj EINA_UNUSED,
    elm_gengrid_item_selected_set(it, EINA_TRUE);
    selected =
        eina_list_clone(elm_gengrid_selected_items_get(tb->grid));
-   if (eina_list_count(selected) <= 1)
-     tb->ephoto->selentries = NULL;
-   else
+   if (eina_list_count(selected) <= 1 && tb->searchentries)
+     {
+        if (tb->ephoto->selentries)
+          eina_list_free(tb->ephoto->selentries);
+        tb->ephoto->selentries = NULL;
+        tb->ephoto->searchentries = eina_list_clone(tb->searchentries);
+     }
+   else if (eina_list_count(selected) > 1)
      {
         EINA_LIST_FOREACH(selected, s, item)
           {
@@ -643,7 +877,18 @@ _ephoto_thumb_activated(void *data, Evas_Object *obj EINA_UNUSED,
                  elm_object_item_data_get(item));
           }
      }
+   else
+     {
+        if (tb->ephoto->selentries)
+          eina_list_free(tb->ephoto->selentries);
+        if (tb->ephoto->searchentries)
+          eina_list_free(tb->ephoto->searchentries);
+        tb->ephoto->selentries = NULL;
+        tb->ephoto->searchentries = NULL;
+     }
    evas_object_smart_callback_call(tb->main, "view", e);
+   if (selected)
+     eina_list_free(selected);
 }
 
 static void
@@ -695,6 +940,8 @@ _search(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto_Thumb_Browser *tb = data;
    Evas_Object *hbox, *search, *ic, *but;
 
+   if (tb->processing)
+     return;
    if (!tb->searching)
      tb->searching = 1;
    else
@@ -766,15 +1013,20 @@ _slideshow(void *data, Evas_Object *obj EINA_UNUSED,
    if (it)
       entry = elm_object_item_data_get(it);
    else
-      entry = eina_list_nth(tb->ephoto->entries, 0);
+      entry = eina_list_nth(tb->entries, 0);
 
    if (!entry)
       return;
    selected =
        eina_list_clone(elm_gengrid_selected_items_get(tb->grid));
-   if (eina_list_count(selected) <= 1)
-     tb->ephoto->selentries = NULL;
-   else
+   if (eina_list_count(selected) <= 1  && tb->searchentries)
+     {
+        if (tb->ephoto->selentries)
+          eina_list_free(tb->ephoto->selentries);
+        tb->ephoto->selentries = NULL;
+        tb->ephoto->searchentries = eina_list_clone(tb->searchentries);
+     }
+   else if (eina_list_count(selected) > 1)
      {
         EINA_LIST_FOREACH(selected, s, item)
           {
@@ -782,7 +1034,18 @@ _slideshow(void *data, Evas_Object *obj EINA_UNUSED,
                  elm_object_item_data_get(item));
           }
      }
+   else
+     {
+        if (tb->ephoto->selentries)
+          eina_list_free(tb->ephoto->selentries);
+        if (tb->ephoto->searchentries)
+          eina_list_free(tb->ephoto->searchentries);
+        tb->ephoto->selentries = NULL;
+        tb->ephoto->searchentries = NULL;
+     }
    evas_object_smart_callback_call(tb->main, "slideshow", entry);
+   if (selected)
+     eina_list_free(selected);
 }
 
 static void
@@ -3077,6 +3340,7 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    Evas_Event_Key_Down *ev = event_info;
    Eina_Bool ctrl = evas_key_modifier_is_set(ev->modifiers, "Control");
    Eina_Bool shift = evas_key_modifier_is_set(ev->modifiers, "Shift");
+   Eina_List *selected = eina_list_clone(elm_gengrid_selected_items_get(tb->grid));
    const char *k = ev->keyname;
    
    if (ctrl)
@@ -3107,12 +3371,37 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 	  {
 	     Elm_Object_Item *it = elm_gengrid_selected_item_get(tb->grid);
 	     Ephoto_Entry *entry;
+             Eina_List *s;
+             Elm_Object_Item *item;
 
 	     if (it)
 		entry = elm_object_item_data_get(it);
 	     else
-		entry = eina_list_nth(tb->ephoto->entries, 0);
-
+		entry = eina_list_nth(tb->entries, 0);
+             if (eina_list_count(selected) <= 1 && tb->searchentries)
+               {
+                  if (tb->ephoto->selentries)
+                    eina_list_free(tb->ephoto->selentries);
+                  tb->ephoto->selentries = NULL;
+                  tb->ephoto->searchentries = eina_list_clone(tb->searchentries);
+               }
+             else if (eina_list_count(selected) > 1)
+               {
+                  EINA_LIST_FOREACH(selected, s, item)
+                    {
+                       tb->ephoto->selentries = eina_list_append(tb->ephoto->selentries,
+                           elm_object_item_data_get(item));
+                    }
+               }
+             else
+               {
+                  if (tb->ephoto->selentries)
+                    eina_list_free(tb->ephoto->selentries);
+                  if (tb->ephoto->searchentries)
+                    eina_list_free(tb->ephoto->searchentries);
+                  tb->ephoto->selentries = NULL;
+                  tb->ephoto->searchentries = NULL;
+               }
 	     if (entry)
 		evas_object_smart_callback_call(tb->main, "view", entry);
 	  }
@@ -3132,9 +3421,12 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
           {
              _grid_menu_select_all_cb(tb, NULL, NULL);
           }
-        else if (!strcmp(k, "f"))
+        else if (!strcmp(k, "f") && !tb->processing)
           {
-             _search(tb, NULL, NULL);
+             if (tb->searching)
+               _ephoto_search_cancel(tb->search, NULL, NULL);
+             else
+               _search(tb, NULL, NULL);
           }
         else if (!strcmp(k, "Delete"))
           {
@@ -3167,7 +3459,7 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
         Elm_Object_Item *it = NULL;
 
         it = eina_list_data_get(
-            eina_list_last(elm_gengrid_selected_items_get(tb->grid)));
+            eina_list_last(selected));
         if (it)
           {
              evas_object_data_set(it, "thumb_browser", tb);
@@ -3178,12 +3470,37 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      {
 	Elm_Object_Item *it = elm_gengrid_selected_item_get(tb->grid);
 	Ephoto_Entry *entry;
+        Eina_List *s;
+        Elm_Object_Item *item;
 
 	if (it)
 	   entry = elm_object_item_data_get(it);
 	else
-	   entry = eina_list_nth(tb->ephoto->entries, 0);
-
+	   entry = eina_list_nth(tb->entries, 0);
+        if (eina_list_count(selected) <= 1 && tb->searchentries)
+          {
+             if (tb->ephoto->selentries)
+               eina_list_free(tb->ephoto->selentries);
+             tb->ephoto->selentries = NULL;
+             tb->ephoto->searchentries = eina_list_clone(tb->searchentries);
+          }
+        else if (eina_list_count(selected) > 1)
+          {
+             EINA_LIST_FOREACH(selected, s, item)
+               {
+                  tb->ephoto->selentries = eina_list_append(tb->ephoto->selentries,
+                      elm_object_item_data_get(item));
+               }
+          }
+        else
+          {
+             if (tb->ephoto->selentries)
+               eina_list_free(tb->ephoto->selentries);
+             if (tb->ephoto->searchentries)
+               eina_list_free(tb->ephoto->searchentries);
+             tb->ephoto->selentries = NULL;
+             tb->ephoto->searchentries = NULL;
+          }
 	if (entry)
 	   evas_object_smart_callback_call(tb->main, "slideshow", entry);
      }
@@ -3195,11 +3512,10 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      }
    else if (!strcmp(k, "Escape"))
      {
-        if (tb->searching)
-          _ephoto_search_cancel(tb->search, NULL, NULL);
-        else
-          _grid_menu_clear_cb(tb, NULL, NULL);
+        _grid_menu_clear_cb(tb, NULL, NULL);
      }
+   if (selected)
+     eina_list_free(selected);
 }
 
 static void
@@ -3236,6 +3552,13 @@ _main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
       eina_list_free(tb->cut_items);
    else if (tb->copy_items)
       eina_list_free(tb->copy_items);
+   if (tb->ephoto->selentries)
+      eina_list_free(tb->ephoto->selentries);
+   if (tb->ephoto->searchentries)
+      eina_list_free(tb->ephoto->searchentries);
+   if (tb->searchentries)
+      eina_list_free(tb->searchentries);
+
    free(tb);
 }
 
@@ -3249,7 +3572,10 @@ _ephoto_thumb_populate_start(void *data, int type EINA_UNUSED,
 
    tb->animator.processed = 0;
    tb->animator.count = 0;
-
+   if (tb->ephoto->selentries)
+     eina_list_free(tb->ephoto->selentries);
+   if (tb->searching)
+     _ephoto_search_cancel(tb->search, NULL, NULL);
    _todo_items_free(tb);
    if (!tb->dirs_only)
      {
@@ -3329,6 +3655,7 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
      }
    tb->dirs_only = 0;
    tb->thumbs_only = 0;
+   tb->entries = tb->ephoto->entries;
 
    return ECORE_CALLBACK_PASS_ON;
 }

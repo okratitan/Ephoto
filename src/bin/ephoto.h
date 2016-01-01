@@ -166,6 +166,7 @@ struct _Ephoto
    Eina_List *entries;
    Eina_List *direntries;
    Eina_List *selentries;
+   Eina_List *searchentries;
    Eina_List *thumbs;
 
    int thumb_gen_size;

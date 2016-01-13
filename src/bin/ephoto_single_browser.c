@@ -1729,7 +1729,7 @@ _delete_apply(void *data, Evas_Object *obj EINA_UNUSED,
    if (ecore_file_exists(sb->entry->path) && ecore_file_is_dir(destination))
      {
         char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
-        
+
         snprintf(fp, PATH_MAX, "%s", sb->entry->path);
         snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
         if (ecore_file_exists(dest))
@@ -2205,112 +2205,12 @@ _back(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 }
 
 static void
-_general_settings(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Single_Browser *sb = evas_object_data_get(popup, "single_browser");
-
-   ephoto_config_general(sb->ephoto);
-}
-
-static void
-_slideshow_settings(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Single_Browser *sb = evas_object_data_get(popup, "single_browser");
-
-   ephoto_config_slideshow(sb->ephoto);
-}
-
-static void
-_about_settings(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Single_Browser *sb = evas_object_data_get(popup, "single_browser");
-
-   ephoto_config_about(sb->ephoto);
-}
-
-static void
-_close_settings(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Single_Browser *sb = evas_object_data_get(popup, "single_browser");
-
-   evas_object_del(popup);
-   if (sb->event)
-     {
-         elm_object_focus_set(sb->event, EINA_TRUE);
-         evas_object_freeze_events_set(sb->event, EINA_FALSE);
-     }
-}
-
-static void
 _settings(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
-   Evas_Object *popup, *list, *button, *ic;
 
-   if (sb->event)
-     evas_object_freeze_events_set(sb->event, EINA_TRUE);
-
-   popup = elm_popup_add(sb->ephoto->win);
-   elm_popup_scrollable_set(popup, EINA_TRUE);
-   elm_object_part_text_set(popup, "title,text", _("Settings Panel"));
-   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
-
-   list = elm_list_add(popup);
-   evas_object_size_hint_weight_set(list, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(list, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_list_mode_set(list, ELM_LIST_EXPAND);
-
-   ic = elm_icon_add(list);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "preferences-system");
-   evas_object_show(ic);
-   elm_list_item_append(list, _("General Settings"), ic, NULL,
-       _general_settings, popup);
-
-   ic = elm_icon_add(list);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "media-playback-start");
-   evas_object_show(ic);
-   elm_list_item_append(list, _("Slideshow Settings"), ic, NULL,
-       _slideshow_settings, popup);
-
-   ic = elm_icon_add(list);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "help-about");
-   evas_object_show(ic);
-   elm_list_item_append(list, _("About Ephoto"), ic, NULL, _about_settings,
-       popup);
-
-   ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "window-close");
-
-   button = elm_button_add(popup);
-   elm_object_text_set(button, _("Close"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _close_settings, popup);
-   elm_object_part_content_set(popup, "button1", button);
-   evas_object_show(button);
-
-   elm_list_go(list);
-   evas_object_show(list);
-
-   evas_object_data_set(popup, "single_browser", sb);
-   elm_object_content_set(popup, list);
-   evas_object_show(popup);
+   ephoto_config_main(sb->ephoto);
 }
 
 static void

@@ -15,7 +15,7 @@ struct _Ephoto_Slideshow
    Elm_Object_Item *fullscreen;
    Elm_Object_Item *fullscreen_after;
    Ephoto_Entry *entry;
-   int playing;
+   Eina_Bool playing;
 };
 
 static void
@@ -171,111 +171,12 @@ _fullscreen(void *data, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
-_general_settings(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Slideshow *ss = evas_object_data_get(popup, "slideshow");
-
-   ephoto_config_general(ss->ephoto);
-}
-
-static void
-_slideshow_settings(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Slideshow *ss = evas_object_data_get(popup, "slideshow");
-
-   ephoto_config_slideshow(ss->ephoto);
-}
-
-static void
-_about_settings(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Slideshow *ss = evas_object_data_get(popup, "slideshow");
-
-   ephoto_config_about(ss->ephoto);
-}
-
-static void
-_close_settings(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Slideshow *ss = evas_object_data_get(popup, "slideshow");
-
-   evas_object_del(popup);
-   if (ss->event)
-     {
-        evas_object_freeze_events_set(ss->event, EINA_FALSE);
-        elm_object_focus_set(ss->event, EINA_TRUE);
-     }
-}
-
-static void
 _settings(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Slideshow *ss = data;
-   Evas_Object *popup, *list, *button, *ic;
 
-   if (ss->event)
-     evas_object_freeze_events_set(ss->event, EINA_TRUE);
-
-   popup = elm_popup_add(ss->ephoto->win);
-   elm_popup_scrollable_set(popup, EINA_TRUE);
-   elm_object_part_text_set(popup, "title,text", _("Settings Panel"));
-   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
-
-   list = elm_list_add(popup);
-   evas_object_size_hint_weight_set(list, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(list, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_list_mode_set(list, ELM_LIST_EXPAND);
-
-   ic = elm_icon_add(list);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "preferences-system");
-   evas_object_show(ic);
-   elm_list_item_append(list, _("General Settings"), ic, NULL,
-       _general_settings, popup);
-
-   ic = elm_icon_add(list);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "media-playback-start");
-   evas_object_show(ic);
-   elm_list_item_append(list, _("Slideshow Settings"), ic, NULL,
-       _slideshow_settings, popup);
-   ic = elm_icon_add(list);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "help-about");
-   evas_object_show(ic);
-   elm_list_item_append(list, _("About Ephoto"), ic, NULL, _about_settings,
-       popup);
-
-   ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "window-close");
-
-   button = elm_button_add(popup);
-   elm_object_text_set(button, _("Close"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _close_settings, popup);
-   elm_object_part_content_set(popup, "button1", button);
-   evas_object_show(button);
-
-   elm_list_go(list);
-   evas_object_show(list);
-
-   evas_object_data_set(popup, "slideshow", ss);
-   elm_object_content_set(popup, list);
-   evas_object_show(popup);
+   ephoto_config_main(ss->ephoto);
 }
 
 static void

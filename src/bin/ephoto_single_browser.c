@@ -2259,6 +2259,17 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
           {
              _delete_image(sb, NULL, NULL);
           }
+        else if (!strcmp(k, "s"))
+          {
+             if (!shift)
+               _save_image_as(sb, NULL, NULL);
+             else
+               _save_image(sb, NULL, NULL);
+          }
+        else if (!strcmp(k, "u"))
+          {
+             _reset_image(sb, NULL, NULL);
+          }
 	return;
      }
 

@@ -17,7 +17,7 @@ struct _Ephoto_Cropper
    int starty;
    int offsetx;
    int offsety;
-   int resizing;
+   Eina_Bool resizing;
 };
 
 static void

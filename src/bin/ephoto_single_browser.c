@@ -204,6 +204,11 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
        _image_mouse_up_cb, sb);
    elm_table_pack(v->table, v->image, 0, 0, 1, 1);
    evas_object_show(v->image);
+   if (elm_image_animated_available_get(v->image))
+     {
+        elm_image_animated_set(v->image, EINA_TRUE);
+        elm_image_animated_play_set(v->image, EINA_TRUE);
+     }
 
    return v->scroller;
 

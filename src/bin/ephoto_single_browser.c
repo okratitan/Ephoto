@@ -38,12 +38,14 @@ struct _Ephoto_Single_Browser
 
 struct _Ephoto_Viewer
 {
+   Ecore_File_Monitor *monitor;
    Evas_Object *scroller;
    Evas_Object *table;
    Evas_Object *image;
    double zoom;
    Eina_Bool fit:1;
    Eina_Bool zoom_first:1;
+   Eina_Bool modified:1;
 };
 
 static void _zoom_set(Ephoto_Single_Browser *sb, double zoom);
@@ -58,9 +60,28 @@ _viewer_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Viewer *v = data;
-
+   if (v->monitor)
+     ecore_file_monitor_del(v->monitor);
    free(v);
 }
+
+static void
+_viewer_monitor(void *data, Ecore_File_Monitor *em EINA_UNUSED, 
+    Ecore_File_Event event, const char *path)
+{
+   Ephoto_Single_Browser *sb = data;
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+
+   if (!ecore_file_exists(path))
+     ephoto_entry_free(sb->ephoto, sb->entry);
+   else if (event == ECORE_FILE_EVENT_MODIFIED)
+     v->modified = EINA_TRUE;
+   else if (event == ECORE_FILE_EVENT_CLOSED && v->modified == EINA_TRUE)
+     {
+        ephoto_single_browser_entry_set(sb->main, sb->entry);
+        v->modified = EINA_FALSE;
+     }
+}   
 
 static Evas_Object *
 _image_create_icon(void *data, Evas_Object *parent, Evas_Coord *xoff,
@@ -209,6 +230,9 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
         elm_image_animated_set(v->image, EINA_TRUE);
         elm_image_animated_play_set(v->image, EINA_TRUE);
      }
+
+
+   v->monitor = ecore_file_monitor_add(path, _viewer_monitor, sb);
 
    return v->scroller;
 
@@ -1803,7 +1827,6 @@ _delete_apply(void *data, Evas_Object *obj EINA_UNUSED,
         elm_object_focus_set(sb->event, EINA_TRUE);
         evas_object_freeze_events_set(sb->event, EINA_FALSE);
      }
-   ephoto_entry_free(sb->ephoto, sb->entry);
 }
 
 static void

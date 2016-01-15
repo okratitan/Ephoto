@@ -38,7 +38,8 @@ struct _Ephoto_Single_Browser
 
 struct _Ephoto_Viewer
 {
-   Ecore_File_Monitor *monitor;
+   Eina_List *handlers;
+   Eio_Monitor *monitor;
    Evas_Object *scroller;
    Evas_Object *table;
    Evas_Object *image;
@@ -60,28 +61,41 @@ _viewer_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Viewer *v = data;
+   Ecore_Event_Handler *handler;
+   
+   EINA_LIST_FREE(v->handlers, handler)
+      ecore_event_handler_del(handler);
    if (v->monitor)
-     ecore_file_monitor_del(v->monitor);
+     eio_monitor_del(v->monitor);
    free(v);
 }
 
-static void
-_viewer_monitor(void *data, Ecore_File_Monitor *em EINA_UNUSED, 
-    Ecore_File_Event event, const char *path)
+static Eina_Bool
+_monitor_modified(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-   if (!ecore_file_exists(path))
+   if (!ecore_file_exists(sb->entry->path))
      ephoto_entry_free(sb->ephoto, sb->entry);
-   else if (event == ECORE_FILE_EVENT_MODIFIED)
+   else
      v->modified = EINA_TRUE;
-   else if (event == ECORE_FILE_EVENT_CLOSED && v->modified == EINA_TRUE)
+   return ECORE_CALLBACK_PASS_ON;
+}
+
+static Eina_Bool
+_monitor_closed(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+
+   if (v->modified == EINA_TRUE)
      {
         ephoto_single_browser_entry_set(sb->main, sb->entry);
         v->modified = EINA_FALSE;
      }
-}   
+   return ECORE_CALLBACK_PASS_ON;
+}
 
 static Evas_Object *
 _image_create_icon(void *data, Evas_Object *parent, Evas_Coord *xoff,
@@ -232,7 +246,11 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
      }
 
 
-   v->monitor = ecore_file_monitor_add(path, _viewer_monitor, sb);
+   v->monitor = eio_monitor_add(path);
+   v->handlers = eina_list_append(v->handlers,
+       ecore_event_handler_add(EIO_MONITOR_FILE_MODIFIED, _monitor_modified, sb));
+   v->handlers = eina_list_append(v->handlers,
+       ecore_event_handler_add(EIO_MONITOR_FILE_CLOSED, _monitor_closed, sb));
 
    return v->scroller;
 

@@ -76,9 +76,11 @@ void ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
 
 /* smart callbacks called: "back" - the user wants to go back to the previous
  * screen. */
-
 Evas_Object *ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent);
 void ephoto_thumb_browser_fsel_clear(Ephoto *ephoto);
+void ephoto_thumb_browser_top_dir_set(Ephoto *ephoto, const char *dir);
+void ephoto_thumb_browser_insert(Ephoto *ephoto, Ephoto_Entry *entry);
+void ephoto_thumb_browser_remove(Ephoto *ephoto, Ephoto_Entry *entry);
 
 /* smart callbacks called: "selected" - an item in the thumb browser is
  * selected. The selected Ephoto_Entry is passed as event_info argument. */
@@ -162,10 +164,14 @@ struct _Ephoto
    Elm_Object_Item *sl;
 
    Eina_List *entries;
-   Eina_List *direntries;
    Eina_List *selentries;
    Eina_List *searchentries;
    Eina_List *thumbs;
+
+   Eio_Monitor *monitor;
+   Eina_List *monitor_handlers;
+   
+   const char *top_directory;
 
    int thumb_gen_size;
    Evas_Coord bottom_bar_size;
@@ -191,11 +197,16 @@ struct _Ephoto_Entry
    const char *path;
    const char *basename;
    const char *label;
+   double size;
    Ephoto *ephoto;
+   Eio_Monitor *monitor;
+   Eina_List *monitor_handlers;
    Elm_Object_Item *item;
    Elm_Object_Item *parent;
    Eina_List *free_listeners;
    Eina_Bool is_dir;
+   Eina_Bool no_delete;
+   Evas_Object *genlist;
 };
 
 struct _Ephoto_Event_Entry_Create

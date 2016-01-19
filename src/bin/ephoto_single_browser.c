@@ -1198,6 +1198,7 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
 
 	ephoto_thumb_browser_fsel_clear(sb->ephoto);
 	ephoto_directory_set(sb->ephoto, dir, NULL, EINA_FALSE, EINA_FALSE);
+        ephoto_thumb_browser_top_dir_set(sb->ephoto, sb->ephoto->config->directory);
 	free(dir);
 	ephoto_single_browser_path_pending_set(sb->ephoto->single_browser,
 	    file);
@@ -1304,6 +1305,7 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 		  ephoto_thumb_browser_fsel_clear(sb->ephoto);
 		  ephoto_directory_set(sb->ephoto, dir, NULL,
                       EINA_FALSE, EINA_FALSE);
+                  ephoto_thumb_browser_top_dir_set(sb->ephoto, sb->ephoto->config->directory);
 		  free(dir);
 		  ephoto_single_browser_path_pending_set(sb->ephoto->
 		      single_browser, buf);
@@ -2390,7 +2392,6 @@ _entry_free(void *data, const Ephoto_Entry *entry)
 
    if (entry == sb->entry)
      {
-        elm_object_item_del(entry->item);
         if (eina_list_count(sb->entries) <= 1)
           evas_object_smart_callback_call(sb->main, "back", NULL);
         else

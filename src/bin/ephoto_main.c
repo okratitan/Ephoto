@@ -462,6 +462,16 @@ _monitor_created(void *data, int type EINA_UNUSED, void *event)
 {
    Ephoto *ephoto = data;
    Eio_Monitor_Event *ev = event;
+   char file[PATH_MAX], dir[PATH_MAX], p[PATH_MAX];
+
+   snprintf(file, PATH_MAX, "%s", ev->filename);
+   snprintf(p, PATH_MAX, "%s", ephoto->config->directory);
+   snprintf(dir, PATH_MAX, "%s", dirname(file));
+
+   if (strlen(p) != strlen(dir))
+     return ECORE_CALLBACK_PASS_ON;
+   if (strcmp(p, dir))
+     return ECORE_CALLBACK_PASS_ON;
 
    if (!strncmp("image/", efreet_mime_type_get(ev->filename), 6))
      {
@@ -515,6 +525,16 @@ _monitor_deleted(void *data, int type EINA_UNUSED, void *event)
 {
    Ephoto *ephoto = data;
    Eio_Monitor_Event *ev = event;
+   char file[PATH_MAX], dir[PATH_MAX], p[PATH_MAX];
+
+   snprintf(file, PATH_MAX, "%s", ev->filename);
+   snprintf(p, PATH_MAX, "%s", ephoto->config->directory);
+   snprintf(dir, PATH_MAX, "%s", dirname(file));
+
+   if (strlen(p) != strlen(dir))
+     return ECORE_CALLBACK_PASS_ON;
+   if (strcmp(p, dir))
+     return ECORE_CALLBACK_PASS_ON;
 
    if (!strncmp("image/", efreet_mime_type_get(ev->filename), 6))
      {
@@ -545,6 +565,16 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
 {
    Ephoto *ephoto = data;
    Eio_Monitor_Event *ev = event;
+   char file[PATH_MAX], dir[PATH_MAX], p[PATH_MAX];
+
+   snprintf(file, PATH_MAX, "%s", ev->filename);
+   snprintf(p, PATH_MAX, "%s", ephoto->config->directory);
+   snprintf(dir, PATH_MAX, "%s", dirname(file));
+
+   if (strlen(p) != strlen(dir))
+     return ECORE_CALLBACK_PASS_ON;
+   if (strcmp(p, dir))
+     return ECORE_CALLBACK_PASS_ON;
 
    if (!strncmp("image/", efreet_mime_type_get(ev->filename), 6))
      {

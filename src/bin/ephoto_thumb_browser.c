@@ -137,13 +137,10 @@ _on_list_expanded(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
    entry = elm_object_item_data_get(it);
    path = entry->path;
    tb->dirs_only = 0;
-   if (strlen(path) == strlen(tb->ephoto->config->directory))
-     {
-	if (!strcmp(path, tb->ephoto->config->directory))
-	  tb->dirs_only = 1;
-        else
-          tb->dirs_only = 0;
-     }
+   if (!strcmp(path, tb->ephoto->config->directory))
+     tb->dirs_only = 1;
+   else
+     tb->dirs_only = 0;
    tb->thumbs_only = 0;
    ephoto_directory_set(tb->ephoto, path, it, tb->dirs_only, tb->thumbs_only);
    ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
@@ -160,13 +157,8 @@ _on_list_contracted(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
    entry = elm_object_item_data_get(it);
    path = entry->path;
    elm_genlist_item_subitems_clear(it); 
-   if (strlen(path) == strlen(tb->ephoto->config->directory))
-     {
-	if (!strcmp(path, tb->ephoto->config->directory))
-          {
-             return;
-          }
-     }
+   if (!strcmp(path, tb->ephoto->config->directory))
+     return;
    tb->thumbs_only = 1;
    tb->dirs_only = 0;
    ephoto_directory_set(tb->ephoto, path, NULL,
@@ -448,7 +440,7 @@ _monitor_created(void *data, int type EINA_UNUSED, void *event)
    Ephoto_Entry *entry = data;
    Ephoto_Entry *e;
    Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX], p[PATH_MAX];
+   char file[PATH_MAX], dir[PATH_MAX];
    const Elm_Genlist_Item_Class *ic;
    char buf[PATH_MAX];
 
@@ -456,29 +448,17 @@ _monitor_created(void *data, int type EINA_UNUSED, void *event)
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(p, PATH_MAX, "%s", entry->path);
    snprintf(dir, PATH_MAX, "%s", dirname(file));
 
-   if (strlen(p) != strlen(dir))
-     return ECORE_CALLBACK_PASS_ON;
-   if (strcmp(p, dir))
+   if (strcmp(entry->path, dir))
      return ECORE_CALLBACK_PASS_ON;
 
    item = elm_genlist_first_item_get(entry->genlist);
    while (item)
      {
         e = elm_object_item_data_get(item);
-        char p1[PATH_MAX], p2[PATH_MAX];
-
-        snprintf(p1, PATH_MAX, "%s", e->path);
-        snprintf(p2, PATH_MAX, "%s", ev->filename);
-        if (strlen(p1) == strlen(p2))
-          {
-             if (!strcmp(p1, p2))
-               {
-                  return ECORE_CALLBACK_PASS_ON;
-               }
-          }
+        if (!strcmp(e->path, ev->filename))
+           return ECORE_CALLBACK_PASS_ON;
         item = elm_genlist_item_next_get(item);
      }
    if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_TREE &&
@@ -546,36 +526,26 @@ _monitor_deleted(void *data, int type EINA_UNUSED, void *event)
    Elm_Object_Item *item;
    Ephoto_Entry *entry = data;
    Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX], p[PATH_MAX];
+   char file[PATH_MAX], dir[PATH_MAX];
    const Elm_Genlist_Item_Class *ic;
 
    if (!entry)
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(p, PATH_MAX, "%s", entry->path);
    snprintf(dir, PATH_MAX, "%s", dirname(file));
 
-   if (strlen(p) != strlen(dir))
-     return ECORE_CALLBACK_PASS_ON;
-   if (strcmp(p, dir))
+   if (strcmp(entry->path, dir))
      return ECORE_CALLBACK_PASS_ON;
 
    item = elm_genlist_first_item_get(entry->genlist);
    while (item)
      {
         Ephoto_Entry *e = elm_object_item_data_get(item);
-        char p1[PATH_MAX], p2[PATH_MAX];
-
-        snprintf(p1, PATH_MAX, "%s", e->path);
-        snprintf(p2, PATH_MAX, "%s", ev->filename);
-        if (strlen(p1) == strlen(p2))
+        if (!strcmp(e->path, ev->filename))
           {
-             if (!strcmp(p1, p2))
-               {
-                  elm_object_item_del(e->item);
-                  break;
-               }
+             elm_object_item_del(e->item);
+             break;
           }
         item = elm_genlist_item_next_get(item);
      }
@@ -606,18 +576,15 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
 {
    Ephoto_Entry *entry = data;
    Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX], p[PATH_MAX];
+   char file[PATH_MAX], dir[PATH_MAX];
 
    if (!entry)
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(p, PATH_MAX, "%s", entry->path);
    snprintf(dir, PATH_MAX, "%s", dirname(file));
 
-   if (strlen(p) != strlen(dir))
-     return ECORE_CALLBACK_PASS_ON;
-   if (strcmp(p, dir))
+   if (strcmp(entry->path, dir))
      return ECORE_CALLBACK_PASS_ON;
    
    if ((elm_genlist_item_expanded_get(entry->item) == EINA_TRUE))
@@ -628,17 +595,10 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
         while (item)
           {
              Ephoto_Entry *e = elm_object_item_data_get(item);
-             char p1[PATH_MAX], p2[PATH_MAX];
-
-             snprintf(p1, PATH_MAX, "%s", e->path);
-             snprintf(p2, PATH_MAX, "%s", ev->filename);
-             if (strlen(p1) == strlen(p2))
+             if (!strcmp(e->path, ev->filename))
                {
-                  if (!strcmp(p1, p2))
-                    {
-                       elm_genlist_item_update(e->item);
-                       break;
-                    }
+                  elm_genlist_item_update(e->item);
+                  break;
                }
              item = elm_genlist_item_next_get(item);
           }
@@ -1529,16 +1489,13 @@ _copy_idler_cb(void *data)
 	  }
 	tb->file_errors = 0;
 	tb->thumbs_only = 1;
-        if (strlen(destination) == strlen(tb->ephoto->config->directory))
+        if (strcmp(destination, tb->ephoto->config->directory))
           {
-             if (strcmp(destination, tb->ephoto->config->directory))
-               {
-                  evas_object_del(popup);
-                  evas_object_freeze_events_set(tb->main, EINA_FALSE);
-                  elm_object_focus_set(tb->main, EINA_TRUE);
+             evas_object_del(popup);
+             evas_object_freeze_events_set(tb->main, EINA_FALSE);
+             elm_object_focus_set(tb->main, EINA_TRUE);
 
-                  return EINA_FALSE;
-               }
+             return EINA_FALSE;
           }
 	evas_object_del(popup);
         evas_object_freeze_events_set(tb->main, EINA_FALSE);
@@ -3727,35 +3684,23 @@ _top_monitor_created(void *data, int type EINA_UNUSED, void *event)
    Eio_Monitor_Event *ev = event;
    Ephoto_Entry *e;
    const Elm_Genlist_Item_Class *ic;
-   char buf[PATH_MAX], file[PATH_MAX], dir[PATH_MAX], top[PATH_MAX];
+   char buf[PATH_MAX], file[PATH_MAX], dir[PATH_MAX];
 
    if (!tb)
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(top, PATH_MAX, "%s", tb->ephoto->top_directory);
    snprintf(dir, PATH_MAX, "%s", dirname(file));
 
-   if (strlen(top) != strlen(dir))
-     return ECORE_CALLBACK_PASS_ON;
-   if (strcmp(top, dir))
+   if (strcmp(tb->ephoto->top_directory, dir))
      return ECORE_CALLBACK_PASS_ON;
 
    item = elm_genlist_first_item_get(tb->fsel);
    while (item)
      {
         e = elm_object_item_data_get(item);
-        char p1[PATH_MAX], p2[PATH_MAX];
-
-        snprintf(p1, PATH_MAX, "%s", e->path);
-        snprintf(p2, PATH_MAX, "%s", ev->filename);
-        if (strlen(p1) == strlen(p2))
-          {
-             if (!strcmp(p1, p2))
-               {
-                  return ECORE_CALLBACK_PASS_ON;
-               }
-          }
+        if (!strcmp(e->path, ev->filename))
+          return ECORE_CALLBACK_PASS_ON;
         item = elm_genlist_item_next_get(item);
      }
    snprintf(buf, PATH_MAX, "%s", ev->filename);
@@ -3789,35 +3734,25 @@ _top_monitor_deleted(void *data, int type EINA_UNUSED, void *event)
    Elm_Object_Item *item;
    Ephoto_Thumb_Browser *tb = data;
    Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX], top[PATH_MAX];
+   char file[PATH_MAX], dir[PATH_MAX];
 
    if (!tb)
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(top, PATH_MAX, "%s", tb->ephoto->top_directory);
    snprintf(dir, PATH_MAX, "%s", dirname(file));
 
-   if (strlen(top) != strlen(dir))
-     return ECORE_CALLBACK_PASS_ON;
-   if (strcmp(top, dir))
+   if (strcmp(tb->ephoto->top_directory, dir))
      return ECORE_CALLBACK_PASS_ON;
    
    item = elm_genlist_first_item_get(tb->fsel);
    while (item)
      {
         Ephoto_Entry *e = elm_object_item_data_get(item);
-        char p1[PATH_MAX], p2[PATH_MAX];
-
-        snprintf(p1, PATH_MAX, "%s", e->path);
-        snprintf(p2, PATH_MAX, "%s", ev->filename);
-        if (strlen(p1) == strlen(p2))
+        if (!strcmp(e->path, ev->filename))
           {
-             if (!strcmp(p1, p2))
-               {
-                  elm_object_item_del(e->item);
-                  break;
-               }
+             elm_object_item_del(e->item);
+             break;
           }
         item = elm_genlist_item_next_get(item);
      }
@@ -3831,35 +3766,25 @@ _top_monitor_modified(void *data, int type EINA_UNUSED, void *event)
    Elm_Object_Item *item;
    Ephoto_Thumb_Browser *tb = data;
    Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX], top[PATH_MAX];
+   char file[PATH_MAX], dir[PATH_MAX];
 
    if (!tb)
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(top, PATH_MAX, "%s", tb->ephoto->top_directory);
    snprintf(dir, PATH_MAX, "%s", dirname(file));
 
-   if (strlen(top) != strlen(dir))
-     return ECORE_CALLBACK_PASS_ON;
-   if (strcmp(top, dir))
+   if (strcmp(tb->ephoto->top_directory, dir))
      return ECORE_CALLBACK_PASS_ON;
 
    item = elm_genlist_first_item_get(tb->fsel);
    while (item)
      {
         Ephoto_Entry *e = elm_object_item_data_get(item);
-        char p1[PATH_MAX], p2[PATH_MAX];
-
-        snprintf(p1, PATH_MAX, "%s", e->path);
-        snprintf(p2, PATH_MAX, "%s", ev->filename);
-        if (strlen(p1) == strlen(p2))
+        if (!strcmp(e->path, ev->filename))
           {
-             if (!strcmp(p1, p2))
-               {
-                  elm_genlist_item_update(e->item);
-                  break;
-               }
+             elm_genlist_item_update(e->item);
+             break;
           }
         item = elm_genlist_item_next_get(item);
      }

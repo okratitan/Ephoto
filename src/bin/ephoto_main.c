@@ -462,15 +462,12 @@ _monitor_created(void *data, int type EINA_UNUSED, void *event)
 {
    Ephoto *ephoto = data;
    Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX], p[PATH_MAX];
+   char file[PATH_MAX], dir[PATH_MAX];
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(p, PATH_MAX, "%s", ephoto->config->directory);
    snprintf(dir, PATH_MAX, "%s", dirname(file));
 
-   if (strlen(p) != strlen(dir))
-     return ECORE_CALLBACK_PASS_ON;
-   if (strcmp(p, dir))
+   if (strcmp(ephoto->config->directory, dir))
      return ECORE_CALLBACK_PASS_ON;
 
    if (!strncmp("image/", efreet_mime_type_get(ev->filename), 6))
@@ -481,16 +478,8 @@ _monitor_created(void *data, int type EINA_UNUSED, void *event)
 
         EINA_LIST_FOREACH(ephoto->entries, l, entry)
           {
-             char p1[PATH_MAX], p2[PATH_MAX];
-             snprintf(p1, PATH_MAX, "%s", entry->path);
-             snprintf(p2, PATH_MAX, "%s", ev->filename);
-             if (strlen(p1) == strlen(p2))
-               {
-                  if (!strcmp(p1, p2))
-                    {
-                       return ECORE_CALLBACK_PASS_ON;
-                    }
-               }
+             if (!strcmp(entry->path, ev->filename))
+               return ECORE_CALLBACK_PASS_ON;
           }
         snprintf(buf, PATH_MAX, "%s", ev->filename);
         entry = ephoto_entry_new(ephoto, ev->filename, basename(buf),
@@ -525,15 +514,12 @@ _monitor_deleted(void *data, int type EINA_UNUSED, void *event)
 {
    Ephoto *ephoto = data;
    Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX], p[PATH_MAX];
+   char file[PATH_MAX], dir[PATH_MAX];
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(p, PATH_MAX, "%s", ephoto->config->directory);
    snprintf(dir, PATH_MAX, "%s", dirname(file));
 
-   if (strlen(p) != strlen(dir))
-     return ECORE_CALLBACK_PASS_ON;
-   if (strcmp(p, dir))
+   if (strcmp(ephoto->config->directory, dir))
      return ECORE_CALLBACK_PASS_ON;
 
    if (!strncmp("image/", efreet_mime_type_get(ev->filename), 6))
@@ -543,17 +529,11 @@ _monitor_deleted(void *data, int type EINA_UNUSED, void *event)
 
         EINA_LIST_FOREACH(ephoto->entries, l, entry)
           {
-             char p1[PATH_MAX], p2[PATH_MAX];
-             snprintf(p1, PATH_MAX, "%s", entry->path);
-             snprintf(p2, PATH_MAX, "%s", ev->filename);
-             if (strlen(p1) == strlen(p2))
+             if (!strcmp(entry->path, ev->filename))
                {
-                  if (!strcmp(p1, p2))
-                    {
-                       ephoto_thumb_browser_remove(ephoto, entry);
-                       ephoto_entry_free(ephoto, entry);
-                       break;
-                    }
+                  ephoto_thumb_browser_remove(ephoto, entry);
+                  ephoto_entry_free(ephoto, entry);
+                  break;
                }
           }
      }
@@ -565,15 +545,12 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
 {
    Ephoto *ephoto = data;
    Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX], p[PATH_MAX];
+   char file[PATH_MAX], dir[PATH_MAX];
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(p, PATH_MAX, "%s", ephoto->config->directory);
    snprintf(dir, PATH_MAX, "%s", dirname(file));
 
-   if (strlen(p) != strlen(dir))
-     return ECORE_CALLBACK_PASS_ON;
-   if (strcmp(p, dir))
+   if (strcmp(ephoto->config->directory, dir))
      return ECORE_CALLBACK_PASS_ON;
 
    if (!strncmp("image/", efreet_mime_type_get(ev->filename), 6))
@@ -583,26 +560,19 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
         
         EINA_LIST_FOREACH(ephoto->entries, l, entry)
           {
-             char p1[PATH_MAX], p2[PATH_MAX];
-
-             snprintf(p1, PATH_MAX, "%s", entry->path);
-             snprintf(p2, PATH_MAX, "%s", ev->filename);
-             if (strlen(p1) == strlen(p2))
+             if (!strcmp(entry->path, ev->filename))
                {
-                  if (!strcmp(p1, p2))
+                  if (!ecore_file_exists(entry->path))
                     {
-                       if (!ecore_file_exists(entry->path))
-                         {
-                            elm_object_item_del(entry->item);
-                            ephoto_entry_free(ephoto, entry);
-                         }
-                       else
-                         {
-                            ephoto_thumb_browser_remove(ephoto, entry);
-                            ephoto_thumb_browser_insert(ephoto, entry);
-                         }
-                       break;
+                       elm_object_item_del(entry->item);
+                       ephoto_entry_free(ephoto, entry);
                     }
+                  else
+                    {
+                       ephoto_thumb_browser_remove(ephoto, entry);
+                       ephoto_thumb_browser_insert(ephoto, entry);
+                    }
+                  break;
                }
           }
      }

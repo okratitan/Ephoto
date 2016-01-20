@@ -448,7 +448,7 @@ _monitor_created(void *data, int type EINA_UNUSED, void *event)
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", dirname(file));
+   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
    if (strcmp(entry->path, dir))
      return ECORE_CALLBACK_PASS_ON;
@@ -533,7 +533,7 @@ _monitor_deleted(void *data, int type EINA_UNUSED, void *event)
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", dirname(file));
+   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
    if (strcmp(entry->path, dir))
      return ECORE_CALLBACK_PASS_ON;
@@ -582,7 +582,7 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", dirname(file));
+   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
    if (strcmp(entry->path, dir))
      return ECORE_CALLBACK_PASS_ON;
@@ -730,7 +730,7 @@ _ephoto_dir_go_up(void *data, Evas_Object *obj EINA_UNUSED,
 	elm_genlist_clear(tb->fsel);
 	tb->thumbs_only = 0;
         tb->dirs_only = 0;
-	ephoto_directory_set(tb->ephoto, dirname(path), NULL,
+	ephoto_directory_set(tb->ephoto, ecore_file_dir_get(path), NULL,
             tb->dirs_only, tb->thumbs_only);
 	ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
         ephoto_thumb_browser_top_dir_set(tb->ephoto,
@@ -1687,9 +1687,9 @@ _rename_confirm(void *data, Evas_Object *obj EINA_UNUSED,
      }
    snprintf(dir, PATH_MAX, "%s", file);
    if (ecore_file_is_dir(file))
-     snprintf(new_file_name, PATH_MAX, "%s/%s", dirname(dir), text);
+     snprintf(new_file_name, PATH_MAX, "%s/%s", ecore_file_dir_get(dir), text);
    else
-     snprintf(new_file_name, PATH_MAX, "%s/%s.%s", dirname(dir), escaped,
+     snprintf(new_file_name, PATH_MAX, "%s/%s.%s", ecore_file_dir_get(dir), escaped,
          strrchr(dir, '.')+1);
    ret = ecore_file_mv(file, new_file_name);
    if (!ret)
@@ -3708,7 +3708,7 @@ _top_monitor_created(void *data, int type EINA_UNUSED, void *event)
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", dirname(file));
+   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
    if (strcmp(tb->ephoto->top_directory, dir))
      return ECORE_CALLBACK_PASS_ON;
@@ -3758,7 +3758,7 @@ _top_monitor_deleted(void *data, int type EINA_UNUSED, void *event)
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", dirname(file));
+   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
    if (strcmp(tb->ephoto->top_directory, dir))
      return ECORE_CALLBACK_PASS_ON;
@@ -3790,7 +3790,7 @@ _top_monitor_modified(void *data, int type EINA_UNUSED, void *event)
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", dirname(file));
+   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
    if (strcmp(tb->ephoto->top_directory, dir))
      return ECORE_CALLBACK_PASS_ON;
@@ -3987,7 +3987,7 @@ ephoto_thumb_browser_remove(Ephoto *ephoto, Ephoto_Entry *entry)
                          }
                     }
                }
-             snprintf(image_info, PATH_MAX, "<b>%s:</b> %d %s	"
+             snprintf(image_info, PATH_MAX, "<b>%s:</b> %d %s        "
                  "<b>%s:</b> %s", _("Total"), tb->totimages,
                  ngettext("image", "images", tb->totimages), _("Size"), isize);
              elm_object_text_set(tb->infolabel, image_info);

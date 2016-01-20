@@ -1200,15 +1200,17 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
      {
 	char *dir = ecore_file_dir_get(file);
 
-	ephoto_thumb_browser_fsel_clear(sb->ephoto);
-	ephoto_directory_set(sb->ephoto, dir, NULL, EINA_FALSE, EINA_FALSE);
-        ephoto_thumb_browser_top_dir_set(sb->ephoto,
-            sb->ephoto->config->directory);
-	free(dir);
-	ephoto_single_browser_path_pending_set(sb->ephoto->single_browser,
-	    file);
+        if (strcmp(dir, sb->ephoto->config->directory))
+          {
+	     ephoto_thumb_browser_fsel_clear(sb->ephoto);
+	     ephoto_directory_set(sb->ephoto, dir, NULL, EINA_FALSE, EINA_FALSE);
+             ephoto_thumb_browser_top_dir_set(sb->ephoto,
+                 sb->ephoto->config->directory);
+	     free(dir);
+	     ephoto_single_browser_path_pending_set(sb->ephoto->single_browser,
+	         file);
+          }
      }
-   ephoto_single_browser_entry_set(sb->main, sb->entry);
    evas_object_del(popup);
    if (sb->event)
      {
@@ -1309,14 +1311,17 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 	       {
 		  char *dir = ecore_file_dir_get(buf);
 
-		  ephoto_thumb_browser_fsel_clear(sb->ephoto);
-		  ephoto_directory_set(sb->ephoto, dir, NULL,
-                      EINA_FALSE, EINA_FALSE);
-                  ephoto_thumb_browser_top_dir_set(sb->ephoto,
-                      sb->ephoto->config->directory);
-		  free(dir);
-		  ephoto_single_browser_path_pending_set(sb->ephoto->
-		      single_browser, buf);
+                  if (!strcmp(dir, sb->ephoto->config->directory))
+                    {
+		       ephoto_thumb_browser_fsel_clear(sb->ephoto);
+		       ephoto_directory_set(sb->ephoto, dir, NULL,
+                           EINA_FALSE, EINA_FALSE);
+                       ephoto_thumb_browser_top_dir_set(sb->ephoto,
+                           sb->ephoto->config->directory);
+		       free(dir);
+		       ephoto_single_browser_path_pending_set(sb->ephoto->
+		           single_browser, buf);
+                    }
 	       }
 	  }
      }

@@ -469,7 +469,7 @@ _monitor_created(void *data, int type EINA_UNUSED, void *event)
    char file[PATH_MAX], dir[PATH_MAX];
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", dirname(file));
+   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
    if (strcmp(ephoto->config->directory, dir))
      return ECORE_CALLBACK_PASS_ON;
@@ -521,7 +521,7 @@ _monitor_deleted(void *data, int type EINA_UNUSED, void *event)
    char file[PATH_MAX], dir[PATH_MAX];
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", dirname(file));
+   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
    if (strcmp(ephoto->config->directory, dir))
      return ECORE_CALLBACK_PASS_ON;
@@ -552,7 +552,7 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
    char file[PATH_MAX], dir[PATH_MAX];
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", dirname(file));
+   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
    if (strcmp(ephoto->config->directory, dir))
      return ECORE_CALLBACK_PASS_ON;

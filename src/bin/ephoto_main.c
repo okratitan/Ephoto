@@ -438,7 +438,7 @@ _ephoto_populate_entries(Ephoto_Dir_Data *ed)
    if (ed->thumbs_only)
      EINA_LIST_FREE(ed->ephoto->entries, entry)
        ephoto_entry_free(entry->ephoto, entry);
-   else
+   else if (!ed->dirs_only)
      ephoto_entries_free(ed->ephoto);
 
    ed->ephoto->ls =

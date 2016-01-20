@@ -519,6 +519,7 @@ _monitor_deleted(void *data, int type EINA_UNUSED, void *event)
    Ephoto *ephoto = data;
    Eio_Monitor_Event *ev = event;
    char file[PATH_MAX], dir[PATH_MAX];
+   const char *mime;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
@@ -526,7 +527,8 @@ _monitor_deleted(void *data, int type EINA_UNUSED, void *event)
    if (strcmp(ephoto->config->directory, dir))
      return ECORE_CALLBACK_PASS_ON;
 
-   if (!strncmp("image/", efreet_mime_type_get(ev->filename), 6))
+   mime = efreet_mime_type_get(ev->filename);
+   if (!mime || !strncmp("image/", mime, 6))
      {
         Eina_List *l;
         Ephoto_Entry *entry;

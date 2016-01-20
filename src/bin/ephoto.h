@@ -170,7 +170,7 @@ struct _Ephoto
 
    Eio_Monitor *monitor;
    Eina_List *monitor_handlers;
-   
+
    const char *top_directory;
 
    int thumb_gen_size;
@@ -231,12 +231,12 @@ _ephoto_eina_file_direct_info_image_useful(const Eina_File_Direct_Info *info)
    int i = 0;
 
    const char *filters[] = {
-      "png", "jpeg", "jpg", "eet", "xpm", "tiff", "gif", "svg", "webp", "pmaps",
-      "bmp", "tga", "wbmp", "ico", "psd", "jp2k", "generic", "3fr", "ari", "arw",
-      "bay", "crw", "cr2", "cap", "dcs", "dcr", "dng", "drf", "eip", "erf",
-      "fff", "iiq", "k25", "kdc", "mdc", "mef", "mos", "mrw", "nef", "nrw", "obm",
-      "orf", "pef", "ptx", "pxn", "r3d", "raf", "raw", "rwl", "rw2", "rwz",
-      "sr2", "srf", "srw", "tif", "x3f"
+      "png", "jpeg", "jpg", "eet", "xpm", "tiff", "gif", "svg", "webp",
+      "pmaps", "bmp", "tga", "wbmp", "ico", "psd", "jp2k", "generic", "3fr",
+      "ari", "arw", "bay", "crw", "cr2", "cap", "dcs", "dcr", "dng", "drf",
+      "eip", "erf", "fff", "iiq", "k25", "kdc", "mdc", "mef", "mos", "mrw",
+      "nef", "nrw", "obm", "orf", "pef", "ptx", "pxn", "r3d", "raf", "raw",
+      "rwl", "rw2", "rwz", "sr2", "srf", "srw", "tif", "x3f"
    };
 
    bname = info->path + info->name_start;

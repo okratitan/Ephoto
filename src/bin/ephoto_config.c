@@ -82,7 +82,7 @@ static void
 _close(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
-   
+
    evas_object_del(popup);
 }
 
@@ -466,7 +466,7 @@ ephoto_config_main(Ephoto *ephoto)
    gen = _ephoto_config_general(ephoto, table);
    elm_table_pack(table, gen, 0, 2, 1, 1);
    slide = _ephoto_config_slideshow(ephoto, table);
-   elm_table_pack(table, slide, 0, 2, 1, 1); 
+   elm_table_pack(table, slide, 0, 2, 1, 1);
    about = _ephoto_config_about(table);
    elm_table_pack(table, about, 0, 2, 1, 1);
 

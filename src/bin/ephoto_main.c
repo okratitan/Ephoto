@@ -49,11 +49,14 @@ static void
 _ephoto_single_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
 {
    if (ephoto->selentries)
-     ephoto_single_browser_entries_set(ephoto->single_browser, ephoto->selentries);
+     ephoto_single_browser_entries_set(ephoto->single_browser,
+         ephoto->selentries);
    else if (ephoto->searchentries)
-     ephoto_single_browser_entries_set(ephoto->single_browser, ephoto->searchentries);
+     ephoto_single_browser_entries_set(ephoto->single_browser,
+         ephoto->searchentries);
    else
-     ephoto_single_browser_entries_set(ephoto->single_browser, ephoto->entries);
+     ephoto_single_browser_entries_set(ephoto->single_browser,
+         ephoto->entries);
 
    ephoto_single_browser_entry_set(ephoto->single_browser, entry);
    elm_naviframe_item_simple_promote(ephoto->pager, ephoto->single_browser);
@@ -212,8 +215,8 @@ ephoto_window_add(const char *path)
 
    evas_object_event_callback_add(ephoto->win, EVAS_CALLBACK_FREE, _win_free,
        ephoto);
-   evas_object_event_callback_add(ephoto->win, EVAS_CALLBACK_RESIZE, _resize_cb,
-       ephoto);
+   evas_object_event_callback_add(ephoto->win, EVAS_CALLBACK_RESIZE,
+       _resize_cb, ephoto);
    elm_win_autodel_set(ephoto->win, EINA_TRUE);
 
    if (!ephoto_config_init(ephoto))
@@ -443,7 +446,8 @@ _ephoto_populate_entries(Ephoto_Dir_Data *ed)
 
    ed->ephoto->ls =
        eio_file_stat_ls(ed->ephoto->config->directory, _ephoto_populate_filter,
-       _ephoto_populate_main, _ephoto_populate_end, _ephoto_populate_error, ed);
+           _ephoto_populate_main, _ephoto_populate_end, _ephoto_populate_error,
+           ed);
 
    ecore_event_add(EPHOTO_EVENT_POPULATE_START, NULL, NULL, NULL);
 }
@@ -557,7 +561,7 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
      {
         Eina_List *l;
         Ephoto_Entry *entry;
-        
+
         EINA_LIST_FOREACH(ephoto->entries, l, entry)
           {
              if (!strcmp(entry->path, ev->filename))
@@ -592,7 +596,8 @@ ephoto_directory_set(Ephoto *ephoto, const char *path, Evas_Object *expanded,
    ed->thumbs_only = thumbs_only;
 
    ephoto_title_set(ephoto, NULL);
-   eina_stringshare_replace(&ephoto->config->directory, ecore_file_realpath(path));
+   eina_stringshare_replace(&ephoto->config->directory,
+       ecore_file_realpath(path));
 
    if (ed->ephoto->job.change_dir)
       ecore_job_del(ed->ephoto->job.change_dir);
@@ -600,18 +605,21 @@ ephoto_directory_set(Ephoto *ephoto, const char *path, Evas_Object *expanded,
    if (ephoto->monitor)
      {
         Ecore_Event_Handler *handler;
-        
+
         EINA_LIST_FREE(ephoto->monitor_handlers, handler)
           ecore_event_handler_del(handler);
         eio_monitor_del(ephoto->monitor);
      }
-   ephoto->monitor = eio_monitor_add(path); 
+   ephoto->monitor = eio_monitor_add(path);
    ephoto->monitor_handlers = eina_list_append(ephoto->monitor_handlers,
-       ecore_event_handler_add(EIO_MONITOR_FILE_CREATED, _monitor_created, ephoto));
+       ecore_event_handler_add(EIO_MONITOR_FILE_CREATED, _monitor_created,
+       ephoto));
    ephoto->monitor_handlers = eina_list_append(ephoto->monitor_handlers,
-       ecore_event_handler_add(EIO_MONITOR_FILE_DELETED, _monitor_deleted, ephoto));
+       ecore_event_handler_add(EIO_MONITOR_FILE_DELETED, _monitor_deleted,
+       ephoto));
    ephoto->monitor_handlers = eina_list_append(ephoto->monitor_handlers,
-       ecore_event_handler_add(EIO_MONITOR_FILE_MODIFIED, _monitor_modified, ephoto));
+       ecore_event_handler_add(EIO_MONITOR_FILE_MODIFIED, _monitor_modified,
+       ephoto));
 }
 
 static Eina_Bool
@@ -788,7 +796,8 @@ ephoto_entry_free(Ephoto *ephoto, Ephoto_Entry *entry)
         if (ephoto->selentries)
           {
              node = eina_list_data_find_list(ephoto->selentries, entry);
-             ephoto->selentries = eina_list_remove_list(ephoto->selentries, node);
+             ephoto->selentries = eina_list_remove_list(ephoto->selentries,
+                 node);
           }
      }
    eina_stringshare_del(entry->path);

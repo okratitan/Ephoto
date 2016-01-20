@@ -257,7 +257,8 @@ _color_apply(void *data, Evas_Object *obj EINA_UNUSED,
    int w, h;
 
    image_data =
-       evas_object_image_data_get(elm_image_object_get(eco->image), EINA_FALSE);
+       evas_object_image_data_get(elm_image_object_get(eco->image),
+           EINA_FALSE);
    evas_object_image_size_get(elm_image_object_get(eco->image), &w, &h);
    ephoto_single_browser_image_data_update(eco->main, eco->image, EINA_TRUE,
        image_data, w, h);
@@ -310,7 +311,8 @@ ephoto_color_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    eco->parent = parent;
    eco->image = image;
    im_data =
-       evas_object_image_data_get(elm_image_object_get(eco->image), EINA_FALSE);
+       evas_object_image_data_get(elm_image_object_get(eco->image),
+           EINA_FALSE);
    evas_object_image_size_get(elm_image_object_get(eco->image), &eco->w,
        &eco->h);
    eco->original_im_data = malloc(sizeof(unsigned int) * eco->w * eco->h);
@@ -370,8 +372,8 @@ ephoto_color_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    elm_slider_unit_format_set(slider, "%1.0f");
    evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
-   evas_object_smart_callback_add(slider, "delay,changed", _blue_slider_changed,
-       eco);
+   evas_object_smart_callback_add(slider, "delay,changed",
+       _blue_slider_changed, eco);
    elm_box_pack_end(box, slider);
    evas_object_show(slider);
    eco->bslider = slider;

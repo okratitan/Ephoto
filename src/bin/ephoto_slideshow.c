@@ -315,7 +315,8 @@ ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent)
    ss->pause_after =
        elm_toolbar_item_append(ss->bar, "go-next", _("Next"), _next,
        ss->slideshow);
-   elm_toolbar_item_append(ss->bar, "go-last", _("Last"), _last, ss->slideshow);
+   elm_toolbar_item_append(ss->bar, "go-last", _("Last"),
+       _last, ss->slideshow);
    ss->fullscreen =
        elm_toolbar_item_append(ss->bar, "view-fullscreen", _("Fullscreen"),
        _fullscreen, ss);
@@ -444,7 +445,8 @@ ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
      {
         Elm_Object_Item *slideshow_item;
 
-        slideshow_item = elm_slideshow_item_add(ss->slideshow, &_item_cls, itr);
+        slideshow_item = elm_slideshow_item_add(ss->slideshow,
+            &_item_cls, itr);
         if (itr == entry)
 	  elm_slideshow_item_show(slideshow_item);
      }

@@ -463,7 +463,8 @@ _cropper_mouse_move(void *data, Evas_Object *obj EINA_UNUSED,
 	Edje_Message_Int_Set *msg;
 	int mx, my, cx, cy, cw, ch, nx, ny, lx, ly, lw, lh;
 
-	evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper), &mx, &my);
+	evas_pointer_canvas_xy_get(evas_object_evas_get(ec->cropper),
+	    &mx, &my);
 	evas_object_geometry_get(ec->cropper, &cx, &cy, &cw, &ch);
 	evas_object_geometry_get(ec->layout, &lx, &ly, &lw, &lh);
 
@@ -668,7 +669,8 @@ ephoto_cropper_add(Evas_Object *main, Evas_Object *parent,
 
    evas_object_event_callback_add(ec->layout, EVAS_CALLBACK_RESIZE,
        _image_resize, ec);
-   evas_object_event_callback_add(ec->box, EVAS_CALLBACK_DEL, _cropper_del, ec);
+   evas_object_event_callback_add(ec->box, EVAS_CALLBACK_DEL,
+       _cropper_del, ec);
 
    ec->frame = elm_frame_add(parent);
    elm_object_text_set(ec->frame, _("Crop Image"));

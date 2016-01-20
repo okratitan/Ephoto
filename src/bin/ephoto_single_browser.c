@@ -62,7 +62,7 @@ _viewer_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto_Viewer *v = data;
    Ecore_Event_Handler *handler;
-   
+
    EINA_LIST_FREE(v->handlers, handler)
       ecore_event_handler_del(handler);
    if (v->monitor)
@@ -209,7 +209,8 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
    v->scroller = elm_scroller_add(parent);
    evas_object_size_hint_weight_set(v->scroller, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(v->scroller, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(v->scroller,
+       EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_data_set(v->scroller, "viewer", v);
    evas_object_event_callback_add(v->scroller, EVAS_CALLBACK_DEL, _viewer_del,
        v);
@@ -248,7 +249,8 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
 
    v->monitor = eio_monitor_add(path);
    v->handlers = eina_list_append(v->handlers,
-       ecore_event_handler_add(EIO_MONITOR_FILE_MODIFIED, _monitor_modified, sb));
+       ecore_event_handler_add(EIO_MONITOR_FILE_MODIFIED,
+           _monitor_modified, sb));
    v->handlers = eina_list_append(v->handlers,
        ecore_event_handler_add(EIO_MONITOR_FILE_CLOSED, _monitor_closed, sb));
 
@@ -672,14 +674,14 @@ _ephoto_get_file_size(const char *path)
      {
 	dsize /= 1024.0;
 	if (dsize < 1024)
-	   snprintf(isize, sizeof(isize), "%'.0f%s", dsize, ngettext("KB", "KB",
-		   dsize));
+	   snprintf(isize, sizeof(isize), "%'.0f%s", dsize,
+	       ngettext("KB", "KB", dsize));
 	else
 	  {
 	     dsize /= 1024.0;
 	     if (dsize < 1024)
-		snprintf(isize, sizeof(isize), "%'.1f%s", dsize, ngettext("MB",
-			"MB", dsize));
+		snprintf(isize, sizeof(isize), "%'.1f%s", dsize,
+		    ngettext("MB", "MB", dsize));
 	     else
 	       {
 		  dsize /= 1024.0;
@@ -733,7 +735,8 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
 	     evas_object_event_callback_add(sb->viewer,
 		 EVAS_CALLBACK_MOUSE_WHEEL, _mouse_wheel, sb);
 
-	     evas_object_image_size_get(elm_image_object_get(v->image), &w, &h);
+	     evas_object_image_size_get(elm_image_object_get(v->image),
+	         &w, &h);
 	     tmp = _ephoto_get_file_size(sb->entry->path);
 	     snprintf(image_info, PATH_MAX,
 		 "<b>%s:</b> %s        <b>%s:</b> %dx%d        <b>%s:</b> %s",
@@ -1189,7 +1192,8 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
 	  }
      }
    success =
-       evas_object_image_save(elm_image_object_get(v->image), file, NULL, NULL);
+       evas_object_image_save(elm_image_object_get(v->image), file,
+           NULL, NULL);
    if (!success)
       _failed_save(sb);
    else
@@ -1198,7 +1202,8 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
 
 	ephoto_thumb_browser_fsel_clear(sb->ephoto);
 	ephoto_directory_set(sb->ephoto, dir, NULL, EINA_FALSE, EINA_FALSE);
-        ephoto_thumb_browser_top_dir_set(sb->ephoto, sb->ephoto->config->directory);
+        ephoto_thumb_browser_top_dir_set(sb->ephoto,
+            sb->ephoto->config->directory);
 	free(dir);
 	ephoto_single_browser_path_pending_set(sb->ephoto->single_browser,
 	    file);
@@ -1238,7 +1243,8 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
                evas_object_freeze_events_set(sb->event, EINA_TRUE);
 
 	     popup = elm_popup_add(sb->ephoto->win);
-	     elm_object_part_text_set(popup, "title,text", _("Overwite Image"));
+	     elm_object_part_text_set(popup, "title,text",
+	         _("Overwite Image"));
 	     elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
 
 	     box = elm_box_add(popup);
@@ -1282,7 +1288,8 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 	     button = elm_button_add(popup);
 	     elm_object_text_set(button, _("No"));
 	     elm_object_part_content_set(button, "icon", ic);
-	     evas_object_smart_callback_add(button, "clicked", _save_no, popup);
+	     evas_object_smart_callback_add(button, "clicked",
+	         _save_no, popup);
 	     elm_object_part_content_set(popup, "button2", button);
 	     evas_object_show(button);
 
@@ -1305,7 +1312,8 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 		  ephoto_thumb_browser_fsel_clear(sb->ephoto);
 		  ephoto_directory_set(sb->ephoto, dir, NULL,
                       EINA_FALSE, EINA_FALSE);
-                  ephoto_thumb_browser_top_dir_set(sb->ephoto, sb->ephoto->config->directory);
+                  ephoto_thumb_browser_top_dir_set(sb->ephoto,
+                      sb->ephoto->config->directory);
 		  free(dir);
 		  ephoto_single_browser_path_pending_set(sb->ephoto->
 		      single_browser, buf);
@@ -1354,7 +1362,8 @@ _save_image_as(void *data, Evas_Object *obj EINA_UNUSED,
    elm_fileselector_expandable_set(fsel, EINA_FALSE);
    elm_fileselector_path_set(fsel, sb->ephoto->config->directory);
    elm_fileselector_current_name_set(fsel, sb->entry->basename);
-   elm_fileselector_mime_types_filter_append(fsel, "image/*", _("Image Files"));
+   elm_fileselector_mime_types_filter_append(fsel, "image/*",
+       _("Image Files"));
    evas_object_size_hint_weight_set(fsel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_smart_callback_add(fsel, "done", _save_image_as_done, popup);
@@ -1643,8 +1652,8 @@ _upload_image_confirm(void *data, Evas_Object *obj EINA_UNUSED,
 	Eina_Bool success;
 
 	ext++;
-	snprintf(tmp_path, PATH_MAX, "%s/.config/ephoto/tmp.%s", getenv("HOME"),
-	    ext);
+	snprintf(tmp_path, PATH_MAX, "%s/.config/ephoto/tmp.%s",
+	    getenv("HOME"), ext);
 	success =
 	    evas_object_image_save(elm_image_object_get(v->image), tmp_path,
 	    NULL, NULL);
@@ -1673,7 +1682,8 @@ _upload_image_confirm(void *data, Evas_Object *obj EINA_UNUSED,
 
    sb->upload_handlers =
        eina_list_append(sb->upload_handlers,
-       ecore_event_handler_add(ECORE_CON_EVENT_URL_DATA, _upload_image_cb, sb));
+       ecore_event_handler_add(ECORE_CON_EVENT_URL_DATA,
+           _upload_image_cb, sb));
    sb->upload_handlers =
        eina_list_append(sb->upload_handlers,
        ecore_event_handler_add(ECORE_CON_EVENT_URL_COMPLETE,
@@ -1813,26 +1823,33 @@ _delete_apply(void *data, Evas_Object *obj EINA_UNUSED,
 
              box = elm_box_add(ppopup);
              elm_box_horizontal_set(box, EINA_FALSE);
-             evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-             evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+             evas_object_size_hint_weight_set(box,
+                 EVAS_HINT_FILL, EVAS_HINT_FILL);
+             evas_object_size_hint_align_set(box,
+                 EVAS_HINT_FILL, EVAS_HINT_FILL);
              evas_object_show(box);
 
              label = elm_label_add(box);
-             elm_object_text_set(label, _("There was an error deleting this file"));
-             evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-             evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+             elm_object_text_set(label,
+                 _("There was an error deleting this file"));
+             evas_object_size_hint_weight_set(label,
+                 EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+             evas_object_size_hint_align_set(label,
+                 EVAS_HINT_FILL, EVAS_HINT_FILL);
              elm_box_pack_end(box, label);
              evas_object_show(label);
 
              ic = elm_icon_add(ppopup);
              elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-             evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+             evas_object_size_hint_aspect_set(ic,
+                 EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
              elm_icon_standard_set(ic, "window-close");
 
              button = elm_button_add(ppopup);
              elm_object_text_set(button, _("Ok"));
              elm_object_part_content_set(button, "icon", ic);
-             evas_object_smart_callback_add(button, "clicked", _error_ok, popup);
+             evas_object_smart_callback_add(button, "clicked",
+                 _error_ok, popup);
              elm_object_part_content_set(popup, "button1", button);
              evas_object_show(button);
 

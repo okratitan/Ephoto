@@ -2,7 +2,7 @@
 
 static void _ephoto_display_usage(void);
 
-EAPI int
+EAPI_MAIN int
 elm_main(int argc, char **argv)
 {
    int r = 0;

@@ -31,7 +31,7 @@ have_po="yes"
 ],[
 have_po="no"
 ])
-AC_SUBST(LTLLIBINTL)
+AC_SUBST([LTLLIBINTL])
 if test "x$LIBINTL" = "x"; then
   LIBINTL="$INTLLIBS"
 fi

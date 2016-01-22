@@ -29,10 +29,11 @@
 # endif
 
 #if HAVE_GETTEXT && ENABLE_NLS
-#define _(string) gettext (string)
+# include <libintl.h>
+# define _(string) gettext (string)
 #else
-#define _(string) (string)
-#define ngettext(String1, String2, Var) Var == 1 ? String1 : String2
+# define _(string) (string)
+# define ngettext(String1, String2, Var) Var == 1 ? String1 : String2
 #endif
 
 typedef struct _Ephoto_Config Ephoto_Config;

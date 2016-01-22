@@ -79,7 +79,7 @@ ephoto_config_free(Ephoto *ephoto)
 }
 
 static void
-_close(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+_config_close_cb(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
 
@@ -87,7 +87,7 @@ _close(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 }
 
 static void
-_save(void *data, Evas_Object *obj EINA_UNUSED,
+_config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
@@ -527,7 +527,7 @@ ephoto_config_main(Ephoto *ephoto)
    button = elm_button_add(popup);
    elm_object_text_set(button, _("Save"));
    elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _save, popup);
+   evas_object_smart_callback_add(button, "clicked", _config_save_cb, popup);
    elm_object_part_content_set(popup, "button1", button);
    evas_object_show(button);
 
@@ -539,7 +539,7 @@ ephoto_config_main(Ephoto *ephoto)
    button = elm_button_add(popup);
    elm_object_text_set(button, _("Close"));
    elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _close, popup);
+   evas_object_smart_callback_add(button, "clicked", _config_close_cb, popup);
    elm_object_part_content_set(popup, "button2", button);
    evas_object_show(button);
 

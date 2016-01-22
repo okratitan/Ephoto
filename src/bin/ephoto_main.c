@@ -718,7 +718,6 @@ ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, const char *path)
    if (!o)
       return NULL;
 
-   elm_object_style_set(o, "noframe");
    ephoto->thumbs = eina_list_append(ephoto->thumbs, o);
    evas_object_event_callback_add(o, EVAS_CALLBACK_DEL, _thumb_del, ephoto);
 

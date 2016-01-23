@@ -640,7 +640,8 @@ _thumb_gen_size_changed_timer_cb(void *data)
      {
         Ethumb_Thumb_Format format;
 
-        format = (long) evas_object_data_get(o, "ephoto_format");
+        format = (Ethumb_Thumb_Format) (uintptr_t) 
+            evas_object_data_get(o, "ephoto_format");
         if (format)
 	  {
 	     elm_thumb_format_set(o, format);
@@ -753,7 +754,7 @@ ephoto_thumb_path_set(Evas_Object *obj, const char *path)
 	  }
      }
    elm_thumb_format_set(obj, format);
-   evas_object_data_set(obj, "ephoto_format", (void *) (long) format);
+   evas_object_data_set(obj, "ephoto_format", (void *) (uintptr_t) format);
    elm_thumb_crop_align_set(obj, 0.5, 0.5);
    elm_thumb_aspect_set(obj, ETHUMB_THUMB_CROP);
    elm_thumb_orientation_set(obj, ETHUMB_THUMB_ORIENT_ORIGINAL);

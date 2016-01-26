@@ -191,6 +191,7 @@ struct _Ephoto
    Ephoto_State state, prev_state;
 
    Ephoto_Config *config;
+   Ephoto_Entry *thumb_entry;
 };
 
 struct _Ephoto_Entry

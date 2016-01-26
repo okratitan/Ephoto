@@ -1064,6 +1064,7 @@ _ephoto_thumb_activated(void *data, Evas_Object *obj EINA_UNUSED,
      {
         EINA_LIST_FOREACH(selected, s, item)
           {
+             elm_gengrid_item_selected_set(item, EINA_TRUE);
              tb->ephoto->selentries = eina_list_append(tb->ephoto->selentries,
                  elm_object_item_data_get(item));
           }

@@ -38,11 +38,10 @@ _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    _ephoto_state_set(ephoto, EPHOTO_STATE_THUMB);
    ephoto_title_set(ephoto, ephoto->config->directory);
 
+   if (ephoto->thumb_entry)
+     elm_gengrid_item_selected_set(ephoto->thumb_entry->item, EINA_TRUE);
    if ((entry) && (entry->item))
-     {
-        elm_gengrid_item_selected_set(entry->item, EINA_TRUE);
-        elm_gengrid_item_bring_in(entry->item, ELM_GENGRID_ITEM_SCROLLTO_IN);
-     }
+     elm_gengrid_item_bring_in(entry->item, ELM_GENGRID_ITEM_SCROLLTO_IN);
 }
 
 static void
@@ -58,6 +57,7 @@ _ephoto_single_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
      ephoto_single_browser_entries_set(ephoto->single_browser,
          ephoto->entries);
 
+   ephoto->thumb_entry = entry;
    ephoto_single_browser_entry_set(ephoto->single_browser, entry);
    elm_naviframe_item_simple_promote(ephoto->pager, ephoto->single_browser);
    elm_object_focus_set(ephoto->single_browser, EINA_TRUE);

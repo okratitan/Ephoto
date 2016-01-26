@@ -3131,6 +3131,15 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
                _on_list_selected(tb, NULL, item);
           }
      }
+   else if (!item)
+     {
+        Elm_Object_Item *it;
+
+        it = elm_genlist_selected_item_get(tb->fsel);
+        if (it)
+          elm_genlist_item_selected_set(it, EINA_FALSE);
+        ephoto_directory_set(tb->ephoto, tb->ephoto->top_directory, NULL, 0, 1);
+     }
    if (info->button != 3)
      return;
 

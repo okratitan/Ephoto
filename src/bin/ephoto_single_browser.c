@@ -1311,7 +1311,7 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 	       {
 		  char *dir = ecore_file_dir_get(buf);
 
-                  if (!strcmp(dir, sb->ephoto->config->directory))
+                  if (strcmp(dir, sb->ephoto->config->directory))
                     {
 		       ephoto_thumb_browser_fsel_clear(sb->ephoto);
 		       ephoto_directory_set(sb->ephoto, dir, NULL,

@@ -260,6 +260,25 @@ _ephoto_eina_file_direct_info_image_useful(const Eina_File_Direct_Info *info)
    return EINA_FALSE;
 }
 
+static inline Eina_Bool
+_ephoto_file_image_can_save(const char *ext)
+{
+   int i = 0;
+
+   const char *filters[] = {
+      "png", "jpeg", "jpg", "eet", "xpm", "tiff", "tif", "gif", "svg", "webp",
+      "pmaps", "bmp", "wbmp", "ico", "generic"
+   };
+
+   int count = sizeof(filters) / sizeof(filters[0]);
+   for (i = 0; i < count; i++)
+     {
+        if (!strcasecmp(ext, filters[i]))
+           return EINA_TRUE;
+     }
+   return EINA_FALSE;
+}
+
 extern int EPHOTO_EVENT_ENTRY_CREATE;
 extern int EPHOTO_EVENT_POPULATE_START;
 extern int EPHOTO_EVENT_POPULATE_END;

@@ -20,6 +20,7 @@ struct _Ephoto_Single_Browser
    Evas_Object *nolabel;
    Evas_Object *botbox;
    Evas_Object *event;
+   Elm_Object_Item *save;
    const char *pending_path;
    Ephoto_Entry *entry;
    Ephoto_Orient orient;
@@ -764,6 +765,11 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
 	     evas_object_show(sb->infolabel);
 
 	     ephoto_title_set(sb->ephoto, bname);
+
+             if (!_ephoto_file_image_can_save(strrchr(bname, '.')+1))
+               elm_object_item_disabled_set(sb->save, EINA_TRUE);
+             else
+               elm_object_item_disabled_set(sb->save, EINA_FALSE);
 	  }
         else
 	  {
@@ -1115,6 +1121,11 @@ _save_image(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto_Single_Browser *sb = data;
    Evas_Object *popup, *box, *label, *ic, *button;
 
+   if (!_ephoto_file_image_can_save(strrchr(sb->entry->label, '.')+1))
+     {
+        _failed_save(sb);
+        return;
+     }
    if (sb->event)
      evas_object_freeze_events_set(sb->event, EINA_TRUE);
 
@@ -1233,7 +1244,7 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 
 	char buf[PATH_MAX];
 
-	if (!evas_object_image_extension_can_load_get(selected))
+	if (!_ephoto_file_image_can_save(strrchr(selected, '.')+1))
 	   snprintf(buf, PATH_MAX, "%s.jpg", selected);
 	else
 	   snprintf(buf, PATH_MAX, "%s", selected);
@@ -2552,7 +2563,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    menu = elm_toolbar_item_menu_get(icon);
 
    elm_menu_item_add(menu, NULL, "edit-undo", _("Reset"), _reset_image, sb);
-   elm_menu_item_add(menu, NULL, "document-save", _("Save"), _save_image, sb);
+   sb->save = elm_menu_item_add(menu, NULL, "document-save", _("Save"), _save_image, sb);
    elm_menu_item_add(menu, NULL, "document-save-as", _("Save As"),
        _save_image_as, sb);
    elm_menu_item_add(menu, NULL, "document-send", _("Upload"), _upload_image,

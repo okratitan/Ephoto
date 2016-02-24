@@ -1202,15 +1202,19 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
 	     return;
 	  }
      }
+   ephoto_single_browser_path_pending_set(sb->ephoto->single_browser, file);
    success =
        evas_object_image_save(elm_image_object_get(v->image), file,
            NULL, NULL);
    if (!success)
-      _failed_save(sb);
+     {
+        _failed_save(sb);
+        eina_stringshare_del(sb->pending_path);
+        sb->pending_path = NULL;
+     }
    else
      {
 	char *dir = ecore_file_dir_get(file);
-
         if (strcmp(dir, sb->ephoto->config->directory))
           {
 	     ephoto_thumb_browser_fsel_clear(sb->ephoto);
@@ -1218,8 +1222,6 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
              ephoto_thumb_browser_top_dir_set(sb->ephoto,
                  sb->ephoto->config->directory);
 	     free(dir);
-	     ephoto_single_browser_path_pending_set(sb->ephoto->single_browser,
-	         file);
           }
      }
    evas_object_del(popup);
@@ -1243,11 +1245,29 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 	Eina_Bool success;
 
 	char buf[PATH_MAX];
-
-	if (!_ephoto_file_image_can_save(strrchr(selected, '.')+1))
-	   snprintf(buf, PATH_MAX, "%s.jpg", selected);
-	else
-	   snprintf(buf, PATH_MAX, "%s", selected);
+        const char *ex, *ext;
+        
+        ex = strrchr(selected, '.');
+        if (!ex)
+          {
+             snprintf(buf, PATH_MAX, "%s.jpg", selected);
+          }
+        else
+          {
+             ext = eina_stringshare_add((strrchr(selected, '.')+1));
+             if (!_ephoto_file_image_can_save(ext))
+               {
+                  if (ext)
+                    eina_stringshare_del(ext);
+                  snprintf(buf, PATH_MAX, "%s.jpg", selected);
+               }
+             else
+               {
+                  if (ext)
+                    eina_stringshare_del(ext);
+                  snprintf(buf, PATH_MAX, "%s", selected);
+               }
+          }
 	if (ecore_file_exists(buf))
 	  {
 	     Evas_Object *popup, *box, *label, *ic, *button;
@@ -1313,11 +1333,17 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 	  }
         else
 	  {
+             ephoto_single_browser_path_pending_set(sb->ephoto->
+                           single_browser, buf);
 	     success =
 		 evas_object_image_save(elm_image_object_get(v->image), buf,
 		 NULL, NULL);
 	     if (!success)
-		_failed_save(sb);
+               {
+	          _failed_save(sb);
+                  eina_stringshare_del(sb->pending_path);
+                  sb->pending_path = NULL;
+               }
 	     else
 	       {
 		  char *dir = ecore_file_dir_get(buf);
@@ -1330,8 +1356,6 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
                        ephoto_thumb_browser_top_dir_set(sb->ephoto,
                            sb->ephoto->config->directory);
 		       free(dir);
-		       ephoto_single_browser_path_pending_set(sb->ephoto->
-		           single_browser, buf);
                     }
 	       }
 	  }
@@ -2486,7 +2510,7 @@ _ephoto_single_entry_create(void *data, int type EINA_UNUSED,
    Ephoto_Entry *e;
 
    e = ev->entry;
-   if (!sb->entry && sb->pending_path && e->path == sb->pending_path)
+   if (sb->pending_path && !strcmp(e->path, sb->pending_path))
      {
 	eina_stringshare_del(sb->pending_path);
 	sb->pending_path = NULL;
@@ -2697,7 +2721,7 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
    sb->entry = entry;
 
    if (entry)
-      ephoto_entry_free_listener_add(entry, _entry_free, sb);
+     ephoto_entry_free_listener_add(entry, _entry_free, sb);
 
    _ephoto_single_browser_recalc(sb);
    if (sb->edited_image_data)
@@ -2757,7 +2781,26 @@ ephoto_single_browser_path_pending_set(Evas_Object *obj, const char *path)
 {
    Ephoto_Single_Browser *sb = evas_object_data_get(obj, "single_browser");
 
+   if (sb->pending_path)
+     {
+        eina_stringshare_del(sb->pending_path);
+        sb->pending_path = NULL;
+     }
    sb->pending_path = eina_stringshare_add(path);
+}
+
+
+void
+ephoto_single_browser_path_created(Evas_Object *obj, Ephoto_Entry *entry)
+{
+   Ephoto_Single_Browser *sb = evas_object_data_get(obj, "single_browser");
+
+   if (sb->pending_path && !strcmp(entry->path, sb->pending_path))
+     {
+        eina_stringshare_del(sb->pending_path);
+        sb->pending_path = NULL;
+        ephoto_single_browser_entry_set(sb->ephoto->single_browser, entry);
+     }
 }
 
 void

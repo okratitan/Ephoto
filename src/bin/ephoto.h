@@ -64,6 +64,7 @@ void ephoto_single_browser_entries_set(Evas_Object *obj, Eina_List *entries);
 void ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
 void ephoto_single_browser_path_pending_set(Evas_Object *obj,
     const char *path);
+void ephoto_single_browser_path_created(Evas_Object *obj, Ephoto_Entry *entry);
 void ephoto_single_browser_image_data_update(Evas_Object *main,
     Evas_Object *image, Eina_Bool finished, unsigned int *image_data, int w,
     int h);
@@ -82,6 +83,7 @@ void ephoto_thumb_browser_fsel_clear(Ephoto *ephoto);
 void ephoto_thumb_browser_top_dir_set(Ephoto *ephoto, const char *dir);
 void ephoto_thumb_browser_insert(Ephoto *ephoto, Ephoto_Entry *entry);
 void ephoto_thumb_browser_remove(Ephoto *ephoto, Ephoto_Entry *entry);
+void ephoto_thumb_browser_update(Ephoto *ephoto, Ephoto_Entry *entry);
 
 /* smart callbacks called: "selected" - an item in the thumb browser is
  * selected. The selected Ephoto_Entry is passed as event_info argument. */

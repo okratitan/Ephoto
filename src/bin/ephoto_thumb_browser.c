@@ -507,6 +507,8 @@ _monitor_created(void *data, int type EINA_UNUSED, void *event)
 
    if (!entry)
      return ECORE_CALLBACK_PASS_ON;
+   if (!ecore_file_is_dir(ev->filename))
+     return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
@@ -640,6 +642,8 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
    char file[PATH_MAX], dir[PATH_MAX];
 
    if (!entry)
+     return ECORE_CALLBACK_PASS_ON;
+   if (!ecore_file_is_dir(ev->filename))
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
@@ -1397,7 +1401,7 @@ _move_idler_cb(void *data)
 	if (!file)
 	   break;
 	if (ecore_file_exists(file) && ecore_file_is_dir(destination) &&
-	    !strncmp("image/", efreet_mime_type_get(file), 6))
+	    evas_object_image_extension_can_load_get(file))
 	  {
 	     char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
 	     int ret;
@@ -1496,7 +1500,7 @@ _copy_idler_cb(void *data)
 	if (!file)
 	   break;
 	if (ecore_file_exists(file) && ecore_file_is_dir(destination) &&
-	    !strncmp("image/", efreet_mime_type_get(file), 6))
+	    evas_object_image_extension_can_load_get(file))
 	  {
 	     char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
 	     int ret;
@@ -3646,6 +3650,8 @@ _top_monitor_created(void *data, int type EINA_UNUSED, void *event)
 
    if (!tb)
      return ECORE_CALLBACK_PASS_ON;
+   if (!ecore_file_is_dir(ev->filename))
+     return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
@@ -3727,6 +3733,8 @@ _top_monitor_modified(void *data, int type EINA_UNUSED, void *event)
    char file[PATH_MAX], dir[PATH_MAX];
 
    if (!tb)
+     return ECORE_CALLBACK_PASS_ON;
+   if (!ecore_file_is_dir(ev->filename))
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
@@ -3844,6 +3852,29 @@ ephoto_thumb_browser_remove(Ephoto *ephoto, Ephoto_Entry *entry)
           }
         _update_info_label(tb);
         elm_object_item_del(entry->item);
+     }
+}
+
+void
+ephoto_thumb_browser_update(Ephoto *ephoto, Ephoto_Entry *entry)
+{
+   Ephoto_Thumb_Browser *tb =
+      evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
+
+   if (!entry->is_dir)
+     {
+        Eina_File *f;
+
+        tb->totsize -= entry->size;
+
+        f = eina_file_open(entry->path, EINA_FALSE);
+        entry->size = eina_file_size_get(f);
+        tb->totsize += (double) entry->size;
+        eina_file_close(f);
+
+        elm_gengrid_item_update(entry->item);
+        tb->totsize += entry->size;
+        _update_info_label(tb);
      }
 }
 
@@ -4048,9 +4079,9 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
        EVAS_HINT_FILL);
    evas_object_size_hint_align_set(tb->direntry, EVAS_HINT_FILL,
        EVAS_HINT_FILL);
-   elm_box_pack_end(tb->leftbox, tb->direntry);
    evas_object_smart_callback_add(tb->direntry, "activated",
        _ephoto_direntry_go, tb);
+   elm_box_pack_end(tb->leftbox, tb->direntry);
    evas_object_show(tb->direntry);
 
    tb->fsel = elm_genlist_add(tb->leftbox);
@@ -4059,7 +4090,6 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(tb->fsel, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(tb->leftbox, tb->fsel);
    evas_object_smart_callback_add(tb->fsel, "expand,request",
        _on_list_expand_req, tb);
    evas_object_smart_callback_add(tb->fsel, "contract,request",
@@ -4070,6 +4100,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_event_callback_add(tb->fsel, EVAS_CALLBACK_MOUSE_UP,
        _fsel_mouse_up_cb, tb);
    evas_object_data_set(tb->fsel, "thumb_browser", tb);
+   elm_box_pack_end(tb->leftbox, tb->fsel);
    evas_object_show(tb->fsel);
    elm_drop_item_container_add(tb->fsel, ELM_SEL_FORMAT_TARGETS,
        _drop_item_getcb, _drop_enter, tb, _drop_leave, tb, _drop_pos, tb,
@@ -4095,11 +4126,11 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
        EVAS_HINT_FILL);
    evas_object_size_hint_aspect_set(tb->nolabel, EVAS_ASPECT_CONTROL_VERTICAL,
        1, 1);
-   evas_object_show(tb->nolabel);
    if (!tb->ephoto->config->fsel_hide)
      elm_table_pack(tb->table, tb->nolabel, 1, 0, 4, 1);
    else
      elm_table_pack(tb->table, tb->nolabel, 0, 0, 5, 1);
+   evas_object_show(tb->nolabel);
 
    tb->gridbox = elm_box_add(tb->table);
    elm_box_horizontal_set(tb->gridbox, EINA_FALSE);
@@ -4125,16 +4156,14 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_drag_item_container_add(tb->grid, ANIM_TIME, DRAG_TIMEOUT,
        _dnd_item_get, _dnd_item_data_get);
    evas_object_data_set(tb->grid, "thumb_browser", tb);
-
-   _zoom_set(tb, tb->ephoto->config->thumb_size);
-
    elm_box_pack_end(tb->gridbox, tb->grid);
    evas_object_show(tb->grid);
-
    if (!tb->ephoto->config->fsel_hide)
      elm_table_pack(tb->table, tb->gridbox, 1, 0, 4, 1);
    else
      elm_table_pack(tb->table, tb->gridbox, 0, 0, 5, 1);
+
+   _zoom_set(tb, tb->ephoto->config->thumb_size);
 
    tb->infolabel = elm_label_add(tb->table);
    elm_label_line_wrap_set(tb->infolabel, ELM_WRAP_WORD);
@@ -4144,8 +4173,8 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
        EVAS_HINT_FILL);
    evas_object_size_hint_aspect_set(tb->infolabel,
        EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   evas_object_show(tb->infolabel);
    elm_table_pack(tb->table, tb->infolabel, 0, 1, 5, 1);
+   evas_object_show(tb->infolabel);
 
    tb->handlers =
        eina_list_append(tb->handlers,

@@ -470,11 +470,11 @@ _monitor_created(void *data, int type EINA_UNUSED, void *event)
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
-
+   
    if (strcmp(ephoto->config->directory, dir))
      return ECORE_CALLBACK_PASS_ON;
 
-   if (!strncmp("image/", efreet_mime_type_get(ev->filename), 6))
+   if (evas_object_image_extension_can_load_get(ev->filename))
      {
         Eina_List *l;
         Ephoto_Entry *entry;
@@ -488,6 +488,7 @@ _monitor_created(void *data, int type EINA_UNUSED, void *event)
         snprintf(buf, PATH_MAX, "%s", ev->filename);
         entry = ephoto_entry_new(ephoto, ev->filename, basename(buf),
             EINA_FILE_REG);
+        ephoto_single_browser_path_created(ephoto->single_browser, entry);
         if (!ephoto->entries)
           {
              ephoto->entries = eina_list_append(ephoto->entries, entry);
@@ -519,7 +520,6 @@ _monitor_deleted(void *data, int type EINA_UNUSED, void *event)
    Ephoto *ephoto = data;
    Eio_Monitor_Event *ev = event;
    char file[PATH_MAX], dir[PATH_MAX];
-   const char *mime;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
@@ -527,8 +527,7 @@ _monitor_deleted(void *data, int type EINA_UNUSED, void *event)
    if (strcmp(ephoto->config->directory, dir))
      return ECORE_CALLBACK_PASS_ON;
 
-   mime = efreet_mime_type_get(ev->filename);
-   if (!mime || !strncmp("image/", mime, 6))
+   if (evas_object_image_extension_can_load_get(ev->filename))
      {
         Eina_List *l;
         Ephoto_Entry *entry;
@@ -559,7 +558,7 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
    if (strcmp(ephoto->config->directory, dir))
      return ECORE_CALLBACK_PASS_ON;
 
-   if (!strncmp("image/", efreet_mime_type_get(ev->filename), 6))
+   if (evas_object_image_extension_can_load_get(ev->filename))
      {
         Eina_List *l;
         Ephoto_Entry *entry;
@@ -575,8 +574,7 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
                     }
                   else
                     {
-                       ephoto_thumb_browser_remove(ephoto, entry);
-                       ephoto_thumb_browser_insert(ephoto, entry);
+                       ephoto_thumb_browser_update(ephoto, entry);
                     }
                   break;
                }

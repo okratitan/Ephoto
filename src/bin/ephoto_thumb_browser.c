@@ -53,12 +53,14 @@ struct _Ephoto_Thumb_Browser
    Ecore_Timer *click_timer;
    Eina_Bool thumbs_only;
    Eina_Bool dirs_only;
+   double totsize;
+   double totsize_old;
    int totimages;
+   int totimages_old;
    int file_errors;
    Eina_Bool dragging;
    Eina_Bool searching;
    Eina_Bool processing;
-   double totsize;
    struct
    {
       Ecore_Animator *todo_items;
@@ -90,6 +92,65 @@ static Eina_Bool _monitor_deleted(void *data, int type EINA_UNUSED,
     void *event);
 static Eina_Bool _monitor_modified(void *data, int type EINA_UNUSED,
     void *event);
+
+static void
+_update_info_label(Ephoto_Thumb_Browser *tb)
+{
+   char buf[PATH_MAX];
+   char isize[PATH_MAX];
+   char image_info[PATH_MAX];
+   double totsize;
+
+
+   if (!tb->totimages)
+     {
+        elm_object_text_set(tb->nolabel,
+            _("No images matched your search"));
+        snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s",
+            _("Total"), ngettext("image", "images", 0), _("Size"),
+        ngettext("B", "B", 0));
+        elm_object_text_set(tb->infolabel, buf);
+     }
+   else
+     {
+        elm_object_text_set(tb->nolabel, " ");
+        totsize = tb->totsize;
+        if (totsize < 1024.0)
+           snprintf(isize, sizeof(isize), "%'.0f%s", totsize, ngettext("B",
+                   "B", totsize));
+        else
+          {
+             totsize /= 1024.0;
+             if (totsize < 1024)
+                snprintf(isize, sizeof(isize), "%'.0f%s", totsize,
+                    ngettext("KB", "KB", totsize));
+             else
+               {
+                  totsize /= 1024.0;
+                  if (totsize < 1024)
+                     snprintf(isize, sizeof(isize), "%'.1f%s", totsize,
+                         ngettext("MB", "MB", totsize));
+                  else
+                    {
+                       totsize /= 1024.0;
+                       if (totsize < 1024)
+                          snprintf(isize, sizeof(isize), "%'.1f%s", totsize,
+                              ngettext("GB", "GB", totsize));
+                       else
+                         {
+                            totsize /= 1024.0;
+                            snprintf(isize, sizeof(isize), "%'.1f%s",
+                                totsize, ngettext("TB", "TB", totsize));
+                         }
+                    }
+               }
+          }
+        snprintf(image_info, PATH_MAX, "<b>%s:</b> %d %s        <b>%s:</b> %s",
+            _("Total"), tb->totimages, ngettext("image", "images",
+                tb->totimages), _("Size"), isize);
+        elm_object_text_set(tb->infolabel, image_info);
+     }
+}
 
 static void
 _todo_items_free(Ephoto_Thumb_Browser *tb)
@@ -854,11 +915,10 @@ _ephoto_search_go(void *data, Evas_Object *obj EINA_UNUSED,
    tb->searchentries = NULL;
    if (results)
      {
-        char isize[PATH_MAX];
-        char image_info[PATH_MAX];
-        double totsize = 0;
-        int totimages = 0;
-
+        tb->totimages_old = tb->totimages;
+        tb->totsize_old = tb->totsize;
+        tb->totimages = 0;
+        tb->totsize = 0;
         EINA_LIST_FOREACH(results, l, o)
           {
              const Elm_Gengrid_Item_Class *ic = NULL;
@@ -888,9 +948,9 @@ _ephoto_search_go(void *data, Evas_Object *obj EINA_UNUSED,
                {
                   Eina_File *f;
                   elm_object_item_data_set(e->item, e);
-                  totimages++;
+                  tb->totimages++;
                   f = eina_file_open(e->path, EINA_FALSE);
-                  totsize += (double) eina_file_size_get(f);
+                  tb->totsize += (double) eina_file_size_get(f);
                   eina_file_close(f);
                   tb->searchentries = eina_list_append(tb->searchentries, e);
                }
@@ -900,53 +960,14 @@ _ephoto_search_go(void *data, Evas_Object *obj EINA_UNUSED,
                }
           }
         tb->entries = tb->searchentries;
-        elm_object_text_set(tb->nolabel, " ");
-        if (totsize < 1024.0)
-           snprintf(isize, sizeof(isize), "%'.0f%s", totsize, ngettext("B",
-                   "B", totsize));
-        else
-          {
-             totsize /= 1024.0;
-             if (totsize < 1024)
-                snprintf(isize, sizeof(isize), "%'.0f%s", totsize,
-                    ngettext("KB", "KB", totsize));
-             else
-               {
-                  totsize /= 1024.0;
-                  if (totsize < 1024)
-                     snprintf(isize, sizeof(isize), "%'.1f%s", totsize,
-                         ngettext("MB", "MB", totsize));
-                  else
-                    {
-                       totsize /= 1024.0;
-                       if (totsize < 1024)
-                          snprintf(isize, sizeof(isize), "%'.1f%s", totsize,
-                              ngettext("GB", "GB", totsize));
-                       else
-                         {
-                            totsize /= 1024.0;
-                            snprintf(isize, sizeof(isize), "%'.1f%s",
-                                totsize, ngettext("TB", "TB", totsize));
-                         }
-                    }
-               }
-          }
-        snprintf(image_info, PATH_MAX, "<b>%s:</b> %d %s        <b>%s:</b> %s",
-            _("Total"), totimages, ngettext("image", "images",
-                totimages), _("Size"), isize);
-        elm_object_text_set(tb->infolabel, image_info);
+        _update_info_label(tb);
         eina_list_free(results);
      }
    else
      {
-        char buf[PATH_MAX];
-
-        elm_object_text_set(tb->nolabel,
-            _("No images matched your search"));
-        snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s",
-            _("Total"), ngettext("image", "images", 0), _("Size"),
-        ngettext("B", "B", 0));
-        elm_object_text_set(tb->infolabel, buf);
+        tb->totimages = 0;
+        tb->totsize = 0;
+        _update_info_label(tb);
         tb->searchentries = NULL;
         tb->entries = NULL;
      }
@@ -978,60 +999,17 @@ _ephoto_search_cancel(void *data, Evas_Object *obj EINA_UNUSED,
         elm_box_pack_end(tb->gridbox, tb->grid);
         evas_object_show(tb->grid);
         tb->original_grid = NULL;
+        tb->totimages = tb->totimages_old;
+        tb->totsize = tb->totsize_old;
+        tb->totimages_old = 0;
+        tb->totsize_old = 0;
      }
    if (!tb->ephoto->entries)
      {
-        char buf[PATH_MAX];
-
-        elm_object_text_set(tb->nolabel,
-            _("There are no images in this directory"));
-        snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s",
-            _("Total"), ngettext("image", "images", 0), _("Size"),
-        ngettext("B", "B", 0));
-        elm_object_text_set(tb->infolabel, buf);
+        tb->totimages = 0;
+        tb->totsize = 0;
      }
-   else
-     {
-        char isize[PATH_MAX];
-        char image_info[PATH_MAX];
-
-        elm_object_text_set(tb->nolabel, " ");
-        if (tb->totsize < 1024.0)
-           snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize, ngettext("B",
-                   "B", tb->totsize));
-        else
-          {
-             tb->totsize /= 1024.0;
-             if (tb->totsize < 1024)
-                snprintf(isize, sizeof(isize), "%'.0f%s", tb->totsize,
-                    ngettext("KB", "KB", tb->totsize));
-             else
-               {
-                  tb->totsize /= 1024.0;
-                  if (tb->totsize < 1024)
-                     snprintf(isize, sizeof(isize), "%'.1f%s", tb->totsize,
-                         ngettext("MB", "MB", tb->totsize));
-                  else
-                    {
-                       tb->totsize /= 1024.0;
-                       if (tb->totsize < 1024)
-                          snprintf(isize, sizeof(isize), "%'.1f%s",
-                              tb->totsize, ngettext("GB", "GB", tb->totsize));
-                       else
-                         {
-                            tb->totsize /= 1024.0;
-                            snprintf(isize, sizeof(isize), "%'.1f%s",
-                                tb->totsize,
-                                ngettext("TB", "TB", tb->totsize));
-                         }
-                    }
-               }
-          }
-        snprintf(image_info, PATH_MAX, "<b>%s:</b> %d %s        <b>%s:</b> %s",
-            _("Total"), tb->totimages, ngettext("image", "images",
-                tb->totimages), _("Size"), isize);
-        elm_object_text_set(tb->infolabel, image_info);
-     }
+   _update_info_label(tb);
    elm_object_focus_set(tb->main, EINA_TRUE);
    evas_object_del(tb->search);
    tb->search = NULL;
@@ -3633,58 +3611,10 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
      }
    if (!tb->ephoto->entries)
      {
-        char buf[PATH_MAX];
-
-        elm_object_text_set(tb->nolabel,
-            _("There are no images in this directory"));
-	snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s",
-	    _("Total"), ngettext("image", "images", 0), _("Size"),
-	ngettext("B", "B", 0));
-	elm_object_text_set(tb->infolabel, buf);
+        tb->totimages = 0;
+        tb->totsize = 0;
      }
-   else if (!tb->dirs_only)
-     {
-	char isize[PATH_MAX];
-	char image_info[PATH_MAX];
-        double totsize = tb->totsize;
-
-        elm_object_text_set(tb->nolabel, " ");
-
-	if (totsize < 1024.0)
-	   snprintf(isize, sizeof(isize), "%'.0f%s", totsize, ngettext("B",
-		   "B", totsize));
-	else
-	  {
-	     totsize /= 1024.0;
-	     if (totsize < 1024)
-		snprintf(isize, sizeof(isize), "%'.0f%s", totsize,
-		    ngettext("KB", "KB", totsize));
-	     else
-	       {
-		  totsize /= 1024.0;
-		  if (totsize < 1024)
-		     snprintf(isize, sizeof(isize), "%'.1f%s", totsize,
-			 ngettext("MB", "MB", totsize));
-		  else
-		    {
-		       totsize /= 1024.0;
-		       if (totsize < 1024)
-			  snprintf(isize, sizeof(isize), "%'.1f%s", totsize,
-			      ngettext("GB", "GB", totsize));
-		       else
-			 {
-			    totsize /= 1024.0;
-			    snprintf(isize, sizeof(isize), "%'.1f%s",
-				totsize, ngettext("TB", "TB", totsize));
-			 }
-		    }
-	       }
-	  }
-	snprintf(image_info, PATH_MAX, "<b>%s:</b> %d %s        <b>%s:</b> %s",
-	    _("Total"), tb->totimages, ngettext("image", "images",
-		tb->totimages), _("Size"), isize);
-	elm_object_text_set(tb->infolabel, image_info);
-     }
+   _update_info_label(tb);
    tb->dirs_only = 0;
    tb->thumbs_only = 0;
    tb->entries = tb->ephoto->entries;
@@ -3860,9 +3790,6 @@ ephoto_thumb_browser_insert(Ephoto *ephoto, Ephoto_Entry *entry)
      {
         Eina_File *f;
         const Elm_Gengrid_Item_Class *ic;
-        char isize[PATH_MAX];
-        char image_info[PATH_MAX];
-        double totsize;
 
         tb->totimages += 1;
         f = eina_file_open(entry->path, EINA_FALSE);
@@ -3895,43 +3822,7 @@ ephoto_thumb_browser_insert(Ephoto *ephoto, Ephoto_Entry *entry)
           {
              ephoto_entry_free(tb->ephoto, entry);
           }
-        elm_object_text_set(tb->nolabel, " ");
-
-        totsize = tb->totsize;
-        if (totsize < 1024.0)
-           snprintf(isize, sizeof(isize), "%'.0f%s", totsize, ngettext("B",
-                   "B", totsize));
-        else
-          {
-             totsize /= 1024.0;
-             if (totsize < 1024)
-                snprintf(isize, sizeof(isize), "%'.0f%s", totsize,
-                    ngettext("KB", "KB", totsize));
-             else
-               {
-                  totsize /= 1024.0;
-                  if (totsize < 1024)
-                     snprintf(isize, sizeof(isize), "%'.1f%s", totsize,
-                         ngettext("MB", "MB", totsize));
-                  else
-                    {
-                       totsize /= 1024.0;
-                       if (totsize < 1024)
-                          snprintf(isize, sizeof(isize), "%'.1f%s", totsize,
-                              ngettext("GB", "GB", totsize));
-                       else
-                         {
-                            totsize /= 1024.0;
-                            snprintf(isize, sizeof(isize), "%'.1f%s",
-                                totsize, ngettext("TB", "TB", totsize));
-                         }
-                    }
-               }
-          }
-        snprintf(image_info, PATH_MAX, "<b>%s:</b> %d %s        <b>%s:</b> %s",
-            _("Total"), tb->totimages, ngettext("image", "images",
-                tb->totimages), _("Size"), isize);
-        elm_object_text_set(tb->infolabel, image_info);
+        _update_info_label(tb);
      }
 }
 
@@ -3943,65 +3834,15 @@ ephoto_thumb_browser_remove(Ephoto *ephoto, Ephoto_Entry *entry)
 
    if (!entry->is_dir)
      {
-        char image_info[PATH_MAX];
-
         tb->totimages -= 1;
         tb->totsize -= entry->size;
 
         if (eina_list_count(tb->ephoto->entries) == 1)
           {
-             char buf[PATH_MAX];
-
-             elm_object_text_set(tb->nolabel,
-                 _("There are no images in this directory"));
-             snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s",
-                 _("Total"), ngettext("image", "images", 0), _("Size"),
-             ngettext("B", "B", 0));
-             elm_object_text_set(tb->infolabel, buf);
+             tb->totimages = 0;
+             tb->totsize = 0;
           }
-        else
-          {
-             char isize[PATH_MAX];
-             double totsize;
-
-             elm_object_text_set(tb->nolabel, " ");
-
-             totsize = tb->totsize;
-             if (totsize < 1024.0)
-                snprintf(isize, sizeof(isize), "%'.0f%s", totsize,
-                    ngettext("B", "B", totsize));
-             else
-               {
-                  totsize /= 1024.0;
-                  if (totsize < 1024)
-                     snprintf(isize, sizeof(isize), "%'.0f%s", totsize,
-                         ngettext("KB", "KB", totsize));
-                  else
-                    {
-                       totsize /= 1024.0;
-                       if (totsize < 1024)
-                          snprintf(isize, sizeof(isize), "%'.1f%s", totsize,
-                              ngettext("MB", "MB", totsize));
-                       else
-                         {
-                            totsize /= 1024.0;
-                            if (totsize < 1024)
-                               snprintf(isize, sizeof(isize), "%'.1f%s",
-                                   totsize, ngettext("GB", "GB", totsize));
-                            else
-                              {
-                                 totsize /= 1024.0;
-                                 snprintf(isize, sizeof(isize), "%'.1f%s",
-                                     totsize, ngettext("TB", "TB", totsize));
-                              }
-                         }
-                    }
-               }
-             snprintf(image_info, PATH_MAX, "<b>%s:</b> %d %s        "
-                 "<b>%s:</b> %s", _("Total"), tb->totimages,
-                 ngettext("image", "images", tb->totimages), _("Size"), isize);
-             elm_object_text_set(tb->infolabel, image_info);
-          }
+        _update_info_label(tb);
         elm_object_item_del(entry->item);
      }
 }

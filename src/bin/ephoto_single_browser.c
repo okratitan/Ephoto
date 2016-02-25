@@ -182,8 +182,6 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
    Ephoto_Single_Browser *sb = data;
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-   printf("Cutie\n");
-
    if (!ecore_file_exists(sb->entry->path))
      ephoto_entry_free(sb->ephoto, sb->entry);
    else

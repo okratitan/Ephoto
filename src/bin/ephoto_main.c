@@ -471,10 +471,8 @@ _monitor_created(void *data, int type EINA_UNUSED, void *event)
    snprintf(file, PATH_MAX, "%s", ev->filename);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
-   printf("Howdy %s\n", ev->filename);
-   
    if (strcmp(ephoto->config->directory, dir))
-     return ECORE_CALLBACK_RENEW;
+     return ECORE_CALLBACK_PASS_ON;
 
    if (evas_object_image_extension_can_load_get(ev->filename))
      {
@@ -553,8 +551,6 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
    Ephoto *ephoto = data;
    Eio_Monitor_Event *ev = event;
    char file[PATH_MAX], dir[PATH_MAX];
-
-   printf("Doody %s\n", ev->filename);
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));

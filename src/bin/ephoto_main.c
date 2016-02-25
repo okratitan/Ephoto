@@ -470,9 +470,11 @@ _monitor_created(void *data, int type EINA_UNUSED, void *event)
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
+
+   printf("Howdy %s\n", ev->filename);
    
    if (strcmp(ephoto->config->directory, dir))
-     return ECORE_CALLBACK_PASS_ON;
+     return ECORE_CALLBACK_RENEW;
 
    if (evas_object_image_extension_can_load_get(ev->filename))
      {
@@ -552,6 +554,8 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
    Eio_Monitor_Event *ev = event;
    char file[PATH_MAX], dir[PATH_MAX];
 
+   printf("Doody %s\n", ev->filename);
+
    snprintf(file, PATH_MAX, "%s", ev->filename);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
@@ -562,6 +566,7 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
      {
         Eina_List *l;
         Ephoto_Entry *entry;
+        int found = 0;
 
         EINA_LIST_FOREACH(ephoto->entries, l, entry)
           {
@@ -574,11 +579,17 @@ _monitor_modified(void *data, int type EINA_UNUSED, void *event)
                     }
                   else
                     {
-                       ephoto_thumb_browser_update(ephoto, entry);
+                       if (!entry->item)
+                         ephoto_thumb_browser_insert(ephoto, entry);
+                       else
+                         ephoto_thumb_browser_update(ephoto, entry);
                     }
+                  found = 1;
                   break;
                }
           }
+        if (!found)
+          _monitor_created(ephoto, 0, ev);
      }
    return ECORE_CALLBACK_PASS_ON;
 }

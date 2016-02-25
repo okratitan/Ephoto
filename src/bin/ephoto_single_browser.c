@@ -47,7 +47,6 @@ struct _Ephoto_Viewer
    double zoom;
    Eina_Bool fit:1;
    Eina_Bool zoom_first:1;
-   Eina_Bool modified:1;
 };
 
 static void _zoom_set(Ephoto_Single_Browser *sb, double zoom);
@@ -69,33 +68,6 @@ _viewer_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    if (v->monitor)
      eio_monitor_del(v->monitor);
    free(v);
-}
-
-static Eina_Bool
-_monitor_modified(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
-{
-   Ephoto_Single_Browser *sb = data;
-   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
-
-   if (!ecore_file_exists(sb->entry->path))
-     ephoto_entry_free(sb->ephoto, sb->entry);
-   else
-     v->modified = EINA_TRUE;
-   return ECORE_CALLBACK_PASS_ON;
-}
-
-static Eina_Bool
-_monitor_closed(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
-{
-   Ephoto_Single_Browser *sb = data;
-   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
-
-   if (v->modified == EINA_TRUE)
-     {
-        ephoto_single_browser_entry_set(sb->main, sb->entry);
-        v->modified = EINA_FALSE;
-     }
-   return ECORE_CALLBACK_PASS_ON;
 }
 
 static Evas_Object *
@@ -179,6 +151,63 @@ _image_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    _1s_hold = NULL;
 }
 
+static const char *
+_get_edje_group(const char  *path)
+{
+   const char *group = NULL;
+   const char *ext = strrchr(path, '.');
+
+   if (ext)
+     {
+        ext++;
+        if ((strcasecmp(ext, "edj") == 0))
+          {
+             if (edje_file_group_exists(path, "e/desktop/background"))
+                group = "e/desktop/background";
+             else
+               {
+                  Eina_List *g = edje_file_collection_list(path);
+
+                  group = eina_list_data_get(g);
+                  edje_file_collection_list_free(g);
+               }
+          }
+     }
+   return group;
+}
+
+static Eina_Bool
+_monitor_modified(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+
+   printf("Cutie\n");
+
+   if (!ecore_file_exists(sb->entry->path))
+     ephoto_entry_free(sb->ephoto, sb->entry);
+   else
+     {
+        Evas_Object *tmp;
+        Evas_Coord w, h;
+        const char *group = _get_edje_group(sb->entry->path);
+
+        tmp = evas_object_image_add(evas_object_evas_get(v->table));
+        evas_object_image_file_set(tmp, sb->entry->path, group);
+        evas_object_image_size_get(tmp, &w, &h);
+        evas_object_del(tmp);
+
+        if (w > 0 && h > 0)
+          {
+             evas_object_hide(v->image);
+             elm_image_file_set(v->image, sb->entry->path, group);
+             evas_object_show(v->image);
+          }
+     }
+
+   return ECORE_CALLBACK_PASS_ON;
+}
+
 static Evas_Object *
 _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
 {
@@ -188,25 +217,8 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
    v->zoom_first = EINA_TRUE;
 
    Evas_Coord w, h;
-   const char *group = NULL;
-   const char *ext = strrchr(path, '.');
+   const char *group = _get_edje_group(path);
 
-   if (ext)
-     {
-	ext++;
-	if ((strcasecmp(ext, "edj") == 0))
-	  {
-	     if (edje_file_group_exists(path, "e/desktop/background"))
-		group = "e/desktop/background";
-	     else
-	       {
-		  Eina_List *g = edje_file_collection_list(path);
-
-		  group = eina_list_data_get(g);
-		  edje_file_collection_list_free(g);
-	       }
-	  }
-     }
    v->scroller = elm_scroller_add(parent);
    evas_object_size_hint_weight_set(v->scroller, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
@@ -229,7 +241,7 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
    elm_image_file_set(v->image, path, group);
    err = evas_object_image_load_error_get(elm_image_object_get(v->image));
    if (err != EVAS_LOAD_ERROR_NONE)
-      goto error;
+     goto error;
    evas_object_image_size_get(elm_image_object_get(v->image), &w, &h);
    elm_drop_target_add(v->image, ELM_SEL_FORMAT_IMAGE, NULL, NULL, NULL, NULL,
        NULL, NULL, NULL, NULL);
@@ -252,9 +264,6 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
    v->handlers = eina_list_append(v->handlers,
        ecore_event_handler_add(EIO_MONITOR_FILE_MODIFIED,
            _monitor_modified, sb));
-   v->handlers = eina_list_append(v->handlers,
-       ecore_event_handler_add(EIO_MONITOR_FILE_CLOSED, _monitor_closed, sb));
-
    return v->scroller;
 
   error:
@@ -2882,27 +2891,8 @@ ephoto_single_browser_cancel_editing(Evas_Object *main, Evas_Object *image)
 	  }
         else
 	  {
-	     const char *group = NULL;
-	     const char *ext = strrchr(sb->entry->path, '.');
-
-	     if (ext)
-	       {
-		  ext++;
-		  if ((strcasecmp(ext, "edj") == 0))
-		    {
-		       if (edje_file_group_exists(sb->entry->path,
-			       "e/desktop/background"))
-			  group = "e/desktop/background";
-		       else
-			 {
-			    Eina_List *g =
-				edje_file_collection_list(sb->entry->path);
-			    group = eina_list_data_get(g);
-			    edje_file_collection_list_free(g);
-			 }
-		       elm_image_file_set(image, sb->entry->path, group);
-		    }
-	       }
+	     const char *group = _get_edje_group(sb->entry->path);
+             elm_image_file_set(image, sb->entry->path, group);
 	  }
 	evas_object_freeze_events_set(sb->bar, EINA_FALSE);
 	elm_object_disabled_set(sb->bar, EINA_FALSE);

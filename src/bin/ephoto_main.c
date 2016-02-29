@@ -166,13 +166,7 @@ _win_free(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    if (ephoto->timer.thumb_regen)
      ecore_timer_del(ephoto->timer.thumb_regen);
    if (ephoto->monitor)
-     {
-        Ecore_Event_Handler *handler;
-
-        EINA_LIST_FREE(ephoto->monitor_handlers, handler)
-          ecore_event_handler_del(handler);
-        eio_monitor_del(ephoto->monitor);
-     }
+     ecore_file_monitor_del(ephoto->monitor);
    ephoto_config_save(ephoto);
    free(ephoto);
 }
@@ -461,133 +455,133 @@ _ephoto_change_dir(void *data)
    _ephoto_populate_entries(ed);
 }
 
-static Eina_Bool
-_monitor_created(void *data, int type EINA_UNUSED, void *event)
+static void
+_monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
+    Ecore_File_Event event, const char *path)
 {
    Ephoto *ephoto = data;
-   Eio_Monitor_Event *ev = event;
    char file[PATH_MAX], dir[PATH_MAX];
 
-   snprintf(file, PATH_MAX, "%s", ev->filename);
+   snprintf(file, PATH_MAX, "%s", path);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
    if (strcmp(ephoto->config->directory, dir))
-     return ECORE_CALLBACK_PASS_ON;
+     return;
 
-   if (evas_object_image_extension_can_load_get(ev->filename))
+   if (evas_object_image_extension_can_load_get(path))
      {
-        Eina_List *l;
-        Ephoto_Entry *entry;
-        char buf[PATH_MAX];
+        if (event == ECORE_FILE_EVENT_CREATED_FILE)
+          { 
+             Eina_List *l;
+             Ephoto_Entry *entry;
+             char buf[PATH_MAX];
 
-        EINA_LIST_FOREACH(ephoto->entries, l, entry)
-          {
-             if (!strcmp(entry->path, ev->filename))
-               return ECORE_CALLBACK_PASS_ON;
-          }
-        snprintf(buf, PATH_MAX, "%s", ev->filename);
-        entry = ephoto_entry_new(ephoto, ev->filename, basename(buf),
-            EINA_FILE_REG);
-        ephoto_single_browser_path_created(ephoto->single_browser, entry);
-        if (!ephoto->entries)
-          {
-             ephoto->entries = eina_list_append(ephoto->entries, entry);
-          }
-        else
-          {
-             int near_cmp;
-             Eina_List *near_node =
-                 eina_list_search_sorted_near_list(ephoto->entries,
-                 ephoto_entries_cmp, entry, &near_cmp);
-
-             if (near_cmp < 0)
-                ephoto->entries =
-                    eina_list_append_relative_list(ephoto->entries, entry,
-                    near_node);
-             else
-                ephoto->entries =
-                    eina_list_prepend_relative_list(ephoto->entries, entry,
-                    near_node);
-          }
-        ephoto_thumb_browser_insert(ephoto, entry);
-     }
-   return ECORE_CALLBACK_PASS_ON;
-}
-
-static Eina_Bool
-_monitor_deleted(void *data, int type EINA_UNUSED, void *event)
-{
-   Ephoto *ephoto = data;
-   Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX];
-
-   snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
-
-   if (strcmp(ephoto->config->directory, dir))
-     return ECORE_CALLBACK_PASS_ON;
-
-   if (evas_object_image_extension_can_load_get(ev->filename))
-     {
-        Eina_List *l;
-        Ephoto_Entry *entry;
-
-        EINA_LIST_FOREACH(ephoto->entries, l, entry)
-          {
-             if (!strcmp(entry->path, ev->filename))
+             EINA_LIST_FOREACH(ephoto->entries, l, entry)
                {
-                  ephoto_thumb_browser_remove(ephoto, entry);
-                  ephoto_entry_free(ephoto, entry);
-                  break;
+                  if (!strcmp(entry->path, path))
+                    return;
                }
-          }
-     }
-   return ECORE_CALLBACK_PASS_ON;
-}
-
-static Eina_Bool
-_monitor_modified(void *data, int type EINA_UNUSED, void *event)
-{
-   Ephoto *ephoto = data;
-   Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX];
-
-   snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
-
-   if (strcmp(ephoto->config->directory, dir))
-     return ECORE_CALLBACK_PASS_ON;
-
-   if (evas_object_image_extension_can_load_get(ev->filename))
-     {
-        Eina_List *l;
-        Ephoto_Entry *entry;
-        int found = 0;
-
-        EINA_LIST_FOREACH(ephoto->entries, l, entry)
-          {
-             if (!strcmp(entry->path, ev->filename))
+             snprintf(buf, PATH_MAX, "%s", path);
+             entry = ephoto_entry_new(ephoto, path, basename(buf),
+                 EINA_FILE_REG);
+             ephoto_single_browser_path_created(ephoto->single_browser, entry);
+             if (!ephoto->entries)
                {
-                  if (!ecore_file_exists(entry->path))
+                  ephoto->entries = eina_list_append(ephoto->entries, entry);
+               }
+             else
+               {
+                  int near_cmp;
+                  Eina_List *near_node =
+                      eina_list_search_sorted_near_list(ephoto->entries,
+                      ephoto_entries_cmp, entry, &near_cmp);
+
+                  if (near_cmp < 0)
+                     ephoto->entries =
+                         eina_list_append_relative_list(ephoto->entries, entry,
+                         near_node);
+                  else
+                     ephoto->entries =
+                         eina_list_prepend_relative_list(ephoto->entries, entry,
+                         near_node);
+               }
+             ephoto_thumb_browser_insert(ephoto, entry);
+             return;
+          }
+        else if (event == ECORE_FILE_EVENT_DELETED_FILE)
+          {
+             Eina_List *l;
+             Ephoto_Entry *entry;
+
+             EINA_LIST_FOREACH(ephoto->entries, l, entry)
+               {
+                  if (!strcmp(entry->path, path))
                     {
-                       elm_object_item_del(entry->item);
+                       ephoto_thumb_browser_remove(ephoto, entry);
                        ephoto_entry_free(ephoto, entry);
+                       break;
+                    }
+               }
+             return;
+          }
+        else if (event == ECORE_FILE_EVENT_MODIFIED)
+          {
+             Eina_List *l;
+             Ephoto_Entry *entry;
+             int found = 0;
+
+             EINA_LIST_FOREACH(ephoto->entries, l, entry)
+               {
+                  if (!strcmp(entry->path, path))
+                    {
+                       if (!ecore_file_exists(entry->path))
+                         {
+                            elm_object_item_del(entry->item);
+                            ephoto_entry_free(ephoto, entry);
+                         }
+                       else
+                         {
+                            if (!entry->item)
+                              ephoto_thumb_browser_insert(ephoto, entry);
+                            else
+                              ephoto_thumb_browser_update(ephoto, entry);
+                         }
+                       found = 1;
+                       break;
+                    }
+               }
+             if (!found)
+               {
+                  char buf[PATH_MAX];
+                  snprintf(buf, PATH_MAX, "%s", path);
+                  entry = ephoto_entry_new(ephoto, path, basename(buf),
+                      EINA_FILE_REG);
+                  ephoto_single_browser_path_created(ephoto->single_browser, entry);
+                  if (!ephoto->entries)
+                    {
+                       ephoto->entries = eina_list_append(ephoto->entries, entry);
                     }
                   else
                     {
-                       if (!entry->item)
-                         ephoto_thumb_browser_insert(ephoto, entry);
+                       int near_cmp;
+                       Eina_List *near_node =
+                           eina_list_search_sorted_near_list(ephoto->entries,
+                           ephoto_entries_cmp, entry, &near_cmp);
+
+                       if (near_cmp < 0)
+                          ephoto->entries =
+                              eina_list_append_relative_list(ephoto->entries, entry,
+                              near_node);
                        else
-                         ephoto_thumb_browser_update(ephoto, entry);
+                          ephoto->entries =
+                              eina_list_prepend_relative_list(ephoto->entries, entry,
+                              near_node);
                     }
-                  found = 1;
-                  break;
+                  ephoto_thumb_browser_insert(ephoto, entry);
+                  return;
                }
           }
-        if (!found)
-          _monitor_created(ephoto, 0, ev);
      }
-   return ECORE_CALLBACK_PASS_ON;
 }
 
 void
@@ -610,23 +604,8 @@ ephoto_directory_set(Ephoto *ephoto, const char *path, Evas_Object *expanded,
       ecore_job_del(ed->ephoto->job.change_dir);
    ed->ephoto->job.change_dir = ecore_job_add(_ephoto_change_dir, ed);
    if (ephoto->monitor)
-     {
-        Ecore_Event_Handler *handler;
-
-        EINA_LIST_FREE(ephoto->monitor_handlers, handler)
-          ecore_event_handler_del(handler);
-        eio_monitor_del(ephoto->monitor);
-     }
-   ephoto->monitor = eio_monitor_add(path);
-   ephoto->monitor_handlers = eina_list_append(ephoto->monitor_handlers,
-       ecore_event_handler_add(EIO_MONITOR_FILE_CREATED, _monitor_created,
-       ephoto));
-   ephoto->monitor_handlers = eina_list_append(ephoto->monitor_handlers,
-       ecore_event_handler_add(EIO_MONITOR_FILE_DELETED, _monitor_deleted,
-       ephoto));
-   ephoto->monitor_handlers = eina_list_append(ephoto->monitor_handlers,
-       ecore_event_handler_add(EIO_MONITOR_FILE_MODIFIED, _monitor_modified,
-       ephoto));
+     ecore_file_monitor_del(ephoto->monitor);
+   ephoto->monitor = ecore_file_monitor_add(path, _monitor_cb, ephoto);
 }
 
 static Eina_Bool
@@ -789,8 +768,7 @@ ephoto_entry_free(Ephoto *ephoto, Ephoto_Entry *entry)
 {
    Ephoto_Entry_Free_Listener *fl;
    Eina_List *node;
-   Ecore_Event_Handler *handler;
-
+   
    EINA_LIST_FREE(entry->free_listeners, fl)
      {
         fl->cb((void *) fl->data, entry);
@@ -810,9 +788,7 @@ ephoto_entry_free(Ephoto *ephoto, Ephoto_Entry *entry)
    eina_stringshare_del(entry->path);
    eina_stringshare_del(entry->label);
    if (entry->monitor)
-     eio_monitor_del(entry->monitor);
-   EINA_LIST_FREE(entry->monitor_handlers, handler)
-     ecore_event_handler_del(handler);
+     ecore_file_monitor_del(entry->monitor);
    free(entry);
 }
 

@@ -171,8 +171,7 @@ struct _Ephoto
    Eina_List *searchentries;
    Eina_List *thumbs;
 
-   Eio_Monitor *monitor;
-   Eina_List *monitor_handlers;
+   Ecore_File_Monitor *monitor;
 
    const char *top_directory;
 
@@ -203,8 +202,7 @@ struct _Ephoto_Entry
    const char *label;
    double size;
    Ephoto *ephoto;
-   Eio_Monitor *monitor;
-   Eina_List *monitor_handlers;
+   Ecore_File_Monitor *monitor;
    Elm_Object_Item *item;
    Elm_Object_Item *parent;
    Eina_List *free_listeners;

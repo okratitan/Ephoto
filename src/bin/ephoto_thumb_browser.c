@@ -39,8 +39,7 @@ struct _Ephoto_Thumb_Browser
    Elm_Object_Item *last_sel;
    Ephoto_Sort sort;
    Eio_File *ls;
-   Eio_Monitor *monitor;
-   Eina_List *monitor_handlers;
+   Ecore_File_Monitor *monitor;
    Eina_List *cut_items;
    Eina_List *copy_items;
    Eina_List *handlers;
@@ -86,12 +85,8 @@ static void _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 static void _ephoto_thumb_activated(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info);
 static void _zoom_set(Ephoto_Thumb_Browser *tb, int zoom);
-static Eina_Bool _monitor_created(void *data, int type EINA_UNUSED,
-    void *event);
-static Eina_Bool _monitor_deleted(void *data, int type EINA_UNUSED,
-    void *event);
-static Eina_Bool _monitor_modified(void *data, int type EINA_UNUSED,
-    void *event);
+static void _monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
+    Ecore_File_Event event, const char *path);
 
 static void
 _update_info_label(Ephoto_Thumb_Browser *tb)
@@ -494,181 +489,124 @@ _check_for_subdirs(Ephoto_Entry *entry)
    return EINA_FALSE;
 }
 
-static Eina_Bool
-_monitor_created(void *data, int type EINA_UNUSED, void *event)
+static void
+_monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
+    Ecore_File_Event event, const char *path)
 {
    Elm_Object_Item *item;
    Ephoto_Entry *entry = data;
    Ephoto_Entry *e;
-   Eio_Monitor_Event *ev = event;
    char file[PATH_MAX], dir[PATH_MAX];
    const Elm_Genlist_Item_Class *ic;
    char buf[PATH_MAX];
 
    if (!entry)
-     return ECORE_CALLBACK_PASS_ON;
-   if (!ecore_file_is_dir(ev->filename))
-     return ECORE_CALLBACK_PASS_ON;
+     return;
 
-   snprintf(file, PATH_MAX, "%s", ev->filename);
+   snprintf(file, PATH_MAX, "%s", path);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
    if (strcmp(entry->path, dir))
-     return ECORE_CALLBACK_PASS_ON;
-
-   item = elm_genlist_first_item_get(entry->genlist);
-   while (item)
+     return;
+   if (event == ECORE_FILE_EVENT_CREATED_DIRECTORY)
      {
-        e = elm_object_item_data_get(item);
-        if (!strcmp(e->path, ev->filename))
-           return ECORE_CALLBACK_PASS_ON;
-        item = elm_genlist_item_next_get(item);
-     }
-   if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_TREE &&
-       elm_genlist_item_expanded_get(entry->item) == EINA_TRUE)
-     {
-        ic = &_ephoto_dir_class;
-        snprintf(buf, PATH_MAX, "%s", ev->filename);
-        e = ephoto_entry_new(entry->ephoto, ev->filename, basename(buf),
-            EINA_FILE_DIR);
-        e->genlist = entry->genlist;
-        e->parent = entry->item;
-        e->item =
-            elm_genlist_item_sorted_insert(entry->genlist, ic, e,
-            e->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp, NULL, NULL);
-        if (e->item)
-          {
-             e->monitor = eio_monitor_add(e->path);
-             e->monitor_handlers = eina_list_append(e->monitor_handlers,
-                 ecore_event_handler_add(EIO_MONITOR_DIRECTORY_CREATED,
-                 _monitor_created, e));
-             e->monitor_handlers = eina_list_append(e->monitor_handlers,
-                 ecore_event_handler_add(EIO_MONITOR_DIRECTORY_DELETED,
-                 _monitor_deleted, e));
-             e->monitor_handlers = eina_list_append(e->monitor_handlers,
-                 ecore_event_handler_add(EIO_MONITOR_DIRECTORY_MODIFIED,
-                 _monitor_modified, e));
-          }
-     }
-   if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_NONE)
-     {
-        Elm_Object_Item *parent;
-        Ecore_Event_Handler *handler;
-
-        ic = &_ephoto_dir_class;
-        parent =
-            elm_genlist_item_insert_before(entry->genlist, ic, entry,
-                entry->parent, entry->item, ELM_GENLIST_ITEM_TREE, NULL, NULL);
-        entry->no_delete = EINA_TRUE;
-        if (entry->monitor)
-          {
-             eio_monitor_del(entry->monitor);
-             EINA_LIST_FREE(entry->monitor_handlers, handler)
-               ecore_event_handler_del(handler);
-          }
-        elm_object_item_del(entry->item);
-        entry->item = parent;
-        entry->no_delete = EINA_FALSE;
-        entry->monitor = eio_monitor_add(entry->path);
-        entry->monitor_handlers = eina_list_append(entry->monitor_handlers,
-            ecore_event_handler_add(EIO_MONITOR_DIRECTORY_CREATED,
-            _monitor_created, entry));
-        entry->monitor_handlers = eina_list_append(entry->monitor_handlers,
-            ecore_event_handler_add(EIO_MONITOR_DIRECTORY_DELETED,
-            _monitor_deleted, entry));
-        entry->monitor_handlers = eina_list_append(entry->monitor_handlers,
-            ecore_event_handler_add(EIO_MONITOR_DIRECTORY_MODIFIED,
-            _monitor_modified, entry));
-     }
-   return ECORE_CALLBACK_PASS_ON;
-}
-
-static Eina_Bool
-_monitor_deleted(void *data, int type EINA_UNUSED, void *event)
-{
-   Elm_Object_Item *item;
-   Ephoto_Entry *entry = data;
-   Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX];
-   const Elm_Genlist_Item_Class *ic;
-
-   if (!entry)
-     return ECORE_CALLBACK_PASS_ON;
-
-   snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
-
-   if (strcmp(entry->path, dir))
-     return ECORE_CALLBACK_PASS_ON;
-
-   item = elm_genlist_first_item_get(entry->genlist);
-   while (item)
-     {
-        Ephoto_Entry *e = elm_object_item_data_get(item);
-        if (!strcmp(e->path, ev->filename))
-          {
-             elm_object_item_del(e->item);
-             break;
-          }
-        item = elm_genlist_item_next_get(item);
-     }
-   if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_TREE &&
-       _check_for_subdirs(entry) == EINA_FALSE)
-     {
-        Elm_Object_Item *parent;
-
-        ic = &_ephoto_dir_class;
-        parent =
-            elm_genlist_item_insert_before(entry->genlist, ic, entry,
-            entry->parent, entry->item, ELM_GENLIST_ITEM_NONE, NULL, NULL);
-        entry->no_delete = EINA_TRUE;
-        elm_object_item_del(entry->item);
-        entry->item = parent;
-        entry->no_delete = EINA_FALSE;
-     }
-   if (!ecore_file_exists(entry->ephoto->config->directory))
-     {
-        ephoto_directory_set(entry->ephoto, entry->path, entry->parent, 0, 1);
-        ephoto_title_set(entry->ephoto, entry->path);
-     }
-   return ECORE_CALLBACK_PASS_ON;
-}
-
-static Eina_Bool
-_monitor_modified(void *data, int type EINA_UNUSED, void *event)
-{
-   Ephoto_Entry *entry = data;
-   Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX];
-
-   if (!entry)
-     return ECORE_CALLBACK_PASS_ON;
-   if (!ecore_file_is_dir(ev->filename))
-     return ECORE_CALLBACK_PASS_ON;
-
-   snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
-
-   if (strcmp(entry->path, dir))
-     return ECORE_CALLBACK_PASS_ON;
-
-   if ((elm_genlist_item_expanded_get(entry->item) == EINA_TRUE))
-     {
-        Elm_Object_Item *item;
-
+        if (!ecore_file_is_dir(path))
+          return;
         item = elm_genlist_first_item_get(entry->genlist);
         while (item)
           {
-             Ephoto_Entry *e = elm_object_item_data_get(item);
-             if (!strcmp(e->path, ev->filename))
+             e = elm_object_item_data_get(item);
+             if (!strcmp(e->path, path))
+               return;
+             item = elm_genlist_item_next_get(item);
+          }
+        if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_TREE &&
+            elm_genlist_item_expanded_get(entry->item) == EINA_TRUE)
+          {
+             ic = &_ephoto_dir_class;
+             snprintf(buf, PATH_MAX, "%s", path);
+             e = ephoto_entry_new(entry->ephoto, path, basename(buf),
+                 EINA_FILE_DIR);
+             e->genlist = entry->genlist;
+             e->parent = entry->item;
+             e->item =
+                 elm_genlist_item_sorted_insert(entry->genlist, ic, e,
+                 e->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp, NULL, NULL);
+             if (e->item)
+               e->monitor = ecore_file_monitor_add(e->path, _monitor_cb, e);
+          }
+        if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_NONE)
+          {
+             Elm_Object_Item *parent;
+
+             ic = &_ephoto_dir_class;
+             parent =
+                 elm_genlist_item_insert_before(entry->genlist, ic, entry,
+                     entry->parent, entry->item, ELM_GENLIST_ITEM_TREE, NULL, NULL);
+             entry->no_delete = EINA_TRUE;
+             if (entry->monitor)
+               ecore_file_monitor_del(entry->monitor);
+             elm_object_item_del(entry->item);
+             entry->item = parent;
+             entry->no_delete = EINA_FALSE;
+             entry->monitor = ecore_file_monitor_add(entry->path, _monitor_cb, entry);
+          }
+        return;
+     }
+   else if (event == ECORE_FILE_EVENT_DELETED_DIRECTORY)
+     {
+        item = elm_genlist_first_item_get(entry->genlist);
+        while (item)
+          {
+             e = elm_object_item_data_get(item);
+             if (!strcmp(e->path, path))
                {
-                  elm_genlist_item_update(e->item);
+                  elm_object_item_del(e->item);
                   break;
                }
              item = elm_genlist_item_next_get(item);
           }
+        if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_TREE &&
+            _check_for_subdirs(entry) == EINA_FALSE)
+          {
+             Elm_Object_Item *parent;
+
+             ic = &_ephoto_dir_class;
+             parent =
+                 elm_genlist_item_insert_before(entry->genlist, ic, entry,
+                 entry->parent, entry->item, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+             entry->no_delete = EINA_TRUE;
+             elm_object_item_del(entry->item);
+             entry->item = parent;
+             entry->no_delete = EINA_FALSE;
+          }
+        if (!ecore_file_exists(entry->ephoto->config->directory))
+          {
+             ephoto_directory_set(entry->ephoto, entry->path, entry->parent, 0, 1);
+             ephoto_title_set(entry->ephoto, entry->path);
+          }
+        return;
      }
-   return ECORE_CALLBACK_PASS_ON;
+   else if (event == ECORE_FILE_EVENT_MODIFIED)
+     {
+        if (!ecore_file_is_dir(path))
+          return;
+        if ((elm_genlist_item_expanded_get(entry->item) == EINA_TRUE))
+          {
+             item = elm_genlist_first_item_get(entry->genlist);
+             while (item)
+               {
+                  e = elm_object_item_data_get(item);
+                  if (!strcmp(e->path, path))
+                    {
+                       elm_genlist_item_update(e->item);
+                       break;
+                    }
+                  item = elm_genlist_item_next_get(item);
+               }
+          }
+        return;
+     }
 }
 
 static Eina_Bool
@@ -715,20 +653,8 @@ _todo_items_process(void *data)
 	     }
            else
              {
-                entry->monitor = eio_monitor_add(entry->path);
-                entry->monitor_handlers = eina_list_append(
-                    entry->monitor_handlers,
-                    ecore_event_handler_add(EIO_MONITOR_DIRECTORY_CREATED,
-                        _monitor_created, entry));
-                entry->monitor_handlers = eina_list_append(
-                    entry->monitor_handlers,
-                    ecore_event_handler_add(EIO_MONITOR_DIRECTORY_DELETED,
-                        _monitor_deleted, entry));
-                entry->monitor_handlers = eina_list_append(
-                    entry->monitor_handlers,
-                    ecore_event_handler_add(EIO_MONITOR_DIRECTORY_MODIFIED,
-                        _monitor_modified, entry));
-                entry->genlist = tb->fsel;
+               entry->monitor = ecore_file_monitor_add(entry->path, _monitor_cb, entry);
+               entry->genlist = tb->fsel;
              }
         }
       else
@@ -3566,12 +3492,7 @@ _main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    if (tb->searchentries)
       eina_list_free(tb->searchentries);
    if (tb->monitor)
-     {
-        eio_monitor_del(tb->monitor);
-        EINA_LIST_FREE(tb->monitor_handlers, handler)
-          ecore_event_handler_del(handler);
-     }
-
+     ecore_file_monitor_del(tb->monitor);
    free(tb);
 }
 
@@ -3638,123 +3559,79 @@ _ephoto_thumb_populate_error(void *data, int type EINA_UNUSED,
    return ECORE_CALLBACK_PASS_ON;
 }
 
-static Eina_Bool
-_top_monitor_created(void *data, int type EINA_UNUSED, void *event)
+static void
+_top_monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
+    Ecore_File_Event event, const char *path)
 {
    Elm_Object_Item *item;
    Ephoto_Thumb_Browser *tb = data;
-   Eio_Monitor_Event *ev = event;
    Ephoto_Entry *e;
    const Elm_Genlist_Item_Class *ic;
    char buf[PATH_MAX], file[PATH_MAX], dir[PATH_MAX];
 
    if (!tb)
-     return ECORE_CALLBACK_PASS_ON;
-   if (!ecore_file_is_dir(ev->filename))
-     return ECORE_CALLBACK_PASS_ON;
-
-   snprintf(file, PATH_MAX, "%s", ev->filename);
+     return;
+   snprintf(file, PATH_MAX, "%s", path);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
 
    if (strcmp(tb->ephoto->top_directory, dir))
-     return ECORE_CALLBACK_PASS_ON;
-
-   item = elm_genlist_first_item_get(tb->fsel);
-   while (item)
+     return;
+   if (event == ECORE_FILE_EVENT_CREATED_DIRECTORY)
      {
-        e = elm_object_item_data_get(item);
-        if (!strcmp(e->path, ev->filename))
-          return ECORE_CALLBACK_PASS_ON;
-        item = elm_genlist_item_next_get(item);
-     }
-   snprintf(buf, PATH_MAX, "%s", ev->filename);
-   e = ephoto_entry_new(tb->ephoto, ev->filename, basename(buf),
-       EINA_FILE_DIR);
-   e->genlist = tb->fsel;
-   ic = &_ephoto_dir_class;
-   e->item =
-         elm_genlist_item_append(tb->fsel, ic, e,
-         NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
-   if (e->item)
-     {
-        e->monitor = eio_monitor_add(e->path);
-        e->monitor_handlers = eina_list_append(e->monitor_handlers,
-            ecore_event_handler_add(EIO_MONITOR_DIRECTORY_CREATED,
-                _monitor_created, e));
-        e->monitor_handlers = eina_list_append(e->monitor_handlers,
-            ecore_event_handler_add(EIO_MONITOR_DIRECTORY_DELETED,
-                _monitor_deleted, e));
-        e->monitor_handlers = eina_list_append(e->monitor_handlers,
-            ecore_event_handler_add(EIO_MONITOR_DIRECTORY_MODIFIED,
-                _monitor_modified, e));
-     }
-
-   return ECORE_CALLBACK_PASS_ON;
-}
-
-static Eina_Bool
-_top_monitor_deleted(void *data, int type EINA_UNUSED, void *event)
-{
-   Elm_Object_Item *item;
-   Ephoto_Thumb_Browser *tb = data;
-   Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX];
-
-   if (!tb)
-     return ECORE_CALLBACK_PASS_ON;
-
-   snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
-
-   if (strcmp(tb->ephoto->top_directory, dir))
-     return ECORE_CALLBACK_PASS_ON;
-
-   item = elm_genlist_first_item_get(tb->fsel);
-   while (item)
-     {
-        Ephoto_Entry *e = elm_object_item_data_get(item);
-        if (!strcmp(e->path, ev->filename))
+       if (!ecore_file_is_dir(path))
+         return; 
+       item = elm_genlist_first_item_get(tb->fsel);
+        while (item)
           {
-             elm_object_item_del(e->item);
-             break;
+             e = elm_object_item_data_get(item);
+             if (!strcmp(e->path, path))
+               return;
+             item = elm_genlist_item_next_get(item);
           }
-        item = elm_genlist_item_next_get(item);
+        snprintf(buf, PATH_MAX, "%s", path);
+        e = ephoto_entry_new(tb->ephoto, path, basename(buf),
+            EINA_FILE_DIR);
+        e->genlist = tb->fsel;
+        ic = &_ephoto_dir_class;
+        e->item =
+            elm_genlist_item_append(tb->fsel, ic, e,
+            NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+        if (e->item)
+          e->monitor = ecore_file_monitor_add(e->path, _monitor_cb, e);
+        return;
      }
-   return ECORE_CALLBACK_PASS_ON;
-}
-
-
-static Eina_Bool
-_top_monitor_modified(void *data, int type EINA_UNUSED, void *event)
-{
-   Elm_Object_Item *item;
-   Ephoto_Thumb_Browser *tb = data;
-   Eio_Monitor_Event *ev = event;
-   char file[PATH_MAX], dir[PATH_MAX];
-
-   if (!tb)
-     return ECORE_CALLBACK_PASS_ON;
-   if (!ecore_file_is_dir(ev->filename))
-     return ECORE_CALLBACK_PASS_ON;
-
-   snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
-
-   if (strcmp(tb->ephoto->top_directory, dir))
-     return ECORE_CALLBACK_PASS_ON;
-
-   item = elm_genlist_first_item_get(tb->fsel);
-   while (item)
+   else if (event == ECORE_FILE_EVENT_DELETED_DIRECTORY)
      {
-        Ephoto_Entry *e = elm_object_item_data_get(item);
-        if (!strcmp(e->path, ev->filename))
+        item = elm_genlist_first_item_get(tb->fsel);
+        while (item)
           {
-             elm_genlist_item_update(e->item);
-             break;
+             e = elm_object_item_data_get(item);
+             if (!strcmp(e->path, path))
+               {
+                  elm_object_item_del(e->item);
+                  break;
+               }
+             item = elm_genlist_item_next_get(item);
           }
-        item = elm_genlist_item_next_get(item);
+        return;
      }
-   return ECORE_CALLBACK_PASS_ON;
+   else if (event == ECORE_FILE_EVENT_MODIFIED)
+     {
+        if (!ecore_file_is_dir(path))
+          return;
+        item = elm_genlist_first_item_get(tb->fsel);
+        while (item)
+          {
+             e = elm_object_item_data_get(item);
+             if (!strcmp(e->path, path))
+               {
+                  elm_genlist_item_update(e->item);
+                  break;
+               }
+             item = elm_genlist_item_next_get(item);
+          }
+        return;
+     }
 }
 
 static Eina_Bool
@@ -3885,26 +3762,12 @@ ephoto_thumb_browser_top_dir_set(Ephoto *ephoto, const char *dir)
        evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
 
    if (tb->monitor)
-     {
-        Ecore_Event_Handler *handler;
-        eio_monitor_del(tb->monitor);
-        EINA_LIST_FREE(tb->monitor_handlers, handler)
-          ecore_event_handler_del(handler);
-     }
+     ecore_file_monitor_del(tb->monitor);
    if (ephoto->top_directory)
      eina_stringshare_replace(&ephoto->top_directory, dir);
    else
      ephoto->top_directory = eina_stringshare_add(dir);
-   tb->monitor = eio_monitor_add(dir);
-   tb->monitor_handlers = eina_list_append(tb->monitor_handlers,
-       ecore_event_handler_add(EIO_MONITOR_DIRECTORY_CREATED,
-           _top_monitor_created, tb));
-   tb->monitor_handlers = eina_list_append(tb->monitor_handlers,
-       ecore_event_handler_add(EIO_MONITOR_DIRECTORY_DELETED,
-           _top_monitor_deleted, tb));
-   tb->monitor_handlers = eina_list_append(tb->monitor_handlers,
-       ecore_event_handler_add(EIO_MONITOR_DIRECTORY_MODIFIED,
-           _top_monitor_modified, tb));
+   tb->monitor = ecore_file_monitor_add(dir, _top_monitor_cb, tb);
 }
 
 void

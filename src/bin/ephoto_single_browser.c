@@ -40,7 +40,7 @@ struct _Ephoto_Single_Browser
 struct _Ephoto_Viewer
 {
    Eina_List *handlers;
-   Eio_Monitor *monitor;
+   Ecore_File_Monitor *monitor;
    Evas_Object *scroller;
    Evas_Object *table;
    Evas_Object *image;
@@ -61,12 +61,8 @@ _viewer_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Viewer *v = data;
-   Ecore_Event_Handler *handler;
-
-   EINA_LIST_FREE(v->handlers, handler)
-      ecore_event_handler_del(handler);
    if (v->monitor)
-     eio_monitor_del(v->monitor);
+     ecore_file_monitor_del(v->monitor);
    free(v);
 }
 
@@ -176,34 +172,37 @@ _get_edje_group(const char  *path)
    return group;
 }
 
-static Eina_Bool
-_monitor_modified(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
+static void
+_monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
+    Ecore_File_Event event, const char *path EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-   if (!ecore_file_exists(sb->entry->path))
-     ephoto_entry_free(sb->ephoto, sb->entry);
-   else
+   if (event == ECORE_FILE_EVENT_MODIFIED)
      {
-        Evas_Object *tmp;
-        Evas_Coord w, h;
-        const char *group = _get_edje_group(sb->entry->path);
-
-        tmp = evas_object_image_add(evas_object_evas_get(v->table));
-        evas_object_image_file_set(tmp, sb->entry->path, group);
-        evas_object_image_size_get(tmp, &w, &h);
-        evas_object_del(tmp);
-
-        if (w > 0 && h > 0)
+        if (!ecore_file_exists(sb->entry->path))
+          ephoto_entry_free(sb->ephoto, sb->entry);
+        else
           {
-             evas_object_hide(v->image);
-             elm_image_file_set(v->image, sb->entry->path, group);
-             evas_object_show(v->image);
+             Evas_Object *tmp;
+             Evas_Coord w, h;
+             const char *group = _get_edje_group(sb->entry->path);
+
+             tmp = evas_object_image_add(evas_object_evas_get(v->table));
+             evas_object_image_file_set(tmp, sb->entry->path, group);
+             evas_object_image_size_get(tmp, &w, &h);
+             evas_object_del(tmp);
+
+             if (w > 0 && h > 0)
+               {
+                  evas_object_hide(v->image);
+                  elm_image_file_set(v->image, sb->entry->path, group);
+                  evas_object_show(v->image);
+               }
           }
      }
-
-   return ECORE_CALLBACK_PASS_ON;
+   return;
 }
 
 static Evas_Object *
@@ -258,10 +257,7 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
      }
 
 
-   v->monitor = eio_monitor_add(path);
-   v->handlers = eina_list_append(v->handlers,
-       ecore_event_handler_add(EIO_MONITOR_FILE_MODIFIED,
-           _monitor_modified, sb));
+   v->monitor = ecore_file_monitor_add(path, _monitor_cb, sb);
    return v->scroller;
 
   error:
@@ -1353,6 +1349,7 @@ _save_image_as_done(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
                }
 	     else
 	       {
+                  evas_object_del(opopup);
 		  char *dir = ecore_file_dir_get(buf);
 
                   if (strcmp(dir, sb->ephoto->config->directory))

@@ -2255,6 +2255,18 @@ _edit_menu(Ephoto_Single_Browser *sb)
    elm_menu_item_separator_add(menu, NULL);
 
    menu_it =
+       elm_menu_item_add(menu, NULL, "zoom-in", _("Zoom"), NULL, NULL);
+   elm_menu_item_add(menu, menu_it, "zoom-in", _("Zoom In"), _zoom_in_cb,
+       sb);
+   elm_menu_item_add(menu, menu_it, "zoom-out", _("Zoom Out"), _zoom_out_cb,
+       sb);
+   elm_menu_item_add(menu, menu_it, "zoom-fit-best", _("Zoom Fit"),
+       _zoom_fit_cb, sb);
+   elm_menu_item_add(menu, menu_it, "zoom-original", _("Zoom 1:1"),
+       _zoom_1_cb, sb);
+   elm_menu_item_separator_add(menu, NULL);
+
+   menu_it =
        elm_menu_item_add(menu, NULL, "document-properties", _("Color"), NULL,
        NULL);
    elm_menu_item_add(menu, menu_it, "insert-image", _("Auto Equalize"),
@@ -2582,7 +2594,7 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(sb->bar, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(sb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-   icon = elm_toolbar_item_append(sb->bar, "go-home", _("Back"), _back, sb);
+   elm_toolbar_item_append(sb->bar, "go-home", _("Back"), _back, sb);
    icon =
        elm_toolbar_item_append(sb->bar, "image-x-generic", _("Edit"), NULL,
        NULL);
@@ -2616,6 +2628,18 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_menu_item_separator_add(menu, NULL);
 
    menu_it =
+       elm_menu_item_add(menu, NULL, "zoom-in", _("Zoom"), NULL, NULL);  
+   elm_menu_item_add(menu, menu_it, "zoom-in", _("Zoom In"), _zoom_in_cb,
+       sb);
+   elm_menu_item_add(menu, menu_it, "zoom-out", _("Zoom Out"), _zoom_out_cb,
+       sb);
+   elm_menu_item_add(menu, menu_it, "zoom-fit-best", _("Zoom Fit"),
+       _zoom_fit_cb, sb);
+   elm_menu_item_add(menu, menu_it, "zoom-original", _("Zoom 1:1"),
+       _zoom_1_cb, sb);
+   elm_menu_item_separator_add(menu, NULL);
+
+   menu_it =
        elm_menu_item_add(menu, NULL, "document-properties", _("Color"), NULL,
        NULL);
    elm_menu_item_add(menu, menu_it, "insert-image", _("Auto Equalize"),
@@ -2640,32 +2664,13 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_menu_item_add(menu, menu_it, "insert-image", _("Old Photo"),
        _go_old_photo, sb);
 
-   icon =
-       elm_toolbar_item_append(sb->bar, "go-first", _("First"), _go_first, sb);
-   icon =
-       elm_toolbar_item_append(sb->bar, "go-previous", _("Previous"), _go_prev,
-       sb);
-   icon = elm_toolbar_item_append(sb->bar, "go-next", _("Next"), _go_next, sb);
-   icon = elm_toolbar_item_append(sb->bar, "go-last", _("Last"), _go_last, sb);
-
-   icon =
-       elm_toolbar_item_append(sb->bar, "zoom-in", _("Zoom In"), _zoom_in_cb,
-       sb);
-   icon =
-       elm_toolbar_item_append(sb->bar, "zoom-out", _("Zoom Out"), _zoom_out_cb,
-       sb);
-   icon =
-       elm_toolbar_item_append(sb->bar, "zoom-fit-best", _("Zoom Fit"),
-       _zoom_fit_cb, sb);
-   icon =
-       elm_toolbar_item_append(sb->bar, "zoom-original", _("Zoom 1:1"),
-       _zoom_1_cb, sb);
-
-   icon =
-       elm_toolbar_item_append(sb->bar, "media-playback-start", _("Slideshow"),
+   elm_toolbar_item_append(sb->bar, "go-first", _("First"), _go_first, sb);
+   elm_toolbar_item_append(sb->bar, "go-previous", _("Previous"), _go_prev, sb);
+   elm_toolbar_item_append(sb->bar, "go-next", _("Next"), _go_next, sb);
+   elm_toolbar_item_append(sb->bar, "go-last", _("Last"), _go_last, sb);
+   elm_toolbar_item_append(sb->bar, "media-playback-start", _("Slideshow"),
        _slideshow, sb);
-   icon =
-       elm_toolbar_item_append(sb->bar, "preferences-system", _("Settings"),
+   elm_toolbar_item_append(sb->bar, "preferences-system", _("Settings"),
        _settings, sb);
 
    elm_box_pack_end(sb->tbox, sb->bar);

@@ -35,6 +35,8 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *direntry;
    Evas_Object *ficon;
    Evas_Object *search;
+   Evas_Object *hover;
+   Evas_Object *progress;
    Elm_Object_Item *dir_current;
    Elm_Object_Item *last_sel;
    Ephoto_Sort sort;
@@ -426,6 +428,7 @@ _sort_alpha_asc(void *data, Evas_Object *obj EINA_UNUSED,
    tb->sort = EPHOTO_SORT_ALPHABETICAL_ASCENDING;
    tb->thumbs_only = 1;
    tb->dirs_only = 0;
+   elm_object_text_set(tb->hover, _("Alphabetical Ascending"));
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
 }
@@ -439,6 +442,7 @@ _sort_alpha_desc(void *data, Evas_Object *obj EINA_UNUSED,
    tb->sort = EPHOTO_SORT_ALPHABETICAL_DESCENDING;
    tb->thumbs_only = 1;
    tb->dirs_only = 0;
+   elm_object_text_set(tb->hover, _("Alphabetical Descending"));
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
 }
@@ -452,6 +456,7 @@ _sort_mod_asc(void *data, Evas_Object *obj EINA_UNUSED,
    tb->sort = EPHOTO_SORT_MODTIME_ASCENDING;
    tb->thumbs_only = 1;
    tb->dirs_only = 0;
+   elm_object_text_set(tb->hover, _("Modification Time Ascending"));
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
 }
@@ -465,6 +470,7 @@ _sort_mod_desc(void *data, Evas_Object *obj EINA_UNUSED,
    tb->sort = EPHOTO_SORT_MODTIME_DESCENDING;
    tb->thumbs_only = 1;
    tb->dirs_only = 0;
+   elm_object_text_set(tb->hover, _("Modification Time Descending"));
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
 }
@@ -622,6 +628,8 @@ _todo_items_process(void *data)
           return EINA_TRUE;
         tb->animator.todo_items = NULL;
         tb->processing = 0;
+        elm_progressbar_pulse(tb->progress, EINA_FALSE);
+        evas_object_hide(tb->progress);
 	return EINA_FALSE;
      }
    if ((tb->ls) && (eina_list_count(tb->todo_items) < TODO_ITEM_MIN_BATCH))
@@ -3504,6 +3512,8 @@ _ephoto_thumb_populate_start(void *data, int type EINA_UNUSED,
 
    evas_object_smart_callback_call(tb->main, "changed,directory", NULL);
 
+   evas_object_show(tb->progress);
+   elm_progressbar_pulse(tb->progress, EINA_TRUE);
    tb->animator.processed = 0;
    tb->animator.count = 0;
    if (tb->ephoto->selentries)
@@ -3538,6 +3548,11 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
      {
         tb->totimages = 0;
         tb->totsize = 0;
+     }
+   if (tb->animator.processed == tb->animator.count)
+     {
+        elm_progressbar_pulse(tb->progress, EINA_FALSE);
+        evas_object_hide(tb->progress);
      }
    _update_info_label(tb);
    tb->dirs_only = 0;
@@ -3784,7 +3799,7 @@ Evas_Object *
 ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
 {
    Evas_Object *box = elm_box_add(parent);
-   Evas_Object *icon, *hbox, *but, *ic, *menu;
+   Evas_Object *icon, *hbox, *but, *ic, *tab;
    Ephoto_Thumb_Browser *tb;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(box, NULL);
@@ -3842,20 +3857,6 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    else
      tb->ficon = elm_toolbar_item_prepend(tb->bar, "system-file-manager",
          _("Folders"), _ephoto_dir_show_folders, tb);
-   icon =
-       elm_toolbar_item_append(tb->bar, "view-sort-descending",
-           _("Sort"), NULL, NULL);
-   elm_toolbar_item_menu_set(icon, EINA_TRUE);
-   elm_toolbar_menu_parent_set(tb->bar, tb->ephoto->win);
-   menu = elm_toolbar_item_menu_get(icon);
-   elm_menu_item_add(menu, NULL, "view-sort-ascending",
-       _("Alphabetical Ascending"), _sort_alpha_asc, tb);
-   elm_menu_item_add(menu, NULL, "view-sort-descending",
-       _("Alphabetical Descending"), _sort_alpha_desc, tb);
-   elm_menu_item_add(menu, NULL, "view-sort-ascending",
-       _("Modification Time Ascending"), _sort_mod_asc, tb);
-   elm_menu_item_add(menu, NULL, "view-sort-descending",
-       _("Modification Time Descending"), _sort_mod_desc, tb);
    icon =
        elm_toolbar_item_append(tb->bar, "zoom-in", _("Zoom In"), _zoom_in, tb);
    tb->max = elm_object_item_widget_get(icon);
@@ -4028,6 +4029,21 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
 
    _zoom_set(tb, tb->ephoto->config->thumb_size);
 
+   tab = elm_table_add(tb->table);
+   evas_object_size_hint_weight_set(tab, EVAS_HINT_EXPAND,
+       EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(tab, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_table_pack(tb->table, tab, 0, 1, 4, 1);
+   evas_object_show(tab);
+
+   tb->progress = elm_progressbar_add(tb->table);
+   elm_progressbar_pulse_set(tb->progress, EINA_TRUE);
+   elm_object_text_set(tb->progress, _("Loading: "));
+   evas_object_size_hint_weight_set(tb->progress, 0.1, 0.0);
+   evas_object_size_hint_align_set(tb->progress, EVAS_HINT_FILL, 0.5);
+   elm_table_pack(tab, tb->progress, 0, 0, 1, 1);
+   evas_object_hide(tb->progress);
+
    tb->infolabel = elm_label_add(tb->table);
    elm_label_line_wrap_set(tb->infolabel, ELM_WRAP_WORD);
    elm_object_text_set(tb->infolabel, "Info Label");
@@ -4036,8 +4052,22 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
        EVAS_HINT_FILL);
    evas_object_size_hint_aspect_set(tb->infolabel,
        EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_table_pack(tb->table, tb->infolabel, 0, 1, 5, 1);
+   elm_table_pack(tab, tb->infolabel, 1, 0, 3, 1);
    evas_object_show(tb->infolabel);
+
+   tb->hover = elm_hoversel_add(tb->table);
+   elm_hoversel_hover_parent_set(tb->hover, tb->ephoto->win);
+   elm_hoversel_item_add(tb->hover, _("Alphabetical Ascending"), 
+       "view-sort-ascending", 0, _sort_alpha_asc, tb);
+   elm_hoversel_item_add(tb->hover, _("Alphabetical Descending"), 
+       "view-sort-descending", 0, _sort_alpha_desc, tb);
+   elm_hoversel_item_add(tb->hover, _("Modification Time Ascending"), 
+       "view-sort-ascending", 0, _sort_mod_asc, tb);
+   elm_hoversel_item_add(tb->hover, _("Modification Time Descending"), 
+       "view-sort-descending", 0, _sort_mod_desc, tb);
+   elm_object_text_set(tb->hover, _("Alphabetical Ascending"));
+   elm_table_pack(tb->table, tb->hover, 4, 1, 1, 1);
+   evas_object_show(tb->hover);
 
    tb->handlers =
        eina_list_append(tb->handlers,

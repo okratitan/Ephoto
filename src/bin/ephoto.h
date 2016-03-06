@@ -176,7 +176,7 @@ struct _Ephoto
    const char *top_directory;
 
    int thumb_gen_size;
-   Evas_Coord bottom_bar_size;
+
    struct
    {
       Ecore_Timer *thumb_regen;

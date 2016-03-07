@@ -424,11 +424,16 @@ _sort_alpha_asc(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_data EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
+   Evas_Object *ic;
 
    tb->sort = EPHOTO_SORT_ALPHABETICAL_ASCENDING;
    tb->thumbs_only = 1;
    tb->dirs_only = 0;
    elm_object_text_set(tb->hover, _("Alphabetical Ascending"));
+   ic = elm_icon_add(tb->hover);
+   elm_icon_standard_set(ic, "view-sort-ascending");
+   elm_object_part_content_set(tb->hover, "icon", ic);
+   evas_object_show(ic);
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
 }
@@ -438,11 +443,16 @@ _sort_alpha_desc(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_data EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
+   Evas_Object *ic;
 
    tb->sort = EPHOTO_SORT_ALPHABETICAL_DESCENDING;
    tb->thumbs_only = 1;
    tb->dirs_only = 0;
    elm_object_text_set(tb->hover, _("Alphabetical Descending"));
+   ic = elm_icon_add(tb->hover);
+   elm_icon_standard_set(ic, "view-sort-descending");
+   elm_object_part_content_set(tb->hover, "icon", ic);
+   evas_object_show(ic);
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
 }
@@ -452,11 +462,16 @@ _sort_mod_asc(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_data EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
+   Evas_Object *ic;
 
    tb->sort = EPHOTO_SORT_MODTIME_ASCENDING;
    tb->thumbs_only = 1;
    tb->dirs_only = 0;
    elm_object_text_set(tb->hover, _("Modification Time Ascending"));
+   ic = elm_icon_add(tb->hover);
+   elm_icon_standard_set(ic, "view-sort-ascending");
+   elm_object_part_content_set(tb->hover, "icon", ic);
+   evas_object_show(ic);
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
 }
@@ -466,11 +481,16 @@ _sort_mod_desc(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_data EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
+   Evas_Object *ic;
 
    tb->sort = EPHOTO_SORT_MODTIME_DESCENDING;
    tb->thumbs_only = 1;
    tb->dirs_only = 0;
    elm_object_text_set(tb->hover, _("Modification Time Descending"));
+   ic = elm_icon_add(tb->hover);
+   elm_icon_standard_set(ic, "view-sort-descending");
+   elm_object_part_content_set(tb->hover, "icon", ic);
+   evas_object_show(ic);
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
 }
@@ -4058,14 +4078,18 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    tb->hover = elm_hoversel_add(tb->table);
    elm_hoversel_hover_parent_set(tb->hover, tb->ephoto->win);
    elm_hoversel_item_add(tb->hover, _("Alphabetical Ascending"), 
-       "view-sort-ascending", 0, _sort_alpha_asc, tb);
+       "view-sort-ascending", ELM_ICON_STANDARD, _sort_alpha_asc, tb);
    elm_hoversel_item_add(tb->hover, _("Alphabetical Descending"), 
-       "view-sort-descending", 0, _sort_alpha_desc, tb);
+       "view-sort-descending", ELM_ICON_STANDARD, _sort_alpha_desc, tb);
    elm_hoversel_item_add(tb->hover, _("Modification Time Ascending"), 
-       "view-sort-ascending", 0, _sort_mod_asc, tb);
+       "view-sort-ascending", ELM_ICON_STANDARD, _sort_mod_asc, tb);
    elm_hoversel_item_add(tb->hover, _("Modification Time Descending"), 
-       "view-sort-descending", 0, _sort_mod_desc, tb);
+       "view-sort-descending", ELM_ICON_STANDARD, _sort_mod_desc, tb);
    elm_object_text_set(tb->hover, _("Alphabetical Ascending"));
+   icon = elm_icon_add(tb->hover);
+   elm_icon_standard_set(icon, "view-sort-ascending");
+   elm_object_part_content_set(tb->hover, "icon", icon);
+   evas_object_show(icon);
    elm_table_pack(tb->table, tb->hover, 4, 1, 1, 1);
    evas_object_show(tb->hover);
 

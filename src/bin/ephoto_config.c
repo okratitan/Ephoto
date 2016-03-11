@@ -116,6 +116,8 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
    if (elm_object_text_get(ephoto->config->slide_trans))
       eina_stringshare_replace(&ephoto->config->slideshow_transition,
           elm_object_text_get(ephoto->config->slide_trans));
+
+   evas_object_del(popup);
 }
 
 static void
@@ -345,6 +347,80 @@ _link_anchor(void *data, Evas_Object *obj, void *event_info)
 }
 
 static Evas_Object *
+_ephoto_config_bindings(Evas_Object *parent)
+{
+   Evas_Object *box, *scroller, *entry;
+   Eina_Strbuf *sbuf = eina_strbuf_new();
+
+   box = elm_box_add(parent);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(box);
+
+   scroller = elm_scroller_add(box);
+   evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(scroller, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, scroller);
+   evas_object_show(scroller);
+
+   entry = elm_entry_add(scroller);
+   elm_entry_editable_set(entry, EINA_FALSE);
+   elm_entry_line_wrap_set(entry, ELM_WRAP_NONE);
+   evas_object_size_hint_weight_set(entry, 0.0, 0.0);
+   evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   eina_strbuf_append_printf(sbuf,
+       _("<b><hilight>General Bindings</hilight></b><br/>"
+           "<b>F1:</b> Settings Panel<br/>"
+           "<b>F5:</b> Start Slideshow<br/>"
+           "<b>F11:</b> Toggle Fullscreen<br/><br/>"
+           "<b><hilight>Thumbnail Browser Bindings</hilight></b><br/>"
+           "<b>Ctrl+Shift+f:</b> Toggle File Selector<br/>"
+           "<b>Ctrl++:</b> Zoom In<br/>"
+           "<b>Ctrl+-:</b> Zoom Out<br/>"
+           "<b>Ctrl+Tab:</b> View Image<br/>"
+           "<b>Ctrl+c:</b> Copy Image<br/>"
+           "<b>Ctrl+x:</b> Cut Image<br/>"
+           "<b>Ctrl+v:</b> Paste Image<br/>"
+           "<b>Ctrl+a:</b> Select All<br/>"
+           "<b>Ctrl+f:</b> Toggle Search<br/>"
+           "<b>Ctrl+Delete:</b> Delete Image<br/>"
+           "<b>F2:</b> Rename Image<br/>"
+           "<b>Escape:</b> Clear Selection<br/><br/>"
+           "<b><hilight>Single Browser Bindings</hilight></b><br/>"
+           "<b>Ctrl+Shift+0:</b> Zoom 1:1<br/>"
+           "<b>Ctrl++:</b> Zoom In<br/>"
+           "<b>Ctrl+-:</b> Zoom Out<br/>"
+           "<b>Ctrl+0:</b> Zoom Fit<br/>"
+           "<b>Ctrl+Shift+l:</b> Rotate Counter Clockwise<br/>"
+           "<b>Ctrl+l:</b> Flip Horizontal<br/>"
+           "<b>Ctrl+Shift+r:</b> Rotate Clockwise<br/>"
+           "<b>Ctrl+r:</b> Flip Vertical<br/>"
+           "<b>Ctrl+Shift+s:</b> Save Image As<br/>"
+           "<b>Ctrl+s:</b> Save Image<br/>"
+           "<b>Ctrl+u:</b> Reset Image<br/>"
+           "<b>Home:</b> Navigate First<br/>"
+           "<b>Left Arrow:</b> Navigate Previous<br/>"
+           "<b>Right Arrow:</b> Navigate Next<br/>"
+           "<b>End:</b> Navigate Last<br/>"
+           "<b>Escape:</b> Return to Thumbnail Browser<br/><br/>"
+           "<b><hilight>Slideshow Bindings</hilight></b><br/>"
+           "<b>Space:</b> Play/Pause Slideshow<br/>"
+           "<b>Home:</b> Navigate First<br/>"
+           "<b>Left Arrow:</b> Navigate Previous<br/>"
+           "<b>Right Arrow:</b> Navigate Next<br/>"
+           "<b>End:</b> Navigate Last<br/>"
+           "<b>Escape:</b> Quit Slideshow<br/>"));
+   elm_object_text_set(entry, eina_strbuf_string_get(sbuf));
+   elm_object_content_set(scroller, entry);
+   evas_object_show(entry);
+
+   evas_object_show(box);
+
+   return box;
+}
+
+static Evas_Object *
 _ephoto_config_about(Evas_Object *parent)
 {
    Evas_Object *box, *entry;
@@ -438,10 +514,12 @@ _segment_changed(void *data EINA_UNUSED, Evas_Object *o, void *event)
    Evas_Object *page = elm_object_item_data_get(it);
    Evas_Object *gen = evas_object_data_get(o, "gen");
    Evas_Object *slide = evas_object_data_get(o, "slide");
+   Evas_Object *kb = evas_object_data_get(o, "bindings");
    Evas_Object *about = evas_object_data_get(o, "about");
 
    evas_object_hide(gen);
    evas_object_hide(slide);
+   evas_object_hide(kb);
    evas_object_hide(about);
    evas_object_show(page);
 }
@@ -450,8 +528,8 @@ void
 ephoto_config_main(Ephoto *ephoto)
 {
    Evas_Object *popup, *table, *segment, *button, *ic;
-   Evas_Object *gen, *slide, *about, *sep;
-   Elm_Object_Item *geni, *slidei, *abouti;
+   Evas_Object *gen, *slide, *kb, *about, *sep;
+   Elm_Object_Item *geni, *slidei, *kbi, *abouti;
 
    popup = elm_popup_add(ephoto->win);
    elm_popup_scrollable_set(popup, EINA_TRUE);
@@ -467,6 +545,8 @@ ephoto_config_main(Ephoto *ephoto)
    elm_table_pack(table, gen, 0, 2, 1, 1);
    slide = _ephoto_config_slideshow(ephoto, table);
    elm_table_pack(table, slide, 0, 2, 1, 1);
+   kb = _ephoto_config_bindings(table);
+   elm_table_pack(table, kb, 0, 2, 1, 1);
    about = _ephoto_config_about(table);
    elm_table_pack(table, about, 0, 2, 1, 1);
 
@@ -479,6 +559,7 @@ ephoto_config_main(Ephoto *ephoto)
 
    evas_object_data_set(segment, "gen", gen);
    evas_object_data_set(segment, "slide", slide);
+   evas_object_data_set(segment, "bindings", kb);
    evas_object_data_set(segment, "about", about);
 
    ic = elm_icon_add(segment);
@@ -494,6 +575,13 @@ ephoto_config_main(Ephoto *ephoto)
    elm_icon_standard_set(ic, "media-playback-start");
    evas_object_show(ic);
    slidei = elm_segment_control_item_add(segment, ic, _("Slideshow"));
+
+   ic = elm_icon_add(segment);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "input-keyboard");
+   evas_object_show(ic);
+   kbi = elm_segment_control_item_add(segment, ic, _("Bindings"));
 
    ic = elm_icon_add(segment);
    elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
@@ -514,8 +602,10 @@ ephoto_config_main(Ephoto *ephoto)
 
    elm_object_item_data_set(geni, gen);
    elm_object_item_data_set(slidei, slide);
+   elm_object_item_data_set(kbi, kb);
    elm_object_item_data_set(abouti, about);
    evas_object_hide(slide);
+   evas_object_hide(kb);
    evas_object_hide(about);
    elm_segment_control_item_selected_set(geni, EINA_TRUE);
 

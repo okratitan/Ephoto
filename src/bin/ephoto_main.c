@@ -353,6 +353,8 @@ _ephoto_populate_main(void *data, Eio_File *handler EINA_UNUSED,
    Ephoto_Entry *e;
    Ephoto_Event_Entry_Create *ev;
 
+   if (ephoto_entry_exists(ed->ephoto, info->path))
+     return;
    e = ephoto_entry_new(ed->ephoto, info->path, info->path + info->name_start,
        info->type);
 
@@ -451,6 +453,7 @@ _ephoto_change_dir(void *data)
 {
    Ephoto_Dir_Data *ed = data;
 
+   ed->ephoto->thumb_entry = NULL;
    ed->ephoto->job.change_dir = NULL;
    _ephoto_populate_entries(ed);
 }
@@ -471,16 +474,12 @@ _monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
    if (evas_object_image_extension_can_load_get(path))
      {
         if (event == ECORE_FILE_EVENT_CREATED_FILE)
-          { 
-             Eina_List *l;
+          {
              Ephoto_Entry *entry;
              char buf[PATH_MAX];
 
-             EINA_LIST_FOREACH(ephoto->entries, l, entry)
-               {
-                  if (!strcmp(entry->path, path))
-                    return;
-               }
+             if (ephoto_entry_exists(ephoto, path))
+               return;
              snprintf(buf, PATH_MAX, "%s", path);
              entry = ephoto_entry_new(ephoto, path, basename(buf),
                  EINA_FILE_REG);
@@ -553,6 +552,9 @@ _monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
              if (!found)
                {
                   char buf[PATH_MAX];
+
+                  if (ephoto_entry_exists(ephoto, path))
+                    return;
                   snprintf(buf, PATH_MAX, "%s", path);
                   entry = ephoto_entry_new(ephoto, path, basename(buf),
                       EINA_FILE_REG);
@@ -761,6 +763,20 @@ ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label,
    else
       entry->is_dir = EINA_FALSE;
    return entry;
+}
+
+Eina_Bool 
+ephoto_entry_exists(Ephoto *ephoto, const char *path)
+{
+   Ephoto_Entry *entry;
+   Eina_List *l;
+
+   EINA_LIST_FOREACH(ephoto->entries, l, entry)
+     {
+        if (!strcmp(entry->path, path))
+          return EINA_TRUE;
+     }
+   return EINA_FALSE;
 }
 
 void

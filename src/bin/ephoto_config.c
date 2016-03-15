@@ -442,8 +442,8 @@ _ephoto_config_about(Evas_Object *parent)
    evas_object_size_hint_weight_set(entry, 0.0, 0.0);
    evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
    eina_strbuf_append_printf(sbuf,
-       _("Ephoto is a comprehensive image viewer based on the EFL.<br/>"
-	   "For more information, please visit the Ephoto project page:<br/>"
+       _("Ephoto is a comprehensive image viewer based on the EFL. For more<br/>"
+	   "information, please visit the Ephoto project page:<br/>"
            "<a href=http://www.smhouston.us/ephoto/>"
            "http://www.smhouston.us/ephoto/</a><br/><br/>"
            "Ephoto also has a page on the Enlightenment wiki:<br/>"

@@ -551,6 +551,8 @@ _monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
           {
              ic = &_ephoto_dir_class;
              snprintf(buf, PATH_MAX, "%s", path);
+             if (ephoto_entry_exists(entry->ephoto, path))
+               return;
              e = ephoto_entry_new(entry->ephoto, path, basename(buf),
                  EINA_FILE_DIR);
              e->genlist = entry->genlist;
@@ -662,7 +664,7 @@ _todo_items_process(void *data)
       i++;
       if (i > TODO_ITEM_MIN_BATCH)
 	 return EINA_TRUE;
-      if (entry->is_dir)
+      if (entry->is_dir && !entry->item)
         {
 	   const Elm_Genlist_Item_Class *ic;
 
@@ -685,7 +687,7 @@ _todo_items_process(void *data)
                entry->genlist = tb->fsel;
              }
         }
-      else
+      else if (!entry->is_dir && !entry->item)
         {
 	   const Elm_Gengrid_Item_Class *ic;
 
@@ -3624,6 +3626,8 @@ _top_monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
              item = elm_genlist_item_next_get(item);
           }
         snprintf(buf, PATH_MAX, "%s", path);
+        if (ephoto_entry_exists(tb->ephoto, path))
+          return;
         e = ephoto_entry_new(tb->ephoto, path, basename(buf),
             EINA_FILE_DIR);
         e->genlist = tb->fsel;
@@ -3706,7 +3710,7 @@ ephoto_thumb_browser_insert(Ephoto *ephoto, Ephoto_Entry *entry)
    Ephoto_Thumb_Browser *tb =
        evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
 
-   if (!entry->is_dir)
+   if (!entry->is_dir && !entry->item)
      {
         Eina_File *f;
         const Elm_Gengrid_Item_Class *ic;

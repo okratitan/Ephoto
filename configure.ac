@@ -3,8 +3,7 @@ dnl Process this file with autoconf to produce a configure script.
 # get rid of that stupid cache mechanism
 rm -f config.cache
 
-EFL_VERSION([0], [1], [1], [dev])
-AC_INIT([ephoto], [efl_version], [enlightenment-devel@lists.sourceforge.net])
+AC_INIT([ephoto], [0.9.99], [enlightenment-devel@lists.sourceforge.net])
 
 AC_PREREQ([2.60])
 AC_CONFIG_SRCDIR([configure.ac])

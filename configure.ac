@@ -72,6 +72,7 @@ AC_OUTPUT([
 Makefile
 data/Makefile
 data/desktop/Makefile
+data/images/Makefile
 data/themes/Makefile
 src/Makefile
 src/bin/Makefile

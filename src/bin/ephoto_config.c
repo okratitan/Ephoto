@@ -423,7 +423,7 @@ _ephoto_config_bindings(Evas_Object *parent)
 static Evas_Object *
 _ephoto_config_about(Evas_Object *parent)
 {
-   Evas_Object *box, *entry;
+   Evas_Object *box, *entry, *img;
    Eina_Strbuf *sbuf = eina_strbuf_new();
    FILE *f;
 
@@ -432,6 +432,15 @@ _ephoto_config_about(Evas_Object *parent)
    evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_show(box);
+
+   img = elm_image_add(box);
+   evas_object_size_hint_min_set(img, 50, 50);
+   elm_image_preload_disabled_set(img, EINA_TRUE);
+   elm_image_file_set(img, PACKAGE_DATA_DIR "/images/ephoto.png", NULL);
+   evas_object_size_hint_weight_set(img, 0.0, 0.0);
+   evas_object_size_hint_align_set(img, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, img);
+   evas_object_show(img);
 
    entry = elm_entry_add(box);
    elm_entry_anchor_hover_style_set(entry, "popout");

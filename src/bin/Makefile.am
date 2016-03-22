@@ -1,4 +1,6 @@
-MAINTAINERCLEANFILES = *.o config.h.in config.h Makefile.in Makefile stamp-h1
+AUTOMAKE_OPTIONS = subdir-objects
+MAINTAINERCLEANFILES = *.gcda *.gcno *.o config.h.in config.h Makefile.in Makefile stamp-h1
+DISTCLEANFILES = *.gcda *.gcno
 
 bin_PROGRAMS = ephoto
 

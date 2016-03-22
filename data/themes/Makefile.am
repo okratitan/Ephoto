@@ -1,3 +1,4 @@
+AUTOMAKE_OPTIONS = subdir-objects
 MAINTAINERCLEANFILES = Makefile.in Makefile
 
 EDJE_CC = @edje_cc@

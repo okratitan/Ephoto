@@ -29,7 +29,8 @@ ephoto_SOURCES = \
         ephoto_bcg.c \
         ephoto_hsv.c \
         ephoto_filters.c \
-        ephoto_color.c
+        ephoto_color.c \
+        ephoto_editor.c
 
 noinst_HEADERS = ephoto.h
 EXTRA_DIST = ephoto.h

@@ -7,12 +7,13 @@ struct _Ephoto_Cropper
    Evas_Object *parent;
    Evas_Object *image_parent;
    Evas_Object *box;
-   Evas_Object *frame;
+   Evas_Object *editor;
    Evas_Object *image;
    Evas_Object *cropper;
    Evas_Object *layout;
    Evas_Object *cropw;
    Evas_Object *croph;
+   Eina_List *handlers;
    int startx;
    int starty;
    int offsetx;
@@ -221,10 +222,10 @@ _apply_crop(void *data, Evas_Object *obj EINA_UNUSED,
    elm_table_pack(ec->image_parent, ec->image, 0, 0, 1, 1);
    ephoto_single_browser_image_data_update(ec->main, ec->image, EINA_TRUE,
        idata_new, nw, nh);
-   evas_object_del(ec->frame);
    evas_object_del(ec->cropper);
    evas_object_del(ec->layout);
    evas_object_del(ec->box);
+   ephoto_editor_del(ec->editor);
 }
 
 static void
@@ -237,10 +238,10 @@ _cancel_crop(void *data, Evas_Object *obj EINA_UNUSED,
    elm_layout_content_unset(ec->layout, "ephoto.swallow.image");
    elm_table_pack(ec->image_parent, ec->image, 0, 0, 1, 1);
    ephoto_single_browser_cancel_editing(ec->main, ec->image);
-   evas_object_del(ec->frame);
    evas_object_del(ec->cropper);
    evas_object_del(ec->layout);
    evas_object_del(ec->box);
+   ephoto_editor_del(ec->editor);
 }
 
 static void
@@ -585,11 +586,42 @@ _image_resize(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
        EDJE_MESSAGE_INT_SET, 1, msg);
 }
 
+static Eina_Bool
+_crop_reset(void *data, int type EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   _reset_crop(data, NULL, NULL);
+
+   return ECORE_CALLBACK_PASS_ON;
+}
+
+static Eina_Bool
+_crop_apply(void *data, int type EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   _apply_crop(data, NULL, NULL);
+
+   return ECORE_CALLBACK_PASS_ON;
+}
+
+static Eina_Bool
+_crop_cancel(void *data, int type EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   _cancel_crop(data, NULL, NULL);
+
+   return ECORE_CALLBACK_PASS_ON;
+}
+
 static void
-_cropper_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
+_editor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Cropper *ec = data;
+   Ecore_Event_Handler *handler;
+
+   EINA_LIST_FREE(ec->handlers, handler)
+     ecore_event_handler_del(handler);
 
    free(ec);
 }
@@ -598,7 +630,6 @@ void
 ephoto_cropper_add(Evas_Object *main, Evas_Object *parent,
     Evas_Object *image_parent, Evas_Object *image)
 {
-   Evas_Object *vbox, *ic, *button;
    Ephoto_Cropper *ec;
    int w, h;
 
@@ -669,38 +700,13 @@ ephoto_cropper_add(Evas_Object *main, Evas_Object *parent,
 
    evas_object_event_callback_add(ec->layout, EVAS_CALLBACK_RESIZE,
        _image_resize, ec);
-   evas_object_event_callback_add(ec->box, EVAS_CALLBACK_DEL,
-       _cropper_del, ec);
 
-   ec->frame = elm_frame_add(parent);
-   elm_object_text_set(ec->frame, _("Crop Image"));
-   evas_object_size_hint_weight_set(ec->frame, 0.3, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(ec->frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(parent, ec->frame);
-   evas_object_data_set(ec->frame, "ec", ec);
-   evas_object_show(ec->frame);
+   ec->editor = ephoto_editor_add(parent, _("Crop Image"),
+       "ec", ec);
+   evas_object_event_callback_add(ec->editor, EVAS_CALLBACK_DEL,
+       _editor_del, ec);
 
-   vbox = elm_box_add(ec->frame);
-   elm_box_horizontal_set(vbox, EINA_FALSE);
-   evas_object_size_hint_weight_set(vbox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(vbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_object_content_set(ec->frame, vbox);
-   evas_object_show(vbox);
-
-   ec->cropw = elm_slider_add(vbox);
-   elm_slider_min_max_set(ec->cropw, 1, w);
-   elm_slider_step_set(ec->cropw, 1);
-   elm_slider_unit_format_set(ec->cropw, "%1.0f");
-   elm_object_text_set(ec->cropw, _("Width"));
-   evas_object_size_hint_weight_set(ec->cropw, EVAS_HINT_EXPAND,
-       EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(ec->cropw, EVAS_HINT_FILL, 0.5);
-   elm_box_pack_end(vbox, ec->cropw);
-   evas_object_smart_callback_add(ec->cropw, "slider,drag,stop",
-       _cropper_changed_width, ec);
-   evas_object_show(ec->cropw);
-
-   ec->croph = elm_slider_add(vbox);
+   ec->croph = elm_slider_add(ec->editor);
    elm_slider_min_max_set(ec->croph, 1, h);
    elm_slider_step_set(ec->croph, 1);
    elm_slider_unit_format_set(ec->croph, "%1.0f");
@@ -708,52 +714,36 @@ ephoto_cropper_add(Evas_Object *main, Evas_Object *parent,
    evas_object_size_hint_weight_set(ec->croph, EVAS_HINT_EXPAND,
        EVAS_HINT_FILL);
    evas_object_size_hint_align_set(ec->croph, EVAS_HINT_FILL, 0.5);
-   elm_box_pack_end(vbox, ec->croph);
+   elm_box_pack_start(ec->editor, ec->croph);
    evas_object_smart_callback_add(ec->croph, "slider,drag,stop",
        _cropper_changed_height, ec);
    evas_object_show(ec->croph);
 
-   ic = elm_icon_add(vbox);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "edit-undo");
+   ec->cropw = elm_slider_add(ec->editor);
+   elm_slider_min_max_set(ec->cropw, 1, w);
+   elm_slider_step_set(ec->cropw, 1);
+   elm_slider_unit_format_set(ec->cropw, "%1.0f");
+   elm_object_text_set(ec->cropw, _("Width"));
+   evas_object_size_hint_weight_set(ec->cropw, EVAS_HINT_EXPAND,
+       EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(ec->cropw, EVAS_HINT_FILL, 0.5);
+   elm_box_pack_start(ec->editor, ec->cropw);
+   evas_object_smart_callback_add(ec->cropw, "slider,drag,stop",
+       _cropper_changed_width, ec);
+   evas_object_show(ec->cropw);
 
-   button = elm_button_add(vbox);
-   elm_object_text_set(button, _("Reset"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _reset_crop, ec);
-   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(vbox, button);
-   evas_object_show(button);
-
-   ic = elm_icon_add(vbox);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "document-save");
-
-   button = elm_button_add(vbox);
-   elm_object_text_set(button, _("Apply"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _apply_crop, ec);
-   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(vbox, button);
-   evas_object_show(button);
-
-   ic = elm_icon_add(vbox);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "window-close");
-
-   button = elm_button_add(vbox);
-   elm_object_text_set(button, _("Cancel"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _cancel_crop, ec);
-   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(vbox, button);
-   evas_object_show(button);
+   ec->handlers =
+       eina_list_append(ec->handlers,
+       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_RESET,
+           _crop_reset, ec));
+   ec->handlers =
+       eina_list_append(ec->handlers,
+       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_APPLY,
+           _crop_apply, ec));
+   ec->handlers =
+       eina_list_append(ec->handlers,
+       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_CANCEL,
+           _crop_cancel, ec));
 
    return;
 

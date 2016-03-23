@@ -6,10 +6,11 @@ struct _Ephoto_HSV
    Evas_Object *main;
    Evas_Object *parent;
    Evas_Object *image;
-   Evas_Object *frame;
+   Evas_Object *editor;
    Evas_Object *hslider;
    Evas_Object *sslider;
    Evas_Object *vslider;
+   Eina_List *handlers;
    double hue;
    double saturation;
    double value;
@@ -255,8 +256,8 @@ _value_slider_changed(void *data, Evas_Object *obj,
    _ephoto_hsv_adjust_saturation(ehsv, ehsv->saturation, image_data_two);
 }
 
-static void
-_hsv_reset(void *data, Evas_Object *obj EINA_UNUSED,
+static Eina_Bool
+_hsv_reset(void *data, int type EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_HSV *ehsv = data;
@@ -268,10 +269,12 @@ _hsv_reset(void *data, Evas_Object *obj EINA_UNUSED,
    ehsv->saturation = 0;
    ehsv->value = 0;
    _hue_slider_changed(ehsv, ehsv->hslider, NULL);
+
+   return ECORE_CALLBACK_PASS_ON;
 }
 
-static void
-_hsv_apply(void *data, Evas_Object *obj EINA_UNUSED,
+static Eina_Bool
+_hsv_apply(void *data, int type EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_HSV *ehsv = data;
@@ -284,11 +287,13 @@ _hsv_apply(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_image_size_get(elm_image_object_get(ehsv->image), &w, &h);
    ephoto_single_browser_image_data_update(ehsv->main, ehsv->image, EINA_TRUE,
        image_data, w, h);
-   evas_object_del(ehsv->frame);
+   ephoto_editor_del(ehsv->editor);
+
+   return ECORE_CALLBACK_PASS_ON;
 }
 
-static void
-_hsv_cancel(void *data, Evas_Object *obj EINA_UNUSED,
+static Eina_Bool
+_hsv_cancel(void *data, int type EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_HSV *ehsv = data;
@@ -301,15 +306,20 @@ _hsv_cancel(void *data, Evas_Object *obj EINA_UNUSED,
    ehsv->value = 0;
    _hue_slider_changed(ehsv, ehsv->hslider, NULL);
    ephoto_single_browser_cancel_editing(ehsv->main, ehsv->image);
-   evas_object_del(ehsv->frame);
+   ephoto_editor_del(ehsv->editor);
+
+   return ECORE_CALLBACK_PASS_ON;
 }
 
 static void
-_frame_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
+_editor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_HSV *ehsv = data;
+   Ecore_Event_Handler *handler;
 
+   EINA_LIST_FREE(ehsv->handlers, handler)
+     ecore_event_handler_del(handler);
    free(ehsv->original_im_data);
    free(ehsv);
 }
@@ -317,7 +327,7 @@ _frame_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 void
 ephoto_hsv_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
 {
-   Evas_Object *box, *slider, *ic, *button;
+   Evas_Object *slider;
    Ephoto_HSV *ehsv;
    unsigned int *im_data;
 
@@ -341,39 +351,26 @@ ephoto_hsv_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    memcpy(ehsv->original_im_data, im_data,
        sizeof(unsigned int) * ehsv->w * ehsv->h);
 
-   ehsv->frame = elm_frame_add(parent);
-   elm_object_text_set(ehsv->frame, _("Hue/Saturation/Value"));
-   evas_object_size_hint_weight_set(ehsv->frame, 0.3, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(ehsv->frame,
-       EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(parent, ehsv->frame);
-   evas_object_data_set(ehsv->frame, "ehsv", ehsv);
-   evas_object_event_callback_add(ehsv->frame, EVAS_CALLBACK_DEL, _frame_del,
+   ehsv->editor = ephoto_editor_add(parent, _("Hue/Saturation/Value"), 
+       "ehsv", ehsv);
+   evas_object_event_callback_add(ehsv->editor, EVAS_CALLBACK_DEL, _editor_del,
        ehsv);
-   evas_object_show(ehsv->frame);
 
-   box = elm_box_add(ehsv->frame);
-   elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_object_content_set(ehsv->frame, box);
-   evas_object_show(box);
-
-   slider = elm_slider_add(box);
-   elm_object_text_set(slider, _("Hue"));
-   elm_slider_min_max_set(slider, -180, 180);
-   elm_slider_step_set(slider, 1);
+   slider = elm_slider_add(ehsv->editor);
+   elm_object_text_set(slider, _("Value"));
+   elm_slider_min_max_set(slider, -100, 100);
+   elm_slider_step_set(slider, 1.20);
    elm_slider_value_set(slider, 0);
-   elm_slider_unit_format_set(slider, "%1.0f");
+   elm_slider_unit_format_set(slider, "%1.2f");
    evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
-   evas_object_smart_callback_add(slider, "delay,changed", _hue_slider_changed,
+   evas_object_smart_callback_add(slider, "delay,changed", _value_slider_changed,
        ehsv);
-   elm_box_pack_end(box, slider);
+   elm_box_pack_start(ehsv->editor, slider);
    evas_object_show(slider);
-   ehsv->hslider = slider;
+   ehsv->vslider = slider;
 
-   slider = elm_slider_add(box);
+   slider = elm_slider_add(ehsv->editor);
    elm_object_text_set(slider, _("Saturation"));
    elm_slider_min_max_set(slider, -100, 100);
    elm_slider_step_set(slider, 1.20);
@@ -383,66 +380,36 @@ ephoto_hsv_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
        _saturation_slider_changed, ehsv);
-   elm_box_pack_end(box, slider);
+   elm_box_pack_start(ehsv->editor, slider);
    evas_object_show(slider);
    ehsv->sslider = slider;
 
-   slider = elm_slider_add(box);
-   elm_object_text_set(slider, _("Value"));
-   elm_slider_min_max_set(slider, -100, 100);
-   elm_slider_step_set(slider, 1.20);
+   slider = elm_slider_add(ehsv->editor);
+   elm_object_text_set(slider, _("Hue"));
+   elm_slider_min_max_set(slider, -180, 180);
+   elm_slider_step_set(slider, 1);
    elm_slider_value_set(slider, 0);
-   elm_slider_unit_format_set(slider, "%1.2f");
+   elm_slider_unit_format_set(slider, "%1.0f");
    evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
-       _value_slider_changed, ehsv);
-   elm_box_pack_end(box, slider);
+       _hue_slider_changed, ehsv);
+   elm_box_pack_start(ehsv->editor, slider);
    evas_object_show(slider);
-   ehsv->vslider = slider;
+   ehsv->hslider = slider;
 
-   ic = elm_icon_add(box);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "edit-undo");
-
-   button = elm_button_add(box);
-   elm_object_text_set(button, _("Reset"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _hsv_reset, ehsv);
-   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, button);
-   evas_object_show(button);
-
-   ic = elm_icon_add(box);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "document-save");
-
-   button = elm_button_add(box);
-   elm_object_text_set(button, _("Apply"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _hsv_apply, ehsv);
-   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, button);
-   evas_object_show(button);
-
-   ic = elm_icon_add(box);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "window-close");
-
-   button = elm_button_add(box);
-   elm_object_text_set(button, _("Cancel"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _hsv_cancel, ehsv);
-   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, button);
-   evas_object_show(button);
-
+   ehsv->handlers =
+       eina_list_append(ehsv->handlers,
+       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_RESET,
+           _hsv_reset, ehsv));
+   ehsv->handlers =
+       eina_list_append(ehsv->handlers,
+       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_APPLY,
+           _hsv_apply, ehsv));
+   ehsv->handlers =
+       eina_list_append(ehsv->handlers,
+       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_CANCEL,
+           _hsv_cancel, ehsv));
    return;
 
   error:

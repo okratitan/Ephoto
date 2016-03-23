@@ -6,10 +6,11 @@ struct _Ephoto_BCG
    Evas_Object *main;
    Evas_Object *parent;
    Evas_Object *image;
-   Evas_Object *frame;
+   Evas_Object *editor;
    Evas_Object *bslider;
    Evas_Object *cslider;
    Evas_Object *gslider;
+   Eina_List *handlers;
    int contrast;
    int brightness;
    double gamma;
@@ -248,8 +249,8 @@ _gamma_slider_changed(void *data, Evas_Object *obj,
    _ephoto_bcg_adjust_contrast(ebcg, ebcg->contrast, image_data_two);
 }
 
-static void
-_bcg_reset(void *data, Evas_Object *obj EINA_UNUSED,
+static Eina_Bool
+_bcg_reset(void *data, int type EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_BCG *ebcg = data;
@@ -261,10 +262,12 @@ _bcg_reset(void *data, Evas_Object *obj EINA_UNUSED,
    ebcg->contrast = 0;
    ebcg->gamma = 1;
    _brightness_slider_changed(ebcg, ebcg->bslider, NULL);
+
+   return ECORE_CALLBACK_PASS_ON;
 }
 
-static void
-_bcg_apply(void *data, Evas_Object *obj EINA_UNUSED,
+static Eina_Bool
+_bcg_apply(void *data, int type EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_BCG *ebcg = data;
@@ -277,11 +280,13 @@ _bcg_apply(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_image_size_get(elm_image_object_get(ebcg->image), &w, &h);
    ephoto_single_browser_image_data_update(ebcg->main, ebcg->image, EINA_TRUE,
        image_data, w, h);
-   evas_object_del(ebcg->frame);
+   ephoto_editor_del(ebcg->editor);
+
+   return ECORE_CALLBACK_PASS_ON;
 }
 
-static void
-_bcg_cancel(void *data, Evas_Object *obj EINA_UNUSED,
+static Eina_Bool
+_bcg_cancel(void *data, int type EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_BCG *ebcg = data;
@@ -294,15 +299,20 @@ _bcg_cancel(void *data, Evas_Object *obj EINA_UNUSED,
    ebcg->gamma = 1;
    _brightness_slider_changed(ebcg, ebcg->bslider, NULL);
    ephoto_single_browser_cancel_editing(ebcg->main, ebcg->image);
-   evas_object_del(ebcg->frame);
+   ephoto_editor_del(ebcg->editor);
+
+   return ECORE_CALLBACK_PASS_ON;
 }
 
 static void
-_frame_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
+_editor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_BCG *ebcg = data;
+   Ecore_Event_Handler *handler;
 
+   EINA_LIST_FREE(ebcg->handlers, handler)
+     ecore_event_handler_del(handler);
    free(ebcg->original_im_data);
    free(ebcg);
 }
@@ -310,7 +320,7 @@ _frame_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 void
 ephoto_bcg_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
 {
-   Evas_Object *box, *slider, *ic, *button;
+   Evas_Object *slider;
    Ephoto_BCG *ebcg;
    unsigned int *im_data;
 
@@ -334,39 +344,26 @@ ephoto_bcg_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    memcpy(ebcg->original_im_data, im_data,
        sizeof(unsigned int) * ebcg->w * ebcg->h);
 
-   ebcg->frame = elm_frame_add(parent);
-   elm_object_text_set(ebcg->frame, _("Brightness/Contrast/Gamma"));
-   evas_object_size_hint_weight_set(ebcg->frame, 0.3, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(ebcg->frame,
-       EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(parent, ebcg->frame);
-   evas_object_data_set(ebcg->frame, "ebcg", ebcg);
-   evas_object_event_callback_add(ebcg->frame, EVAS_CALLBACK_DEL, _frame_del,
+   ebcg->editor = ephoto_editor_add(parent, _("Brightness/Contrast/Gamma"),
+       "ebcg", ebcg);
+   evas_object_event_callback_add(ebcg->editor, EVAS_CALLBACK_DEL, _editor_del,
        ebcg);
-   evas_object_show(ebcg->frame);
 
-   box = elm_box_add(ebcg->frame);
-   elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_object_content_set(ebcg->frame, box);
-   evas_object_show(box);
-
-   slider = elm_slider_add(box);
-   elm_object_text_set(slider, _("Brightness"));
-   elm_slider_min_max_set(slider, -100, 100);
-   elm_slider_step_set(slider, 1);
-   elm_slider_value_set(slider, 0);
-   elm_slider_unit_format_set(slider, "%1.0f");
+   slider = elm_slider_add(ebcg->editor);
+   elm_object_text_set(slider, _("Gamma"));
+   elm_slider_min_max_set(slider, -0.1, 3);
+   elm_slider_step_set(slider, .1);
+   elm_slider_value_set(slider, 1);
+   elm_slider_unit_format_set(slider, "%1.2f");
    evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
-       _brightness_slider_changed, ebcg);
-   elm_box_pack_end(box, slider);
+       _gamma_slider_changed, ebcg);
+   elm_box_pack_start(ebcg->editor, slider);
    evas_object_show(slider);
-   ebcg->bslider = slider;
+   ebcg->gslider = slider;
 
-   slider = elm_slider_add(box);
+   slider = elm_slider_add(ebcg->editor);
    elm_object_text_set(slider, _("Contrast"));
    elm_slider_min_max_set(slider, -100, 100);
    elm_slider_step_set(slider, 1);
@@ -376,65 +373,36 @@ ephoto_bcg_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
        _contrast_slider_changed, ebcg);
-   elm_box_pack_end(box, slider);
+   elm_box_pack_start(ebcg->editor, slider);
    evas_object_show(slider);
    ebcg->cslider = slider;
 
-   slider = elm_slider_add(box);
-   elm_object_text_set(slider, _("Gamma"));
-   elm_slider_min_max_set(slider, 0.1, 3);
-   elm_slider_step_set(slider, .1);
-   elm_slider_value_set(slider, 1);
-   elm_slider_unit_format_set(slider, "%1.2f");
+   slider = elm_slider_add(ebcg->editor);
+   elm_object_text_set(slider, _("Brightness"));
+   elm_slider_min_max_set(slider, -100, 100);
+   elm_slider_step_set(slider, 1);
+   elm_slider_value_set(slider, 0);
+   elm_slider_unit_format_set(slider, "%1.0f");
    evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
-       _gamma_slider_changed, ebcg);
-   elm_box_pack_end(box, slider);
+       _brightness_slider_changed, ebcg);
+   elm_box_pack_start(ebcg->editor, slider);
    evas_object_show(slider);
-   ebcg->gslider = slider;
+   ebcg->bslider = slider;
 
-   ic = elm_icon_add(box);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "edit-undo");
-
-   button = elm_button_add(box);
-   elm_object_text_set(button, _("Reset"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _bcg_reset, ebcg);
-   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, button);
-   evas_object_show(button);
-
-   ic = elm_icon_add(box);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "document-save");
-
-   button = elm_button_add(box);
-   elm_object_text_set(button, _("Apply"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _bcg_apply, ebcg);
-   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, button);
-   evas_object_show(button);
-
-   ic = elm_icon_add(box);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "window-close");
-
-   button = elm_button_add(box);
-   elm_object_text_set(button, _("Cancel"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _bcg_cancel, ebcg);
-   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, button);
-   evas_object_show(button);
+   ebcg->handlers =
+       eina_list_append(ebcg->handlers,
+       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_RESET,
+           _bcg_reset, ebcg));
+   ebcg->handlers =
+       eina_list_append(ebcg->handlers,
+       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_APPLY,
+           _bcg_apply, ebcg));
+   ebcg->handlers =
+       eina_list_append(ebcg->handlers,
+       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_CANCEL,
+           _bcg_cancel, ebcg));
 
    return;
 

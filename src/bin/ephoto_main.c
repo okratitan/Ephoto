@@ -4,6 +4,9 @@ int EPHOTO_EVENT_ENTRY_CREATE = 0;
 int EPHOTO_EVENT_POPULATE_START = 0;
 int EPHOTO_EVENT_POPULATE_END = 0;
 int EPHOTO_EVENT_POPULATE_ERROR = 0;
+int EPHOTO_EVENT_EDITOR_RESET = 0;
+int EPHOTO_EVENT_EDITOR_APPLY = 0;
+int EPHOTO_EVENT_EDITOR_CANCEL = 0;
 
 typedef struct _Ephoto_Entry_Free_Listener Ephoto_Entry_Free_Listener;
 struct _Ephoto_Entry_Free_Listener
@@ -198,6 +201,9 @@ ephoto_window_add(const char *path)
    EPHOTO_EVENT_POPULATE_START = ecore_event_type_new();
    EPHOTO_EVENT_POPULATE_END = ecore_event_type_new();
    EPHOTO_EVENT_POPULATE_ERROR = ecore_event_type_new();
+   EPHOTO_EVENT_EDITOR_RESET = ecore_event_type_new();
+   EPHOTO_EVENT_EDITOR_APPLY = ecore_event_type_new();
+   EPHOTO_EVENT_EDITOR_CANCEL = ecore_event_type_new();
 
    ephoto->selentries = NULL;
    ephoto->win = elm_win_util_standard_add("ephoto", "Ephoto");

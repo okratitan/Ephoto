@@ -88,6 +88,9 @@ void ephoto_thumb_browser_update(Ephoto *ephoto, Ephoto_Entry *entry);
 /* smart callbacks called: "selected" - an item in the thumb browser is
  * selected. The selected Ephoto_Entry is passed as event_info argument. */
 
+Evas_Object *ephoto_editor_add(Evas_Object *parent, const char *title,
+    const char *data_name, void *data);
+void ephoto_editor_del(Evas_Object *obj);
 void ephoto_cropper_add(Evas_Object *main, Evas_Object *parent,
     Evas_Object *image_parent, Evas_Object *image);
 void ephoto_bcg_add(Evas_Object *main, Evas_Object *parent,
@@ -284,5 +287,8 @@ extern int EPHOTO_EVENT_ENTRY_CREATE;
 extern int EPHOTO_EVENT_POPULATE_START;
 extern int EPHOTO_EVENT_POPULATE_END;
 extern int EPHOTO_EVENT_POPULATE_ERROR;
+extern int EPHOTO_EVENT_EDITOR_RESET;
+extern int EPHOTO_EVENT_EDITOR_APPLY;
+extern int EPHOTO_EVENT_EDITOR_CANCEL;
 
 #endif

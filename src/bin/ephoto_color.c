@@ -6,10 +6,11 @@ struct _Ephoto_Color
    Evas_Object *main;
    Evas_Object *parent;
    Evas_Object *image;
-   Evas_Object *frame;
+   Evas_Object *editor;
    Evas_Object *bslider;
    Evas_Object *gslider;
    Evas_Object *rslider;
+   Eina_List *handlers;
    int blue;
    int green;
    int red;
@@ -233,8 +234,8 @@ _blue_slider_changed(void *data, Evas_Object *obj,
    _ephoto_color_adjust_green(eco, eco->green, image_data_two);
 }
 
-static void
-_color_reset(void *data, Evas_Object *obj EINA_UNUSED,
+static Eina_Bool
+_color_reset(void *data, int type EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Color *eco = data;
@@ -246,10 +247,12 @@ _color_reset(void *data, Evas_Object *obj EINA_UNUSED,
    eco->green = 0;
    eco->blue = 0;
    _red_slider_changed(eco, eco->rslider, NULL);
+
+   return ECORE_CALLBACK_PASS_ON;
 }
 
-static void
-_color_apply(void *data, Evas_Object *obj EINA_UNUSED,
+static Eina_Bool
+_color_apply(void *data, int type EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Color *eco = data;
@@ -262,11 +265,13 @@ _color_apply(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_image_size_get(elm_image_object_get(eco->image), &w, &h);
    ephoto_single_browser_image_data_update(eco->main, eco->image, EINA_TRUE,
        image_data, w, h);
-   evas_object_del(eco->frame);
+   ephoto_editor_del(eco->editor);
+
+   return ECORE_CALLBACK_PASS_ON;
 }
 
-static void
-_color_cancel(void *data, Evas_Object *obj EINA_UNUSED,
+static Eina_Bool
+_color_cancel(void *data, int type EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Color *eco = data;
@@ -279,15 +284,20 @@ _color_cancel(void *data, Evas_Object *obj EINA_UNUSED,
    eco->blue = 0;
    _red_slider_changed(eco, eco->rslider, NULL);
    ephoto_single_browser_cancel_editing(eco->main, eco->image);
-   evas_object_del(eco->frame);
+   ephoto_editor_del(eco->editor);
+
+   return ECORE_CALLBACK_PASS_ON;
 }
 
 static void
-_frame_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
+_editor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Color *eco = data;
+   Ecore_Event_Handler *handler;
 
+   EINA_LIST_FREE(eco->handlers, handler)
+     ecore_event_handler_del(handler);
    free(eco->original_im_data);
    free(eco);
 }
@@ -295,7 +305,7 @@ _frame_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 void
 ephoto_color_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
 {
-   Evas_Object *box, *slider, *ic, *button;
+   Evas_Object *slider;
    Ephoto_Color *eco;
    unsigned int *im_data;
 
@@ -319,52 +329,12 @@ ephoto_color_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    memcpy(eco->original_im_data, im_data,
        sizeof(unsigned int) * eco->w * eco->h);
 
-   eco->frame = elm_frame_add(parent);
-   elm_object_text_set(eco->frame, _("Adjust Color Levels"));
-   evas_object_size_hint_weight_set(eco->frame, 0.3, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(eco->frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(parent, eco->frame);
-   evas_object_data_set(eco->frame, "eco", eco);
-   evas_object_event_callback_add(eco->frame, EVAS_CALLBACK_DEL, _frame_del,
+   eco->editor = ephoto_editor_add(parent, _("Adjust Color Levels"), 
+       "eco", eco);
+   evas_object_event_callback_add(eco->editor, EVAS_CALLBACK_DEL, _editor_del,
        eco);
-   evas_object_show(eco->frame);
 
-   box = elm_box_add(eco->frame);
-   elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_object_content_set(eco->frame, box);
-   evas_object_show(box);
-
-   slider = elm_slider_add(box);
-   elm_object_text_set(slider, _("Red"));
-   elm_slider_min_max_set(slider, -100, 100);
-   elm_slider_step_set(slider, 1);
-   elm_slider_value_set(slider, 0);
-   elm_slider_unit_format_set(slider, "%1.0f");
-   evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
-   evas_object_smart_callback_add(slider, "delay,changed", _red_slider_changed,
-       eco);
-   elm_box_pack_end(box, slider);
-   evas_object_show(slider);
-   eco->rslider = slider;
-
-   slider = elm_slider_add(box);
-   elm_object_text_set(slider, _("Green"));
-   elm_slider_min_max_set(slider, -100, 100);
-   elm_slider_step_set(slider, 1);
-   elm_slider_value_set(slider, 0);
-   elm_slider_unit_format_set(slider, "%1.0f");
-   evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
-   evas_object_smart_callback_add(slider, "delay,changed",
-       _green_slider_changed, eco);
-   elm_box_pack_end(box, slider);
-   evas_object_show(slider);
-   eco->gslider = slider;
-
-   slider = elm_slider_add(box);
+   slider = elm_slider_add(eco->editor);
    elm_object_text_set(slider, _("Blue"));
    elm_slider_min_max_set(slider, -100, 100);
    elm_slider_step_set(slider, 1);
@@ -374,51 +344,50 @@ ephoto_color_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
        _blue_slider_changed, eco);
-   elm_box_pack_end(box, slider);
+   elm_box_pack_start(eco->editor, slider);
    evas_object_show(slider);
    eco->bslider = slider;
 
-   ic = elm_icon_add(box);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "edit-undo");
+   slider = elm_slider_add(eco->editor);
+   elm_object_text_set(slider, _("Green"));
+   elm_slider_min_max_set(slider, -100, 100);
+   elm_slider_step_set(slider, 1);
+   elm_slider_value_set(slider, 0);
+   elm_slider_unit_format_set(slider, "%1.0f");
+   evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
+   evas_object_smart_callback_add(slider, "delay,changed",
+       _green_slider_changed, eco);
+   elm_box_pack_start(eco->editor, slider);
+   evas_object_show(slider);
+   eco->gslider = slider;
 
-   button = elm_button_add(box);
-   elm_object_text_set(button, _("Reset"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _color_reset, eco);
-   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, button);
-   evas_object_show(button);
+   slider = elm_slider_add(eco->editor);
+   elm_object_text_set(slider, _("Red"));
+   elm_slider_min_max_set(slider, -100, 100);
+   elm_slider_step_set(slider, 1);
+   elm_slider_value_set(slider, 0);
+   elm_slider_unit_format_set(slider, "%1.0f");
+   evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
+   evas_object_smart_callback_add(slider, "delay,changed",
+       _red_slider_changed, eco);
+   elm_box_pack_start(eco->editor, slider);
+   evas_object_show(slider);
+   eco->rslider = slider;
 
-   ic = elm_icon_add(box);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "document-save");
-
-   button = elm_button_add(box);
-   elm_object_text_set(button, _("Apply"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _color_apply, eco);
-   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, button);
-   evas_object_show(button);
-
-   ic = elm_icon_add(box);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "window-close");
-
-   button = elm_button_add(box);
-   elm_object_text_set(button, _("Cancel"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _color_cancel, eco);
-   evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, button);
-   evas_object_show(button);
+   eco->handlers =
+       eina_list_append(eco->handlers,
+       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_RESET,
+           _color_reset, eco));
+   eco->handlers =
+       eina_list_append(eco->handlers,
+       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_APPLY,
+           _color_apply, eco));
+   eco->handlers =
+       eina_list_append(eco->handlers,
+       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_CANCEL,
+           _color_cancel, eco));
 
    return;
 

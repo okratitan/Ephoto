@@ -312,7 +312,10 @@ _ephoto_thumb_file_icon_get(void *data, Evas_Object *obj,
      return NULL;
 
    if (e)
-     thumb = ephoto_thumb_add(e->ephoto, obj, e->path);
+     {
+        thumb = ephoto_thumb_add(e->ephoto, obj, e->path);
+        evas_object_show(thumb);
+     }
    return thumb;
 }
 

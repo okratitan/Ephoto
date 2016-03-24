@@ -630,25 +630,9 @@ _thumb_gen_size_changed_timer_cb(void *data)
 
    EINA_LIST_FOREACH(ephoto->thumbs, l, o)
      {
-        Ethumb_Thumb_Format format;
-
-        format = (Ethumb_Thumb_Format) (uintptr_t) 
-            evas_object_data_get(o, "ephoto_format");
-        if (format)
-	  {
-	     elm_thumb_format_set(o, format);
-	     if (format == ETHUMB_THUMB_FDO)
-	       {
-	          if (ephoto->config->thumb_gen_size < 256)
-		    elm_thumb_fdo_size_set(o, ETHUMB_THUMB_NORMAL);
-		  else
-		    elm_thumb_fdo_size_set(o, ETHUMB_THUMB_LARGE);
-	       }
-             else
-	       elm_thumb_size_set(o, ephoto->thumb_gen_size,
+        e_thumb_icon_size_set(o, ephoto->thumb_gen_size,
 		   ephoto->thumb_gen_size);
-	     elm_thumb_reload(o);
-	  }
+	e_thumb_icon_rethumb(o);
      }
   end:
    ephoto->timer.thumb_regen = NULL;
@@ -682,6 +666,7 @@ _thumb_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj,
 {
    Ephoto *ephoto = data;
 
+   e_thumb_icon_end(obj);
    ephoto->thumbs = eina_list_remove(ephoto->thumbs, obj);
 }
 
@@ -698,16 +683,29 @@ ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, const char *path)
 	  {
 	     ext++;
 	     if ((strcasecmp(ext, "edj") == 0))
-		o = elm_icon_add(parent);
+               {
+		  o = elm_icon_add(parent);
+               }
 	     else
-		o = elm_thumb_add(parent);
+               {
+	          o = e_thumb_icon_add(parent); 
+                  e_thumb_icon_file_set(o, path, NULL);
+                  e_thumb_icon_size_set(o, ephoto->thumb_gen_size,
+                     ephoto->thumb_gen_size);
+                  e_thumb_icon_begin(o);
+               }
 	  }
         else
-	   o = elm_thumb_add(parent);
-	ephoto_thumb_path_set(o, path);
+          {
+	     o = e_thumb_icon_add(parent);
+	     e_thumb_icon_file_set(o, path, NULL);
+             e_thumb_icon_size_set(o, ephoto->thumb_gen_size,
+                 ephoto->thumb_gen_size);
+             e_thumb_icon_begin(o);
+          }
      }
    else
-      o = elm_thumb_add(parent);
+      o = e_thumb_icon_add(parent);
    if (!o)
       return NULL;
 
@@ -720,16 +718,13 @@ ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, const char *path)
 void
 ephoto_thumb_path_set(Evas_Object *obj, const char *path)
 {
-   Ethumb_Thumb_Format format = ETHUMB_THUMB_FDO;
    const char *group = NULL;
    const char *ext = strrchr(path, '.');
 
    if (ext)
      {
 	ext++;
-	if ((strcasecmp(ext, "jpg") == 0) || (strcasecmp(ext, "jpeg") == 0))
-	   format = ETHUMB_THUMB_JPEG;
-	else if ((strcasecmp(ext, "edj") == 0))
+        if ((strcasecmp(ext, "edj") == 0))
 	  {
 	     if (edje_file_group_exists(path, "e/desktop/background"))
 		group = "e/desktop/background";
@@ -741,16 +736,11 @@ ephoto_thumb_path_set(Evas_Object *obj, const char *path)
 		  edje_file_collection_list_free(g);
 	       }
 	     elm_image_file_set(obj, path, group);
-	     evas_object_data_set(obj, "ephoto_format", NULL);
 	     return;
 	  }
      }
-   elm_thumb_format_set(obj, format);
-   evas_object_data_set(obj, "ephoto_format", (void *) (uintptr_t) format);
-   elm_thumb_crop_align_set(obj, 0.5, 0.5);
-   elm_thumb_aspect_set(obj, ETHUMB_THUMB_CROP);
-   elm_thumb_orientation_set(obj, ETHUMB_THUMB_ORIENT_ORIGINAL);
-   elm_thumb_file_set(obj, path, group);
+   e_thumb_icon_file_set(obj, path, group);
+   e_thumb_icon_begin(obj);
 }
 
 Ephoto_Entry *

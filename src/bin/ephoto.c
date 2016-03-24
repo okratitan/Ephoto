@@ -9,7 +9,6 @@ elm_main(int argc, char **argv)
 
    eio_init();
    elm_need_efreet();
-   elm_need_ethumb();
    elm_language_set("");
    elm_app_compile_data_dir_set(PACKAGE_DATA_DIR);
    elm_app_info_set(elm_main, "ephoto", "themes/crop.edj");
@@ -21,7 +20,11 @@ elm_main(int argc, char **argv)
 #endif
 
    if (!efreet_mime_init())
-      printf("Could not initialize Efreet_Mime!\n");
+     printf("Could not initialize Efreet_Mime!\n");
+   if (!e_ipc_init())
+     printf("Could not initialize IPC!\n");
+   if (!e_thumb_init())
+     printf("Could not initialize Thumbnailer!\n");
 
    elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
@@ -71,6 +74,7 @@ elm_main(int argc, char **argv)
    elm_run();
 
   end:
+   e_thumb_shutdown();
    efreet_mime_shutdown();
    eio_shutdown();
 

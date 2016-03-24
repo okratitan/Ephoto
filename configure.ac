@@ -5,6 +5,8 @@ rm -f config.cache
 
 AC_INIT([ephoto], [0.9.99], [enlightenment-devel@lists.sourceforge.net])
 
+AC_CHECK_HEADERS([dirent.h limits.h math.h arpa/inet.h netinet/in.h])
+
 AC_PREREQ([2.60])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
@@ -45,6 +47,8 @@ PKG_CHECK_MODULES([EFL], [
  eina >= 1.7.0
  evas >= 1.7.0
  ecore >= 1.7.0
+ ecore-file >= 1.7.0
+ ecore-ipc >= 1.7.0
  edje >= 1.7.0
  eo >= 1.7.0
  eio >= 1.7.0

@@ -20,17 +20,38 @@ endif
 
 ephoto_SOURCES = \
 	ephoto.c \
-	ephoto_main.c \
+        ephoto_bcg.c \
+	ephoto_color.c \
 	ephoto_config.c \
+        ephoto_cropper.c \
+        ephoto_editor.c \
+        ephoto_filters.c \
+        ephoto_hsv.c \
+        ephoto_ipc.c \
+        ephoto_main.c \
+        ephoto_thumb.c \
         ephoto_thumb_browser.c \
         ephoto_single_browser.c \
-        ephoto_slideshow.c \
-        ephoto_cropper.c \
-        ephoto_bcg.c \
-        ephoto_hsv.c \
-        ephoto_filters.c \
-        ephoto_color.c \
-        ephoto_editor.c
+        ephoto_slideshow.c
+
+internal_bindir = $(datadir)/$(PACKAGE)
+internal_bin_PROGRAMS = ephoto_thumbnail
+
+ephoto_thumbnail_CPPFLAGS = \
+	-I$(top_srcdir) \
+        -I$(top_srcdir)/src/bin \
+        -DPACKAGE_DATA_DIR=\"$(datadir)/$(PACKAGE)\" \
+        -Wall \
+        -Wextra \
+        -Wshadow \
+        @EFL_CFLAGS@
+
+ephoto_thumbnail_LDADD = @EFL_LIBS@
+
+ephoto_thumbnail_SOURCES = \
+	ephoto_thumbnailer.c \
+        ephoto_ipc.c \
+        ephoto_thumb.c
 
 noinst_HEADERS = ephoto.h
 EXTRA_DIST = ephoto.h

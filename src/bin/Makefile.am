@@ -25,6 +25,7 @@ ephoto_SOURCES = \
 	ephoto_config.c \
         ephoto_cropper.c \
         ephoto_editor.c \
+        ephoto_file.c \
         ephoto_filters.c \
         ephoto_hsv.c \
         ephoto_ipc.c \

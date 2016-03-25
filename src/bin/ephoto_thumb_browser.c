@@ -27,13 +27,9 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *original_grid;
    Evas_Object *nolabel;
    Evas_Object *infolabel;
-   Evas_Object *bar;
    Evas_Object *fsel;
-   Evas_Object *min;
-   Evas_Object *max;
    Evas_Object *leftbox;
    Evas_Object *direntry;
-   Evas_Object *ficon;
    Evas_Object *search;
    Evas_Object *hover;
    Evas_Object *progress;
@@ -45,11 +41,9 @@ struct _Ephoto_Thumb_Browser
    Eina_List *cut_items;
    Eina_List *copy_items;
    Eina_List *handlers;
-   Eina_List *idler_pos;
    Eina_List *todo_items;
    Eina_List *entries;
    Eina_List *searchentries;
-   Ecore_Idler *idler;
    Ecore_Job *change_dir_job;
    Ecore_Timer *click_timer;
    Eina_Bool thumbs_only;
@@ -58,7 +52,6 @@ struct _Ephoto_Thumb_Browser
    double totsize_old;
    int totimages;
    int totimages_old;
-   int file_errors;
    Eina_Bool dragging;
    Eina_Bool searching;
    Eina_Bool processing;
@@ -541,21 +534,14 @@ _monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
      {
         if (!ecore_file_is_dir(path))
           return;
-        item = elm_genlist_first_item_get(entry->genlist);
-        while (item)
-          {
-             e = elm_object_item_data_get(item);
-             if (!strcmp(e->path, path))
-               return;
-             item = elm_genlist_item_next_get(item);
-          }
+        if (ephoto_entry_exists(entry->ephoto, path))
+          return;
+ 
         if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_TREE &&
             elm_genlist_item_expanded_get(entry->item) == EINA_TRUE)
           {
              ic = &_ephoto_dir_class;
              snprintf(buf, PATH_MAX, "%s", path);
-             if (ephoto_entry_exists(entry->ephoto, path))
-               return;
              e = ephoto_entry_new(entry->ephoto, path, basename(buf),
                  EINA_FILE_DIR);
              e->genlist = entry->genlist;
@@ -593,6 +579,7 @@ _monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
              if (!strcmp(e->path, path))
                {
                   elm_object_item_del(e->item);
+                  //if (!strcmp(e->path, e->ephoto->config->directory))
                   break;
                }
              item = elm_genlist_item_next_get(item);
@@ -1035,14 +1022,6 @@ _zoom_set(Ephoto_Thumb_Browser *tb, int zoom)
       zoom = ZOOM_MIN;
    ephoto_thumb_size_set(tb->ephoto, zoom);
    elm_gengrid_item_size_set(tb->grid, zoom * scale, zoom * scale);
-   if (zoom >= ZOOM_MAX)
-      elm_object_disabled_set(tb->max, EINA_TRUE);
-   if (zoom > ZOOM_MIN)
-      elm_object_disabled_set(tb->min, EINA_FALSE);
-   if (zoom <= ZOOM_MIN)
-      elm_object_disabled_set(tb->min, EINA_TRUE);
-   if (zoom < ZOOM_MAX)
-      elm_object_disabled_set(tb->max, EINA_FALSE);
 }
 
 static void
@@ -1203,12 +1182,8 @@ _ephoto_dir_show_folders(void *data, Evas_Object *obj EINA_UNUSED,
    elm_table_pack(tb->table, tb->leftbox, 0, 0, 1, 1);
    elm_table_unpack(tb->table, tb->nolabel);
    elm_table_pack(tb->table, tb->nolabel, 1, 0, 4, 1);
-
    elm_table_unpack(tb->table, tb->gridbox);
    elm_table_pack(tb->table, tb->gridbox, 1, 0, 4, 1);
-   elm_object_item_del(tb->ficon);
-   tb->ficon = elm_toolbar_item_prepend(tb->bar, "system-file-manager",
-       _("Folders"), _ephoto_dir_hide_folders, tb);
    tb->ephoto->config->fsel_hide = 0;
 }
 
@@ -1224,872 +1199,8 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED,
    elm_table_pack(tb->table, tb->nolabel, 0, 0, 5, 1);
    elm_table_unpack(tb->table, tb->gridbox);
    elm_table_pack(tb->table, tb->gridbox, 0, 0, 5, 1);
-   elm_object_item_del(tb->ficon);
-   tb->ficon = elm_toolbar_item_prepend(tb->bar, "system-file-manager",
-       _("Folders"), _ephoto_dir_show_folders, tb);
    elm_object_focus_set(tb->main, EINA_TRUE);
    tb->ephoto->config->fsel_hide = 1;
-}
-
-static void
-_complete_ok(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-
-   evas_object_del(popup);
-   evas_object_freeze_events_set(tb->main, EINA_FALSE);
-   elm_object_focus_set(tb->main, EINA_TRUE);
-}
-
-static void
-_complete(Ephoto_Thumb_Browser *tb, const char *title, const char *text)
-{
-   Evas_Object *popup, *box, *label, *ic, *button;
-
-   evas_object_freeze_events_set(tb->main, EINA_TRUE);
-
-   popup = elm_popup_add(tb->ephoto->win);
-   elm_object_part_text_set(popup, "title,text", title);
-   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
-
-   box = elm_box_add(popup);
-   elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_show(box);
-
-   label = elm_label_add(box);
-   elm_object_text_set(label, text);
-   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, label);
-   evas_object_show(label);
-
-   ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "window-close");
-
-   button = elm_button_add(popup);
-   elm_object_text_set(button, _("Ok"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _complete_ok, popup);
-   elm_object_part_content_set(popup, "button1", button);
-   evas_object_show(button);
-
-   evas_object_data_set(popup, "thumb_browser", tb);
-   elm_object_part_content_set(popup, "default", box);
-   evas_object_show(popup);
-}
-
-static Evas_Object *
-_processing(Ephoto_Thumb_Browser *tb, const char *title, const char *text)
-{
-   Evas_Object *popup, *box, *label, *pb;
-
-   evas_object_freeze_events_set(tb->main, EINA_TRUE);
-
-   popup = elm_popup_add(tb->ephoto->win);
-   elm_object_part_text_set(popup, "title,text", title);
-   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
-
-   box = elm_box_add(popup);
-   elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_show(box);
-
-   label = elm_label_add(box);
-   elm_object_text_set(label, text);
-   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, label);
-   evas_object_show(label);
-
-   pb = elm_progressbar_add(box);
-   evas_object_size_hint_weight_set(pb, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_align_set(pb, EVAS_HINT_FILL, 0.5);
-   elm_object_style_set(pb, "wheel");
-   elm_progressbar_pulse_set(pb, EINA_TRUE);
-   elm_box_pack_end(box, pb);
-   evas_object_show(pb);
-   elm_progressbar_pulse(pb, EINA_TRUE);
-
-   evas_object_data_set(popup, "thumb_browser", tb);
-   elm_object_part_content_set(popup, "default", box);
-   return popup;
-}
-
-static Eina_Bool
-_move_idler_cb(void *data)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-   const char *destination = evas_object_data_get(popup, "destination");
-   const char *file;
-   int i;
-
-   if (!tb->idler_pos)
-      tb->idler_pos = eina_list_nth(tb->idler_pos, 0);
-   if (!tb->idler_pos)
-     {
-	ecore_idler_del(tb->idler);
-	tb->idler = NULL;
-	eina_list_free(tb->idler_pos);
-	tb->idler_pos = NULL;
-	if (tb->file_errors > 0)
-	  {
-	     char msg[PATH_MAX];
-
-	     snprintf(msg, PATH_MAX, "%s %d %s.",
-		 _("There was an error moving"), tb->file_errors,
-		 ngettext("file", "files", tb->file_errors));
-	     _complete(tb, _("Error"), msg);
-	  }
-        tb->file_errors = 0;
-	evas_object_del(popup);
-        evas_object_freeze_events_set(tb->main, EINA_FALSE);
-        elm_object_focus_set(tb->main, EINA_TRUE);
-	return EINA_FALSE;
-     }
-   for (i = 0; i < 5; i++)
-     {
-	file = eina_list_data_get(tb->idler_pos);
-	if (!file)
-	   break;
-	if (ecore_file_exists(file) && ecore_file_is_dir(destination) &&
-	    evas_object_image_extension_can_load_get(file))
-	  {
-	     char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
-	     int ret;
-
-	     snprintf(fp, PATH_MAX, "%s", file);
-	     snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
-	     if (ecore_file_exists(dest))
-	       {
-		  snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
-		      basename(fp));
-		  if (ecore_file_exists(extra))
-		    {
-		       int count;
-
-		       for (count = 2; ecore_file_exists(extra); count++)
-			 {
-			    memset(extra, 0, sizeof(extra));
-			    snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
-				destination, count, basename(fp));
-			 }
-		    }
-		  ret = ecore_file_mv(file, extra);
-	       }
-             else
-               ret = ecore_file_mv(file, dest);
-	     if (!ret)
-               tb->file_errors++;
-	  }
-	tb->idler_pos = eina_list_next(tb->idler_pos);
-     }
-   return EINA_TRUE;
-}
-
-static void
-_move_files(Ephoto_Thumb_Browser *tb, Eina_List *files,
-    const char *destination)
-{
-   Evas_Object *popup = _processing(tb, _("Moving Files"),
-       _("Please wait while your files are moved."));
-
-   evas_object_data_set(popup, "thumb_browser", tb);
-   evas_object_data_set(popup, "destination", destination);
-   evas_object_show(popup);
-
-   tb->idler_pos = eina_list_clone(files);
-   eina_list_free(files);
-   if (!tb->idler)
-      tb->idler = ecore_idler_add(_move_idler_cb, popup);
-}
-
-static Eina_Bool
-_copy_idler_cb(void *data)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-   const char *destination = evas_object_data_get(popup, "destination");
-   const char *file;
-   int i;
-
-   if (!tb->idler_pos)
-      tb->idler_pos = eina_list_nth(tb->idler_pos, 0);
-   if (!tb->idler_pos)
-     {
-	ecore_idler_del(tb->idler);
-	tb->idler = NULL;
-	eina_list_free(tb->idler_pos);
-	tb->idler_pos = NULL;
-	if (tb->file_errors > 0)
-	  {
-	     char msg[PATH_MAX];
-
-	     snprintf(msg, PATH_MAX, "%s %d %s.",
-		 _("There was an error copying"), tb->file_errors,
-		 ngettext("file", "files", tb->file_errors));
-	     _complete(tb, _("Error"), msg);
-	  }
-	tb->file_errors = 0;
-	tb->thumbs_only = 1;
-        if (strcmp(destination, tb->ephoto->config->directory))
-          {
-             evas_object_del(popup);
-             evas_object_freeze_events_set(tb->main, EINA_FALSE);
-             elm_object_focus_set(tb->main, EINA_TRUE);
-
-             return EINA_FALSE;
-          }
-	evas_object_del(popup);
-        evas_object_freeze_events_set(tb->main, EINA_FALSE);
-        elm_object_focus_set(tb->main, EINA_TRUE);
-
-	return EINA_FALSE;
-     }
-   for (i = 0; i < 5; i++)
-     {
-	file = eina_list_data_get(tb->idler_pos);
-	if (!file)
-	   break;
-	if (ecore_file_exists(file) && ecore_file_is_dir(destination) &&
-	    evas_object_image_extension_can_load_get(file))
-	  {
-	     char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
-	     int ret;
-
-	     snprintf(fp, PATH_MAX, "%s", file);
-	     snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
-	     if (ecore_file_exists(dest))
-	       {
-		  snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
-		      basename(fp));
-		  if (ecore_file_exists(extra))
-		    {
-		       int count;
-
-		       for (count = 2; ecore_file_exists(extra); count++)
-			 {
-			    memset(extra, 0, PATH_MAX);
-			    snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
-				destination, count, basename(fp));
-			 }
-		    }
-		  ret = ecore_file_cp(file, extra);
-	       }
-             else
-               ret = ecore_file_cp(file, dest);
-	     if (!ret)
-		tb->file_errors++;
-	  }
-	tb->idler_pos = eina_list_next(tb->idler_pos);
-     }
-   return EINA_TRUE;
-}
-
-static void
-_copy_files(Ephoto_Thumb_Browser *tb, Eina_List *files,
-    const char *destination)
-{
-   Evas_Object *popup = _processing(tb, _("Copying Files"),
-       _("Please wait while your files are copied."));
-
-   evas_object_data_set(popup, "thumb_browser", tb);
-   evas_object_data_set(popup, "destination", destination);
-   evas_object_show(popup);
-
-   tb->idler_pos = eina_list_clone(files);
-   eina_list_free(files);
-   if (!tb->idler)
-      tb->idler = ecore_idler_add(_copy_idler_cb, popup);
-}
-
-static void
-_new_dir_confirm(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_data EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Evas_Object *entry = evas_object_data_get(popup, "entry");
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-   const char *file = evas_object_data_get(popup, "file");
-   const char *text = elm_object_text_get(entry);
-   char new_file_name[PATH_MAX];
-   int ret;
-
-   snprintf(new_file_name, PATH_MAX, "%s/%s", file, text);
-   ret = ecore_file_mkdir(new_file_name);
-   if (!ret)
-     {
-        _complete(tb, _("Error"),
-            _("There was an error creating this directory."));
-     }
-   evas_object_del(popup);
-   evas_object_freeze_events_set(tb->main, EINA_FALSE);
-   elm_object_focus_set(tb->main, EINA_TRUE);
-}
-
-static void
-_new_dir_cancel(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_data EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-
-   evas_object_del(popup);
-   evas_object_freeze_events_set(tb->main, EINA_FALSE);
-   elm_object_focus_set(tb->main, EINA_TRUE);
-}
-
-static void
-_new_dir(Ephoto_Thumb_Browser *tb, const char *file)
-{
-   Evas_Object *popup, *box, *entry, *button, *ic;
-
-   evas_object_freeze_events_set(tb->main, EINA_TRUE);
-
-   popup = elm_popup_add(tb->ephoto->win);
-   elm_object_part_text_set(popup, "title,text", _("New Directory"));
-   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
-   evas_object_data_set(popup, "thumb_browser", tb);
-   evas_object_data_set(popup, "file", file);
-
-   box = elm_box_add(popup);
-   elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_show(box);
-
-   entry = elm_entry_add(box);
-   elm_entry_single_line_set(entry, EINA_TRUE);
-   elm_entry_scrollable_set(entry, EINA_TRUE);
-   elm_entry_editable_set(entry, EINA_TRUE);
-   elm_object_text_set(entry, _("New Directory"));
-   elm_entry_select_all(entry);
-   elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF,
-       ELM_SCROLLER_POLICY_OFF);
-   evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, entry);
-   evas_object_show(entry);
-   evas_object_data_set(popup, "entry", entry);
-
-   ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "document-save");
-
-   button = elm_button_add(popup);
-   elm_object_text_set(button, _("Save"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _new_dir_confirm, popup);
-   elm_object_part_content_set(popup, "button1", button);
-   evas_object_show(button);
-
-   ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "window-close");
-
-   button = elm_button_add(popup);
-   elm_object_text_set(button, _("Cancel"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _new_dir_cancel, popup);
-   elm_object_part_content_set(popup, "button2", button);
-   evas_object_show(button);
-
-   elm_object_part_content_set(popup, "default", box);
-   evas_object_show(popup);
-}
-
-static void
-_rename_confirm(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_data EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Evas_Object *entry = evas_object_data_get(popup, "entry");
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-   const char *file = evas_object_data_get(popup, "file");
-   const char *text = elm_object_text_get(entry);
-   char *escaped = ecore_file_escape_name(text);
-   char new_file_name[PATH_MAX], dir[PATH_MAX];
-   int ret;
-
-   if (!escaped)
-     {
-	evas_object_del(popup);
-        evas_object_freeze_events_set(tb->main, EINA_FALSE);
-        elm_object_focus_set(tb->main, EINA_TRUE);
-	return;
-     }
-   snprintf(dir, PATH_MAX, "%s", file);
-   if (ecore_file_is_dir(file))
-     snprintf(new_file_name, PATH_MAX, "%s/%s", ecore_file_dir_get(dir), text);
-   else
-     snprintf(new_file_name, PATH_MAX, "%s/%s.%s", ecore_file_dir_get(dir), escaped,
-         strrchr(dir, '.')+1);
-   ret = ecore_file_mv(file, new_file_name);
-   if (!ret)
-     {
-        if (ecore_file_is_dir(new_file_name))
-          _complete(tb, _("Error"),
-              _("There was an error renaming this directory."));
-        else
-          _complete(tb, _("Error"),
-              _("There was an error renaming this file."));
-     }
-   evas_object_del(popup);
-   evas_object_freeze_events_set(tb->main, EINA_FALSE);
-   elm_object_focus_set(tb->main, EINA_TRUE);
-   free(escaped);
-}
-
-static void
-_rename_cancel(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_data EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-
-   evas_object_del(popup);
-   evas_object_freeze_events_set(tb->main, EINA_FALSE);
-   elm_object_focus_set(tb->main, EINA_TRUE);
-}
-
-static void
-_rename_file(Ephoto_Thumb_Browser *tb, const char *file)
-{
-   Evas_Object *popup, *box, *entry, *button, *ic;
-   char buf[PATH_MAX], *bn, *string;
-
-   evas_object_freeze_events_set(tb->main, EINA_TRUE);
-
-   popup = elm_popup_add(tb->ephoto->win);
-   if (ecore_file_is_dir(file))
-     elm_object_part_text_set(popup, "title, text", _("Rename Directory"));
-   else
-     elm_object_part_text_set(popup, "title,text", _("Rename File"));
-   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
-   evas_object_data_set(popup, "thumb_browser", tb);
-   evas_object_data_set(popup, "file", file);
-
-   box = elm_box_add(popup);
-   elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_show(box);
-
-   snprintf(buf, PATH_MAX, "%s", file);
-   bn = basename(buf);
-   string = ecore_file_strip_ext(bn);
-
-   entry = elm_entry_add(box);
-   elm_entry_single_line_set(entry, EINA_TRUE);
-   elm_entry_scrollable_set(entry, EINA_TRUE);
-   elm_entry_editable_set(entry, EINA_TRUE);
-   elm_object_text_set(entry, string);
-   elm_entry_select_all(entry);
-   elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF,
-       ELM_SCROLLER_POLICY_OFF);
-   evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, entry);
-   evas_object_show(entry);
-   evas_object_data_set(popup, "entry", entry);
-
-   free(string);
-
-   ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "document-save");
-
-   button = elm_button_add(popup);
-   elm_object_text_set(button, _("Rename"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _rename_confirm, popup);
-   elm_object_part_content_set(popup, "button1", button);
-   evas_object_show(button);
-
-   ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "window-close");
-
-   button = elm_button_add(popup);
-   elm_object_text_set(button, _("Cancel"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _rename_cancel, popup);
-   elm_object_part_content_set(popup, "button2", button);
-   evas_object_show(button);
-
-   elm_object_part_content_set(popup, "default", box);
-   evas_object_show(popup);
-}
-
-static Eina_Bool
-_delete_idler_cb(void *data)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-   const char *file;
-   char destination[PATH_MAX];
-   int i;
-
-   snprintf(destination, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
-
-   if (!ecore_file_exists(destination))
-      ecore_file_mkpath(destination);
-
-   if (!tb->idler_pos)
-      tb->idler_pos = eina_list_nth(tb->idler_pos, 0);
-   if (!tb->idler_pos)
-     {
-	ecore_idler_del(tb->idler);
-	tb->idler = NULL;
-	eina_list_free(tb->idler_pos);
-	tb->idler_pos = NULL;
-	if (tb->file_errors > 0)
-	  {
-	     char msg[PATH_MAX];
-
-	     snprintf(msg, PATH_MAX, "%s %d %s.",
-		 _("There was an error deleting"), tb->file_errors,
-		 ngettext("file", "files", tb->file_errors));
-	     _complete(tb, _("Error"), msg);
-	  }
-	ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
-
-	evas_object_del(popup);
-        evas_object_freeze_events_set(tb->main, EINA_FALSE);
-        elm_object_focus_set(tb->main, EINA_TRUE);
-
-	return EINA_FALSE;
-     }
-   for (i = 0; i < 5; i++)
-     {
-	file = eina_list_data_get(tb->idler_pos);
-	if (!file)
-	   break;
-	if (ecore_file_exists(file) && ecore_file_is_dir(destination))
-	  {
-	     char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
-	     int ret;
-
-	     snprintf(fp, PATH_MAX, "%s", file);
-	     snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
-	     if (ecore_file_exists(dest))
-	       {
-		  snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
-		      basename(fp));
-		  if (ecore_file_exists(extra))
-		    {
-		       int count;
-
-		       for (count = 2; ecore_file_exists(extra); count++)
-			 {
-			    memset(extra, 0, sizeof(extra));
-			    snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
-				destination, count, basename(fp));
-			 }
-		    }
-		  ret = ecore_file_mv(file, extra);
-	       }
-             else
-	       ret = ecore_file_mv(file, dest);
-	     if (!ret)
-		tb->file_errors++;
-	  }
-	tb->idler_pos = eina_list_next(tb->idler_pos);
-     }
-   return EINA_TRUE;
-}
-
-static void
-_delete_files(Ephoto_Thumb_Browser *tb, Eina_List *files)
-{
-   Evas_Object *popup = _processing(tb, _("Deleting Files"),
-       _("Please wait while your files are deleted."));
-
-   evas_object_data_set(popup, "thumb_browser", tb);
-   evas_object_data_set(popup, "files", files);
-   evas_object_show(popup);
-
-   tb->idler_pos = eina_list_clone(files);
-   eina_list_free(files);
-   if (!tb->idler)
-      tb->idler = ecore_idler_add(_delete_idler_cb, popup);
-}
-
-static Eina_Bool
-_delete_dir_idler_cb(void *data)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-   const char *dir = evas_object_data_get(popup, "path");
-   char destination[PATH_MAX];
-
-   snprintf(destination, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
-
-   if (!ecore_file_exists(destination))
-      ecore_file_mkpath(destination);
-
-   if (dir)
-     {
-        char fp[PATH_MAX], dest[PATH_MAX], extra[PATH_MAX];
-        int ret;
-
-        snprintf(fp, PATH_MAX, "%s", dir);
-        snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
-        if (ecore_file_exists(dir) && ecore_file_is_dir(destination))
-          {
-             if (ecore_file_exists(dest))
-               {
-                  snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
-                      basename(fp));
-                  if (ecore_file_exists(extra))
-                    {
-                       int count;
-                       for (count = 2; ecore_file_exists(extra); count++)
-                         {
-                            memset(extra, 0, sizeof(extra));
-                            snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
-                                destination, count, basename(fp));
-                         }
-                     }
-                  ret = ecore_file_mv(dir, extra);
-               }
-             else
-               ret = ecore_file_mv(dir, dest);
-             if (!ret)
-                tb->file_errors++;
-          }
-     }
-   if (!dir || tb->file_errors > 0)
-     {
-        char msg[PATH_MAX];
-
-        snprintf(msg, PATH_MAX, "%s.",
-            _("There was an error deleting this directory"));
-        _complete(tb, _("Error"), msg);
-     }
-   ecore_idler_del(tb->idler);
-   tb->idler = NULL;
-   eina_list_free(tb->idler_pos);
-
-   tb->file_errors = 0;
-
-   evas_object_del(popup);
-   evas_object_freeze_events_set(tb->main, EINA_FALSE);
-   elm_object_focus_set(tb->main, EINA_TRUE);
-
-   return EINA_FALSE;
-}
-
-static void
-_delete_dir(Ephoto_Thumb_Browser *tb, const char *path)
-{
-   Evas_Object *popup = _processing(tb, _("Deleting Directory"),
-       _("Please wait while your directory is deleted."));
-
-   evas_object_data_set(popup, "thumb_browser", tb);
-   evas_object_data_set(popup, "path", path);
-   evas_object_show(popup);
-
-   tb->idler_pos = NULL;
-   if (!tb->idler)
-      tb->idler = ecore_idler_add(_delete_dir_idler_cb, popup);
-}
-
-static Eina_Bool
-_empty_trash_idler_cb(void *data)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-   const char *file;
-   char trash[PATH_MAX];
-   int i = 0;
-
-   snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
-
-   if (!tb->idler_pos)
-      tb->idler_pos = eina_list_nth(tb->idler_pos, 0);
-   if (!tb->idler_pos)
-     {
-	ecore_idler_del(tb->idler);
-	tb->idler = NULL;
-	eina_list_free(tb->idler_pos);
-	tb->idler_pos = NULL;
-	if (tb->file_errors > 0)
-	  {
-	     char msg[PATH_MAX];
-
-	     snprintf(msg, PATH_MAX, "%s %d %s.",
-		 _("There was an error deleting"), tb->file_errors,
-		 ngettext("file", "files", tb->file_errors));
-	     _complete(tb, _("Error"), msg);
-	  }
-        tb->file_errors = 0;
-
-	evas_object_del(popup);
-        evas_object_freeze_events_set(tb->main, EINA_FALSE);
-        elm_object_focus_set(tb->main, EINA_TRUE);
-
-	return EINA_FALSE;
-     }
-   for (i = 0; i < 5; i++)
-     {
-	file = eina_list_data_get(tb->idler_pos);
-	if (!file)
-	   break;
-	if (ecore_file_exists(file))
-	  {
-	     int ret;
-
-             if (ecore_file_is_dir(file))
-               ret = ecore_file_recursive_rm(file);
-             else
-	       ret = ecore_file_unlink(file);
-	     if (!ret)
-		tb->file_errors++;
-	  }
-	tb->idler_pos = eina_list_next(tb->idler_pos);
-     }
-   return EINA_TRUE;
-}
-
-static void
-_empty_trash(Ephoto_Thumb_Browser *tb, Eina_List *files)
-{
-   Evas_Object *popup = _processing(tb, _("Emptying Trash"),
-       _("Please wait while your files are deleted."));
-
-   evas_object_data_set(popup, "thumb_browser", tb);
-   evas_object_show(popup);
-
-   tb->idler_pos = eina_list_clone(files);
-   eina_list_free(files);
-   if (!tb->idler)
-      tb->idler = ecore_idler_add(_empty_trash_idler_cb, popup);
-}
-
-static void
-_prompt_empty_apply(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-   Eina_List *files = evas_object_data_get(popup, "files");
-
-   evas_object_del(popup);
-   evas_object_freeze_events_set(tb->main, EINA_FALSE);
-   elm_object_focus_set(tb->main, EINA_TRUE);
-   _empty_trash(tb, files);
-}
-
-static void
-_prompt_delete_apply(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-   Eina_List *files = evas_object_data_get(popup, "files");
-
-   evas_object_del(popup);
-   evas_object_freeze_events_set(tb->main, EINA_FALSE);
-   elm_object_focus_set(tb->main, EINA_TRUE);
-   _delete_files(tb, files);
-}
-
-static void
-_prompt_delete_dir_apply(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-   const char *path = evas_object_data_get(popup, "path");
-
-   evas_object_del(popup);
-   evas_object_freeze_events_set(tb->main, EINA_FALSE);
-   elm_object_focus_set(tb->main, EINA_TRUE);
-   _delete_dir(tb, path);
-}
-
-static void
-_prompt_move_apply(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-   Eina_List *files = evas_object_data_get(popup, "files");
-   const char *path = evas_object_data_get(popup, "path");
-
-   evas_object_del(popup);
-   evas_object_freeze_events_set(tb->main, EINA_FALSE);
-   elm_object_focus_set(tb->main, EINA_TRUE);
-   _move_files(tb, files, path);
-}
-
-static void
-_prompt_copy_apply(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-   Eina_List *files = evas_object_data_get(popup, "files");
-   const char *path = evas_object_data_get(popup, "path");
-
-   evas_object_del(popup);
-   evas_object_freeze_events_set(tb->main, EINA_FALSE);
-   elm_object_focus_set(tb->main, EINA_TRUE);
-   _copy_files(tb, files, path);
-}
-
-static void
-_prompt_cancel(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(popup, "thumb_browser");
-
-   evas_object_del(popup);
-   evas_object_freeze_events_set(tb->main, EINA_FALSE);
-   elm_object_focus_set(tb->main, EINA_TRUE);
-}
-
-static Evas_Object *
-_prompt(Ephoto_Thumb_Browser *tb, const char *title, const char *text)
-{
-   Evas_Object *popup, *box, *label;
-
-   evas_object_freeze_events_set(tb->main, EINA_TRUE);
-
-   popup = elm_popup_add(tb->ephoto->win);
-   elm_object_part_text_set(popup, "title,text", title);
-   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
-
-   box = elm_box_add(popup);
-   elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_show(box);
-
-   label = elm_label_add(box);
-   elm_object_text_set(label, text);
-   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, label);
-   evas_object_show(label);
-
-   evas_object_data_set(popup, "thumb_browser", tb);
-   elm_object_part_content_set(popup, "default", box);
-
-   return popup;
 }
 
 static char *
@@ -2174,61 +1285,10 @@ _drop_dropcb(void *data EINA_UNUSED, Evas_Object *obj, Elm_Object_Item *it,
      }
    free(dd);
 
-   if (tb->ephoto->config->prompts)
-     {
-	Evas_Object *ic, *button;
-	Evas_Object *popup;
-	char drop_dir[PATH_MAX];
-
-	snprintf(drop_dir, PATH_MAX, "%s:<br> %s?",
-	    _("Are you sure you want to drop these files in"), path);
-
-	popup = _prompt(tb, _("Drop Files"), drop_dir);
-
-	ic = elm_icon_add(popup);
-	elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-	    1);
-	elm_icon_standard_set(ic, "document-save");
-
-	button = elm_button_add(popup);
-	elm_object_text_set(button, _("Yes"));
-	elm_object_part_content_set(button, "icon", ic);
-	if (tb->ephoto->config->move_drop)
-	   evas_object_smart_callback_add(button, "clicked",
-	       _prompt_move_apply, popup);
-	else
-	   evas_object_smart_callback_add(button, "clicked",
-	       _prompt_copy_apply, popup);
-	elm_object_part_content_set(popup, "button1", button);
-	evas_object_show(button);
-
-	ic = elm_icon_add(popup);
-	elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-	    1);
-	elm_icon_standard_set(ic, "window-close");
-
-	button = elm_button_add(popup);
-	elm_object_text_set(button, _("No"));
-	elm_object_part_content_set(button, "icon", ic);
-	evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-	    popup);
-	elm_object_part_content_set(popup, "button2", button);
-	evas_object_show(button);
-
-	evas_object_data_set(popup, "files", files);
-	evas_object_data_set(popup, "path", path);
-
-	evas_object_show(popup);
-     }
+   if (tb->ephoto->config->move_drop)
+     ephoto_file_move(tb->ephoto, files, path);
    else
-     {
-	if (tb->ephoto->config->move_drop)
-	   _move_files(tb, files, path);
-	else
-	   _copy_files(tb, files, path);
-     }
+     ephoto_file_copy(tb->ephoto, files, path);
    if (tb->dir_current)
      elm_genlist_item_selected_set(tb->dir_current, EINA_TRUE);
    return EINA_TRUE;
@@ -2444,7 +1504,7 @@ _fsel_menu_new_dir_cb(void *data, Evas_Object *obj EINA_UNUSED,
      path = tb->ephoto->config->directory;
    if (!path)
      return;
-   _new_dir(tb, path);
+   ephoto_file_new_dir(tb->ephoto, path);
 }
 
 static void
@@ -2560,107 +1620,13 @@ _fsel_menu_paste_cb(void *data, Evas_Object *obj EINA_UNUSED,
 
    if (eina_list_count(tb->cut_items) > 0)
      {
-        if (tb->ephoto->config->prompts)
-          {
-             Evas_Object *ic, *button;
-             Evas_Object *popup;
-
-             popup =
-                 _prompt(tb, _("Move Files"),
-                 _("Are you sure you want to move these files here?"));
-
-             ic = elm_icon_add(popup);
-             elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-             evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-                 1, 1);
-             elm_icon_standard_set(ic, "document-save");
-
-             button = elm_button_add(popup);
-             elm_object_text_set(button, _("Yes"));
-             elm_object_part_content_set(button, "icon", ic);
-             evas_object_smart_callback_add(button, "clicked",
-                 _prompt_move_apply, popup);
-             elm_object_part_content_set(popup, "button1", button);
-             evas_object_show(button);
-
-             ic = elm_icon_add(popup);
-             elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-             evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-                 1, 1);
-             elm_icon_standard_set(ic, "window-close");
-
-             button = elm_button_add(popup);
-             elm_object_text_set(button, _("No"));
-             elm_object_part_content_set(button, "icon", ic);
-             evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-                 popup);
-             elm_object_part_content_set(popup, "button2", button);
-             evas_object_show(button);
-
-             evas_object_data_set(popup, "files",
-                 eina_list_clone(tb->cut_items));
-             evas_object_data_set(popup, "path", path);
-
-             evas_object_show(popup);
-          }
-        else
-          {
-             _move_files(tb, eina_list_clone(tb->cut_items),
-                 path);
-          }
+        ephoto_file_paste(tb->ephoto, eina_list_clone(tb->cut_items), EINA_FALSE, path);
         eina_list_free(tb->cut_items);
         tb->cut_items = NULL;
      }
    else if (eina_list_count(tb->copy_items) > 0)
      {
-        if (tb->ephoto->config->prompts)
-          {
-             Evas_Object *ic, *button;
-             Evas_Object *popup;
-
-             popup =
-                 _prompt(tb, _("Paste Files"),
-                 _("Are you sure you want to paste these files here?"));
-
-             ic = elm_icon_add(popup);
-             elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-             evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-                 1, 1);
-             elm_icon_standard_set(ic, "document-save");
-
-             button = elm_button_add(popup);
-             elm_object_text_set(button, _("Yes"));
-             elm_object_part_content_set(button, "icon", ic);
-             evas_object_smart_callback_add(button, "clicked",
-                 _prompt_copy_apply, popup);
-             elm_object_part_content_set(popup, "button1", button);
-             evas_object_show(button);
-
-             ic = elm_icon_add(popup);
-             elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-             evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-                 1, 1);
-             elm_icon_standard_set(ic, "window-close");
-
-             button = elm_button_add(popup);
-             elm_object_text_set(button, _("No"));
-             elm_object_part_content_set(button, "icon", ic);
-             evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-                 popup);
-             elm_object_part_content_set(popup, "button2", button);
-             evas_object_show(button);
-
-             evas_object_data_set(popup, "files",
-                 eina_list_clone(tb->copy_items));
-             evas_object_data_set(popup, "path", path);
-
-             evas_object_show(popup);
-          }
-        else
-          {
-             _copy_files(tb, eina_list_clone(tb->copy_items),
-                 path);
-          }
+        ephoto_file_paste(tb->ephoto, eina_list_clone(tb->copy_items), EINA_TRUE, path);
         eina_list_free(tb->copy_items);
         tb->copy_items = NULL;
      }
@@ -2674,111 +1640,17 @@ _grid_menu_paste_cb(void *data, Evas_Object *obj EINA_UNUSED,
 
    if (eina_list_count(tb->cut_items) > 0)
      {
-	if (tb->ephoto->config->prompts)
-	  {
-	     Evas_Object *ic, *button;
-	     Evas_Object *popup;
-
-	     popup =
-		 _prompt(tb, _("Move Files"),
-		 _("Are you sure you want to move these files here?"));
-
-	     ic = elm_icon_add(popup);
-	     elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-	     evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-		 1, 1);
-	     elm_icon_standard_set(ic, "document-save");
-
-	     button = elm_button_add(popup);
-	     elm_object_text_set(button, _("Yes"));
-	     elm_object_part_content_set(button, "icon", ic);
-	     evas_object_smart_callback_add(button, "clicked",
-		 _prompt_move_apply, popup);
-	     elm_object_part_content_set(popup, "button1", button);
-	     evas_object_show(button);
-
-	     ic = elm_icon_add(popup);
-	     elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-	     evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-		 1, 1);
-	     elm_icon_standard_set(ic, "window-close");
-
-	     button = elm_button_add(popup);
-	     elm_object_text_set(button, _("No"));
-	     elm_object_part_content_set(button, "icon", ic);
-	     evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-		 popup);
-	     elm_object_part_content_set(popup, "button2", button);
-	     evas_object_show(button);
-
-	     evas_object_data_set(popup, "files",
-		 eina_list_clone(tb->cut_items));
-	     evas_object_data_set(popup, "path",
-	         tb->ephoto->config->directory);
-
-	     evas_object_show(popup);
-	  }
-        else
-	  {
-	     _move_files(tb, eina_list_clone(tb->cut_items),
-		 tb->ephoto->config->directory);
-	  }
-	eina_list_free(tb->cut_items);
-	tb->cut_items = NULL;
+        ephoto_file_paste(tb->ephoto, eina_list_clone(tb->cut_items), EINA_FALSE,
+            tb->ephoto->config->directory);
+        eina_list_free(tb->cut_items);
+        tb->cut_items = NULL;
      }
    else if (eina_list_count(tb->copy_items) > 0)
      {
-	if (tb->ephoto->config->prompts)
-	  {
-	     Evas_Object *ic, *button;
-	     Evas_Object *popup;
-
-	     popup =
-		 _prompt(tb, _("Paste Files"),
-		 _("Are you sure you want to paste these files here?"));
-
-	     ic = elm_icon_add(popup);
-	     elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-	     evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-		 1, 1);
-	     elm_icon_standard_set(ic, "document-save");
-
-	     button = elm_button_add(popup);
-	     elm_object_text_set(button, _("Yes"));
-	     elm_object_part_content_set(button, "icon", ic);
-	     evas_object_smart_callback_add(button, "clicked",
-		 _prompt_copy_apply, popup);
-	     elm_object_part_content_set(popup, "button1", button);
-	     evas_object_show(button);
-
-	     ic = elm_icon_add(popup);
-	     elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-	     evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-		 1, 1);
-	     elm_icon_standard_set(ic, "window-close");
-
-	     button = elm_button_add(popup);
-	     elm_object_text_set(button, _("No"));
-	     elm_object_part_content_set(button, "icon", ic);
-	     evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-		 popup);
-	     elm_object_part_content_set(popup, "button2", button);
-	     evas_object_show(button);
-
-	     evas_object_data_set(popup, "files",
-		 eina_list_clone(tb->copy_items));
-	     evas_object_data_set(popup, "path",
-	         tb->ephoto->config->directory);
-
-	     evas_object_show(popup);
-          }
-        else
-	  {
-	     _copy_files(tb, eina_list_clone(tb->copy_items),
-		 tb->ephoto->config->directory);
-	  }
-	eina_list_free(tb->copy_items);
-	tb->copy_items = NULL;
+        ephoto_file_paste(tb->ephoto, eina_list_clone(tb->copy_items), EINA_TRUE,
+            tb->ephoto->config->directory);
+        eina_list_free(tb->copy_items);
+        tb->copy_items = NULL;
      }
 }
 
@@ -2797,7 +1669,7 @@ _fsel_menu_rename_cb(void *data, Evas_Object *obj EINA_UNUSED,
    path = entry->path;
    if (!path)
      return;
-   _rename_file(tb, path);
+   ephoto_file_rename(tb->ephoto, path);
 }
 
 static void
@@ -2809,7 +1681,7 @@ _grid_menu_rename_cb(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto_Entry *file;
 
    file = elm_object_item_data_get(item);
-   _rename_file(tb, file->path);
+   ephoto_file_rename(tb->ephoto, file->path);
    evas_object_data_del(item, "thumb_browser");
 }
 
@@ -2820,6 +1692,7 @@ _fsel_menu_delete_cb(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto_Thumb_Browser *tb = data;
    Elm_Object_Item *item = elm_genlist_selected_item_get(tb->fsel);
    Ephoto_Entry *entry;
+   Eina_List *files = NULL;
    const char *path;
 
    if (!item)
@@ -2828,51 +1701,8 @@ _fsel_menu_delete_cb(void *data, Evas_Object *obj EINA_UNUSED,
    path = entry->path;
    if (!path)
      return;
-
-   if (tb->ephoto->config->prompts)
-     {
-        Evas_Object *ic, *button;
-        Evas_Object *popup;
-
-        popup =
-            _prompt(tb, _("Delete Directory"),
-            _("Are you sure you want to delete this directory?"));
-
-        ic = elm_icon_add(popup);
-        elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-        evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-            1);
-        elm_icon_standard_set(ic, "document-save");
-
-        button = elm_button_add(popup);
-        elm_object_text_set(button, _("Yes"));
-        elm_object_part_content_set(button, "icon", ic);
-        evas_object_smart_callback_add(button, "clicked",
-            _prompt_delete_dir_apply, popup);
-        elm_object_part_content_set(popup, "button1", button);
-        evas_object_show(button);
-
-        ic = elm_icon_add(popup);
-        elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-        evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-            1);
-        elm_icon_standard_set(ic, "window-close");
-
-        button = elm_button_add(popup);
-        elm_object_text_set(button, _("No"));
-        elm_object_part_content_set(button, "icon", ic);
-        evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-            popup);
-        elm_object_part_content_set(popup, "button2", button);
-        evas_object_show(button);
-        evas_object_data_set(popup, "path", path);
-
-        evas_object_show(popup);
-     }
-   else
-     {
-        _delete_dir(tb, path);
-     }
+   files = eina_list_append(files, path);
+   ephoto_file_delete(tb->ephoto, files, EINA_FILE_DIR);
 }
 
 static void
@@ -2895,50 +1725,7 @@ _grid_menu_delete_cb(void *data, Evas_Object *obj EINA_UNUSED,
         if (ecore_file_exists(file->path))
           paths = eina_list_append(paths, strdup(file->path));
      }
-   if (tb->ephoto->config->prompts)
-     {
-	Evas_Object *ic, *button;
-	Evas_Object *popup;
-
-	popup =
-	    _prompt(tb, _("Delete Files"),
-	    _("Are you sure you want to delete these files?"));
-
-	ic = elm_icon_add(popup);
-	elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-	    1);
-	elm_icon_standard_set(ic, "document-save");
-
-	button = elm_button_add(popup);
-	elm_object_text_set(button, _("Yes"));
-	elm_object_part_content_set(button, "icon", ic);
-	evas_object_smart_callback_add(button, "clicked", _prompt_delete_apply,
-	    popup);
-	elm_object_part_content_set(popup, "button1", button);
-	evas_object_show(button);
-
-	ic = elm_icon_add(popup);
-	elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-	    1);
-	elm_icon_standard_set(ic, "window-close");
-
-	button = elm_button_add(popup);
-	elm_object_text_set(button, _("No"));
-	elm_object_part_content_set(button, "icon", ic);
-	evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-	    popup);
-	elm_object_part_content_set(popup, "button2", button);
-	evas_object_show(button);
-	evas_object_data_set(popup, "files", paths);
-
-	evas_object_show(popup);
-     }
-   else
-     {
-	_delete_files(tb, paths);
-     }
+   ephoto_file_delete(tb->ephoto, paths, EINA_FILE_REG);
    eina_list_free(selection);
 }
 
@@ -2966,50 +1753,7 @@ _grid_menu_empty_cb(void *data, Evas_Object *obj EINA_UNUSED,
      }
    if (eina_list_count(paths) <= 0)
      return;
-   if (tb->ephoto->config->prompts)
-     {
-	Evas_Object *ic, *button;
-	Evas_Object *popup;
-
-	popup =
-	    _prompt(tb, _("Empty Trash"),
-	    _("Are you sure you want to empty the trash?"));
-
-	ic = elm_icon_add(popup);
-	elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-	    1);
-	elm_icon_standard_set(ic, "document-save");
-
-	button = elm_button_add(popup);
-	elm_object_text_set(button, _("Yes"));
-	elm_object_part_content_set(button, "icon", ic);
-	evas_object_smart_callback_add(button, "clicked", _prompt_empty_apply,
-	    popup);
-	elm_object_part_content_set(popup, "button1", button);
-	evas_object_show(button);
-
-	ic = elm_icon_add(popup);
-	elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-	    1);
-	elm_icon_standard_set(ic, "window-close");
-
-	button = elm_button_add(popup);
-	elm_object_text_set(button, _("No"));
-	elm_object_part_content_set(button, "icon", ic);
-	evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-	    popup);
-	elm_object_part_content_set(popup, "button2", button);
-	evas_object_show(button);
-	evas_object_data_set(popup, "files", paths);
-
-	evas_object_show(popup);
-     }
-   else
-     {
-	_empty_trash(tb, paths);
-     }
+   ephoto_file_empty_trash(tb->ephoto, paths);
 }
 
 static void
@@ -3040,7 +1784,7 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 {
    Ephoto_Thumb_Browser *tb = data;
    Evas_Object *menu;
-   Elm_Object_Item *item;
+   Elm_Object_Item *item, *menu_it;
    Evas_Event_Mouse_Up *info = event_info;
    char trash[PATH_MAX];
    int x, y;
@@ -3085,11 +1829,18 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
      return;
 
    snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
+   menu = elm_menu_add(tb->main);
+   elm_menu_move(menu, x, y);
+   menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("View"),
+       NULL, NULL);
+   elm_menu_item_add(menu, menu_it, "system-file-manager", _("Hide Folders"),
+       _ephoto_dir_hide_folders, tb);
+   elm_menu_item_add(menu, menu_it, "media-playback-start", _("Slideshow"),
+       _slideshow, tb);
+   elm_menu_item_separator_add(menu, NULL); 
    if (item && strncmp(tb->ephoto->config->directory, trash, strlen(trash)))
      {
         elm_genlist_item_selected_set(item, EINA_TRUE);
-        menu = elm_menu_add(tb->main);
-        elm_menu_move(menu, x, y);
         elm_menu_item_add(menu, NULL, "folder-new", _("New Folder"),
             _fsel_menu_new_dir_cb, tb);
         if (tb->cut_items || tb->copy_items)
@@ -3099,25 +1850,15 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
             _fsel_menu_rename_cb, tb);
         elm_menu_item_add(menu, NULL, "edit-delete", _("Delete"),
             _fsel_menu_delete_cb, tb);
-        evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-            tb);
-        evas_object_show(menu);
      }
    else if (item && !strncmp(tb->ephoto->config->directory,
        trash, strlen(trash)))
      {
-        menu = elm_menu_add(tb->main);
-        elm_menu_move(menu, x, y);
         elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
              _grid_menu_empty_cb, tb);
-        evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-            tb);
-        evas_object_show(menu);
      }
    else
      {
-        menu = elm_menu_add(tb->main);
-        elm_menu_move(menu, x, y);
         if (strncmp(tb->ephoto->config->directory, trash, strlen(trash)))
           elm_menu_item_add(menu, NULL, "folder-new", _("New Folder"),
               _fsel_menu_new_dir_cb, tb);
@@ -3127,10 +1868,13 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
         if (!strncmp(tb->ephoto->config->directory, trash, strlen(trash)))
           elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
                _grid_menu_empty_cb, tb);
-        evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-            tb);
-        evas_object_show(menu);
      }
+   elm_menu_item_separator_add(menu, NULL);
+   elm_menu_item_add(menu, NULL, "preferences-system", _("Settings"),
+       _settings, tb);
+   evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
+            tb);
+   evas_object_show(menu);
 }
 
 static void
@@ -3138,9 +1882,11 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
     Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto_Thumb_Browser *tb = data;
-   Evas_Object *menu;
+   Evas_Object *menu, *menu_it;
    Elm_Object_Item *item;
    Evas_Event_Mouse_Up *info = event_info;
+   Eina_Bool ctrl = evas_key_modifier_is_set(info->modifiers, "Control");
+   Eina_Bool shift = evas_key_modifier_is_set(info->modifiers, "Shift");
    char trash[PATH_MAX];
    const Eina_List *selected = elm_gengrid_selected_items_get(tb->grid);
    int x, y;
@@ -3150,11 +1896,11 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 
    if (info->button == 1 && item)
      {
-        if (evas_key_modifier_is_set(info->modifiers, "Control"))
+        if (ctrl)
           {
              tb->last_sel = item;
           }
-        else if (evas_key_modifier_is_set(info->modifiers, "Shift"))
+        else if (shift)
           {
              if (tb->last_sel)
                {
@@ -3224,10 +1970,27 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 
    if (item)
       elm_gengrid_item_selected_set(item, EINA_TRUE);
+   menu = elm_menu_add(tb->main);
+   elm_menu_move(menu, x, y);
+   menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("View"),
+       NULL, NULL);
+   if (!tb->ephoto->config->fsel_hide)
+     elm_menu_item_add(menu, menu_it, "system-file-manager", _("Hide Folders"),
+         _ephoto_dir_hide_folders, tb);
+   else
+     elm_menu_item_add(menu, menu_it, "system-file-manager", _("Show Folders"),
+         _ephoto_dir_show_folders, tb);
+   elm_menu_item_add(menu, menu_it, "zoom-in", _("Zoom In"),
+       _zoom_in, tb);
+   elm_menu_item_add(menu, menu_it, "zoom-out", _("Zoom Out"),
+       _zoom_out, tb);
+   elm_menu_item_add(menu, menu_it, "media-playback-start", _("Slideshow"),
+       _slideshow, tb);
+   elm_menu_item_separator_add(menu, NULL);
    if (eina_list_count(selected) > 0 || item)
      {
-	menu = elm_menu_add(tb->main);
-	elm_menu_move(menu, x, y);
+        elm_menu_item_add(menu, NULL, "system-search", _("Search"),
+            _search, tb);
 	elm_menu_item_add(menu, NULL, "edit-select-all", _("Select All"),
 	    _grid_menu_select_all_cb, tb);
 	elm_menu_item_add(menu, NULL, "edit-clear", _("Select None"),
@@ -3251,14 +2014,11 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 	else
 	   elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
 	       _grid_menu_empty_cb, tb);
-	evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-	    tb);
-	evas_object_show(menu);
      }
    else if (tb->cut_items || tb->copy_items)
      {
-	menu = elm_menu_add(tb->main);
-	elm_menu_move(menu, x, y);
+        elm_menu_item_add(menu, NULL, "system-search", _("Search"),
+            _search, tb);
 	elm_menu_item_add(menu, NULL, "edit-select-all", _("Select All"),
 	    _grid_menu_select_all_cb, tb);
 	elm_menu_item_add(menu, NULL, "edit-paste", _("Paste"),
@@ -3266,31 +2026,47 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 	if (!strcmp(tb->ephoto->config->directory, trash))
 	   elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
 	       _grid_menu_empty_cb, tb);
-	evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-	    tb);
-	evas_object_show(menu);
      }
    else if (!strcmp(tb->ephoto->config->directory, trash))
      {
-	menu = elm_menu_add(tb->main);
-	elm_menu_move(menu, x, y);
+        elm_menu_item_add(menu, NULL, "system-search", _("Search"),
+            _search, tb);
 	elm_menu_item_add(menu, NULL, "edit-select-all", _("Select All"),
 	    _grid_menu_select_all_cb, tb);
 	elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
 	    _grid_menu_empty_cb, tb);
-	evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-	    tb);
-	evas_object_show(menu);
      }
    else if (elm_gengrid_first_item_get(tb->grid))
      {
-	menu = elm_menu_add(tb->main);
-	elm_menu_move(menu, x, y);
+        elm_menu_item_add(menu, NULL, "system-search", _("Search"),
+            _search, tb);
 	elm_menu_item_add(menu, NULL, "edit-select-all", _("Select All"),
 	    _grid_menu_select_all_cb, tb);
-	evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-	    tb);
-	evas_object_show(menu);
+     }
+   elm_menu_item_separator_add(menu, NULL);
+   elm_menu_item_add(menu, NULL, "preferences-system", _("Settings"),
+       _settings, tb);
+   evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
+            tb);
+   evas_object_show(menu);
+}
+
+static void
+_grid_mouse_wheel(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
+    void *event_info)
+{
+   Ephoto_Thumb_Browser *tb = data;
+   Evas_Event_Mouse_Wheel *ev = event_info;
+   Eina_Bool ctrl = evas_key_modifier_is_set(ev->modifiers, "Control");
+
+   printf("No\n");
+
+   if (ctrl)
+     {
+        if (ev->z > 0)
+           _zoom_out(tb, NULL, NULL);
+        else
+           _zoom_in(tb, NULL, NULL);
      }
 }
 
@@ -3504,16 +2280,6 @@ _main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 	eio_file_cancel(tb->ls);
 	return;
      }
-   if (tb->idler)
-     {
-	ecore_idler_del(tb->idler);
-	tb->idler = NULL;
-     }
-   if (tb->idler_pos)
-     {
-	eina_list_free(tb->idler_pos);
-	tb->idler_pos = NULL;
-     }
    if (tb->cut_items)
       eina_list_free(tb->cut_items);
    else if (tb->copy_items)
@@ -3620,17 +2386,9 @@ _top_monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
      {
        if (!ecore_file_is_dir(path))
          return; 
-       item = elm_genlist_first_item_get(tb->fsel);
-        while (item)
-          {
-             e = elm_object_item_data_get(item);
-             if (!strcmp(e->path, path))
-               return;
-             item = elm_genlist_item_next_get(item);
-          }
-        snprintf(buf, PATH_MAX, "%s", path);
         if (ephoto_entry_exists(tb->ephoto, path))
           return;
+        snprintf(buf, PATH_MAX, "%s", path);
         e = ephoto_entry_new(tb->ephoto, path, basename(buf),
             EINA_FILE_DIR);
         e->genlist = tb->fsel;
@@ -3650,7 +2408,10 @@ _top_monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
              e = elm_object_item_data_get(item);
              if (!strcmp(e->path, path))
                {
-                  elm_object_item_del(e->item);
+                  if (!strcmp(path, tb->ephoto->config->directory))
+                    _ephoto_dir_go_up(tb, NULL, NULL);
+                  else
+                    elm_object_item_del(e->item);
                   break;
                }
              item = elm_genlist_item_next_get(item);
@@ -3868,41 +2629,6 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
        tb);
    evas_object_data_set(tb->main, "thumb_browser", tb);
 
-   tb->bar = elm_toolbar_add(tb->ephoto->win);
-   elm_toolbar_horizontal_set(tb->bar, EINA_TRUE);
-   elm_toolbar_homogeneous_set(tb->bar, EINA_TRUE);
-   elm_toolbar_shrink_mode_set(tb->bar, ELM_TOOLBAR_SHRINK_NONE);
-   elm_toolbar_select_mode_set(tb->bar, ELM_OBJECT_SELECT_MODE_NONE);
-   elm_object_tree_focus_allow_set(tb->bar, EINA_FALSE);
-   elm_toolbar_icon_order_lookup_set(tb->bar, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_weight_set(tb->bar, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_align_set(tb->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
-
-   if (!tb->ephoto->config->fsel_hide)
-     tb->ficon = elm_toolbar_item_prepend(tb->bar, "system-file-manager",
-         _("Folders"), _ephoto_dir_hide_folders, tb);
-   else
-     tb->ficon = elm_toolbar_item_prepend(tb->bar, "system-file-manager",
-         _("Folders"), _ephoto_dir_show_folders, tb);
-   icon =
-       elm_toolbar_item_append(tb->bar, "zoom-in", _("Zoom In"), _zoom_in, tb);
-   tb->max = elm_object_item_widget_get(icon);
-   icon =
-       elm_toolbar_item_append(tb->bar, "zoom-out", _("Zoom Out"), _zoom_out,
-       tb);
-   tb->min = elm_object_item_widget_get(icon);
-   evas_object_data_set(tb->max, "min", tb->min);
-   evas_object_data_set(tb->min, "max", tb->max);
-   elm_toolbar_item_append(tb->bar, "system-search", _("Search"),
-       _search, tb);
-   elm_toolbar_item_append(tb->bar, "media-playback-start", _("Slideshow"),
-       _slideshow, tb);
-   elm_toolbar_item_append(tb->bar, "preferences-system", _("Settings"),
-       _settings, tb);
-
-   elm_box_pack_end(tb->main, tb->bar);
-   evas_object_show(tb->bar);
-
    tb->table = elm_table_add(tb->main);
    evas_object_size_hint_weight_set(tb->table, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
@@ -4044,6 +2770,8 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
        _ephoto_thumb_activated, tb);
    evas_object_event_callback_add(tb->grid, EVAS_CALLBACK_MOUSE_UP,
        _grid_mouse_up_cb, tb);
+   evas_object_event_callback_add(tb->grid, EVAS_CALLBACK_MOUSE_WHEEL,
+       _grid_mouse_wheel, tb);
    elm_drag_item_container_add(tb->grid, ANIM_TIME, DRAG_TIMEOUT,
        _dnd_item_get, _dnd_item_data_get);
    evas_object_data_set(tb->grid, "thumb_browser", tb);

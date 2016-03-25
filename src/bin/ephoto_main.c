@@ -163,7 +163,21 @@ _win_free(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto *ephoto = data;
+   Ecore_Event_Handler *handler;
 
+   if (ephoto->file_idler)
+     ecore_idler_del(ephoto->file_idler);
+   if (ephoto->file_idler_pos)
+     eina_list_free(ephoto->file_idler_pos);
+   if (ephoto->upload_handlers)
+     EINA_LIST_FREE(ephoto->upload_handlers, handler)
+       ecore_event_handler_del(handler);
+   if (ephoto->url_up)
+     ecore_con_url_free(ephoto->url_up);
+   if (ephoto->url_ret)
+     free(ephoto->url_ret);
+   if (ephoto->upload_error)
+     free(ephoto->upload_error);
    if (ephoto->top_directory)
      eina_stringshare_del(ephoto->top_directory);
    if (ephoto->timer.thumb_regen)

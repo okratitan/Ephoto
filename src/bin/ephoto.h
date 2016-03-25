@@ -72,6 +72,7 @@ void ephoto_single_browser_entries_set(Evas_Object *obj, Eina_List *entries);
 void ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
 void ephoto_single_browser_path_pending_set(Evas_Object *obj,
     const char *path);
+void ephoto_single_browser_path_pending_unset(Evas_Object *obj);
 void ephoto_single_browser_path_created(Evas_Object *obj, Ephoto_Entry *entry);
 void ephoto_single_browser_image_data_update(Evas_Object *main,
     Evas_Object *image, Eina_Bool finished, unsigned int *image_data, int w,
@@ -130,6 +131,22 @@ void ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_histogram_eq(Evas_Object *main, Evas_Object *image);
+
+/*file functions*/
+void ephoto_file_save_image(Ephoto *ephoto, Ephoto_Entry *entry, 
+    Evas_Object *image);
+void ephoto_file_save_image_as(Ephoto *ephoto, Ephoto_Entry *entry, 
+    Evas_Object *image);
+void ephoto_file_upload_image(Ephoto *ephoto, Ephoto_Entry *entry);
+void ephoto_file_new_dir(Ephoto *ephoto, const char *path);
+void ephoto_file_rename(Ephoto *ephoto, const char *path);
+void ephoto_file_move(Ephoto *ephoto, Eina_List *files, const char *path);
+void ephoto_file_copy(Ephoto *ephoto, Eina_List *files, const char *path);
+void ephoto_file_paste(Ephoto *ephoto, Eina_List *files, Eina_Bool copy,
+    const char *path);
+void ephoto_file_delete(Ephoto *ephoto, Eina_List *files,
+    Eina_File_Type type);
+void ephoto_file_empty_trash(Ephoto *ephoto, Eina_List *files);
 
 /*data types and structures*/
 
@@ -208,6 +225,13 @@ struct _Ephoto
    Eina_List *thumbs;
 
    Ecore_File_Monitor *monitor;
+   Ecore_Idler *file_idler;
+   Eina_List *file_idler_pos;
+   Eina_List *upload_handlers;
+   Ecore_Con_Url *url_up;
+   char *url_ret;
+   char *upload_error;
+   int file_errors; 
 
    const char *top_directory;
 

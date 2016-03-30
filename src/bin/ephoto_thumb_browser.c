@@ -1169,6 +1169,7 @@ _settings(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
+
    ephoto_config_main(tb->ephoto);
 }
 
@@ -1825,50 +1826,57 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
           elm_genlist_item_selected_set(it, EINA_FALSE);
         ephoto_directory_set(tb->ephoto, tb->ephoto->top_directory, NULL, 0, 1);
      }
+
    if (info->button != 3)
-     return;
+      return;
 
    snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
-   menu = elm_menu_add(tb->main);
+
+   if (item)
+      elm_genlist_item_selected_set(item, EINA_TRUE);
+   menu = elm_menu_add(tb->ephoto->win);
    elm_menu_move(menu, x, y);
+   menu_it = elm_menu_item_add(menu, NULL, "system-file-manager", _("File"),
+       NULL, NULL);
+   if (!tb->ephoto->config->fsel_hide)
+     elm_menu_item_add(menu, menu_it, "system-file-manager", _("Hide Folders"),
+         _ephoto_dir_hide_folders, tb);
+   else
+     elm_menu_item_add(menu, menu_it, "system-file-manager", _("Show Folders"),
+         _ephoto_dir_show_folders, tb);
+   menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("Edit"),
+       NULL, NULL);
+   if (strcmp(tb->ephoto->config->directory, trash))
+     {
+        elm_menu_item_add(menu, menu_it, "folder-new", _("New Folder"),
+              _fsel_menu_new_dir_cb, tb);
+     }
+   if (item)
+     {
+             evas_object_data_set(item, "thumb_browser", tb);
+             elm_menu_item_add(menu, menu_it, "edit", _("Rename"),
+                 _fsel_menu_rename_cb, item);
+     }
+   if (tb->cut_items || tb->copy_items)
+     {
+	elm_menu_item_add(menu, menu_it, "edit-paste", _("Paste"),
+	    _fsel_menu_paste_cb, tb);
+     }
+   if (!strcmp(tb->ephoto->config->directory, trash) &&
+     elm_gengrid_first_item_get(tb->grid))
+     {
+	elm_menu_item_add(menu, menu_it, "edit-delete", _("Empty Trash"),
+	    _grid_menu_empty_cb, tb);
+     }
+   if (strcmp(tb->ephoto->config->directory, trash) && item)
+     {
+        elm_menu_item_add(menu, menu_it, "edit-delete", _("Delete"),
+             _fsel_menu_delete_cb, tb);
+     }
    menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("View"),
        NULL, NULL);
-   elm_menu_item_add(menu, menu_it, "system-file-manager", _("Hide Folders"),
-       _ephoto_dir_hide_folders, tb);
    elm_menu_item_add(menu, menu_it, "media-playback-start", _("Slideshow"),
        _slideshow, tb);
-   elm_menu_item_separator_add(menu, NULL); 
-   if (item && strncmp(tb->ephoto->config->directory, trash, strlen(trash)))
-     {
-        elm_genlist_item_selected_set(item, EINA_TRUE);
-        elm_menu_item_add(menu, NULL, "folder-new", _("New Folder"),
-            _fsel_menu_new_dir_cb, tb);
-        if (tb->cut_items || tb->copy_items)
-          elm_menu_item_add(menu, NULL, "edit-paste", _("Paste"),
-              _fsel_menu_paste_cb, tb);
-        elm_menu_item_add(menu, NULL, "edit", _("Rename"),
-            _fsel_menu_rename_cb, tb);
-        elm_menu_item_add(menu, NULL, "edit-delete", _("Delete"),
-            _fsel_menu_delete_cb, tb);
-     }
-   else if (item && !strncmp(tb->ephoto->config->directory,
-       trash, strlen(trash)))
-     {
-        elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
-             _grid_menu_empty_cb, tb);
-     }
-   else
-     {
-        if (strncmp(tb->ephoto->config->directory, trash, strlen(trash)))
-          elm_menu_item_add(menu, NULL, "folder-new", _("New Folder"),
-              _fsel_menu_new_dir_cb, tb);
-        if (tb->cut_items || tb->copy_items)
-          elm_menu_item_add(menu, NULL, "edit-paste", _("Paste"),
-              _fsel_menu_paste_cb, tb);
-        if (!strncmp(tb->ephoto->config->directory, trash, strlen(trash)))
-          elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
-               _grid_menu_empty_cb, tb);
-     }
    elm_menu_item_separator_add(menu, NULL);
    elm_menu_item_add(menu, NULL, "preferences-system", _("Settings"),
        _settings, tb);
@@ -1970,9 +1978,9 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 
    if (item)
       elm_gengrid_item_selected_set(item, EINA_TRUE);
-   menu = elm_menu_add(tb->main);
+   menu = elm_menu_add(tb->ephoto->win);
    elm_menu_move(menu, x, y);
-   menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("View"),
+   menu_it = elm_menu_item_add(menu, NULL, "system-file-manager", _("File"),
        NULL, NULL);
    if (!tb->ephoto->config->fsel_hide)
      elm_menu_item_add(menu, menu_it, "system-file-manager", _("Hide Folders"),
@@ -1980,69 +1988,62 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    else
      elm_menu_item_add(menu, menu_it, "system-file-manager", _("Show Folders"),
          _ephoto_dir_show_folders, tb);
+   if (elm_gengrid_first_item_get(tb->grid))
+     {
+        menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("Edit"),
+            NULL, NULL);
+        elm_menu_item_add(menu, menu_it, "system-search", _("Search"),
+            _search, tb);
+        elm_menu_item_add(menu, menu_it, "edit-select-all", _("Select All"),
+            _grid_menu_select_all_cb, tb);
+        elm_menu_item_add(menu, menu_it, "edit-clear", _("Select None"),
+            _grid_menu_clear_cb, tb);
+     }
+   else
+     {
+        menu_it = NULL;
+     }
+   if (eina_list_count(selected) > 0 || item)
+     {
+	elm_menu_item_add(menu, menu_it, "edit-clear", _("Select None"),
+	    _grid_menu_clear_cb, tb);
+        if (item)
+          {
+             evas_object_data_set(item, "thumb_browser", tb);
+             elm_menu_item_add(menu, menu_it, "edit", _("Rename"),
+                 _grid_menu_rename_cb, item);
+          }
+	elm_menu_item_add(menu, menu_it, "edit-cut", _("Cut"), _grid_menu_cut_cb,
+	    tb);
+	elm_menu_item_add(menu, menu_it, "edit-copy", _("Copy"),
+	    _grid_menu_copy_cb, tb);
+     }
+   if (tb->cut_items || tb->copy_items)
+     {
+	elm_menu_item_add(menu, menu_it, "edit-paste", _("Paste"),
+	    _grid_menu_paste_cb, tb);
+     }
+   if (!strcmp(tb->ephoto->config->directory, trash) &&
+     elm_gengrid_first_item_get(tb->grid))
+     {
+	elm_menu_item_add(menu, menu_it, "edit-delete", _("Empty Trash"),
+	    _grid_menu_empty_cb, tb);
+     }
+   else
+     {
+        if (elm_gengrid_first_item_get(tb->grid))
+          elm_menu_item_add(menu, menu_it, "edit-delete", _("Delete"),
+                 _grid_menu_delete_cb, tb);
+     }
+
+   menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("View"),
+       NULL, NULL);
    elm_menu_item_add(menu, menu_it, "zoom-in", _("Zoom In"),
        _zoom_in, tb);
    elm_menu_item_add(menu, menu_it, "zoom-out", _("Zoom Out"),
        _zoom_out, tb);
    elm_menu_item_add(menu, menu_it, "media-playback-start", _("Slideshow"),
        _slideshow, tb);
-   elm_menu_item_separator_add(menu, NULL);
-   if (eina_list_count(selected) > 0 || item)
-     {
-        elm_menu_item_add(menu, NULL, "system-search", _("Search"),
-            _search, tb);
-	elm_menu_item_add(menu, NULL, "edit-select-all", _("Select All"),
-	    _grid_menu_select_all_cb, tb);
-	elm_menu_item_add(menu, NULL, "edit-clear", _("Select None"),
-	    _grid_menu_clear_cb, tb);
-	elm_menu_item_add(menu, NULL, "edit-cut", _("Cut"), _grid_menu_cut_cb,
-	    tb);
-	elm_menu_item_add(menu, NULL, "edit-copy", _("Copy"),
-	    _grid_menu_copy_cb, tb);
-	if (tb->cut_items || tb->copy_items)
-	   elm_menu_item_add(menu, NULL, "edit-paste", _("Paste"),
-	       _grid_menu_paste_cb, tb);
-	if (item)
-	  {
-	     evas_object_data_set(item, "thumb_browser", tb);
-	     elm_menu_item_add(menu, NULL, "edit", _("Rename"),
-		 _grid_menu_rename_cb, item);
-	  }
-	if (strcmp(tb->ephoto->config->directory, trash))
-	   elm_menu_item_add(menu, NULL, "edit-delete", _("Delete"),
-	       _grid_menu_delete_cb, tb);
-	else
-	   elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
-	       _grid_menu_empty_cb, tb);
-     }
-   else if (tb->cut_items || tb->copy_items)
-     {
-        elm_menu_item_add(menu, NULL, "system-search", _("Search"),
-            _search, tb);
-	elm_menu_item_add(menu, NULL, "edit-select-all", _("Select All"),
-	    _grid_menu_select_all_cb, tb);
-	elm_menu_item_add(menu, NULL, "edit-paste", _("Paste"),
-	    _grid_menu_paste_cb, tb);
-	if (!strcmp(tb->ephoto->config->directory, trash))
-	   elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
-	       _grid_menu_empty_cb, tb);
-     }
-   else if (!strcmp(tb->ephoto->config->directory, trash))
-     {
-        elm_menu_item_add(menu, NULL, "system-search", _("Search"),
-            _search, tb);
-	elm_menu_item_add(menu, NULL, "edit-select-all", _("Select All"),
-	    _grid_menu_select_all_cb, tb);
-	elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
-	    _grid_menu_empty_cb, tb);
-     }
-   else if (elm_gengrid_first_item_get(tb->grid))
-     {
-        elm_menu_item_add(menu, NULL, "system-search", _("Search"),
-            _search, tb);
-	elm_menu_item_add(menu, NULL, "edit-select-all", _("Select All"),
-	    _grid_menu_select_all_cb, tb);
-     }
    elm_menu_item_separator_add(menu, NULL);
    elm_menu_item_add(menu, NULL, "preferences-system", _("Settings"),
        _settings, tb);

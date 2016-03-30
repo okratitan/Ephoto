@@ -1996,8 +1996,6 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
             _search, tb);
         elm_menu_item_add(menu, menu_it, "edit-select-all", _("Select All"),
             _grid_menu_select_all_cb, tb);
-        elm_menu_item_add(menu, menu_it, "edit-clear", _("Select None"),
-            _grid_menu_clear_cb, tb);
      }
    else
      {

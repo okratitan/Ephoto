@@ -51,6 +51,8 @@ static void _key_down(void *data, Evas *e EINA_UNUSED,
 static void _edit_menu(Ephoto_Single_Browser *sb);
 static void _back(void *data, Evas_Object *obj EINA_UNUSED, 
     void *event_info EINA_UNUSED);
+static char *_ephoto_get_file_size(const char *path);
+static void _update_bottom_bar(Ephoto_Single_Browser *sb);
 
 static void
 _viewer_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
@@ -140,7 +142,7 @@ _image_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 }
 
 static void
-_scroller_mouse_up(void *data, Evas *e EINA_UNUSED,
+_scroller_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
     Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto_Single_Browser *sb = data;
@@ -149,6 +151,7 @@ _scroller_mouse_up(void *data, Evas *e EINA_UNUSED,
    if (ev->button == 3)
      {
         _edit_menu(sb);
+        _update_bottom_bar(sb);
      }
 }
 
@@ -227,8 +230,8 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
    evas_object_size_hint_align_set(v->scroller,
        EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_data_set(v->scroller, "viewer", v);
-   evas_object_event_callback_add(v->scroller, EVAS_CALLBACK_MOUSE_UP, _scroller_mouse_up,
-       sb);
+   evas_object_event_callback_add(v->scroller, EVAS_CALLBACK_MOUSE_UP,
+       _scroller_mouse_up_cb, sb);
    evas_object_event_callback_add(v->scroller, EVAS_CALLBACK_DEL, _viewer_del,
        v);
    evas_object_show(v->scroller);
@@ -380,44 +383,33 @@ _viewer_zoom_fit(Evas_Object *obj)
 }
 
 static void
-_create_bottom_bar(Ephoto_Single_Browser *sb)
+_update_bottom_bar(Ephoto_Single_Browser *sb)
 {
-   Evas_Object *button, *ic;
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+   char image_info[PATH_MAX], *tmp;
+   Evas_Coord w, h;
 
-   sb->botbox = elm_box_add(sb->table);
-   elm_box_horizontal_set(sb->botbox, EINA_TRUE);
-   evas_object_size_hint_weight_set(sb->botbox, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_fill_set(sb->botbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_table_pack(sb->table, sb->botbox, 0, 2, 4, 1);
+   if (sb->editing)
+     return;
+
+   evas_object_image_size_get(elm_image_object_get(v->image),
+            &w, &h);
+   tmp = _ephoto_get_file_size(sb->entry->path);
+   snprintf(image_info, PATH_MAX,
+       "<b>%s:</b> %s        <b>%s:</b> %dx%d        <b>%s:</b> %s",
+       _("Type"), efreet_mime_type_get(sb->entry->path),
+       _("Resolution"), w, h, _("File Size"), tmp);
+   free(tmp);
+
+   elm_object_text_set(sb->infolabel, image_info);
+   elm_notify_timeout_set(sb->botbox, 5);
    evas_object_show(sb->botbox);
-
-   ic = elm_icon_add(sb->botbox);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "go-previous");
-
-   button = elm_button_add(sb->botbox);
-   elm_object_text_set(button, _("Back"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _back, sb);
-   elm_box_pack_end(sb->botbox, button);
-   evas_object_show(button);
-
-   sb->infolabel = elm_label_add(sb->botbox);
-   elm_label_line_wrap_set(sb->infolabel, ELM_WRAP_NONE);
-   evas_object_size_hint_weight_set(sb->infolabel, EVAS_HINT_EXPAND,
-       EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(sb->infolabel, EVAS_HINT_FILL,
-       EVAS_HINT_FILL);
-   elm_box_pack_end(sb->botbox, sb->infolabel);
-   evas_object_show(sb->infolabel);
 }
 
 static void
 _orient_apply(Ephoto_Single_Browser *sb)
 {
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
-   char image_info[PATH_MAX];
    int w, h;
 
    switch (sb->orient)
@@ -468,16 +460,7 @@ _orient_apply(Ephoto_Single_Browser *sb)
    evas_object_size_hint_max_set(v->image, w, h);
    elm_table_pack(v->table, v->image, 0, 0, 1, 1);
    elm_object_content_set(v->scroller, v->table);
-
-   evas_object_del(sb->infolabel);
-   evas_object_del(sb->botbox);
-   _create_bottom_bar(sb);
-   snprintf(image_info, PATH_MAX,
-       "<b>%s:</b> %s        <b>%s:</b> %dx%d        <b>%s:</b> %s", _("Type"),
-       efreet_mime_type_get(sb->entry->path), _("Resolution"), w, h,
-       _("File Size"), _("N/A"));
-   elm_object_text_set(sb->infolabel, image_info);
-
+   
    if (v->fit)
       _viewer_zoom_fit_apply(v);
    else
@@ -738,10 +721,6 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
      {
 	evas_object_del(sb->viewer);
 	sb->viewer = NULL;
-	evas_object_del(sb->infolabel);
-	sb->infolabel = NULL;
-        evas_object_del(sb->botbox);
-        sb->botbox = NULL;
      }
    if (sb->nolabel)
      {
@@ -752,32 +731,14 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
      {
 	const char *bname = ecore_file_file_get(sb->entry->path);
 
-	elm_table_clear(sb->table, EINA_FALSE);
-
 	sb->viewer = _viewer_add(sb->main, sb->entry->path, sb);
 	if (sb->viewer)
 	  {
-	     char image_info[PATH_MAX], *tmp;
-	     Evas_Coord w, h;
-	     Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
-
-	     elm_table_pack(sb->table, sb->viewer, 0, 1, 4, 1);
+	     elm_box_pack_start(sb->mhbox, sb->viewer);
 	     evas_object_show(sb->viewer);
 	     evas_object_event_callback_add(sb->viewer,
 		 EVAS_CALLBACK_MOUSE_WHEEL, _mouse_wheel, sb);
-
-	     evas_object_image_size_get(elm_image_object_get(v->image),
-	         &w, &h);
-	     tmp = _ephoto_get_file_size(sb->entry->path);
-	     snprintf(image_info, PATH_MAX,
-		 "<b>%s:</b> %s        <b>%s:</b> %dx%d        <b>%s:</b> %s",
-		 _("Type"), efreet_mime_type_get(sb->entry->path),
-		 _("Resolution"), w, h, _("File Size"), tmp);
-	     free(tmp);
-
-             _create_bottom_bar(sb);             
-	     elm_object_text_set(sb->infolabel, image_info);
-
+             _update_bottom_bar(sb);
 	     ephoto_title_set(sb->ephoto, bname);
 
              if (!_ephoto_file_image_can_save(strrchr(bname, '.')+1))
@@ -787,7 +748,7 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
 	  }
         else
 	  {
-	     sb->nolabel = elm_label_add(sb->table);
+	     sb->nolabel = elm_label_add(sb->mhbox);
 	     elm_label_line_wrap_set(sb->nolabel, ELM_WRAP_WORD);
 	     elm_object_text_set(sb->nolabel,
 		 _("This image does not exist or is corrupted!"));
@@ -795,7 +756,7 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
 		 EVAS_HINT_EXPAND);
 	     evas_object_size_hint_align_set(sb->nolabel, EVAS_HINT_FILL,
 		 EVAS_HINT_FILL);
-	     elm_table_pack(sb->table, sb->nolabel, 0, 1, 4, 1);
+	     elm_box_pack_start(sb->mhbox, sb->nolabel);
 	     evas_object_show(sb->nolabel);
 	     ephoto_title_set(sb->ephoto, _("Bad Image"));
 	  }
@@ -1153,6 +1114,8 @@ _crop_image(void *data, Evas_Object *obj EINA_UNUSED,
    if (sb->viewer)
      {
 	sb->editing = EINA_TRUE;
+        if (sb->botbox)
+          evas_object_hide(sb->botbox);
 	sb->cropping = EINA_TRUE;
 	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
@@ -1169,7 +1132,9 @@ _go_bcg(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
    if (sb->viewer)
      {
 	sb->editing = EINA_TRUE;
-	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+        if (sb->botbox)
+          evas_object_hide(sb->botbox);
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
 	ephoto_bcg_add(sb->main, sb->mhbox, v->image);
      }
@@ -1183,6 +1148,8 @@ _go_hsv(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
    if (sb->viewer)
      {
 	sb->editing = EINA_TRUE;
+        if (sb->botbox)
+          evas_object_hide(sb->botbox);
 	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
 	ephoto_hsv_add(sb->main, sb->mhbox, v->image);
@@ -1198,6 +1165,8 @@ _go_color(void *data, Evas_Object *obj EINA_UNUSED,
    if (sb->viewer)
      {
 	sb->editing = EINA_TRUE;
+        if (sb->botbox)
+          evas_object_hide(sb->botbox);
 	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
 	ephoto_color_add(sb->main, sb->mhbox, v->image);
@@ -1213,6 +1182,8 @@ _go_auto_eq(void *data, Evas_Object *obj EINA_UNUSED,
    if (sb->viewer)
      {
 	sb->editing = EINA_TRUE;
+        if (sb->botbox)
+          evas_object_hide(sb->botbox);
 	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
 	ephoto_filter_histogram_eq(sb->main, v->image);
@@ -1228,6 +1199,8 @@ _go_blur(void *data, Evas_Object *obj EINA_UNUSED,
    if (sb->viewer)
      {
 	sb->editing = EINA_TRUE;
+        if (sb->botbox)
+          evas_object_hide(sb->botbox);
 	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
 	ephoto_filter_blur(sb->main, v->image);
@@ -1243,6 +1216,8 @@ _go_sharpen(void *data, Evas_Object *obj EINA_UNUSED,
    if (sb->viewer)
      {
 	sb->editing = EINA_TRUE;
+        if (sb->botbox)
+          evas_object_hide(sb->botbox);
 	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
 	ephoto_filter_sharpen(sb->main, v->image);
@@ -1258,7 +1233,9 @@ _go_black_and_white(void *data, Evas_Object *obj EINA_UNUSED,
    if (sb->viewer)
      {
 	sb->editing = EINA_TRUE;
-	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+        if (sb->botbox)
+          evas_object_hide(sb->botbox);
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
 	ephoto_filter_black_and_white(sb->main, v->image);
      }
@@ -1273,6 +1250,8 @@ _go_old_photo(void *data, Evas_Object *obj EINA_UNUSED,
    if (sb->viewer)
      {
 	sb->editing = EINA_TRUE;
+        if (sb->botbox)
+          evas_object_hide(sb->botbox);
 	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
 	ephoto_filter_old_photo(sb->main, v->image);
@@ -1292,6 +1271,8 @@ _slideshow(void *data, Evas_Object *obj EINA_UNUSED,
              evas_object_del(sb->event);
              sb->event = NULL;
           }
+        if (sb->botbox)
+          evas_object_hide(sb->botbox);
         evas_object_smart_callback_call(sb->main, "slideshow", sb->entry);
      }
 }
@@ -1306,6 +1287,8 @@ _back(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
         evas_object_del(sb->event);
         sb->event = NULL;
      }
+   if (sb->botbox)
+     evas_object_hide(sb->botbox);
    evas_object_smart_callback_call(sb->main, "back", sb->entry);
 }
 
@@ -1334,6 +1317,9 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
 {
    Evas_Object *menu_it, *menu_itt;
 
+   elm_menu_item_add(menu, NULL, "go-previous", _("Back"), _back, sb);
+   elm_menu_item_separator_add(menu, NULL);
+
    menu_it =
        elm_menu_item_add(menu, NULL, "system-file-manager", _("File"), NULL, NULL);
    elm_menu_item_add(menu, menu_it, "edit-undo", _("Reset"), _reset_image, sb);
@@ -1344,8 +1330,6 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
        sb);
    elm_menu_item_add(menu, menu_it, "edit-delete", _("Delete"),
             _delete_image, sb);
-   elm_menu_item_separator_add(menu, NULL);
-
    menu_it =
        elm_menu_item_add(menu, NULL, "document-properties", _("Edit"), NULL, NULL);
 
@@ -1353,7 +1337,7 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
        elm_menu_item_add(menu, menu_it, "document-properties", _("Transform"),
        NULL, NULL);
    elm_menu_item_add(menu, menu_itt, "edit-cut", _("Crop"), _crop_image, sb);
-   elm_menu_item_separator_add(menu, menu_it);
+   elm_menu_item_separator_add(menu, menu_itt);
    elm_menu_item_add(menu, menu_itt, "object-rotate-left", _("Rotate Left"),
        _go_rotate_counterclock, sb);
    elm_menu_item_add(menu, menu_itt, "object-rotate-right", _("Rotate Right"),
@@ -1407,6 +1391,7 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
        _zoom_fit_cb, sb);
    elm_menu_item_add(menu, menu_itt, "zoom-original", _("Zoom 1:1"),
        _zoom_1_cb, sb);
+   elm_menu_item_separator_add(menu, menu_it);
    elm_menu_item_add(menu, menu_it, "media-playback-start", _("Slideshow"),
        _slideshow, sb);
 
@@ -1494,6 +1479,7 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 	     evas_object_del(sb->event);
 	     sb->event = NULL;
 	  }
+        evas_object_hide(sb->botbox);
 	evas_object_smart_callback_call(sb->main, "back", sb->entry);
      }
    else if (!strcmp(k, "Left") && !sb->editing)
@@ -1517,6 +1503,7 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 		  evas_object_del(sb->event);
 		  sb->event = NULL;
 	       }
+             evas_object_hide(sb->botbox);
 	     evas_object_smart_callback_call(sb->main, "slideshow", sb->entry);
 	  }
      }
@@ -1524,22 +1511,6 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      {
 	Evas_Object *win = sb->ephoto->win;
 
-	if (!elm_win_fullscreen_get(sb->ephoto->win))
-	  {
-	     if (sb->ephoto->config->tool_hide)
-	       {
-		  evas_object_hide(sb->botbox);
-		  elm_table_unpack(sb->table, sb->botbox);
-	       }
-	  }
-        else
-	  {
-	     if (!evas_object_visible_get(sb->botbox))
-	       {
-		  elm_table_pack(sb->table, sb->botbox, 0, 2, 4, 1);
-		  evas_object_show(sb->botbox);
-	       }
-	  }
 	elm_win_fullscreen_set(win, !elm_win_fullscreen_get(win));
      }
 }
@@ -1620,7 +1591,10 @@ _main_focused(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    if (sb->ephoto->state == EPHOTO_STATE_SINGLE)
      {
 	if (sb->event)
-	   elm_object_focus_set(sb->event, EINA_TRUE);
+          {
+             elm_object_focus_set(sb->event, EINA_TRUE);
+             evas_object_raise(sb->event);
+          }
      }
 }
 
@@ -1643,6 +1617,8 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_box_horizontal_set(sb->main, EINA_FALSE);
    elm_object_tree_focus_allow_set(sb->main, EINA_FALSE);
    evas_object_event_callback_add(sb->main, EVAS_CALLBACK_DEL, _main_del, sb);
+   evas_object_event_callback_add(sb->main, EVAS_CALLBACK_KEY_DOWN, _key_down,
+       sb);
    evas_object_event_callback_add(sb->ephoto->win, EVAS_CALLBACK_FOCUS_IN,
        _main_focused, sb);
    evas_object_size_hint_weight_set(sb->main, EVAS_HINT_EXPAND,
@@ -1658,12 +1634,20 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_box_pack_end(sb->main, sb->mhbox);
    evas_object_show(sb->mhbox);
 
-   sb->table = elm_table_add(sb->mhbox);
-   evas_object_size_hint_weight_set(sb->table, EVAS_HINT_EXPAND,
-       EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(sb->table, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(sb->mhbox, sb->table);
-   evas_object_show(sb->table);
+   sb->botbox = elm_notify_add(sb->ephoto->win);
+   elm_notify_align_set(sb->botbox, 0.5, 1.0);
+   elm_notify_timeout_set(sb->botbox, 5);
+   evas_object_size_hint_weight_set(sb->botbox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_fill_set(sb->botbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+
+   sb->infolabel = elm_label_add(sb->botbox);
+   elm_label_line_wrap_set(sb->infolabel, ELM_WRAP_NONE);
+   evas_object_size_hint_weight_set(sb->infolabel, EVAS_HINT_EXPAND,
+       EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(sb->infolabel, EVAS_HINT_FILL,
+       EVAS_HINT_FILL);
+   elm_object_content_set(sb->botbox, sb->infolabel);
+   evas_object_show(sb->infolabel);
 
    sb->handlers =
        eina_list_append(sb->handlers,
@@ -1715,22 +1699,6 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
      }
    if (sb->viewer)
       _zoom_fit(sb);
-   if (elm_win_fullscreen_get(sb->ephoto->win))
-     {
-	if (sb->ephoto->config->tool_hide)
-	  {
-	     evas_object_hide(sb->botbox);
-	     elm_table_unpack(sb->table, sb->botbox);
-	  }
-     }
-   else
-     {
-	if (!evas_object_visible_get(sb->botbox))
-	  {
-	     elm_table_pack(sb->table, sb->botbox, 0, 2, 4, 1);
-	     evas_object_show(sb->botbox);
-	  }
-     }
    if (sb->event)
      {
 	evas_object_del(sb->event);
@@ -1745,6 +1713,19 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
        sb);
    evas_object_raise(sb->event);
    elm_object_focus_set(sb->event, EINA_TRUE);
+}
+
+void
+ephoto_single_browser_focus_set(Ephoto *ephoto)
+{
+   Ephoto_Single_Browser *sb = evas_object_data_get
+       (ephoto->single_browser, "single_browser");
+
+   if (sb->event)
+     {
+        evas_object_raise(sb->event);
+        elm_object_focus_set(sb->event, EINA_TRUE);
+     }
 }
 
 void
@@ -1800,18 +1781,7 @@ ephoto_single_browser_image_data_update(Evas_Object *main, Evas_Object *image,
 
 	if (finished)
 	  {
-	     char image_info[PATH_MAX];
-
-	     evas_object_del(sb->infolabel);
-             evas_object_del(sb->botbox);
-	     snprintf(image_info, PATH_MAX,
-		 "<b>%s:</b> %s        <b>%s:</b> %dx%d        <b>%s:</b> %s",
-		 _("Type"), efreet_mime_type_get(sb->entry->path),
-		 _("Resolution"), w, h, _("File Size"), _("N/A"));
-
-             _create_bottom_bar(sb);
-	     elm_object_text_set(sb->infolabel, image_info);
-
+             _update_bottom_bar(sb);
 	     sb->edited_image_data = image_data;
 	     sb->ew = w;
 	     sb->eh = h;

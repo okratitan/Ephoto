@@ -82,8 +82,10 @@ static void
 _config_close_cb(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
+   Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
 
    evas_object_del(popup);
+   elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
 static void
@@ -118,6 +120,7 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
           elm_object_text_get(ephoto->config->slide_trans));
 
    evas_object_del(popup);
+   elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
 static void

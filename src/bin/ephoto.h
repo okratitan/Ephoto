@@ -70,6 +70,7 @@ void ephoto_config_main(Ephoto *em);
 Evas_Object *ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent);
 void ephoto_single_browser_entries_set(Evas_Object *obj, Eina_List *entries);
 void ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
+void ephoto_single_browser_focus_set(Ephoto *ephoto);
 void ephoto_single_browser_path_pending_set(Evas_Object *obj,
     const char *path);
 void ephoto_single_browser_path_pending_unset(Evas_Object *obj);

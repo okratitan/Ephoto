@@ -32,7 +32,6 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *direntry;
    Evas_Object *search;
    Evas_Object *hover;
-   Evas_Object *progress;
    Elm_Object_Item *dir_current;
    Elm_Object_Item *last_sel;
    Ephoto_Sort sort;
@@ -425,7 +424,6 @@ _sort_alpha_asc(void *data, Evas_Object *obj EINA_UNUSED,
    tb->sort = EPHOTO_SORT_ALPHABETICAL_ASCENDING;
    tb->thumbs_only = 1;
    tb->dirs_only = 0;
-   elm_object_text_set(tb->hover, _("Alphabetical Ascending"));
    ic = elm_icon_add(tb->hover);
    elm_icon_standard_set(ic, "view-sort-ascending");
    elm_object_part_content_set(tb->hover, "icon", ic);
@@ -444,7 +442,6 @@ _sort_alpha_desc(void *data, Evas_Object *obj EINA_UNUSED,
    tb->sort = EPHOTO_SORT_ALPHABETICAL_DESCENDING;
    tb->thumbs_only = 1;
    tb->dirs_only = 0;
-   elm_object_text_set(tb->hover, _("Alphabetical Descending"));
    ic = elm_icon_add(tb->hover);
    elm_icon_standard_set(ic, "view-sort-descending");
    elm_object_part_content_set(tb->hover, "icon", ic);
@@ -463,7 +460,6 @@ _sort_mod_asc(void *data, Evas_Object *obj EINA_UNUSED,
    tb->sort = EPHOTO_SORT_MODTIME_ASCENDING;
    tb->thumbs_only = 1;
    tb->dirs_only = 0;
-   elm_object_text_set(tb->hover, _("Modification Time Ascending"));
    ic = elm_icon_add(tb->hover);
    elm_icon_standard_set(ic, "view-sort-ascending");
    elm_object_part_content_set(tb->hover, "icon", ic);
@@ -482,7 +478,6 @@ _sort_mod_desc(void *data, Evas_Object *obj EINA_UNUSED,
    tb->sort = EPHOTO_SORT_MODTIME_DESCENDING;
    tb->thumbs_only = 1;
    tb->dirs_only = 0;
-   elm_object_text_set(tb->hover, _("Modification Time Descending"));
    ic = elm_icon_add(tb->hover);
    elm_icon_standard_set(ic, "view-sort-descending");
    elm_object_part_content_set(tb->hover, "icon", ic);
@@ -640,8 +635,6 @@ _todo_items_process(void *data)
           return EINA_TRUE;
         tb->animator.todo_items = NULL;
         tb->processing = 0;
-        elm_progressbar_pulse(tb->progress, EINA_FALSE);
-        evas_object_hide(tb->progress);
 	return EINA_FALSE;
      }
    if ((tb->ls) && (eina_list_count(tb->todo_items) < TODO_ITEM_MIN_BATCH))
@@ -1049,7 +1042,7 @@ _search(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
-   Evas_Object *hbox, *search, *ic, *but;
+   Evas_Object *hbox, *search;
 
    if (tb->processing)
      return;
@@ -1085,34 +1078,6 @@ _search(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_show(search);
 
    tb->search = search;
-   ic = elm_icon_add(hbox);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   elm_icon_standard_set(ic, "system-search");
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-
-   but = elm_button_add(hbox);
-   elm_object_part_content_set(but, "icon", ic);
-   elm_object_text_set(but, _("Search"));
-   evas_object_size_hint_weight_set(but, 0.0, 0.0);
-   evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_smart_callback_add(but, "clicked", _ephoto_search_go, search);
-   elm_box_pack_end(hbox, but);
-   evas_object_show(but);
-
-   ic = elm_icon_add(hbox);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   elm_icon_standard_set(ic, "window-close");
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-
-   but = elm_button_add(hbox);
-   elm_object_part_content_set(but, "icon", ic);
-   elm_object_text_set(but, _("Cancel"));
-   evas_object_size_hint_weight_set(but, 0.0, 0.0);
-   evas_object_size_hint_align_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_smart_callback_add(but, "clicked",
-       _ephoto_search_cancel, search);
-   elm_box_pack_end(hbox, but);
-   evas_object_show(but);
 
    elm_object_focus_set(search, EINA_TRUE);
 }
@@ -1174,7 +1139,7 @@ _settings(void *data, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
-_ephoto_dir_show_folders(void *data, Evas_Object *obj EINA_UNUSED,
+_ephoto_dir_show_folders(void *data, Evas_Object *obj,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
@@ -1186,10 +1151,12 @@ _ephoto_dir_show_folders(void *data, Evas_Object *obj EINA_UNUSED,
    elm_table_unpack(tb->table, tb->gridbox);
    elm_table_pack(tb->table, tb->gridbox, 1, 0, 4, 1);
    tb->ephoto->config->fsel_hide = 0;
+   evas_object_smart_callback_del(obj, "changed", _ephoto_dir_show_folders);
+   evas_object_smart_callback_add(obj, "changed", _ephoto_dir_hide_folders, tb);
 }
 
 static void
-_ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED,
+_ephoto_dir_hide_folders(void *data, Evas_Object *obj,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
@@ -1202,6 +1169,8 @@ _ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED,
    elm_table_pack(tb->table, tb->gridbox, 0, 0, 5, 1);
    elm_object_focus_set(tb->main, EINA_TRUE);
    tb->ephoto->config->fsel_hide = 1;
+   evas_object_smart_callback_del(obj, "changed", _ephoto_dir_hide_folders);
+   evas_object_smart_callback_add(obj, "changed", _ephoto_dir_show_folders, tb);
 }
 
 static char *
@@ -1836,16 +1805,9 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
       elm_genlist_item_selected_set(item, EINA_TRUE);
    menu = elm_menu_add(tb->ephoto->win);
    elm_menu_move(menu, x, y);
-   menu_it = elm_menu_item_add(menu, NULL, "system-file-manager", _("File"),
-       NULL, NULL);
-   if (!tb->ephoto->config->fsel_hide)
-     elm_menu_item_add(menu, menu_it, "system-file-manager", _("Hide Folders"),
-         _ephoto_dir_hide_folders, tb);
-   else
-     elm_menu_item_add(menu, menu_it, "system-file-manager", _("Show Folders"),
-         _ephoto_dir_show_folders, tb);
    menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("Edit"),
        NULL, NULL);
+   elm_menu_item_separator_add(menu, NULL);
    if (strcmp(tb->ephoto->config->directory, trash))
      {
         elm_menu_item_add(menu, menu_it, "folder-new", _("New Folder"),
@@ -1868,16 +1830,23 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 	elm_menu_item_add(menu, menu_it, "edit-delete", _("Empty Trash"),
 	    _grid_menu_empty_cb, tb);
      }
+   else if (!strcmp(tb->ephoto->config->directory, trash) &&
+     elm_genlist_first_item_get(tb->fsel))
+     {
+        elm_menu_item_add(menu, menu_it, "edit-delete", _("Empty Trash"),
+            _grid_menu_empty_cb, tb);
+     }
    if (strcmp(tb->ephoto->config->directory, trash) && item)
      {
         elm_menu_item_add(menu, menu_it, "edit-delete", _("Delete"),
              _fsel_menu_delete_cb, tb);
      }
-   menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("View"),
-       NULL, NULL);
-   elm_menu_item_add(menu, menu_it, "media-playback-start", _("Slideshow"),
-       _slideshow, tb);
-   elm_menu_item_separator_add(menu, NULL);
+   if (strcmp(tb->ephoto->config->directory, trash) &&
+     elm_gengrid_first_item_get(tb->grid))
+     {
+        elm_menu_item_add(menu, NULL, "media-playback-start", _("Slideshow"),
+           _slideshow, tb);
+     }
    elm_menu_item_add(menu, NULL, "preferences-system", _("Settings"),
        _settings, tb);
    evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
@@ -1980,18 +1949,11 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
       elm_gengrid_item_selected_set(item, EINA_TRUE);
    menu = elm_menu_add(tb->ephoto->win);
    elm_menu_move(menu, x, y);
-   menu_it = elm_menu_item_add(menu, NULL, "system-file-manager", _("File"),
-       NULL, NULL);
-   if (!tb->ephoto->config->fsel_hide)
-     elm_menu_item_add(menu, menu_it, "system-file-manager", _("Hide Folders"),
-         _ephoto_dir_hide_folders, tb);
-   else
-     elm_menu_item_add(menu, menu_it, "system-file-manager", _("Show Folders"),
-         _ephoto_dir_show_folders, tb);
    if (elm_gengrid_first_item_get(tb->grid))
      {
         menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("Edit"),
             NULL, NULL);
+        elm_menu_item_separator_add(menu, NULL);
         elm_menu_item_add(menu, menu_it, "system-search", _("Search"),
             _search, tb);
         elm_menu_item_add(menu, menu_it, "edit-select-all", _("Select All"),
@@ -2030,19 +1992,13 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    else
      {
         if (elm_gengrid_first_item_get(tb->grid))
-          elm_menu_item_add(menu, menu_it, "edit-delete", _("Delete"),
+          {
+             elm_menu_item_add(menu, menu_it, "edit-delete", _("Delete"),
                  _grid_menu_delete_cb, tb);
+             elm_menu_item_add(menu, NULL, "media-playback-start",
+                 _("Slideshow"), _slideshow, tb);
+          }
      }
-
-   menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("View"),
-       NULL, NULL);
-   elm_menu_item_add(menu, menu_it, "zoom-in", _("Zoom In"),
-       _zoom_in, tb);
-   elm_menu_item_add(menu, menu_it, "zoom-out", _("Zoom Out"),
-       _zoom_out, tb);
-   elm_menu_item_add(menu, menu_it, "media-playback-start", _("Slideshow"),
-       _slideshow, tb);
-   elm_menu_item_separator_add(menu, NULL);
    elm_menu_item_add(menu, NULL, "preferences-system", _("Settings"),
        _settings, tb);
    evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
@@ -2143,7 +2099,9 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
                   tb->ephoto->searchentries = NULL;
                }
 	     if (entry)
-		evas_object_smart_callback_call(tb->main, "view", entry);
+               {
+		   evas_object_smart_callback_call(tb->main, "view", entry);
+               }
 	  }
         else if (!strcmp(k, "c"))
           {
@@ -2253,7 +2211,27 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      }
    else if (!strcmp(k, "Escape"))
      {
-        _grid_menu_clear_cb(tb, NULL, NULL);
+        if (tb->searching)
+          _ephoto_search_cancel(tb->search, NULL, NULL);
+        else
+          _grid_menu_clear_cb(tb, NULL, NULL);
+     }
+   else if (ev->compose && (((ev->compose[0] != '\\')
+       && (ev->compose[0] >= ' ')) || ev->compose[1]))
+     {
+        if (!tb->searching)
+          {
+             _search(tb, NULL, NULL);
+             elm_entry_entry_append(tb->search, ev->compose);
+             elm_entry_cursor_end_set(tb->search);
+          }
+        else if (!elm_object_focus_get(tb->search))
+          {
+             elm_object_focus_set(tb->search, EINA_TRUE);
+             elm_entry_entry_append(tb->search, ev->compose);
+             elm_entry_cursor_end_set(tb->search);
+          }
+        _ephoto_search_go(tb->search, NULL, NULL);
      }
    if (selected)
      eina_list_free(selected);
@@ -2302,8 +2280,6 @@ _ephoto_thumb_populate_start(void *data, int type EINA_UNUSED,
 
    evas_object_smart_callback_call(tb->main, "changed,directory", NULL);
 
-   evas_object_show(tb->progress);
-   elm_progressbar_pulse(tb->progress, EINA_TRUE);
    tb->animator.processed = 0;
    tb->animator.count = 0;
    if (tb->ephoto->selentries)
@@ -2338,11 +2314,6 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
      {
         tb->totimages = 0;
         tb->totsize = 0;
-     }
-   if (tb->animator.processed == tb->animator.count)
-     {
-        elm_progressbar_pulse(tb->progress, EINA_FALSE);
-        evas_object_hide(tb->progress);
      }
    _update_info_label(tb);
    tb->dirs_only = 0;
@@ -2586,8 +2557,9 @@ Evas_Object *
 ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
 {
    Evas_Object *box = elm_box_add(parent);
-   Evas_Object *icon, *hbox, *but, *ic, *tab;
+   Evas_Object *hbox, *but, *ic;
    Ephoto_Thumb_Browser *tb;
+   int ret;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(box, NULL);
 
@@ -2636,7 +2608,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(tb->table);
 
    tb->leftbox = elm_box_add(tb->table);
-   evas_object_size_hint_weight_set(tb->leftbox, 0.1, EVAS_HINT_EXPAND);
+   evas_object_size_hint_weight_set(tb->leftbox, 0.2, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->leftbox,
        EVAS_HINT_FILL, EVAS_HINT_FILL);
 
@@ -2783,48 +2755,93 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
 
    _zoom_set(tb, tb->ephoto->config->thumb_size);
 
-   tab = elm_table_add(tb->table);
-   evas_object_size_hint_weight_set(tab, EVAS_HINT_EXPAND,
-       EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(tab, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_table_pack(tb->table, tab, 0, 1, 4, 1);
-   evas_object_show(tab);
+   hbox = elm_box_add(tb->main);
+   elm_box_horizontal_set(hbox, EINA_TRUE);
+   evas_object_size_hint_weight_set(hbox, EVAS_HINT_EXPAND, 0.0);
+   evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(tb->main, hbox);
+   evas_object_show(hbox);
 
-   tb->progress = elm_progressbar_add(tb->table);
-   elm_progressbar_pulse_set(tb->progress, EINA_TRUE);
-   elm_object_text_set(tb->progress, _("Loading: "));
-   evas_object_size_hint_weight_set(tb->progress, 0.1, 0.0);
-   evas_object_size_hint_align_set(tb->progress, EVAS_HINT_FILL, 0.5);
-   elm_table_pack(tab, tb->progress, 0, 0, 1, 1);
-   evas_object_hide(tb->progress);
+   but = elm_check_add(hbox);
+   elm_object_style_set(but, "toggle");
+   elm_object_part_text_set(but, "on", _("Show Folders"));
+   elm_object_part_text_set(but, "off", _("Hide Folders"));
+   if (!tb->ephoto->config->fsel_hide)
+     {
+        elm_check_state_set(but, EINA_FALSE);
+        evas_object_smart_callback_add(but, "changed", _ephoto_dir_hide_folders, tb);
+     }
+   else
+     {
+        elm_check_state_set(but, EINA_TRUE);
+        evas_object_smart_callback_add(but, "changed", _ephoto_dir_show_folders, tb);
+     }
+   elm_box_pack_end(hbox, but);
+   evas_object_show(but);
 
-   tb->infolabel = elm_label_add(tb->table);
+   tb->infolabel = elm_label_add(hbox);
    elm_label_line_wrap_set(tb->infolabel, ELM_WRAP_WORD);
    elm_object_text_set(tb->infolabel, "Info Label");
    evas_object_size_hint_weight_set(tb->infolabel, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_align_set(tb->infolabel, EVAS_HINT_FILL,
        EVAS_HINT_FILL);
-   evas_object_size_hint_aspect_set(tb->infolabel,
-       EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_table_pack(tab, tb->infolabel, 1, 0, 3, 1);
+   evas_object_size_hint_aspect_set(tb->infolabel, EVAS_ASPECT_CONTROL_HORIZONTAL, 1, 1);
+   elm_box_pack_end(hbox, tb->infolabel);
    evas_object_show(tb->infolabel);
 
-   tb->hover = elm_hoversel_add(tb->table);
+   ic = elm_icon_add(hbox);
+   evas_object_size_hint_min_set(ic, 20, 20);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   ret = elm_icon_standard_set(ic, "zoom-in");
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+   but = elm_button_add(hbox);
+   if (!ret)
+     elm_object_text_set(but, _("Zoom In"));
+   else
+     {
+        elm_object_part_content_set(but, "icon", ic);
+        elm_object_tooltip_text_set(but, _("Zoom In"));
+        elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_CENTER);
+     }
+   evas_object_smart_callback_add(but, "clicked", _zoom_in, tb);
+   elm_box_pack_end(hbox, but);
+   evas_object_show(but);
+
+   ic = elm_icon_add(hbox);
+   evas_object_size_hint_min_set(ic, 20, 20);
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   elm_icon_standard_set(ic, "zoom-out");
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+   but = elm_button_add(hbox);
+   if (!ret)
+     elm_object_text_set(but, _("Zoom Out"));
+   else
+     {
+        elm_object_part_content_set(but, "icon", ic);
+        elm_object_tooltip_text_set(but, _("Zoom Out"));
+        elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_CENTER);
+     }
+   evas_object_smart_callback_add(but, "clicked", _zoom_out, tb);
+   elm_box_pack_end(hbox, but);
+   evas_object_show(but);
+
+   tb->hover = elm_hoversel_add(hbox);
    elm_hoversel_hover_parent_set(tb->hover, tb->ephoto->win);
-   elm_hoversel_item_add(tb->hover, _("Alphabetical Ascending"), 
+   elm_hoversel_item_add(tb->hover, _("Alphabetical Ascending"),
        "view-sort-ascending", ELM_ICON_STANDARD, _sort_alpha_asc, tb);
-   elm_hoversel_item_add(tb->hover, _("Alphabetical Descending"), 
+   elm_hoversel_item_add(tb->hover, _("Alphabetical Descending"),
        "view-sort-descending", ELM_ICON_STANDARD, _sort_alpha_desc, tb);
-   elm_hoversel_item_add(tb->hover, _("Modification Time Ascending"), 
+   elm_hoversel_item_add(tb->hover, _("Modification Time Ascending"),
        "view-sort-ascending", ELM_ICON_STANDARD, _sort_mod_asc, tb);
-   elm_hoversel_item_add(tb->hover, _("Modification Time Descending"), 
+   elm_hoversel_item_add(tb->hover, _("Modification Time Descending"),
        "view-sort-descending", ELM_ICON_STANDARD, _sort_mod_desc, tb);
-   elm_object_text_set(tb->hover, _("Alphabetical Ascending"));
-   icon = elm_icon_add(tb->hover);
-   elm_icon_standard_set(icon, "view-sort-ascending");
-   elm_object_part_content_set(tb->hover, "icon", icon);
-   evas_object_show(icon);
-   elm_table_pack(tb->table, tb->hover, 4, 1, 1, 1);
+   elm_object_text_set(tb->hover, _("Sort"));
+   ic = elm_icon_add(tb->hover);
+   evas_object_size_hint_min_set(ic, 20, 20);
+   elm_icon_standard_set(ic, "view-sort-ascending");
+   elm_object_part_content_set(tb->hover, "icon", ic);
+   evas_object_show(ic);
+   elm_box_pack_end(hbox, tb->hover);
    evas_object_show(tb->hover);
 
    tb->handlers =

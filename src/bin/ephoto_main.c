@@ -203,6 +203,20 @@ _resize_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      }
 }
 
+static void
+_pager_focused(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   Ephoto *ephoto = data;
+
+   if (ephoto->state == EPHOTO_STATE_THUMB)
+     elm_object_focus_set(ephoto->tb, EINA_TRUE);
+   else if (ephoto->state == EPHOTO_STATE_SINGLE)
+     ephoto_single_browser_focus_set(ephoto);
+   else
+     elm_object_focus_set(ephoto->sl, EINA_TRUE);
+}
+
 Evas_Object *
 ephoto_window_add(const char *path)
 {
@@ -245,11 +259,14 @@ ephoto_window_add(const char *path)
       ephoto_thumb_size_set(ephoto, ephoto->config->thumb_size);
 
    ephoto->pager = elm_naviframe_add(ephoto->win);
+   elm_object_focus_allow_set(ephoto->pager, EINA_FALSE);
    elm_naviframe_prev_btn_auto_pushed_set(ephoto->pager, EINA_FALSE);
    evas_object_size_hint_weight_set(ephoto->pager, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
    evas_object_size_hint_fill_set(ephoto->pager, EVAS_HINT_FILL,
        EVAS_HINT_FILL);
+   evas_object_event_callback_add(ephoto->pager, EVAS_CALLBACK_FOCUS_IN,
+       _pager_focused, ephoto);
    elm_win_resize_object_add(ephoto->win, ephoto->pager);
    evas_object_show(ephoto->pager);
 

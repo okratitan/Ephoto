@@ -944,8 +944,6 @@ _ephoto_search_cancel(void *data, Evas_Object *obj EINA_UNUSED,
         tb->original_grid = NULL;
         tb->totimages = tb->totimages_old;
         tb->totsize = tb->totsize_old;
-        tb->totimages_old = 0;
-        tb->totsize_old = 0;
      }
    if (!tb->ephoto->entries)
      {
@@ -959,6 +957,8 @@ _ephoto_search_cancel(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_del(hbox);
    tb->searching = 0;
    _update_info_label(tb);
+   tb->totimages_old = 0;
+   tb->totsize_old = 0;
 }
 
 static void
@@ -1956,6 +1956,7 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
         elm_menu_item_separator_add(menu, NULL);
         elm_menu_item_add(menu, menu_it, "system-search", _("Search"),
             _search, tb);
+        elm_menu_item_separator_add(menu, menu_it);
         elm_menu_item_add(menu, menu_it, "edit-select-all", _("Select All"),
             _grid_menu_select_all_cb, tb);
      }
@@ -1967,6 +1968,7 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
      {
 	elm_menu_item_add(menu, menu_it, "edit-clear", _("Select None"),
 	    _grid_menu_clear_cb, tb);
+        elm_menu_item_separator_add(menu, menu_it);
         if (item)
           {
              evas_object_data_set(item, "thumb_browser", tb);
@@ -2002,7 +2004,7 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    elm_menu_item_add(menu, NULL, "preferences-system", _("Settings"),
        _settings, tb);
    evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-            tb);
+       tb);
    evas_object_show(menu);
 }
 
@@ -2013,8 +2015,6 @@ _grid_mouse_wheel(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    Ephoto_Thumb_Browser *tb = data;
    Evas_Event_Mouse_Wheel *ev = event_info;
    Eina_Bool ctrl = evas_key_modifier_is_set(ev->modifiers, "Control");
-
-   printf("No\n");
 
    if (ctrl)
      {
@@ -2219,6 +2219,8 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    else if (ev->compose && (((ev->compose[0] != '\\')
        && (ev->compose[0] >= ' ')) || ev->compose[1]))
      {
+        if (elm_object_focus_get(tb->direntry))
+          return;
         if (!tb->searching)
           {
              _search(tb, NULL, NULL);

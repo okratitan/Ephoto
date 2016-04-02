@@ -1391,11 +1391,9 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
        _zoom_fit_cb, sb);
    elm_menu_item_add(menu, menu_itt, "zoom-original", _("Zoom 1:1"),
        _zoom_1_cb, sb);
-   elm_menu_item_separator_add(menu, menu_it);
-   elm_menu_item_add(menu, menu_it, "media-playback-start", _("Slideshow"),
-       _slideshow, sb);
-
    elm_menu_item_separator_add(menu, NULL);
+   elm_menu_item_add(menu, NULL, "media-playback-start", _("Slideshow"),
+       _slideshow, sb);
    elm_menu_item_add(menu, NULL, "preferences-system", _("Settings"),
        _settings, sb);
 }

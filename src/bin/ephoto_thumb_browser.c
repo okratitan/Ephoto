@@ -952,13 +952,13 @@ _ephoto_search_cancel(void *data, Evas_Object *obj EINA_UNUSED,
         tb->totimages = 0;
         tb->totsize = 0;
      }
-   _update_info_label(tb);
    elm_object_focus_set(tb->main, EINA_TRUE);
    evas_object_del(tb->search);
    tb->search = NULL;
    elm_box_unpack(tb->gridbox, hbox);
    evas_object_del(hbox);
    tb->searching = 0;
+   _update_info_label(tb);
 }
 
 static void
@@ -2041,7 +2041,7 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      {
         if (shift)
           {
-             if (!strcmp(k, "f"))
+             if (!strcasecmp(k, "f"))
                {
                   if (evas_object_visible_get(tb->leftbox))
                     _ephoto_dir_hide_folders(tb, NULL, NULL);
@@ -2049,19 +2049,19 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
                     _ephoto_dir_show_folders(tb, NULL, NULL);
                }
           }
-	else if ((!strcmp(k, "plus")) || (!strcmp(k, "equal")))
+	else if ((!strcasecmp(k, "plus")) || (!strcasecmp(k, "equal")))
 	  {
 	     int zoom = tb->ephoto->config->thumb_size + ZOOM_STEP;
 
 	     _zoom_set(tb, zoom);
 	  }
-	else if ((!strcmp(k, "minus")) || (!strcmp(k, "underscore")))
+	else if ((!strcasecmp(k, "minus")) || (!strcasecmp(k, "underscore")))
 	  {
 	     int zoom = tb->ephoto->config->thumb_size - ZOOM_STEP;
 
 	     _zoom_set(tb, zoom);
 	  }
-	else if (!strcmp(k, "Tab"))
+	else if (!strcasecmp(k, "Tab"))
 	  {
 	     Elm_Object_Item *it = elm_gengrid_selected_item_get(tb->grid);
 	     Ephoto_Entry *entry;
@@ -2103,30 +2103,30 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 		   evas_object_smart_callback_call(tb->main, "view", entry);
                }
 	  }
-        else if (!strcmp(k, "c"))
+        else if (!strcasecmp(k, "c"))
           {
              _grid_menu_copy_cb(tb, NULL, NULL);
           }
-        else if (!strcmp(k, "x"))
+        else if (!strcasecmp(k, "x"))
           {
              _grid_menu_cut_cb(tb, NULL, NULL);
           }
-        else if (!strcmp(k, "v"))
+        else if (!strcasecmp(k, "v"))
           {
              _grid_menu_paste_cb(tb, NULL, NULL);
           }
-        else if (!strcmp(k, "a"))
+        else if (!strcasecmp(k, "a"))
           {
              _grid_menu_select_all_cb(tb, NULL, NULL);
           }
-        else if (!strcmp(k, "f") && !tb->processing)
+        else if (!strcasecmp(k, "f") && !tb->processing)
           {
              if (tb->searching)
                _ephoto_search_cancel(tb->search, NULL, NULL);
              else
                _search(tb, NULL, NULL);
           }
-        else if (!strcmp(k, "Delete"))
+        else if (!strcasecmp(k, "Delete"))
           {
              char path[PATH_MAX];
              char *trash;
@@ -2148,11 +2148,11 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
              free(trash);
           }
      }
-   else if (!strcmp(k, "F1"))
+   else if (!strcasecmp(k, "F1"))
      {
         _settings(tb, NULL, NULL);
      }
-   else if (!strcmp(k, "F2"))
+   else if (!strcasecmp(k, "F2"))
      {
         Elm_Object_Item *it = NULL;
 
@@ -2164,7 +2164,7 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
              _grid_menu_rename_cb(it, NULL, NULL);
           }
      }
-   else if (!strcmp(k, "F5"))
+   else if (!strcasecmp(k, "F5"))
      {
 	Elm_Object_Item *it = elm_gengrid_selected_item_get(tb->grid);
 	Ephoto_Entry *entry;
@@ -2203,13 +2203,13 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 	if (entry)
 	   evas_object_smart_callback_call(tb->main, "slideshow", entry);
      }
-   else if (!strcmp(k, "F11"))
+   else if (!strcasecmp(k, "F11"))
      {
 	Evas_Object *win = tb->ephoto->win;
 
 	elm_win_fullscreen_set(win, !elm_win_fullscreen_get(win));
      }
-   else if (!strcmp(k, "Escape"))
+   else if (!strcasecmp(k, "Escape"))
      {
         if (tb->searching)
           _ephoto_search_cancel(tb->search, NULL, NULL);
@@ -2231,6 +2231,11 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
              elm_entry_entry_append(tb->search, ev->compose);
              elm_entry_cursor_end_set(tb->search);
           }
+        _ephoto_search_go(tb->search, NULL, NULL);
+     }
+   else if (tb->searching && ((!strcasecmp(k, "Backspace")) ||
+       !strcasecmp(k, "Delete")))
+     {
         _ephoto_search_go(tb->search, NULL, NULL);
      }
    if (selected)

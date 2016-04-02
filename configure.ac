@@ -5,12 +5,9 @@ rm -f config.cache
 
 AC_INIT([ephoto], [0.9.99], [enlightenment-devel@lists.sourceforge.net])
 
-AC_CHECK_HEADERS([dirent.h limits.h math.h arpa/inet.h netinet/in.h])
-
 AC_PREREQ([2.60])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
-
 AC_CONFIG_HEADERS(src/bin/config.h)
 
 AM_INIT_AUTOMAKE(1.6 dist-xz)
@@ -20,6 +17,8 @@ AC_USE_SYSTEM_EXTENSIONS
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_C___ATTRIBUTE__
+
+AC_CHECK_HEADERS([dirent.h limits.h math.h arpa/inet.h netinet/in.h])
 
 m4_ifdef([AM_GNU_GETTEXT_VERSION],[
 AM_GNU_GETTEXT_VERSION([0.18])

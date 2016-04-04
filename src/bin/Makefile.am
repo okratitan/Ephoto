@@ -30,6 +30,7 @@ ephoto_SOURCES = \
         ephoto_hsv.c \
         ephoto_ipc.c \
         ephoto_main.c \
+        ephoto_red_eye.c \
         ephoto_thumb.c \
         ephoto_thumb_browser.c \
         ephoto_single_browser.c \

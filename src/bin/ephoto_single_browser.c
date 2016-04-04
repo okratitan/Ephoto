@@ -148,6 +148,8 @@ _scroller_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    Ephoto_Single_Browser *sb = data;
    Evas_Event_Mouse_Up *ev = event_info;
 
+   if (sb->editing)
+     return;
    if (ev->button == 3)
      {
         _edit_menu(sb);
@@ -1194,6 +1196,23 @@ _go_color(void *data, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
+_go_reye(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+
+   if (sb->viewer)
+     {
+        sb->editing = EINA_TRUE;
+        if (sb->botbox)
+          evas_object_hide(sb->botbox);
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+
+        ephoto_red_eye_add(sb->main, sb->mhbox, v->image);
+     }
+}
+
+static void
 _go_auto_eq(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
@@ -1377,6 +1396,8 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
        _("Brightness/Contrast/Gamma"), _go_bcg, sb);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Hue/Saturation/Value"),
        _go_hsv, sb);
+   elm_menu_item_add(menu, menu_itt, "insert-image", _("Red Eye Removal"),
+       _go_reye, sb);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Color Levels"),
        _go_color, sb);
 

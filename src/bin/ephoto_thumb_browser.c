@@ -2808,7 +2808,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
      {
         elm_object_part_content_set(but, "icon", ic);
         elm_object_tooltip_text_set(but, _("Zoom In"));
-        elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_CENTER);
+        elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
      }
    evas_object_smart_callback_add(but, "clicked", _zoom_in, tb);
    elm_box_pack_end(hbox, but);
@@ -2826,7 +2826,7 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
      {
         elm_object_part_content_set(but, "icon", ic);
         elm_object_tooltip_text_set(but, _("Zoom Out"));
-        elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_CENTER);
+        elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
      }
    evas_object_smart_callback_add(but, "clicked", _zoom_out, tb);
    elm_box_pack_end(hbox, but);

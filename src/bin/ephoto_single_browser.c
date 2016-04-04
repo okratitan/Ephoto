@@ -401,6 +401,26 @@ _update_bottom_bar(Ephoto_Single_Browser *sb)
        _("Resolution"), w, h, _("File Size"), tmp);
    free(tmp);
 
+   if (!evas_object_visible_get(sb->botbox))
+     {
+    
+        evas_object_del(sb->botbox);
+   
+        sb->botbox = elm_notify_add(sb->ephoto->win);
+        elm_notify_align_set(sb->botbox, 0.5, 1.0);
+        evas_object_size_hint_weight_set(sb->botbox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+        evas_object_size_hint_fill_set(sb->botbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+
+        sb->infolabel = elm_label_add(sb->botbox);
+        elm_label_line_wrap_set(sb->infolabel, ELM_WRAP_NONE);
+        evas_object_size_hint_weight_set(sb->infolabel, EVAS_HINT_EXPAND,
+            EVAS_HINT_FILL);
+        evas_object_size_hint_align_set(sb->infolabel, EVAS_HINT_FILL,
+            EVAS_HINT_FILL);
+        elm_object_content_set(sb->botbox, sb->infolabel);
+        evas_object_show(sb->infolabel);
+     }
+
    elm_object_text_set(sb->infolabel, image_info);
    elm_notify_timeout_set(sb->botbox, 5);
    evas_object_show(sb->botbox);

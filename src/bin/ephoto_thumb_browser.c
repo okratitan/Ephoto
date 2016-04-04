@@ -858,8 +858,6 @@ _ephoto_search_go(void *data, Evas_Object *obj EINA_UNUSED,
    tb->searchentries = NULL;
    if (results)
      {
-        tb->totimages_old = tb->totimages;
-        tb->totsize_old = tb->totsize;
         tb->totimages = 0;
         tb->totsize = 0;
         EINA_LIST_FOREACH(results, l, o)
@@ -1078,6 +1076,8 @@ _search(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_show(search);
 
    tb->search = search;
+   tb->totimages_old = tb->totimages;
+   tb->totsize_old = tb->totsize;
 
    elm_object_focus_set(search, EINA_TRUE);
 }

@@ -50,17 +50,28 @@ _reye_clicked(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto_Reye *er = data;
    unsigned int *im_data, *im_data_new, *p1, *p2;
-   int x, y, imx, imy, xpos, ypos, xadj, yadj;
-   int a, r, g, b;
+   int x, y, imx, imy, imw, imh;
+   int xpos, ypos, xadj, yadj;
+   int a, r, g, b, nx, ny;
+   double scalex, scaley;
 
    evas_pointer_canvas_xy_get(evas_object_evas_get(er->image), &xpos, &ypos);
-   evas_object_geometry_get(er->image, &imx, &imy, 0, 0);
+   evas_object_geometry_get(er->image, &imx, &imy, &imw, &imh);
 
-   xadj = (xpos-imx)-(er->rad/2);
-   yadj = (ypos-imy)-(er->rad/2);
+   xadj = xpos-imx;
+   yadj = ypos-imy;
 
    if (xadj < 0) xadj = 0;
    if (yadj < 0) yadj = 0;
+
+   scalex = (double) (xadj) / (double) imw;
+   scaley = (double) (yadj) / (double) imh;
+
+   nx = ((er->w * scalex)-(er->rad/2));
+   ny = ((er->h * scaley)-(er->rad/2));
+
+   if (nx < 0) nx = 0;
+   if (ny < 0) ny = 0;
 
    im_data = malloc(sizeof(unsigned int) * er->w * er->h);
    if (er->edited_im_data)
@@ -85,9 +96,9 @@ _reye_clicked(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
              b = _mul_color_alpha(b, a);
              g = _mul_color_alpha(g, a);
              r = _mul_color_alpha(r, a);
-             if (y >= yadj && y <= yadj+er->rad)
+             if (y >= ny && y <= ny+er->rad)
                {
-                  if (x >= xadj && x <= xadj+er->rad)
+                  if (x >= nx && x <= nx+er->rad)
                     r = (int) ((g+b)/2);
                }
              b = _normalize_color(b);

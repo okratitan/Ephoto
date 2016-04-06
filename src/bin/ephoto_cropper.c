@@ -220,7 +220,7 @@ _apply_crop(void *data, Evas_Object *obj EINA_UNUSED,
    elm_table_unpack(ec->image_parent, ec->box);
    elm_layout_content_unset(ec->layout, "ephoto.swallow.image");
    elm_table_pack(ec->image_parent, ec->image, 0, 0, 1, 1);
-   ephoto_single_browser_image_data_update(ec->main, ec->image, EINA_TRUE,
+   ephoto_single_browser_image_data_done(ec->main,
        idata_new, nw, nh);
    evas_object_del(ec->cropper);
    evas_object_del(ec->layout);
@@ -237,7 +237,7 @@ _cancel_crop(void *data, Evas_Object *obj EINA_UNUSED,
    elm_table_unpack(ec->image_parent, ec->box);
    elm_layout_content_unset(ec->layout, "ephoto.swallow.image");
    elm_table_pack(ec->image_parent, ec->image, 0, 0, 1, 1);
-   ephoto_single_browser_cancel_editing(ec->main, ec->image);
+   ephoto_single_browser_cancel_editing(ec->main);
    evas_object_del(ec->cropper);
    evas_object_del(ec->layout);
    evas_object_del(ec->box);

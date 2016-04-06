@@ -89,7 +89,7 @@ _ephoto_color_adjust_red(Ephoto_Color *eco, int red, unsigned int *image_data)
 	     p1++;
 	  }
      }
-   ephoto_single_browser_image_data_update(eco->main, eco->image, EINA_FALSE,
+   ephoto_single_browser_image_data_update(eco->main, eco->image,
        im_data_new, eco->w, eco->h);
    free(im_data);
    return im_data_new;
@@ -138,7 +138,7 @@ _ephoto_color_adjust_green(Ephoto_Color *eco, int green,
 	     p1++;
 	  }
      }
-   ephoto_single_browser_image_data_update(eco->main, eco->image, EINA_FALSE,
+   ephoto_single_browser_image_data_update(eco->main, eco->image,
        im_data_new, eco->w, eco->h);
    free(im_data);
    return im_data_new;
@@ -187,7 +187,7 @@ _ephoto_color_adjust_blue(Ephoto_Color *eco, int blue,
 	     p1++;
 	  }
      }
-   ephoto_single_browser_image_data_update(eco->main, eco->image, EINA_FALSE,
+   ephoto_single_browser_image_data_update(eco->main, eco->image,
        im_data_new, eco->w, eco->h);
    free(im_data);
    return im_data_new;
@@ -263,8 +263,7 @@ _color_apply(void *data, int type EINA_UNUSED,
        evas_object_image_data_get(elm_image_object_get(eco->image),
            EINA_FALSE);
    evas_object_image_size_get(elm_image_object_get(eco->image), &w, &h);
-   ephoto_single_browser_image_data_update(eco->main, eco->image, EINA_TRUE,
-       image_data, w, h);
+   ephoto_single_browser_image_data_done(eco->main, image_data, w, h);
    ephoto_editor_del(eco->editor);
 
    return ECORE_CALLBACK_PASS_ON;
@@ -283,7 +282,7 @@ _color_cancel(void *data, int type EINA_UNUSED,
    eco->green = 0;
    eco->blue = 0;
    _red_slider_changed(eco, eco->rslider, NULL);
-   ephoto_single_browser_cancel_editing(eco->main, eco->image);
+   ephoto_single_browser_cancel_editing(eco->main);
    ephoto_editor_del(eco->editor);
 
    return ECORE_CALLBACK_PASS_ON;

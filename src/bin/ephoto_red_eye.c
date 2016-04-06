@@ -113,7 +113,7 @@ _reye_clicked(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
           }
      }
    er->edited_im_data = im_data_new;
-   ephoto_single_browser_image_data_update(er->main, er->image, EINA_FALSE,
+   ephoto_single_browser_image_data_update(er->main, er->image,
        im_data_new, er->w, er->h);
    free(im_data);
 }
@@ -134,8 +134,12 @@ _reye_reset(void *data, int type EINA_UNUSED,
 
    elm_slider_value_set(er->rslider, 15);
    er->rad = 15;
-
-   ephoto_single_browser_image_data_update(er->main, er->image, EINA_FALSE,
+   if (er->edited_im_data)
+     {
+        free(er->edited_im_data);
+        er->edited_im_data = NULL;
+     }
+   ephoto_single_browser_image_data_update(er->main, er->image,
        er->original_im_data, er->w, er->h);
 
    return ECORE_CALLBACK_PASS_ON;
@@ -153,8 +157,7 @@ _reye_apply(void *data, int type EINA_UNUSED,
        evas_object_image_data_get(elm_image_object_get(er->image),
            EINA_FALSE);
    evas_object_image_size_get(elm_image_object_get(er->image), &w, &h);
-   ephoto_single_browser_image_data_update(er->main, er->image, EINA_TRUE,
-       image_data, w, h);
+   ephoto_single_browser_image_data_done(er->main, image_data, w, h);
    ephoto_editor_del(er->editor);
 
    return ECORE_CALLBACK_PASS_ON;
@@ -169,9 +172,12 @@ _reye_cancel(void *data, int type EINA_UNUSED,
    elm_slider_value_set(er->rslider, 15);
    er->rad = 15;
 
-   ephoto_single_browser_image_data_update(er->main, er->image, EINA_FALSE,
-       er->original_im_data, er->w, er->h);
-   ephoto_single_browser_cancel_editing(er->main, er->image);
+   ephoto_single_browser_cancel_editing(er->main);
+   if (er->edited_im_data)
+     {
+        free(er->edited_im_data);
+        er->edited_im_data = NULL;
+     }
    ephoto_editor_del(er->editor);
 
    return ECORE_CALLBACK_PASS_ON;

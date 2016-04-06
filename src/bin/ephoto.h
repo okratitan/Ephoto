@@ -76,10 +76,10 @@ void ephoto_single_browser_path_pending_set(Evas_Object *obj,
 void ephoto_single_browser_path_pending_unset(Evas_Object *obj);
 void ephoto_single_browser_path_created(Evas_Object *obj, Ephoto_Entry *entry);
 void ephoto_single_browser_image_data_update(Evas_Object *main,
-    Evas_Object *image, Eina_Bool finished, unsigned int *image_data, int w,
-    int h);
-void ephoto_single_browser_cancel_editing(Evas_Object *main,
-    Evas_Object *image);
+    Evas_Object *image, unsigned int *image_data, int w, int h);
+void ephoto_single_browser_image_data_done(Evas_Object *main,
+    unsigned int *image_data, int w, int h);
+void ephoto_single_browser_cancel_editing(Evas_Object *main);
 /* smart callbacks called: "back" - the user wants to go back to the previous
  * screen. */
 

@@ -1803,57 +1803,64 @@ ephoto_single_browser_path_created(Evas_Object *obj, Ephoto_Entry *entry)
 
 void
 ephoto_single_browser_image_data_update(Evas_Object *main, Evas_Object *image,
-    Eina_Bool finished, unsigned int *image_data, int w, int h)
+    unsigned int *image_data, int w, int h)
 {
    Ephoto_Single_Browser *sb = evas_object_data_get(main, "single_browser");
 
    if (sb->editing)
      {
-	if (sb->cropping)
-	  {
-	     evas_object_image_size_set(elm_image_object_get(image), w, h);
-	     sb->cropping = EINA_FALSE;
-	  }
 	evas_object_image_data_set(elm_image_object_get(image), image_data);
 	evas_object_image_data_update_add(elm_image_object_get(image), 0, 0, w,
 	    h);
-
-	if (finished)
-	  {
-             _update_bottom_bar(sb);
-	     sb->edited_image_data = image_data;
-	     sb->ew = w;
-	     sb->eh = h;
-	     sb->editing = EINA_FALSE;
-	     _zoom_fit(sb);
-	  }
      }
 }
 
 void
-ephoto_single_browser_cancel_editing(Evas_Object *main, Evas_Object *image)
+ephoto_single_browser_image_data_done(Evas_Object *main,
+    unsigned int *image_data, int w, int h)
 {
    Ephoto_Single_Browser *sb = evas_object_data_get(main, "single_browser");
 
    if (sb->editing)
      {
+        _ephoto_single_browser_recalc(sb);
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+        if (sb->cropping)
+             sb->cropping = EINA_FALSE;
+        evas_object_image_size_set(elm_image_object_get(v->image), w, h);
+        evas_object_image_data_set(elm_image_object_get(v->image), image_data);
+        evas_object_image_data_update_add(elm_image_object_get(v->image), 0, 0, w,
+            h);
+
+        _update_bottom_bar(sb);
+        sb->edited_image_data = image_data;
+        sb->ew = w;
+        sb->eh = h;
+        sb->editing = EINA_FALSE;
+        _zoom_fit(sb);
+     }
+}
+
+void
+ephoto_single_browser_cancel_editing(Evas_Object *main)
+{
+   Ephoto_Single_Browser *sb = evas_object_data_get(main, "single_browser");
+
+   if (sb->editing)
+     {
+        _ephoto_single_browser_recalc(sb);
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 	if (sb->cropping)
 	   sb->cropping = EINA_FALSE;
 	if (sb->edited_image_data)
 	  {
-	     evas_object_image_size_set(elm_image_object_get(image), sb->ew,
+	     evas_object_image_size_set(elm_image_object_get(v->image), sb->ew,
 		 sb->eh);
-	     evas_object_image_data_set(elm_image_object_get(image),
+	     evas_object_image_data_set(elm_image_object_get(v->image),
 		 sb->edited_image_data);
-	     evas_object_image_data_update_add(elm_image_object_get(image), 0,
+	     evas_object_image_data_update_add(elm_image_object_get(v->image), 0,
 		 0, sb->ew, sb->eh);
 	  }
-        else
-	  {
-	     const char *group = _get_edje_group(sb->entry->path);
-             elm_image_file_set(image, sb->entry->path, group);
-	  }
-
 	sb->editing = EINA_FALSE;
 	_zoom_fit(sb);
      }

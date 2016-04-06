@@ -120,7 +120,7 @@ ephoto_filter_blur(Evas_Object *main, Evas_Object *image)
    free(gs);
    free(bs);
 
-   ephoto_single_browser_image_data_update(main, image, im_data_new,
+   ephoto_single_browser_image_data_done(main, im_data_new,
        w, h);
 }
 
@@ -175,7 +175,7 @@ ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image)
 	     p1++;
 	  }
      }
-   ephoto_single_browser_image_data_update(main, image, im_data_new,
+   ephoto_single_browser_image_data_done(main, im_data_new,
        w, h);
 }
 
@@ -205,7 +205,7 @@ ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image)
 	   gray = (gray * a) / 255;
 	im_data_new[i] = (a << 24) | (gray << 16) | (gray << 8) | gray;
      }
-   ephoto_single_browser_image_data_update(main, image, im_data_new,
+   ephoto_single_browser_image_data_done(main, im_data_new,
        w, h);
 }
 
@@ -239,7 +239,7 @@ ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image)
 	rr = _demul_color_alpha(rr, a);
 	im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
      }
-   ephoto_single_browser_image_data_update(main, image, im_data_new,
+   ephoto_single_browser_image_data_done(main, im_data_new,
        w, h);
 }
 
@@ -310,6 +310,6 @@ ephoto_filter_histogram_eq(Evas_Object *main, Evas_Object *image)
 	     p1++;
 	  }
      }
-   ephoto_single_browser_image_data_update(main, image, im_data_new,
+   ephoto_single_browser_image_data_done(main, im_data_new,
        w, h);
 }

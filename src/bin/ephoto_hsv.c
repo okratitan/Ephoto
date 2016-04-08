@@ -14,7 +14,7 @@ struct _Ephoto_HSV
    double hue;
    double saturation;
    double value;
-   int w, h;
+   Evas_Coord w, h;
    unsigned int *original_im_data;
 };
 
@@ -51,7 +51,7 @@ unsigned int *
 _ephoto_hsv_adjust_hue(Ephoto_HSV *ehsv, double hue, unsigned int *image_data)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
-   int x, y;
+   Evas_Coord x, y;
    int a, r, g, b, bb, gg, rr;
    float hh, s, v;
 
@@ -107,7 +107,7 @@ _ephoto_hsv_adjust_saturation(Ephoto_HSV *ehsv, double saturation,
     unsigned int *image_data)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
-   int x, y;
+   Evas_Coord x, y;
    int a, r, g, b, bb, gg, rr;
    float hh, s, v;
 
@@ -163,7 +163,7 @@ _ephoto_hsv_adjust_value(Ephoto_HSV *ehsv, double value,
     unsigned int *image_data)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
-   int x, y;
+   Evas_Coord x, y;
    int a, r, g, b, bb, gg, rr;
    float hh, s, v;
 
@@ -279,7 +279,7 @@ _hsv_apply(void *data, int type EINA_UNUSED,
 {
    Ephoto_HSV *ehsv = data;
    unsigned int *image_data;
-   int w, h;
+   Evas_Coord w, h;
 
    image_data =
        evas_object_image_data_get(elm_image_object_get(ehsv->image),

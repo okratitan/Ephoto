@@ -110,7 +110,7 @@ e_thumb_icon_file_set(Evas_Object *obj, const char *file, const char *key)
 }
 
 void
-e_thumb_icon_size_set(Evas_Object *obj, int w, int h)
+e_thumb_icon_size_set(Evas_Object *obj, Evas_Coord w, Evas_Coord h)
 {
    E_Thumb *eth;
 

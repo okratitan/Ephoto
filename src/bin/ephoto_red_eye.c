@@ -10,7 +10,7 @@ struct _Ephoto_Reye
    Evas_Object *rslider;
    Eina_List *handlers;
    int rad;
-   int w, h;
+   Evas_Coord w, h;
    unsigned int *original_im_data;
    unsigned int *edited_im_data;
 };
@@ -50,9 +50,9 @@ _reye_clicked(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto_Reye *er = data;
    unsigned int *im_data, *im_data_new, *p1, *p2;
-   int x, y, imx, imy, imw, imh;
-   int xpos, ypos, xadj, yadj;
-   int a, r, g, b, nx, ny;
+   Evas_Coord x, y, imx, imy, imw, imh;
+   Evas_Coord xpos, ypos, xadj, yadj, nx, ny;
+   int a, r, g, b;
    double scalex, scaley;
 
    evas_pointer_canvas_xy_get(evas_object_evas_get(er->image), &xpos, &ypos);
@@ -151,7 +151,7 @@ _reye_apply(void *data, int type EINA_UNUSED,
 {
    Ephoto_Reye *er = data;
    unsigned int *image_data;
-   int w, h;
+   Evas_Coord w, h;
 
    image_data =
        evas_object_image_data_get(elm_image_object_get(er->image),

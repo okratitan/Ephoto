@@ -34,7 +34,7 @@ ephoto_filter_blur(Evas_Object *main, Evas_Object *image)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
    int rad = 3;
-   int x, y, w, h, mx, my, mw, mh, mt, xx, yy;
+   Evas_Coord x, y, w, h, mx, my, mw, mh, mt, xx, yy;
    int a, r, g, b;
    int *as, *rs, *gs, *bs;
 
@@ -128,7 +128,8 @@ void
 ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
-   int a, r, g, b, x, y, w, h;
+   int a, r, g, b;
+   Evas_Coord x, y, w, h;
 
    im_data =
        evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
@@ -183,7 +184,8 @@ void
 ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image)
 {
    unsigned int *im_data, *im_data_new;
-   int gray, i, r, g, b, a, w, h;
+   int gray, i, r, g, b, a;
+   Evas_Coord w, h;
 
    im_data =
        evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
@@ -213,7 +215,8 @@ void
 ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image)
 {
    unsigned int *im_data, *im_data_new;
-   int i, r, rr, g, gg, b, bb, a, w, h;
+   int i, r, rr, g, gg, b, bb, a;
+   Evas_Coord w, h;
 
    im_data =
        evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
@@ -247,7 +250,8 @@ void
 ephoto_filter_histogram_eq(Evas_Object *main, Evas_Object *image)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
-   int x, y, w, h, i, hist[256], cdf[256];
+   Evas_Coord x, y, w, h;
+   int i, hist[256], cdf[256];
    int a, r, g, b, bb, gg, rr, norm, total;
    float hh, s, v, nv, sum;
 

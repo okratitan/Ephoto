@@ -14,7 +14,7 @@ struct _Ephoto_BCG
    int contrast;
    int brightness;
    double gamma;
-   int w, h;
+   Evas_Coord w, h;
    unsigned int *original_im_data;
 };
 
@@ -52,7 +52,7 @@ _ephoto_bcg_adjust_brightness(Ephoto_BCG *ebcg, int brightness,
     unsigned int *image_data)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
-   int x, y;
+   Evas_Coord x, y;
    int a, r, g, b, bb, gg, rr;
 
    im_data = malloc(sizeof(unsigned int) * ebcg->w * ebcg->h);
@@ -103,8 +103,8 @@ _ephoto_bcg_adjust_contrast(Ephoto_BCG *ebcg, int contrast,
     unsigned int *image_data)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
-   int x, y, top, bottom;
-   int a, r, g, b, bb, gg, rr;
+   Evas_Coord x, y;
+   int top, bottom, a, r, g, b, bb, gg, rr;
    float factor;
 
    im_data = malloc(sizeof(unsigned int) * ebcg->w * ebcg->h);
@@ -158,7 +158,7 @@ _ephoto_bcg_adjust_gamma(Ephoto_BCG *ebcg, double gamma,
     unsigned int *image_data)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
-   int x, y;
+   Evas_Coord x, y;
    int a, r, g, b, bb, gg, rr;
 
    im_data = malloc(sizeof(unsigned int) * ebcg->w * ebcg->h);
@@ -272,7 +272,7 @@ _bcg_apply(void *data, int type EINA_UNUSED,
 {
    Ephoto_BCG *ebcg = data;
    unsigned int *image_data;
-   int w, h;
+   Evas_Coord w, h;
 
    image_data =
        evas_object_image_data_get(elm_image_object_get(ebcg->image),

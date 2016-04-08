@@ -1,82 +1,11 @@
 #include "ephoto.h"
 
-#define CONFIG_VERSION 14
+#define CONFIG_VERSION 15
 
 static int _ephoto_config_load(Ephoto *ephoto);
 static Eina_Bool _ephoto_on_config_save(void *data);
 
 static Eet_Data_Descriptor *edd = NULL;
-
-Eina_Bool
-ephoto_config_init(Ephoto *ephoto)
-{
-   Eet_Data_Descriptor_Class eddc;
-
-   if (!eet_eina_stream_data_descriptor_class_set(&eddc, sizeof(eddc),
-	   "Ephoto_Config", sizeof(Ephoto_Config)))
-     {
-	return EINA_FALSE;
-     }
-
-   if (!edd)
-      edd = eet_data_descriptor_stream_new(&eddc);
-
-#undef T
-#undef D
-#define T Ephoto_Config
-#define D edd
-#define C_VAL(edd, type, member, dtype) \
-  EET_DATA_DESCRIPTOR_ADD_BASIC(edd, type, #member, member, dtype)
-
-   C_VAL(D, T, config_version, EET_T_INT);
-   C_VAL(D, T, thumb_size, EET_T_INT);
-   C_VAL(D, T, thumb_gen_size, EET_T_INT);
-   C_VAL(D, T, directory, EET_T_STRING);
-   C_VAL(D, T, slideshow_timeout, EET_T_DOUBLE);
-   C_VAL(D, T, slideshow_transition, EET_T_STRING);
-   C_VAL(D, T, window_width, EET_T_INT);
-   C_VAL(D, T, window_height, EET_T_INT);
-   C_VAL(D, T, fsel_hide, EET_T_INT);
-   C_VAL(D, T, tool_hide, EET_T_INT);
-   C_VAL(D, T, open, EET_T_STRING);
-   C_VAL(D, T, prompts, EET_T_INT);
-   C_VAL(D, T, drop, EET_T_INT);
-   switch (_ephoto_config_load(ephoto))
-     {
-       case 0:
-	  /* Start a new config */
-	  ephoto->config->config_version = CONFIG_VERSION;
-	  ephoto->config->slideshow_timeout = 4.0;
-	  ephoto->config->slideshow_transition = eina_stringshare_add("fade");
-	  ephoto->config->window_width = 900;
-	  ephoto->config->window_height = 600;
-	  ephoto->config->fsel_hide = 0;
-	  ephoto->config->tool_hide = 0;
-	  ephoto->config->open = eina_stringshare_add(getenv("HOME"));
-	  ephoto->config->prompts = 1;
-	  ephoto->config->drop = 0;
-	  break;
-
-       default:
-	  return EINA_TRUE;
-     }
-
-   ephoto_config_save(ephoto);
-   return EINA_TRUE;
-}
-
-void
-ephoto_config_save(Ephoto *ephoto)
-{
-   _ephoto_on_config_save(ephoto);
-}
-
-void
-ephoto_config_free(Ephoto *ephoto)
-{
-   free(ephoto->config);
-   ephoto->config = NULL;
-}
 
 static void
 _config_close_cb(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
@@ -137,7 +66,7 @@ _open_hv_select(void *data, Evas_Object *obj, void *event_info)
 }
 
 static Evas_Object *
-_ephoto_config_general(Ephoto *ephoto, Evas_Object *parent)
+_config_general(Ephoto *ephoto, Evas_Object *parent)
 {
    Evas_Object *box, *table, *check, *hoversel, *entry;
 
@@ -232,7 +161,7 @@ _spinner_changed(void *data EINA_UNUSED, Evas_Object *obj,
 }
 
 static Evas_Object *
-_ephoto_config_slideshow(Ephoto *ephoto, Evas_Object *parent)
+_config_slideshow(Ephoto *ephoto, Evas_Object *parent)
 {
    Evas_Object *box, *table, *label, *spinner, *hoversel;
    const Eina_List *l;
@@ -350,7 +279,7 @@ _link_anchor(void *data, Evas_Object *obj, void *event_info)
 }
 
 static Evas_Object *
-_ephoto_config_bindings(Evas_Object *parent)
+_config_bindings(Evas_Object *parent)
 {
    Evas_Object *box, *scroller, *entry;
    Eina_Strbuf *sbuf = eina_strbuf_new();
@@ -424,7 +353,7 @@ _ephoto_config_bindings(Evas_Object *parent)
 }
 
 static Evas_Object *
-_ephoto_config_about(Evas_Object *parent)
+_config_about(Evas_Object *parent)
 {
    Evas_Object *box, *entry, *img, *lbl;
    Eina_Strbuf *sbuf = eina_strbuf_new();
@@ -546,6 +475,71 @@ _segment_changed(void *data EINA_UNUSED, Evas_Object *o, void *event)
    evas_object_show(page);
 }
 
+static int
+_ephoto_config_load(Ephoto *ephoto)
+{
+   Eet_File *ef;
+   char buf[4096], buf2[4096];
+
+   snprintf(buf2, sizeof(buf2), "%s/.config/ephoto", getenv("HOME"));
+   ecore_file_mkpath(buf2);
+   snprintf(buf, sizeof(buf), "%s/ephoto.cfg", buf2);
+
+   ef = eet_open(buf, EET_FILE_MODE_READ);
+   if (!ef)
+     {
+	ephoto_config_free(ephoto);
+	ephoto->config = calloc(1, sizeof(Ephoto_Config));
+	return 0;
+     }
+
+   ephoto->config = eet_data_read(ef, edd, "config");
+   eet_close(ef);
+
+   if (!ephoto->config || ephoto->config->config_version > CONFIG_VERSION)
+     {
+	ephoto_config_free(ephoto);
+	ephoto->config = calloc(1, sizeof(Ephoto_Config));
+	return 0;
+     }
+
+   if (ephoto->config->config_version < CONFIG_VERSION)
+     {
+	ecore_file_unlink(buf);
+	ephoto_config_free(ephoto);
+	ephoto->config = calloc(1, sizeof(Ephoto_Config));
+	return 0;
+     }
+   return 1;
+}
+
+static Eina_Bool
+_ephoto_on_config_save(void *data)
+{
+   Ephoto *ephoto = data;
+   Eet_File *ef;
+   char buf[4096], buf2[4096];
+
+   snprintf(buf, sizeof(buf), "%s/.config/ephoto/ephoto.cfg", getenv("HOME"));
+   snprintf(buf2, sizeof(buf2), "%s.tmp", buf);
+
+   ef = eet_open(buf2, EET_FILE_MODE_WRITE);
+   if (!ef)
+      goto save_end;
+
+   eet_data_write(ef, edd, "config", ephoto->config, 1);
+   if (eet_close(ef))
+      goto save_end;
+
+   if (!ecore_file_mv(buf2, buf))
+      goto save_end;
+
+  save_end:
+   ecore_file_unlink(buf2);
+
+   return ECORE_CALLBACK_CANCEL;
+}
+
 void
 ephoto_config_main(Ephoto *ephoto)
 {
@@ -563,13 +557,13 @@ ephoto_config_main(Ephoto *ephoto)
    evas_object_size_hint_weight_set(table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-   gen = _ephoto_config_general(ephoto, table);
+   gen = _config_general(ephoto, table);
    elm_table_pack(table, gen, 0, 2, 1, 1);
-   slide = _ephoto_config_slideshow(ephoto, table);
+   slide = _config_slideshow(ephoto, table);
    elm_table_pack(table, slide, 0, 2, 1, 1);
-   kb = _ephoto_config_bindings(table);
+   kb = _config_bindings(table);
    elm_table_pack(table, kb, 0, 2, 1, 1);
-   about = _ephoto_config_about(table);
+   about = _config_about(table);
    elm_table_pack(table, about, 0, 2, 1, 1);
 
    segment = elm_segment_control_add(table);
@@ -661,67 +655,76 @@ ephoto_config_main(Ephoto *ephoto)
    evas_object_show(popup);
 }
 
-static int
-_ephoto_config_load(Ephoto *ephoto)
+void
+ephoto_config_save(Ephoto *ephoto)
 {
-   Eet_File *ef;
-   char buf[4096], buf2[4096];
-
-   snprintf(buf2, sizeof(buf2), "%s/.config/ephoto", getenv("HOME"));
-   ecore_file_mkpath(buf2);
-   snprintf(buf, sizeof(buf), "%s/ephoto.cfg", buf2);
-
-   ef = eet_open(buf, EET_FILE_MODE_READ);
-   if (!ef)
-     {
-	ephoto_config_free(ephoto);
-	ephoto->config = calloc(1, sizeof(Ephoto_Config));
-	return 0;
-     }
-
-   ephoto->config = eet_data_read(ef, edd, "config");
-   eet_close(ef);
-
-   if (!ephoto->config || ephoto->config->config_version > CONFIG_VERSION)
-     {
-	ephoto_config_free(ephoto);
-	ephoto->config = calloc(1, sizeof(Ephoto_Config));
-	return 0;
-     }
-
-   if (ephoto->config->config_version < CONFIG_VERSION)
-     {
-	ecore_file_unlink(buf);
-	ephoto_config_free(ephoto);
-	ephoto->config = calloc(1, sizeof(Ephoto_Config));
-	return 0;
-     }
-   return 1;
+   _ephoto_on_config_save(ephoto);
 }
 
-static Eina_Bool
-_ephoto_on_config_save(void *data)
+void
+ephoto_config_free(Ephoto *ephoto)
 {
-   Ephoto *ephoto = data;
-   Eet_File *ef;
-   char buf[4096], buf2[4096];
-
-   snprintf(buf, sizeof(buf), "%s/.config/ephoto/ephoto.cfg", getenv("HOME"));
-   snprintf(buf2, sizeof(buf2), "%s.tmp", buf);
-
-   ef = eet_open(buf2, EET_FILE_MODE_WRITE);
-   if (!ef)
-      goto save_end;
-
-   eet_data_write(ef, edd, "config", ephoto->config, 1);
-   if (eet_close(ef))
-      goto save_end;
-
-   if (!ecore_file_mv(buf2, buf))
-      goto save_end;
-
-  save_end:
-   ecore_file_unlink(buf2);
-
-   return ECORE_CALLBACK_CANCEL;
+   free(ephoto->config);
+   ephoto->config = NULL;
 }
+
+Eina_Bool
+ephoto_config_init(Ephoto *ephoto)
+{
+   Eet_Data_Descriptor_Class eddc;
+
+   if (!eet_eina_stream_data_descriptor_class_set(&eddc, sizeof(eddc),
+	   "Ephoto_Config", sizeof(Ephoto_Config)))
+     {
+	return EINA_FALSE;
+     }
+
+   if (!edd)
+      edd = eet_data_descriptor_stream_new(&eddc);
+
+#undef T
+#undef D
+#define T Ephoto_Config
+#define D edd
+#define C_VAL(edd, type, member, dtype) \
+  EET_DATA_DESCRIPTOR_ADD_BASIC(edd, type, #member, member, dtype)
+
+   C_VAL(D, T, config_version, EET_T_INT);
+   C_VAL(D, T, thumb_size, EET_T_INT);
+   C_VAL(D, T, thumb_gen_size, EET_T_INT);
+   C_VAL(D, T, directory, EET_T_STRING);
+   C_VAL(D, T, slideshow_timeout, EET_T_DOUBLE);
+   C_VAL(D, T, slideshow_transition, EET_T_STRING);
+   C_VAL(D, T, window_width, EET_T_INT);
+   C_VAL(D, T, window_height, EET_T_INT);
+   C_VAL(D, T, fsel_hide, EET_T_INT);
+   C_VAL(D, T, tool_hide, EET_T_INT);
+   C_VAL(D, T, lpane_size, EET_T_DOUBLE);
+   C_VAL(D, T, open, EET_T_STRING);
+   C_VAL(D, T, prompts, EET_T_INT);
+   C_VAL(D, T, drop, EET_T_INT);
+   switch (_ephoto_config_load(ephoto))
+     {
+       case 0:
+	  /* Start a new config */
+	  ephoto->config->config_version = CONFIG_VERSION;
+	  ephoto->config->slideshow_timeout = 4.0;
+	  ephoto->config->slideshow_transition = eina_stringshare_add("fade");
+	  ephoto->config->window_width = 900;
+	  ephoto->config->window_height = 600;
+	  ephoto->config->fsel_hide = 0;
+	  ephoto->config->tool_hide = 0;
+          ephoto->config->lpane_size = .15;
+	  ephoto->config->open = eina_stringshare_add(getenv("HOME"));
+	  ephoto->config->prompts = 1;
+	  ephoto->config->drop = 0;
+	  break;
+
+       default:
+	  return EINA_TRUE;
+     }
+
+   ephoto_config_save(ephoto);
+   return EINA_TRUE;
+}
+

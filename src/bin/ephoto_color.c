@@ -14,7 +14,7 @@ struct _Ephoto_Color
    int blue;
    int green;
    int red;
-   int w, h;
+   Evas_Coord w, h;
    unsigned int *original_im_data;
 };
 
@@ -51,7 +51,7 @@ unsigned int *
 _ephoto_color_adjust_red(Ephoto_Color *eco, int red, unsigned int *image_data)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
-   int x, y;
+   Evas_Coord x, y;
    int a, r, g, b, rr;
 
    im_data = malloc(sizeof(unsigned int) * eco->w * eco->h);
@@ -100,7 +100,7 @@ _ephoto_color_adjust_green(Ephoto_Color *eco, int green,
     unsigned int *image_data)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
-   int x, y;
+   Evas_Coord x, y;
    int a, r, g, b, gg;
 
    im_data = malloc(sizeof(unsigned int) * eco->w * eco->h);
@@ -149,7 +149,7 @@ _ephoto_color_adjust_blue(Ephoto_Color *eco, int blue,
     unsigned int *image_data)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
-   int x, y;
+   Evas_Coord x, y;
    int a, r, g, b, bb;
 
    im_data = malloc(sizeof(unsigned int) * eco->w * eco->h);
@@ -257,7 +257,7 @@ _color_apply(void *data, int type EINA_UNUSED,
 {
    Ephoto_Color *eco = data;
    unsigned int *image_data;
-   int w, h;
+   Evas_Coord w, h;
 
    image_data =
        evas_object_image_data_get(elm_image_object_get(eco->image),

@@ -193,7 +193,7 @@ _resize_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto *ephoto = data;
-   int w, h;
+   Evas_Coord w, h;
 
    evas_object_geometry_get(ephoto->win, 0, 0, &w, &h);
    if (w && h)
@@ -634,6 +634,9 @@ ephoto_directory_set(Ephoto *ephoto, const char *path, Evas_Object *expanded,
    ed->expanded = expanded;
    ed->dirs_only = dirs_only;
    ed->thumbs_only = thumbs_only;
+
+   if (!ecore_file_can_read(path))
+     return;
 
    ephoto_title_set(ephoto, NULL);
    eina_stringshare_replace(&ephoto->config->directory,

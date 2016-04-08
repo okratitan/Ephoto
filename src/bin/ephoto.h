@@ -76,9 +76,9 @@ void ephoto_single_browser_path_pending_set(Evas_Object *obj,
 void ephoto_single_browser_path_pending_unset(Evas_Object *obj);
 void ephoto_single_browser_path_created(Evas_Object *obj, Ephoto_Entry *entry);
 void ephoto_single_browser_image_data_update(Evas_Object *main,
-    Evas_Object *image, unsigned int *image_data, int w, int h);
+    Evas_Object *image, unsigned int *image_data, Evas_Coord w, Evas_Coord h);
 void ephoto_single_browser_image_data_done(Evas_Object *main,
-    unsigned int *image_data, int w, int h);
+    unsigned int *image_data, Evas_Coord w, Evas_Coord h);
 void ephoto_single_browser_cancel_editing(Evas_Object *main);
 /* smart callbacks called: "back" - the user wants to go back to the previous
  * screen. */
@@ -105,7 +105,7 @@ int e_thumb_init(void);
 int e_thumb_shutdown(void);
 Evas_Object *e_thumb_icon_add(Evas *evas);
 void e_thumb_icon_file_set(Evas_Object *obj, const char *file, const char *key);
-void e_thumb_icon_size_set(Evas_Object *obj, int w, int h);
+void e_thumb_icon_size_set(Evas_Object *obj, Evas_Coord w, Evas_Coord h);
 void e_thumb_icon_begin(Evas_Object *obj);
 void e_thumb_icon_end(Evas_Object *obj);
 void e_thumb_icon_rethumb(Evas_Object *obj);
@@ -197,6 +197,7 @@ struct _Ephoto_Config
    int window_height;
    Eina_Bool fsel_hide;
    Eina_Bool tool_hide;
+   double lpane_size;
    const char *open;
    Eina_Bool prompts;
    Eina_Bool drop;

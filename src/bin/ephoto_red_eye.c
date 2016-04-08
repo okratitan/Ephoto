@@ -49,9 +49,10 @@ _reye_clicked(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_data EINA_UNUSED)
 {
    Ephoto_Reye *er = data;
-   unsigned int *im_data, *im_data_new, *p1, *p2;
+   unsigned int *im_data, *p1;
    Evas_Coord x, y, imx, imy, imw, imh;
    Evas_Coord xpos, ypos, xadj, yadj, nx, ny;
+   Evas_Coord xx, yy, nnx, nny;
    int a, r, g, b;
    double scalex, scaley;
 
@@ -67,8 +68,8 @@ _reye_clicked(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    scalex = (double) (xadj) / (double) imw;
    scaley = (double) (yadj) / (double) imh;
 
-   nx = ((er->w * scalex)-(er->rad/2));
-   ny = ((er->h * scaley)-(er->rad/2));
+   nx = er->w * scalex;
+   ny = er->h * scaley;
 
    if (nx < 0) nx = 0;
    if (ny < 0) ny = 0;
@@ -81,41 +82,37 @@ _reye_clicked(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      memcpy(im_data, er->original_im_data,
           sizeof(unsigned int) * er->w * er->h);
 
-   im_data_new = malloc(sizeof(unsigned int) * er->w * er->h);
-
-   for (y = 0; y < er->h; y++)
+   for (yy = -er->rad; yy <= er->rad; yy++)
      {
-        p1 = im_data + (y * er->w);
-        p2 = im_data_new + (y * er->w);
-        for (x = 0; x < er->w; x++)
-          {
-             b = (int) ((*p1) & 0xff);
-             g = (int) ((*p1 >> 8) & 0xff);
-             r = (int) ((*p1 >> 16) & 0xff);
-             a = (int) ((*p1 >> 24) & 0xff);
-             b = _mul_color_alpha(b, a);
-             g = _mul_color_alpha(g, a);
-             r = _mul_color_alpha(r, a);
-             if (y >= ny && y <= ny+er->rad)
-               {
-                  if (x >= nx && x <= nx+er->rad)
-                    r = (int) ((g+b)/2);
+        for (xx = -er->rad; xx <= er->rad; xx++)
+           {
+              if ((xx * xx) + (yy * yy) <= (er->rad * er->rad))
+                {
+                   nnx = nx + xx;
+                   nny = ny + yy;
+
+                   p1 = im_data + (nny * er->w) + nnx;
+                   b = (int) ((*p1) & 0xff);
+                   g = (int) ((*p1 >> 8) & 0xff);
+                   r = (int) ((*p1 >> 16) & 0xff);
+                   a = (int) ((*p1 >> 24) & 0xff);
+                   b = _mul_color_alpha(b, a);
+                   g = _mul_color_alpha(g, a);
+                   r = _mul_color_alpha(r, a);
+                   r = (int) ((g+b)/2);
+                   b = _normalize_color(b);
+                   g = _normalize_color(g);
+                   r = _normalize_color(r);
+                   b = _demul_color_alpha(b, a);
+                   g = _demul_color_alpha(g, a);
+                   r = _demul_color_alpha(r, a);
+                   *p1 = (a << 24) | (r << 16) | (g << 8) | b;
                }
-             b = _normalize_color(b);
-             g = _normalize_color(g);
-             r = _normalize_color(r);
-             b = _demul_color_alpha(b, a);
-             g = _demul_color_alpha(g, a);
-             r = _demul_color_alpha(r, a);
-             *p2 = (a << 24) | (r << 16) | (g << 8) | b;
-             p2++;
-             p1++;
           }
      }
-   er->edited_im_data = im_data_new;
+   er->edited_im_data = im_data;
    ephoto_single_browser_image_data_update(er->main, er->image,
-       im_data_new, er->w, er->h);
-   free(im_data);
+       im_data, er->w, er->h);
 }
 
 static void

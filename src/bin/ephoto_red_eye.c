@@ -50,7 +50,7 @@ _reye_clicked(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto_Reye *er = data;
    unsigned int *im_data, *p1;
-   Evas_Coord x, y, imx, imy, imw, imh;
+   Evas_Coord imx, imy, imw, imh;
    Evas_Coord xpos, ypos, xadj, yadj, nx, ny;
    Evas_Coord xx, yy, nnx, nny;
    int a, r, g, b;

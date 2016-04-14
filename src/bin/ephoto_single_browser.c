@@ -964,6 +964,15 @@ _delete_image(void *data, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
+_rename_image(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   
+   ephoto_file_rename(sb->ephoto, sb->entry->path);
+}
+
+static void
 _go_first(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
@@ -1377,6 +1386,8 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
        _save_image_as, sb);
    elm_menu_item_add(menu, menu_it, "document-send", _("Upload"), _upload_image,
        sb);
+   elm_menu_item_add(menu, menu_it, "edit", _("Rename"),
+            _rename_image, sb);
    elm_menu_item_add(menu, menu_it, "edit-delete", _("Delete"),
             _delete_image, sb);
    menu_it =
@@ -1427,7 +1438,7 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
        elm_menu_item_add(menu, NULL, "document-properties", _("View"), NULL,
        NULL);  
    menu_itt =
-       elm_menu_item_add(menu, menu_it, "go-first", _("Go"), NULL, NULL);
+       elm_menu_item_add(menu, menu_it, "go-next", _("Go"), NULL, NULL);
    elm_menu_item_add(menu, menu_itt, "go-first", _("First"), _go_first, sb);
    elm_menu_item_add(menu, menu_itt, "go-previous", _("Previous"), _go_prev, sb);
    elm_menu_item_add(menu, menu_itt, "go-next", _("Next"), _go_next, sb);
@@ -1542,6 +1553,10 @@ _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNU
    else if (!strcmp(k, "F1"))
      {
         _ephoto_show_settings(sb, NULL, NULL);
+     }
+   else if (!strcmp(k, "F2"))
+     {
+        _rename_image(sb, NULL, NULL);
      }
    else if (!strcmp(k, "F5") && !sb->editing)
      {

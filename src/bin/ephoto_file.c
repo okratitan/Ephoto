@@ -478,6 +478,12 @@ _rename_confirm(void *data, Evas_Object *obj EINA_UNUSED,
           _complete(ephoto, _("Error"),
               _("There was an error renaming this file."));
      }
+   else
+     {
+        if (ephoto->state == EPHOTO_STATE_SINGLE)
+          ephoto_single_browser_path_pending_set(ephoto->single_browser,
+              new_file_name);
+     }
    evas_object_del(popup);
    evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);

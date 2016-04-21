@@ -361,6 +361,8 @@ _config_bindings(Evas_Object *parent)
            "<b>Left Arrow:</b> Navigate Previous<br/>"
            "<b>Right Arrow:</b> Navigate Next<br/>"
            "<b>End:</b> Navigate Last<br/>"
+           "<b>Ctrl+Delete:</b> Delete Image<br/>"
+           "<b>F2</b> Rename Image<br/>"
            "<b>Escape:</b> Return to Thumbnail Browser<br/><br/>"
            "<b><hilight>Slideshow Bindings</hilight></b><br/>"
            "<b>Space:</b> Play/Pause Slideshow<br/>"

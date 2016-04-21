@@ -33,6 +33,7 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *direntry;
    Evas_Object *search;
    Evas_Object *hover;
+   Evas_Object *toggle;
    Elm_Object_Item *dir_current;
    Elm_Object_Item *last_sel;
    Ephoto_Sort sort;
@@ -891,31 +892,31 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 
 /*File Pane Functions*/
 static void
-_ephoto_dir_show_folders(void *data, Evas_Object *obj,
+_ephoto_dir_show_folders(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
 
- //  evas_object_show(tb->leftbox);
+   elm_check_state_set(tb->toggle, EINA_FALSE);
    elm_panes_content_left_min_size_set(tb->panes, 100);
    elm_panes_content_left_size_set(tb->panes, tb->ephoto->config->lpane_size);
    tb->ephoto->config->fsel_hide = 0;
-   evas_object_smart_callback_del(obj, "changed", _ephoto_dir_show_folders);
-   evas_object_smart_callback_add(obj, "changed", _ephoto_dir_hide_folders, tb);
+   evas_object_smart_callback_del(tb->toggle, "changed", _ephoto_dir_show_folders);
+   evas_object_smart_callback_add(tb->toggle, "changed", _ephoto_dir_hide_folders, tb);
 }
 
 static void
-_ephoto_dir_hide_folders(void *data, Evas_Object *obj,
+_ephoto_dir_hide_folders(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
 
-   //evas_object_hide(tb->leftbox);
+   elm_check_state_set(tb->toggle, EINA_TRUE);
    elm_panes_content_left_min_size_set(tb->panes, 0);
    elm_panes_content_left_size_set(tb->panes, 0.0);
    tb->ephoto->config->fsel_hide = 1;
-   evas_object_smart_callback_del(obj, "changed", _ephoto_dir_hide_folders);
-   evas_object_smart_callback_add(obj, "changed", _ephoto_dir_show_folders, tb);
+   evas_object_smart_callback_del(tb->toggle, "changed", _ephoto_dir_hide_folders);
+   evas_object_smart_callback_add(tb->toggle, "changed", _ephoto_dir_show_folders, tb);
 }
 
 void
@@ -1956,22 +1957,24 @@ void _ephoto_thumb_pane_add(Ephoto_Thumb_Browser *tb)
    elm_box_pack_end(tb->main, hbox);
    evas_object_show(hbox);
 
-   but = elm_check_add(hbox);
-   elm_object_style_set(but, "toggle");
-   elm_object_part_text_set(but, "on", _("Show Folders"));
-   elm_object_part_text_set(but, "off", _("Hide Folders"));
+   tb->toggle = elm_check_add(hbox);
+   elm_object_style_set(tb->toggle, "toggle");
+   elm_object_part_text_set(tb->toggle, "on", _("Show Folders"));
+   elm_object_part_text_set(tb->toggle, "off", _("Hide Folders"));
    if (!tb->ephoto->config->fsel_hide)
      {
-        elm_check_state_set(but, EINA_FALSE);
-        evas_object_smart_callback_add(but, "changed", _ephoto_dir_hide_folders, tb);
+        elm_check_state_set(tb->toggle, EINA_FALSE);
+        evas_object_smart_callback_add(tb->toggle, "changed",
+            _ephoto_dir_hide_folders, tb);
      }
    else
      {
-        elm_check_state_set(but, EINA_TRUE);
-        evas_object_smart_callback_add(but, "changed", _ephoto_dir_show_folders, tb);
+        elm_check_state_set(tb->toggle, EINA_TRUE);
+        evas_object_smart_callback_add(tb->toggle, "changed",
+            _ephoto_dir_show_folders, tb);
      }
-   elm_box_pack_end(hbox, but);
-   evas_object_show(but);
+   elm_box_pack_end(hbox, tb->toggle);
+   evas_object_show(tb->toggle);
 
    tb->infolabel = elm_label_add(hbox);
    elm_label_line_wrap_set(tb->infolabel, ELM_WRAP_WORD);
@@ -2487,7 +2490,7 @@ _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNU
           {
              if (!strcasecmp(k, "f"))
                {
-                  if (evas_object_visible_get(tb->leftbox))
+                  if (!elm_check_state_get(tb->toggle))
                     _ephoto_dir_hide_folders(tb, NULL, NULL);
                   else
                     _ephoto_dir_show_folders(tb, NULL, NULL);

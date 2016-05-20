@@ -233,11 +233,11 @@ msgstr "Ruota a destra"
 
 #: src/bin/ephoto_single_browser.c:1508
 msgid "Flip Horizontal"
-msgstr "Sfoglia orizzontalmente"
+msgstr "Capovolgi orizzontalmente"
 
 #: src/bin/ephoto_single_browser.c:1509
 msgid "Flip Vertical"
-msgstr "Sfoglia verticalmente"
+msgstr "Capovolgi verticalmente"
 
 #: src/bin/ephoto_single_browser.c:1514
 msgid "First"

@@ -1,0 +1,792 @@
+#define FIXED_SIZE(_W, _H) \
+   min: _W _H; max: _W _H;
+
+collections {
+   images {
+      image: "images/shadow_circle_horiz.png" COMP;
+      image: "images/shadow_circle_vert.png" COMP;
+      image: "images/tile.png" COMP;
+      image: "images/shadow.png" COMP;
+      image: "images/sel_border.png" COMP;
+      image: "images/sel_corner1.png" COMP;
+      image: "images/sel_corner3.png" COMP;
+      image: "images/sel_corner5.png" COMP;
+      image: "images/sel_corner7.png" COMP;
+   }
+   group { name: "ephoto,main,layout";
+      script {
+         public offseth = 0;
+         public offsetv = 0;
+         public custom = 0 ;
+         public custom_folders = 0;
+         public message(Msg_Type:type, id, ...) {
+            if ((type == MSG_INT_SET) && (id == 1)) {
+               new hoffset = getarg(2);
+               new voffset = getarg(3);
+               new hoff, voff, roneoff;
+
+               set_int(custom, 1);
+               hoffset *= -1;
+               voffset *= -1;
+
+               get_state_val(PART:"ephoto.swallow.controls", STATE_REL1_OFFSET,
+                   0, roneoff);
+               get_state_val(PART:"ephoto.swallow.controls", STATE_REL2_OFFSET,
+                   hoff, voff);
+
+               roneoff -= get_int(offsetv);
+               roneoff += voffset;
+               hoff -= get_int(offseth);
+               voff -= get_int(offsetv);
+               hoff += hoffset;
+               voff += voffset;
+               set_int(offseth, hoffset);
+               set_int(offsetv, voffset);
+
+               custom_state(PART:"ephoto.swallow.controls", "default", 0.0);
+               set_state_val(PART:"ephoto.swallow.controls", STATE_REL1_OFFSET,
+                   0, roneoff);
+               set_state_val(PART:"ephoto.swallow.controls", STATE_REL2_OFFSET,
+                   hoff, voff);
+               set_state(PART:"ephoto.swallow.controls", "custom", 0.0);
+            }
+            if ((type == MSG_INT_SET) && (id == 2)) {
+               new minw = getarg(2);
+               set_int(custom_folders, 1);
+               custom_state(PART:"ephoto.swallow.folders", "visible", 0.0);
+               set_state_val(PART:"ephoto.swallow.folders",
+                   STATE_MIN, minw, 0);
+            }
+         }
+      }
+      parts {
+         rect { name: "ephoto,main,clip";
+            scale: 1;
+            description { state: "default" 0.0;
+            }
+         }
+         image { name: "background_tile";
+            scale: 1;
+            clip_to: "ephoto,main,clip";
+            description { state: "default" 0.0;
+               fixed: 1 1;
+               image.normal: "images/tile.png";
+               color: 210 210 210 255;
+               fill {
+                  size.relative: 0.0 0.0;
+                  size.offset: 32 32;
+               }     
+            }
+         }
+         swallow { name: "ephoto.swallow.main";
+            scale: 1;
+            mouse_events: 1;
+            clip_to: "ephoto,main,clip";
+            description { state: "default" 0.0;
+               rel2.to: "ephoto,editor";
+               rel2.relative: 0.0 1.0; 
+            }
+         }
+         rect { name: "ephoto,editor";
+            scale: 1;
+            clip_to: "ephoto,main,clip";
+            description { state: "default" 0.0;
+               fixed: 1 1;
+               rel1.to: "ephoto.swallow.editor";
+               rel2.to: "ephoto.swallow.editor";
+               visible: 0;
+            }
+            description { state: "visible" 0.0;
+               inherit: default 0.0;
+               visible: 1;
+            }
+         }
+         image { name: "editor_shadow";
+            mouse_events: 0;
+            scale: 1;
+            description { state: "default" 0.0;
+               fixed: 1 1;
+               image.normal: "images/shadow_circle_vert.png";
+               min: 32 0;
+               color: 255 255 255 0;
+               visible: 0;
+            }
+            description { state: "visible" 0.0;
+               inherit: "default" 0.0;
+               fixed: 1 1;
+               rel1.to: "ephoto,editor";
+               rel1.relative: 1.0 0.0;
+               rel2.to: "ephoto,editor";
+               color: 255 255 255 128;
+               visible: 1;
+            }
+         }
+         rect { name: "editor_base";
+            clip_to: "ephoto,editor";
+            scale: 1;
+            description { state: "default" 0.0;
+               color: 15 15 15 150;
+               rel1.to: "ephoto,editor";
+               rel2.to: "ephoto,editor";
+            }
+         }
+         swallow { name: "ephoto.swallow.editor";
+            scale: 1;
+            mouse_events: 1;
+            clip_to: "ephoto,editor";
+            description { state: "default" 0.0;
+               fixed: 1 1;
+               rel1.to: "ephoto,main,clip";
+               rel1.relative: 1.0 0.0;
+               rel2.to: "ephoto,main,clip";
+               rel2.relative: 1.0 1.0;
+               visible: 0;
+            }
+            description { state: "visible" 0.0;
+               inherit: "default" 0.0;
+               rel1.to: "ephoto,main,clip";
+               rel1.relative: 1.0 0.0;
+               rel2.to: "ephoto,main,clip";
+               rel2.relative: 1.0 1.0;
+               align: 1.0 0.0;
+               visible: 1;
+            }
+         }
+         rect { name: "ephoto,folders";
+            clip_to: "ephoto,main,clip";
+            scale: 1;
+            description { state: "default" 0.0;
+               fixed: 1 1;
+               min: 220 0;
+               rel1.to: "ephoto.swallow.folders";
+               rel2.to: "ephoto.swallow.folders";
+               visible: 0;
+            }
+            description { state: "visible" 0.0;
+               inherit: default 0.0;
+               rel1.to: "ephoto.swallow.folders";
+               rel2.to: "ephoto.swallow.folders";
+               visible: 1;
+            }
+         }
+         image { name: "folders_shadow";
+            mouse_events: 0;
+            scale: 1;
+            description { state: "default" 0.0;
+               fixed: 1 1;
+               image.normal: "images/shadow_circle_vert.png";
+               min: 32 0;
+               color: 255 255 255 0;
+               visible: 0;
+            }
+            description { state: "visible" 0.0;
+               inherit: "default" 0.0;
+               fixed: 1 1;
+               rel1.to: "ephoto,folders";
+               rel1.relative: 1.0 0.0;
+               rel2.to: "ephoto,folders";
+               color: 255 255 255 128;
+               visible: 1;
+            }
+         }
+         rect { name: "folders_base";
+            clip_to: "ephoto,folders";
+            scale: 1;
+            description { state: "default" 0.0;
+               color: 15 15 15 150;
+               rel1.to: "ephoto,folders";
+               rel2.to: "ephoto,folders";
+            }
+         }
+         swallow { name: "ephoto.swallow.folders";
+            scale: 1;
+            mouse_events: 1;
+            clip_to: "ephoto,folders";
+            description { state: "default" 0.0;
+               fixed: 1 1;
+               rel1.to: "ephoto,controls";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "ephoto,controls";
+               rel2.relative: 0.0 0.0;
+               visible: 0;
+            }
+            description { state: "visible" 0.0;
+               inherit: "default" 0.0;
+               rel1.to: "ephoto.swallow.main";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "ephoto,controls";
+               rel2.relative: 0.0 0.0;
+               align: 0.0 0.0;
+               visible: 1;
+            }
+         }
+         rect { name: "ephoto,controls";
+            scale: 1;
+            clip_to: "ephoto,main,clip";
+            description { state: "default" 0.0;
+               fixed: 0 1;
+               rel1.to: "ephoto.swallow.controls";
+               rel2.to: "ephoto.swallow.controls";
+               color: 255 255 255 255;
+               visible: 1;
+            }
+            description { state: "hidden" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 0;
+               visible: 0;
+            }
+         }
+         rect { name: "controls_base";
+            clip_to: "ephoto,controls";
+            scale: 1;
+            description { state: "default" 0.0;
+               color: 15 15 15 150;
+               rel1.to: "ephoto,controls";
+               rel2.to: "ephoto,controls";
+            }
+         }
+         image { name: "controls_shadow";
+            mouse_events: 0;
+            scale: 1;
+            description { state: "default" 0.0;
+               fixed: 1 1;
+               rel1.to: "controls_base";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "controls_base";
+               rel2.relative: 1.0 0.0;
+               image.normal: "images/shadow_circle_horiz.png";
+               min: 0 32;
+               color: 255 255 255 128;
+            }
+            description { state: "hidden" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 0;
+               visible: 0;
+            }
+         }
+         swallow { name: "ephoto.swallow.controls";
+            scale: 1;
+            mouse_events: 1;
+            clip_to: "ephoto,controls";
+            description { state: "default" 0.0;
+               fixed: 1 1;
+               rel1.to: "ephoto.swallow.main";
+               rel2.to: "ephoto.swallow.main";
+               rel1.relative: 0.0 1.0;
+               rel1.offset: 0 -1;
+               rel2.offset: 0 -1;
+               align: 0.5 1.0;
+               color: 255 255 255 255;
+               visible: 1;
+            }
+            description { state: "hidden" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 0;
+               rel1.to: "ephoto.swallow.main";
+               rel1.relative: 0.0 1.0;
+               rel2.to: "ephoto.swallow.main";
+               rel2.relative: 1.0 2.0;
+               visible: 0;
+            }
+         }
+      }
+      programs {
+         program { signal: "ephoto,editor,hide";
+            source: "ephoto";
+            action: STATE_SET "default" 0.0;
+            target: "ephoto.swallow.editor";
+            target: "editor_shadow";
+            target: "ephoto,editor";
+         }
+         program { signal: "ephoto,editor,show";
+            source: "ephoto";
+            action: STATE_SET "visible" 0.0;
+            target: "ephoto.swallow.editor";
+            target: "editor_shadow";
+            target: "ephoto,editor";
+         }
+         program { signal: "ephoto,folders,hide";
+            source: "ephoto";
+            action: STATE_SET "default" 0.0;
+            target: "ephoto.swallow.folders";
+            target: "folders_shadow";
+            target: "ephoto,folders";
+         }
+         program { signal: "ephoto,folders,show";
+            source: "ephoto";
+            script {
+               if (get_int(custom_folders)) {
+                  set_state(PART:"ephoto.swallow.folders", "custom", 0.0);
+               }
+               else {
+                  set_state(PART:"ephoto.swallow.folders", "visible", 0.0);
+               }
+               set_state(PART:"folders_shadow", "visible", 0.0);
+               set_state(PART:"ephoto,folders", "visible", 0.0);
+            }
+         }
+         program { signal: "ephoto,controls,hide";
+            source: "ephoto";
+            action: STATE_SET "hidden" 0.0;
+            target: "ephoto.swallow.controls";
+            target: "controls_shadow";
+            target: "ephoto,controls";
+         }
+         program { signal: "ephoto,controls,show";
+            source: "ephoto";
+            script {
+               if (get_int(custom)) {
+                  set_state(PART:"ephoto.swallow.controls", "custom", 0.0);
+               }
+               else {
+                  set_state(PART:"ephoto.swallow.controls", "default", 0.0);
+               }
+               set_state(PART:"controls_shadow", "default", 0.0);
+               set_state(PART:"ephoto,controls", "default", 0.0);
+            }
+         }
+      }
+   }
+   group { "elm/label/base/info";
+      mouse_events: 0;
+      styles {
+         style { name: "info_style";
+            base: "font=Sans font_size=10 align=center valign=0.5 color=#ffffff style=glow glow_color=#151515 glow_color2=#000000 wrap=mixed text_class=info color_class=text";
+         }
+      }
+      parts {
+         textblock { "elm.text";
+            scale: 1;
+            desc {
+               text {
+                  style: "info_style";
+                  min: 1 1;
+                  ellipsis: -1;
+               }
+            }
+         }
+      }
+   }
+   group { name: "ephoto,image,cropper,base";
+      script {
+         public message(Msg_Type:type, id, ...) {
+            if ((type == MSG_INT_SET) && (id == 1)) {
+               new movetype, cox, coy, pox, poy, ix, iy, iw, ih, cx, cy, cw, ch;
+
+               movetype = getarg(2);
+               cox = getarg(3);
+               coy = getarg(4);
+ 
+               get_geometry(PART:"ephoto.swallow.image", ix, iy, iw, ih);
+               get_geometry(PART:"ephoto.swallow.cropper", cx, cy, cw, ch);
+               
+               custom_state(PART:"ephoto.swallow.cropper", "default", 0.0);
+               if (movetype == 0) {
+                  new ppox, ppoy;
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+                  if (cx+cox < ix)
+                    cox = ix-cx;
+                  if (cx+cw+cox > ix+iw)
+                    cox = (ix+iw)-(cx+cw);
+                  if (cy+coy < iy)
+                    coy = iy-cy;
+                  if (cy+ch+coy > iy+ih)
+                    coy = (iy+ih)-(cy+ch);
+                  pox += cox;
+                  poy += coy;
+                  ppox += cox;
+                  ppoy += coy;
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+               }
+               if (movetype == 1 || movetype == 2 || movetype == 8) {
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  if (cx+cox < ix)
+                    cox = ix-cx;
+                  if (cy+coy < iy)
+                    coy = iy-cy;
+                  if (cw-cox < 20)
+                     return;
+                  if (ch-coy < 20)
+                     return;
+                  cox += pox;
+                  coy += poy;
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, cox, coy);
+               }
+               if (movetype == 3) {
+                  new ppox, ppoy;
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+                  if (cx+cw+cox > ix+iw)
+                    cox = (ix+iw)-(cx+cw);
+                  if (cy+coy < iy)
+                    coy = iy-cy;
+                  if (cw+cox < 20)
+                     return;
+                  if (ch-coy < 20)
+                     return;
+                  poy += coy;
+                  ppox += cox;
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+               }
+               if (movetype == 4 || movetype == 5 || movetype == 6) {
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, pox, poy);
+                  if (cx+cw+cox > ix+iw)
+                    cox = (ix+iw)-(cx+cw);
+                  if (cy+ch+coy > iy+ih)
+                    coy = (iy+ih)-(cy+ch);
+                  if (cw+cox < 20)
+                     return;
+                  if (ch+coy < 20)
+                     return;
+                  cox += pox;
+                  coy += poy;
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, cox, coy);
+               }
+               if (movetype == 7) {
+                  new ppox, ppoy;
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+                  if (cx+cox < ix)
+                    cox = ix-cx;
+                  if (cy+ch+coy > iy+ih)
+                    coy = (iy+ih)-(cy+ch);
+                  if (cw-cox < 20)
+                     return;
+                  if (ch+coy < 20)
+                     return;
+                  pox += cox;
+                  ppoy += coy;
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+               }
+               if (movetype == 9) {
+                  new ppox, ppoy;
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  get_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+                  if (cx < ix)
+                    cox = ix-cx;
+                  if (cx+cw > ix+iw)
+                    cox = (ix+iw)-(cx+cw);
+                  if (cy < iy)
+                    coy = iy-cy;
+                  if (cy+ch > iy+ih)
+                    coy = (iy+ih)-(cy+ch);
+                  pox += cox;
+                  ppox += cox;
+                  poy += coy;
+                  ppoy += coy;
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, pox, poy);
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, ppox, ppoy);
+               }
+               if (movetype == 10) {
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL1_OFFSET, 0, 0);
+                  set_state_val(PART:"ephoto.swallow.cropper", STATE_REL2_OFFSET, 0, 0);
+               }
+               if (movetype == 11) {
+                  new buf[32];
+                  snprintf(buf, sizeof(buf), "%dx%d", cox, coy);
+                  set_text(PART:"ephoto.cropper.size", buf);
+               }
+               set_state(PART:"ephoto.swallow.cropper", "custom", 0.0);
+               if (movetype != 0) {
+                 emit("cropper,changed", "ephoto.swallow.cropper");
+               }
+            }
+         }
+      }
+      parts {
+         rect { name: "clipper";
+            description { state: "default" 0.0;
+            }
+         }
+         swallow { name: "ephoto.swallow.image";
+            scale: 1;
+            mouse_events: 0;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+            }
+         }
+         swallow { name: "ephoto.swallow.cropper";
+            scale: 1;
+            mouse_events: 1;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+               min: 20 20;
+               rel1.to: "ephoto.swallow.image";
+               rel1.relative: 0.2 0.2;
+               rel2.to: "ephoto.swallow.image";
+               rel2.relative: 0.8 0.8;
+            }
+         }
+         text { name: "ephoto.cropper.size";
+            effect: GLOW;
+            scale: 1;
+            mouse_events: 0;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+               color: 255 255 255 255;
+               rel1.to: "ephoto.swallow.cropper";
+               rel2.to: "ephoto.swallow.cropper";
+               text {
+                  text: "";
+                  font: FN;
+                  size: 12;
+                  align: 0.5 1.0;
+               }
+            }
+         }
+         rect { name: "shader_top";
+            scale: 1;
+            mouse_events: 0;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+               color: 0 0 0 150;
+               rel1.to: "clipper";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "ephoto.swallow.cropper";
+               rel2.relative: 1.0 0.0;
+            }
+         }
+         rect { name: "shader_left";
+
+            scale: 1;
+            mouse_events: 0;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+               color: 0 0 0 150;
+               rel1.to: "shader_top";
+               rel1.relative: 0.0 1.0;
+               rel2.to: "ephoto.swallow.cropper";
+               rel2.relative: 0.0 1.0;
+            }
+         }
+         rect { name: "shader_bottom";
+            scale: 1;
+            mouse_events: 0;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+               color: 0 0 0 150;
+               rel1.to: "shader_left";
+               rel1.relative: 0.0 1.0;
+               rel2.to: "clipper";
+               rel2.relative: 1.0 1.0;
+            }
+         }
+         rect { name: "shader_right";
+            scale: 1;
+            mouse_events: 0;
+            clip_to: "clipper";
+            description { state: "default" 0.0;
+               color: 0 0 0 150;
+               rel1.to: "shader_top";
+               rel1.relative: 1.0 0.0;
+               rel2.to: "shader_bottom";
+               rel2.relative: 1.0 0.0;
+            }
+         }
+      }
+   }
+   group { name: "ephoto,image,cropper";
+      parts {
+         image { name: "cropper";
+            repeat_events: 1;
+            description { state: "default" 0.0;
+               color: 255 255 255 200;
+               image {
+                  normal: "images/sel_border.png";
+                  border: 3 3 3 3;
+                  middle: NONE;
+               }
+            }
+         }
+         rect { name: "dragger";
+            repeat_events: 1;
+            description { state: "default" 0.0;
+               color: 255 255 255 0;
+               rel1 {
+                  to: "handle1";
+                  relative: 1.0 1.0;
+               }
+               rel2 {
+                  to: "handle5";
+                  relative: 0.0 0.0;
+               }
+            }
+         }
+         image { name: "handle1";
+            repeat_events: 1;
+            description { state: "default" 0.0;
+               FIXED_SIZE(22, 22)
+               rel1.offset: 1 1;
+               align: 0.0 0.0;
+               color: 255 255 255 0;
+               image.normal: "images/sel_corner1.png";
+            }
+            description { state: "visible" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 200;
+            }
+         }
+         rect { name: "handle2";
+            repeat_events: 1;
+            description { state: "default" 0.0;
+               color: 255 255 255 0;
+               rel1 {
+                  to: "handle1";
+                  relative: 1.0 0.0;
+                  offset: 3 2;
+               }
+               rel2 {
+                  to: "handle3";
+                  relative: 0.0 1.0;
+                  offset: -4 -2;
+               }
+            }
+            description { state: "visible" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 80;
+            }
+         }
+         image { name: "handle3";
+            repeat_events: 1;
+            description { state: "default" 0.0;
+               FIXED_SIZE(22, 22)
+               rel1.offset: 0 1;
+               rel2.offset: -2 -1;
+               align: 1.0 0.0;
+               color: 255 255 255 0;
+               image.normal: "images/sel_corner3.png";
+            }
+            description { state: "visible" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 200;
+            }
+         }
+         rect { name: "handle4";
+            repeat_events: 1;
+            description { state: "default" 0.0;
+               color: 255 255 255 0;
+               rel1 {
+                  to: "handle3";
+                  relative: 0.0 1.0;
+                  offset: 1 3;
+               }
+               rel2 {
+                  to: "handle5";
+                  relative: 1.0 0.0;
+                  offset: -3 -4;
+               }
+            }
+            description { state: "visible" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 80;
+            }
+         }
+         image { name: "handle5";
+            repeat_events: 1;
+            description { state: "default" 0.0;
+               FIXED_SIZE(22, 22)
+               rel2.offset: -2 -2;
+               align: 1.0 1.0;
+               color: 255 255 255 0;
+               image.normal: "images/sel_corner5.png";
+            }
+            description { state: "visible" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 200;
+            }
+         }
+         rect { name: "handle6";
+            repeat_events: 1;
+            description { state: "default" 0.0;
+               rel1 {
+                  to: "handle7";
+                  relative: 1.0 0.0;
+                  offset: 3 1;
+               }
+               rel2 {
+                  to: "handle5";
+                  relative: 0.0 1.0;
+                  offset: -4 -3;
+               }
+               color: 255 255 255 0;
+            }
+            description { state: "visible" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 80;
+            }
+         }
+         image { name: "handle7";
+            repeat_events: 1;
+            description { state: "default" 0.0;
+               FIXED_SIZE(22, 22)
+               rel1.offset: 1 0;
+               rel2.offset: -1 -2;
+               align: 0.0 1.0;
+               color: 255 255 255 0;
+               image.normal: "images/sel_corner7.png";
+            }
+            description { state: "visible" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 200;
+            }
+         }
+         rect { name: "handle8";
+            repeat_events: 1;
+            description { state: "default" 0.0;
+               rel1 {
+                  to: "handle1";
+                  relative: 0.0 1.0;
+                  offset: 2 3;
+               }
+               rel2 {
+                  to: "handle7";
+                  relative: 1.0 0.0;
+                  offset: -2 -4;
+               }
+               color: 255 255 255 0;
+            }
+            description { state: "visible" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 80;
+            }
+         }
+      }
+      programs {
+         program {
+            signal: "mouse,in"; source: "cropper";
+            action: STATE_SET "visible" 0.0;
+            transition: LINEAR 0.3 ;
+            targets: "handle1" "handle3" "handle5" "handle7";
+         }
+         program {
+            signal: "mouse,out"; source: "cropper";
+            action: STATE_SET "default" 0.0;
+            transition: LINEAR 0.3 ;
+            targets: "handle1" "handle3" "handle5" "handle7";
+         }
+#define SHOW_HIDE_LATERALS(_NAME_)                 \
+         program {        \
+            signal: "mouse,in"; source: _NAME_;   \
+             action: STATE_SET "visible" 0.0;      \
+             transition: LINEAR 0.3 ;       \
+             target: _NAME_;                \
+         }        \
+         program {        \
+            signal: "mouse,out"; source: _NAME_;  \
+            action: STATE_SET "default" 0.0;      \
+            transition: LINEAR 0.3 ;       \
+            target: _NAME_;                \
+         }
+         SHOW_HIDE_LATERALS("handle2")
+         SHOW_HIDE_LATERALS("handle4")
+         SHOW_HIDE_LATERALS("handle6")
+         SHOW_HIDE_LATERALS("handle8")
+#undef SHOW_HIDE_LATERALS
+      }
+   }
+}
+

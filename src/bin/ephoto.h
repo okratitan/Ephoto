@@ -59,6 +59,7 @@ Evas_Object *ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent,
 void ephoto_thumb_path_set(Evas_Object *obj, const char *path);
 void ephoto_directory_set(Ephoto *ephoto, const char *path,
     Elm_Object_Item *expanded, Eina_Bool dirs_only, Eina_Bool thumbs_only);
+void ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle);
 
 /*config panel functions*/
 Eina_Bool ephoto_config_init(Ephoto *em);
@@ -68,6 +69,7 @@ void ephoto_config_main(Ephoto *em);
 
 /*single image functions*/
 Evas_Object *ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent);
+void ephoto_single_browser_show_controls(Ephoto *ephoto);
 void ephoto_single_browser_entries_set(Evas_Object *obj, Eina_List *entries);
 void ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
 void ephoto_single_browser_focus_set(Ephoto *ephoto);
@@ -80,6 +82,8 @@ void ephoto_single_browser_image_data_update(Evas_Object *main,
 void ephoto_single_browser_image_data_done(Evas_Object *main,
     unsigned int *image_data, Evas_Coord w, Evas_Coord h);
 void ephoto_single_browser_cancel_editing(Evas_Object *main);
+void ephoto_single_browser_slideshow(Evas_Object *obj);
+void ephoto_single_browser_adjust_offsets(Ephoto *ephoto);
 /* smart callbacks called: "back" - the user wants to go back to the previous
  * screen. */
 
@@ -87,18 +91,26 @@ void ephoto_single_browser_cancel_editing(Evas_Object *main);
 Evas_Object *ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent);
 void ephoto_slideshow_entries_set(Evas_Object *obj, Eina_List *entries);
 void ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
+void ephoto_slideshow_show_controls(Ephoto *ephoto);
 /* smart callbacks called: "back" - the user wants to go back to the previous
  * screen. */
 
 /*thumbnail browser functions*/
 Evas_Object *ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent);
-void ephoto_thumb_browser_fsel_clear(Ephoto *ephoto);
-void ephoto_thumb_browser_top_dir_set(Ephoto *ephoto, const char *dir);
+void ephoto_thumb_browser_show_controls(Ephoto *ephoto);
 void ephoto_thumb_browser_insert(Ephoto *ephoto, Ephoto_Entry *entry);
 void ephoto_thumb_browser_remove(Ephoto *ephoto, Ephoto_Entry *entry);
 void ephoto_thumb_browser_update(Ephoto *ephoto, Ephoto_Entry *entry);
+void ephoto_thumb_browser_update_info_label(Ephoto *ephoto);
+void ephoto_thumb_browser_slideshow(Evas_Object *obj);
+void ephoto_thumb_browser_paste(Ephoto *ephoto, Elm_Object_Item *item);
 /* smart callbacks called: "selected" - an item in the thumb browser is
  * selected. The selected Ephoto_Entry is passed as event_info argument. */
+
+/*directory browser functions*/
+Evas_Object *ephoto_directory_browser_add(Ephoto *ephoto, Evas_Object *parent);
+void ephoto_directory_browser_initialize_structure(Ephoto *ephoto);
+void ephoto_directory_browser_top_dir_set(Ephoto *ephoto, const char *dir);
 
 /*thumbnailing functions taken from enlightenment*/
 int e_thumb_init(void);
@@ -116,18 +128,18 @@ int e_ipc_init(void);
 int e_ipc_shutdown(void);
 
 /*editing functions*/
-Evas_Object *ephoto_editor_add(Evas_Object *parent, const char *title,
+Evas_Object *ephoto_editor_add(Ephoto *ephoto, const char *title,
     const char *data_name, void *data);
 void ephoto_editor_del(Evas_Object *obj);
-void ephoto_cropper_add(Evas_Object *main, Evas_Object *parent,
+void ephoto_cropper_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
     Evas_Object *image_parent, Evas_Object *image);
-void ephoto_bcg_add(Evas_Object *main, Evas_Object *parent,
+void ephoto_bcg_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
     Evas_Object *image);
-void ephoto_hsv_add(Evas_Object *main, Evas_Object *parent,
+void ephoto_hsv_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
     Evas_Object *image);
-void ephoto_color_add(Evas_Object *main, Evas_Object *parent,
+void ephoto_color_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
     Evas_Object *image);
-void ephoto_red_eye_add(Evas_Object *main, Evas_Object *parent,
+void ephoto_red_eye_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
     Evas_Object *image);
 void ephoto_filter_blur(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image);
@@ -196,14 +208,12 @@ struct _Ephoto_Config
    int window_width;
    int window_height;
    Eina_Bool fsel_hide;
-   Eina_Bool tool_hide;
    double lpane_size;
    const char *open;
    Eina_Bool prompts;
    Eina_Bool drop;
    Evas_Object *slide_time;
    Evas_Object *slide_trans;
-   Evas_Object *hide_toolbar;
    Evas_Object *open_dir;
    Evas_Object *open_dir_custom;
    Evas_Object *show_prompts;
@@ -213,12 +223,18 @@ struct _Ephoto_Config
 struct _Ephoto
 {
    Evas_Object *win;
-   Evas_Object *panel;
+   Evas_Object *layout;
    Evas_Object *pager;
+   Evas_Object *statusbar;
+   Evas_Object *controls_left;
+   Evas_Object *controls_right;
+   Evas_Object *infolabel;
 
    Evas_Object *thumb_browser;
    Evas_Object *single_browser;
    Evas_Object *slideshow;
+   Evas_Object *dir_browser;
+   Evas_Object *right_menu;
    Elm_Object_Item *tb;
    Elm_Object_Item *sb;
    Elm_Object_Item *sl;
@@ -228,10 +244,18 @@ struct _Ephoto
    Eina_List *searchentries;
    Eina_List *thumbs;
 
+   Eina_Bool blocking;
+   Eina_Bool menu_blocking;
+   Eina_Bool hover_blocking;
+   Eina_Bool right_blocking;
+   Eina_Bool folders_toggle;
+   Eina_Bool editor_blocking;
+
    Ecore_File_Monitor *monitor;
    Ecore_Idler *file_idler;
    Eina_List *file_idler_pos;
    Eina_List *upload_handlers;
+   Ecore_Timer *overlay_timer;
    Ecore_Con_Url *url_up;
    char *url_ret;
    char *upload_error;
@@ -256,7 +280,6 @@ struct _Ephoto
    Ephoto_State state, prev_state;
 
    Ephoto_Config *config;
-   Ephoto_Entry *thumb_entry;
 };
 
 struct _Ephoto_Entry

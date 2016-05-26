@@ -324,7 +324,7 @@ _editor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 }
 
 void
-ephoto_hsv_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
+ephoto_hsv_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Object *image)
 {
    Evas_Object *slider;
    Ephoto_HSV *ehsv;
@@ -350,7 +350,7 @@ ephoto_hsv_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    memcpy(ehsv->original_im_data, im_data,
        sizeof(unsigned int) * ehsv->w * ehsv->h);
 
-   ehsv->editor = ephoto_editor_add(parent, _("Hue/Saturation/Value"), 
+   ehsv->editor = ephoto_editor_add(ephoto, _("Hue/Saturation/Value"), 
        "ehsv", ehsv);
    evas_object_event_callback_add(ehsv->editor, EVAS_CALLBACK_DEL, _editor_del,
        ehsv);

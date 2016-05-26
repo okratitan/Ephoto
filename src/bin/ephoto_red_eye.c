@@ -195,7 +195,7 @@ _editor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 }
 
 void
-ephoto_red_eye_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
+ephoto_red_eye_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Object *image)
 {
    Evas_Object *slider, *label;
    Ephoto_Reye *er;
@@ -222,7 +222,7 @@ ephoto_red_eye_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    evas_object_event_callback_add(er->image, EVAS_CALLBACK_MOUSE_UP,
        _reye_clicked, er);
 
-   er->editor = ephoto_editor_add(parent, _("Red Eye Removal"),
+   er->editor = ephoto_editor_add(ephoto, _("Red Eye Removal"),
        "ereye", er);
    evas_object_event_callback_add(er->editor, EVAS_CALLBACK_DEL, _editor_del,
        er);

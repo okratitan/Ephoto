@@ -5,19 +5,22 @@ EDJE_CC = @edje_cc@
 EDJE_FLAGS = -id $(top_srcdir)/data/themes
 
 filesdir = $(datadir)/$(PACKAGE)/themes
-files_DATA = crop.edj
+files_DATA = ephoto.edj
 
-EXTRA_DIST = crop.edc \
-             sel_border.png \
-             sel_corner1.png \
-             sel_corner3.png \
-             sel_corner5.png \
-             sel_corner7.png
+EXTRA_DIST = ephoto.edc \
+             images/sel_border.png \
+             images/sel_corner1.png \
+             images/sel_corner3.png \
+             images/sel_corner5.png \
+             images/sel_corner7.png \
+             images/shadow_circle_horiz.png \
+             images/shadow_circle_vert.png \
+             images/tile.png
 
-crop.edj: Makefile $(EXTRA_DIST)
+ephoto.edj: Makefile $(EXTRA_DIST)
 	$(EDJE_CC) $(EDJE_FLAGS) \
-	$(top_srcdir)/data/themes/crop.edc \
-	$(top_builddir)/data/themes/crop.edj
+	$(top_srcdir)/data/themes/ephoto.edc \
+	$(top_builddir)/data/themes/ephoto.edj
 
 clean-local:
 	rm -f *.edj

@@ -302,7 +302,7 @@ _editor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 }
 
 void
-ephoto_color_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
+ephoto_color_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Object *image)
 {
    Evas_Object *slider;
    Ephoto_Color *eco;
@@ -328,7 +328,7 @@ ephoto_color_add(Evas_Object *main, Evas_Object *parent, Evas_Object *image)
    memcpy(eco->original_im_data, im_data,
        sizeof(unsigned int) * eco->w * eco->h);
 
-   eco->editor = ephoto_editor_add(parent, _("Adjust Color Levels"), 
+   eco->editor = ephoto_editor_add(ephoto, _("Adjust Color Levels"), 
        "eco", eco);
    evas_object_event_callback_add(eco->editor, EVAS_CALLBACK_DEL, _editor_del,
        eco);

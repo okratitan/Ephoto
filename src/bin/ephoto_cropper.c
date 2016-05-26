@@ -627,7 +627,7 @@ _editor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 }
 
 void
-ephoto_cropper_add(Evas_Object *main, Evas_Object *parent,
+ephoto_cropper_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
     Evas_Object *image_parent, Evas_Object *image)
 {
    Ephoto_Cropper *ec;
@@ -656,7 +656,7 @@ ephoto_cropper_add(Evas_Object *main, Evas_Object *parent,
    evas_object_show(ec->box);
 
    ec->layout = elm_layout_add(ec->box);
-   elm_layout_file_set(ec->layout, PACKAGE_DATA_DIR "/themes/crop.edj",
+   elm_layout_file_set(ec->layout, PACKAGE_DATA_DIR "/themes/ephoto.edj",
        "ephoto,image,cropper,base");
    evas_object_size_hint_weight_set(ec->layout, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
@@ -671,7 +671,7 @@ ephoto_cropper_add(Evas_Object *main, Evas_Object *parent,
    evas_object_show(ec->image);
 
    ec->cropper = edje_object_add(evas_object_evas_get(ec->layout));
-   edje_object_file_set(ec->cropper, PACKAGE_DATA_DIR "/themes/crop.edj",
+   edje_object_file_set(ec->cropper, PACKAGE_DATA_DIR "/themes/ephoto.edj",
        "ephoto,image,cropper");
    edje_object_signal_callback_add(elm_layout_edje_get(ec->layout),
        "cropper,changed", "ephoto.swallow.cropper", _calculate_cropper_size,
@@ -701,7 +701,7 @@ ephoto_cropper_add(Evas_Object *main, Evas_Object *parent,
    evas_object_event_callback_add(ec->layout, EVAS_CALLBACK_RESIZE,
        _image_resize, ec);
 
-   ec->editor = ephoto_editor_add(parent, _("Crop Image"),
+   ec->editor = ephoto_editor_add(ephoto, _("Crop Image"),
        "ec", ec);
    evas_object_event_callback_add(ec->editor, EVAS_CALLBACK_DEL,
        _editor_del, ec);

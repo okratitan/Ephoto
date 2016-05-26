@@ -1,6 +1,6 @@
 #include "ephoto.h"
 
-#define CONFIG_VERSION 15
+#define CONFIG_VERSION 16
 
 static int _ephoto_config_load(Ephoto *ephoto);
 static Eina_Bool _ephoto_on_config_save(void *data);
@@ -37,8 +37,6 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
 
    if (ecore_file_is_dir(path) || !strcmp(path, "Last"))
       eina_stringshare_replace(&ephoto->config->open, path);
-   ephoto->config->tool_hide =
-       elm_check_state_get(ephoto->config->hide_toolbar);
    ephoto->config->prompts = elm_check_state_get(ephoto->config->show_prompts);
    ephoto->config->drop = elm_check_state_get(ephoto->config->move_drop);
    if (elm_spinner_value_get(ephoto->config->slide_time) > 0)
@@ -82,14 +80,6 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_object_content_set(frame, table);
    evas_object_show(table);
-
-   check = elm_check_add(table);
-   elm_object_text_set(check, _("Hide Toolbar On Fullscreen"));
-   evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
-   elm_check_state_set(check, ephoto->config->tool_hide);
-   elm_table_pack(table, check, 0, 0, 1, 1);
-   evas_object_show(check);
-   ephoto->config->hide_toolbar = check;
 
    check = elm_check_add(table);
    elm_object_text_set(check, _("Prompt Before Changing The Filesystem"));
@@ -331,9 +321,9 @@ _config_bindings(Evas_Object *parent)
        _("<b><hilight>General Bindings</hilight></b><br/>"
            "<b>F1:</b> Settings Panel<br/>"
            "<b>F5:</b> Start Slideshow<br/>"
-           "<b>F11:</b> Toggle Fullscreen<br/><br/>"
+           "<b>F11:</b> Toggle Fullscreen<br/>"
+           "<b>Ctrl+Shift+f:</b> Toggle File Selector<br/><br/>"
            "<b><hilight>Thumbnail Browser Bindings</hilight></b><br/>"
-           "<b>Ctrl+Shift+f:</b> Toggle File Selector<br/>"
            "<b>Ctrl++:</b> Zoom In<br/>"
            "<b>Ctrl+-:</b> Zoom Out<br/>"
            "<b>Ctrl+Tab:</b> View Image<br/>"
@@ -711,7 +701,6 @@ ephoto_config_init(Ephoto *ephoto)
    C_VAL(D, T, window_width, EET_T_INT);
    C_VAL(D, T, window_height, EET_T_INT);
    C_VAL(D, T, fsel_hide, EET_T_INT);
-   C_VAL(D, T, tool_hide, EET_T_INT);
    C_VAL(D, T, lpane_size, EET_T_DOUBLE);
    C_VAL(D, T, open, EET_T_STRING);
    C_VAL(D, T, prompts, EET_T_INT);
@@ -726,7 +715,6 @@ ephoto_config_init(Ephoto *ephoto)
 	  ephoto->config->window_width = 900;
 	  ephoto->config->window_height = 600;
 	  ephoto->config->fsel_hide = 0;
-	  ephoto->config->tool_hide = 0;
           ephoto->config->lpane_size = .15;
 	  ephoto->config->open = eina_stringshare_add(getenv("HOME"));
 	  ephoto->config->prompts = 1;

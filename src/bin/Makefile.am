@@ -24,6 +24,7 @@ ephoto_SOURCES = \
 	ephoto_color.c \
 	ephoto_config.c \
         ephoto_cropper.c \
+        ephoto_directory_browser.c \
         ephoto_editor.c \
         ephoto_file.c \
         ephoto_filters.c \

@@ -6,17 +6,19 @@ struct _Ephoto_Slideshow
 {
    Ephoto *ephoto;
    Evas_Object *slideshow;
-   Evas_Object *notify;
-   Evas_Object *bar;
    Evas_Object *event;
+   Evas_Object *notify;
    Eina_List *entries;
-   Elm_Object_Item *pause;
-   Elm_Object_Item *pause_after;
-   Elm_Object_Item *fullscreen;
-   Elm_Object_Item *fullscreen_after;
+   Evas_Object *pause;
+   Evas_Object *pause_after;
+   Evas_Object *fullscreen;
+   Evas_Object *fullscreen_after;
    Ephoto_Entry *entry;
    Eina_Bool playing;
 };
+
+static Evas_Object *_add_icon(Evas_Object *parent, const char *icon,
+    const char *label, Evas_Object *before);
 
 static void
 _mouse_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
@@ -25,6 +27,11 @@ _mouse_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    Ephoto_Slideshow *ss = data;
    Elm_Object_Item *slideshow_item;
    Ephoto_Entry *entry;
+
+   elm_layout_content_unset(ss->ephoto->layout, "ephoto.swallow.controls");
+   evas_object_del(ss->notify);
+   elm_layout_content_set(ss->ephoto->layout, "ephoto.swallow.controls",
+       ss->ephoto->statusbar);
 
    slideshow_item = elm_slideshow_item_current_get(ss->slideshow);
    if (slideshow_item)
@@ -38,7 +45,6 @@ _mouse_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      }
    evas_object_smart_callback_call(ss->slideshow, "back", entry);
    elm_slideshow_clear(ss->slideshow);
-   evas_object_hide(ss->notify);
    ss->playing = 0;
    evas_object_freeze_events_set(ss->slideshow, EINA_TRUE);
 }
@@ -63,18 +69,16 @@ _slideshow_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
-_notify_show(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   evas_object_show(data);
-}
-
-static void
 _back(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Slideshow *ss = data;
    Elm_Object_Item *slideshow_item;
    Ephoto_Entry *entry;
+
+   elm_layout_content_unset(ss->ephoto->layout, "ephoto.swallow.controls");
+   evas_object_del(ss->notify);
+   elm_layout_content_set(ss->ephoto->layout, "ephoto.swallow.controls",
+       ss->ephoto->statusbar);
 
    slideshow_item = elm_slideshow_item_current_get(ss->slideshow);
    if (slideshow_item)
@@ -88,7 +92,6 @@ _back(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
      }
    evas_object_smart_callback_call(ss->slideshow, "back", entry);
    elm_slideshow_clear(ss->slideshow);
-   evas_object_hide(ss->notify);
    ss->playing = 0;
    evas_object_freeze_events_set(ss->slideshow, EINA_TRUE);
 }
@@ -110,23 +113,25 @@ _pause(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Slideshow *ss = data;
 
-   elm_object_item_del(ss->pause);
+   evas_object_del(ss->pause);
 
    if (ss->playing)
      {
 	elm_slideshow_timeout_set(ss->slideshow, 0.0);
 	ss->pause =
-	    elm_toolbar_item_insert_before(ss->bar, ss->pause_after,
-	    "media-playback-start", _("Play"), _pause, ss);
+            _add_icon(ss->notify, "media-playback-start", _("Play"),
+                ss->pause_after);
+        evas_object_smart_callback_add(ss->pause, "clicked", _pause, ss);
 	ss->playing = 0;
      }
    else
      {
 	elm_slideshow_timeout_set(ss->slideshow,
 	    ss->ephoto->config->slideshow_timeout);
-	ss->pause =
-	    elm_toolbar_item_insert_before(ss->bar, ss->pause_after,
-	    "media-playback-pause", _("Pause"), _pause, ss);
+        ss->pause =
+            _add_icon(ss->notify, "media-playback-pause", _("Pause"),
+                ss->pause_after);
+        evas_object_smart_callback_add(ss->pause, "clicked", _pause, ss);
 	ss->playing = 1;
      }
 }
@@ -152,20 +157,24 @@ _fullscreen(void *data, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto_Slideshow *ss = data;
 
-   elm_object_item_del(ss->fullscreen);
+   evas_object_del(ss->fullscreen);
 
    if (elm_win_fullscreen_get(ss->ephoto->win))
      {
 	ss->fullscreen =
-	    elm_toolbar_item_insert_before(ss->bar, ss->fullscreen_after,
-	    "view-fullscreen", _("Fullscreen"), _fullscreen, ss);
+            _add_icon(ss->notify, "view-fullscreen", _("Fullscreen"),
+            ss->fullscreen_after);
+        evas_object_smart_callback_add(ss->fullscreen, "clicked",
+            _fullscreen, ss);
 	elm_win_fullscreen_set(ss->ephoto->win, EINA_FALSE);
      }
    else
      {
 	ss->fullscreen =
-	    elm_toolbar_item_insert_before(ss->bar, ss->fullscreen_after,
-	    "view-restore", _("Normal"), _fullscreen, ss);
+            _add_icon(ss->notify, "view-restore", _("Normal"),
+            ss->fullscreen_after);
+        evas_object_smart_callback_add(ss->fullscreen, "clicked",
+            _fullscreen, ss);
 	elm_win_fullscreen_set(ss->ephoto->win, EINA_TRUE);
      }
 }
@@ -177,21 +186,6 @@ _settings(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto_Slideshow *ss = data;
 
    ephoto_config_main(ss->ephoto);
-}
-
-static void
-_mouse_in(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   elm_notify_timeout_set(data, 0.0);
-   evas_object_show(data);
-}
-
-static void
-_mouse_out(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   elm_notify_timeout_set(data, 3.0);
 }
 
 static void
@@ -251,6 +245,75 @@ _main_focused(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      }
 }
 
+static Evas_Object *
+_add_icon(Evas_Object *parent, const char *icon, const char *label, Evas_Object *before)
+{
+   Evas_Object *ic, *but;
+   int ret;
+
+   ic = elm_icon_add(parent);
+   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
+       20*elm_config_scale_get());
+   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
+   ret = elm_icon_standard_set(ic, icon);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+   but = elm_button_add(parent);
+   if (!ret)
+     elm_object_text_set(but, label);
+   else
+     {
+        elm_object_part_content_set(but, "icon", ic);
+        elm_object_tooltip_text_set(but, label);
+        elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
+     }
+   if (before)
+     elm_box_pack_before(parent, but, before);
+   else
+     elm_box_pack_end(parent, but);
+   evas_object_show(but);
+
+   return but;
+}
+
+void
+ephoto_slideshow_show_controls(Ephoto *ephoto)
+{
+   Ephoto_Slideshow *ss = evas_object_data_get(ephoto->slideshow, "slideshow");
+   Evas_Object *but;
+
+   elm_layout_content_unset(ephoto->layout, "ephoto.swallow.controls");
+   evas_object_hide(ephoto->statusbar);
+
+   ss->notify = elm_box_add(ephoto->win);
+   elm_box_horizontal_set(ss->notify, EINA_TRUE);
+   evas_object_size_hint_weight_set(ss->notify, EVAS_HINT_EXPAND, 0.0);
+   evas_object_size_hint_fill_set(ss->notify, EVAS_HINT_FILL, EVAS_HINT_FILL);
+
+   but = _add_icon(ss->notify, "window-close", _("Back"), NULL);
+   evas_object_smart_callback_add(but, "clicked", _back, ss);
+   but = _add_icon(ss->notify, "go-first", _("First"), NULL);
+   evas_object_smart_callback_add(but, "clicked", _first, ss->slideshow);
+   but = _add_icon(ss->notify, "go-previous", _("Previous"), NULL);
+   evas_object_smart_callback_add(but, "clicked", _previous, ss->slideshow);
+   ss->pause =
+       _add_icon(ss->notify, "media-playback-start", _("Play"), NULL);
+   evas_object_smart_callback_add(ss->pause, "clicked", _pause, ss);
+   ss->pause_after =
+       _add_icon(ss->notify, "go-next", _("Next"), NULL);
+   evas_object_smart_callback_add(ss->pause_after, "clicked", _next,
+       ss->slideshow);
+   but = _add_icon(ss->notify, "go-last", _("Last"), NULL);
+   evas_object_smart_callback_add(but, "clicked", _last, ss->slideshow);
+   ss->fullscreen =
+       _add_icon(ss->notify, "view-fullscreen", _("Fullscreen"), NULL);
+   evas_object_smart_callback_add(ss->fullscreen, "clicked", _fullscreen, ss);
+   ss->fullscreen_after =
+       _add_icon(ss->notify, "preferences-system", _("Settings"), NULL);
+   evas_object_smart_callback_add(ss->fullscreen_after, "clicked", _settings, ss);
+
+   elm_layout_content_set(ephoto->layout, "ephoto.swallow.controls", ss->notify);
+}
+
 Evas_Object *
 ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent)
 {
@@ -279,52 +342,6 @@ ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(slideshow, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(slideshow, EVAS_HINT_FILL, EVAS_HINT_FILL);
-
-   ss->notify = elm_notify_add(ephoto->win);
-   elm_notify_align_set(ss->notify, 0.5, 1.0);
-   evas_object_size_hint_weight_set(ss->notify, EVAS_HINT_EXPAND,
-       EVAS_HINT_EXPAND);
-   elm_notify_timeout_set(ss->notify, 3.0);
-   evas_object_event_callback_add(slideshow, EVAS_CALLBACK_MOUSE_MOVE,
-       _notify_show, ss->notify);
-   elm_object_tree_focus_allow_set(ss->notify, EINA_FALSE);
-
-   ss->bar = elm_toolbar_add(ss->notify);
-   elm_toolbar_horizontal_set(ss->bar, EINA_TRUE);
-   elm_toolbar_homogeneous_set(ss->bar, EINA_TRUE);
-   elm_toolbar_shrink_mode_set(ss->bar, ELM_TOOLBAR_SHRINK_NONE);
-   elm_toolbar_select_mode_set(ss->bar, ELM_OBJECT_SELECT_MODE_NONE);
-   elm_toolbar_icon_order_lookup_set(ss->bar, ELM_ICON_LOOKUP_FDO_THEME);
-   evas_object_size_hint_weight_set(ss->bar, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_align_set(ss->bar, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_object_content_set(ss->notify, ss->bar);
-   elm_object_tree_focus_allow_set(ss->bar, EINA_FALSE);
-   evas_object_event_callback_add(ss->bar, EVAS_CALLBACK_MOUSE_IN, _mouse_in,
-       ss->notify);
-   evas_object_event_callback_add(ss->bar, EVAS_CALLBACK_MOUSE_OUT, _mouse_out,
-       ss->notify);
-
-   elm_toolbar_item_append(ss->bar, "window-close", _("Back"), _back, ss);
-   elm_toolbar_item_append(ss->bar, "go-first", _("First"), _first,
-       ss->slideshow);
-   elm_toolbar_item_append(ss->bar, "go-previous", _("Previous"), _previous,
-       ss->slideshow);
-   ss->pause =
-       elm_toolbar_item_append(ss->bar, "media-playback-start", _("Play"),
-       _pause, ss);
-   ss->pause_after =
-       elm_toolbar_item_append(ss->bar, "go-next", _("Next"), _next,
-       ss->slideshow);
-   elm_toolbar_item_append(ss->bar, "go-last", _("Last"),
-       _last, ss->slideshow);
-   ss->fullscreen =
-       elm_toolbar_item_append(ss->bar, "view-fullscreen", _("Fullscreen"),
-       _fullscreen, ss);
-   ss->fullscreen_after =
-       elm_toolbar_item_append(ss->bar, "preferences-system", _("Settings"),
-       _settings, ss);
-
-   evas_object_show(ss->bar);
 
    evas_object_freeze_events_set(ss->slideshow, EINA_TRUE);
 
@@ -418,26 +435,31 @@ ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
 
    if (ss->pause)
      {
-	elm_object_item_del(ss->pause);
+	evas_object_del(ss->pause);
 	ss->pause =
-	    elm_toolbar_item_insert_before(ss->bar, ss->pause_after,
-	    "media-playback-pause", _("Pause"), _pause, ss);
+           _add_icon(ss->notify, "media-playback-pause", _("Pause"),
+           ss->pause_after);
+        evas_object_smart_callback_add(ss->pause, "clicked", _pause, ss);
 	ss->playing = 1;
      }
    if (ss->fullscreen)
      {
-	elm_object_item_del(ss->fullscreen);
+	evas_object_del(ss->fullscreen);
 	if (elm_win_fullscreen_get(ss->ephoto->win))
 	  {
-	     ss->fullscreen =
-		 elm_toolbar_item_insert_before(ss->bar, ss->fullscreen_after,
-		 "view-restore", _("Normal"), _fullscreen, ss);
+             ss->fullscreen =
+                 _add_icon(ss->notify, "view-restore", _("Normal"),
+                 ss->fullscreen_after);
+             evas_object_smart_callback_add(ss->fullscreen, "clicked",
+                 _fullscreen, ss);
 	  }
         else
 	  {
-	     ss->fullscreen =
-		 elm_toolbar_item_insert_before(ss->bar, ss->fullscreen_after,
-		 "view-fullscreen", _("Fullscreen"), _fullscreen, ss);
+             ss->fullscreen =
+                 _add_icon(ss->notify, "view-fullscreen", _("Fullscreen"),
+                 ss->fullscreen_after);
+             evas_object_smart_callback_add(ss->fullscreen, "clicked",
+                 _fullscreen, ss);
 	  }
      }
 

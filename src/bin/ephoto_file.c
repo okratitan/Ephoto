@@ -130,18 +130,6 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
             _("Error: Image could not be saved here!"));
         ephoto_single_browser_path_pending_unset(ephoto->single_browser);
      }
-   else
-     {
-	char *dir = ecore_file_dir_get(file);
-        if (strcmp(dir, ephoto->config->directory))
-          {
-	     ephoto_thumb_browser_fsel_clear(ephoto);
-	     ephoto_directory_set(ephoto, dir, NULL, EINA_FALSE, EINA_FALSE);
-             ephoto_thumb_browser_top_dir_set(ephoto,
-                 ephoto->config->directory);
-	     free(dir);
-          }
-     }
    evas_object_del(popup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
@@ -1057,6 +1045,7 @@ _prompt_upload_apply(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_del(ppopup);
    popup = _processing(ephoto, _("Upload Image"),
        ("Please wait while your image is uploaded."));
+   evas_object_show(popup);
 
    f = fopen(entry->path, "rb");
    fseek(f, 0, SEEK_END);
@@ -1214,21 +1203,6 @@ _prompt_save_image_as_apply(void *data, Evas_Object *obj EINA_UNUSED, void *even
                   ephoto_single_browser_path_pending_unset
                       (ephoto->single_browser);
                }
-	     else
-	       {
-                  evas_object_del(opopup);
-		  char *dir = ecore_file_dir_get(buf);
-
-                  if (strcmp(dir, ephoto->config->directory))
-                    {
-		       ephoto_thumb_browser_fsel_clear(ephoto);
-		       ephoto_directory_set(ephoto, dir, NULL,
-                           EINA_FALSE, EINA_FALSE);
-                       ephoto_thumb_browser_top_dir_set(ephoto,
-                           ephoto->config->directory);
-		       free(dir);
-                    }
-	       }
 	  }
      }
    evas_object_del(opopup);

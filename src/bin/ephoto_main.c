@@ -305,6 +305,10 @@ _mouse_out_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto *ephoto = data;
    ephoto->blocking = EINA_FALSE;
+   
+   if (ephoto->overlay_timer)
+     ecore_timer_del(ephoto->overlay_timer);
+   ephoto->overlay_timer = ecore_timer_add(3.0, _timer_cb, ephoto);
 }
 
 static void
@@ -313,6 +317,9 @@ _mouse_in_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto *ephoto = data;
    ephoto->blocking = EINA_TRUE;
+
+   ecore_timer_del(ephoto->overlay_timer);
+   ephoto->overlay_timer = NULL;
 }
 
 static void

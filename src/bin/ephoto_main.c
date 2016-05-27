@@ -632,6 +632,7 @@ ephoto_window_add(const char *path)
 
 	elm_naviframe_item_simple_promote(ephoto->pager,
 	    ephoto->single_browser);
+        ephoto_single_browser_show_controls(ephoto);
 	ephoto->state = EPHOTO_STATE_SINGLE;
      }
    ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);

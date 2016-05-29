@@ -591,21 +591,18 @@ ephoto_config_main(Ephoto *ephoto)
    evas_object_data_set(segment, "about", about);
 
    ic = elm_icon_add(segment);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "preferences-system");
    evas_object_show(ic);
    settingsi = elm_segment_control_item_add(segment, ic, _("Settings"));
 
    ic = elm_icon_add(segment);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "input-keyboard");
    evas_object_show(ic);
    kbi = elm_segment_control_item_add(segment, ic, _("Bindings"));
 
    ic = elm_icon_add(segment);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "help-about");
    evas_object_show(ic);
@@ -629,7 +626,6 @@ ephoto_config_main(Ephoto *ephoto)
    elm_segment_control_item_selected_set(settingsi, EINA_TRUE);
 
    ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "document-save");
 
@@ -641,7 +637,6 @@ ephoto_config_main(Ephoto *ephoto)
    evas_object_show(button);
 
    ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 

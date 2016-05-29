@@ -326,6 +326,8 @@ _folder_icon_clicked(void *data, Evas_Object *obj,
         edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
             "ephoto,folders,show", "ephoto");
         ephoto->folders_toggle = EINA_TRUE;
+        if (elm_object_text_get(obj))
+          elm_object_text_set(obj, _("Hide Folders"));
         elm_object_tooltip_text_set(obj, _("Hide Folders"));
      }
    else
@@ -333,6 +335,8 @@ _folder_icon_clicked(void *data, Evas_Object *obj,
         edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
             "ephoto,folders,hide", "ephoto");
         ephoto->folders_toggle = EINA_FALSE;
+        if (elm_object_text_get(obj))
+          elm_object_text_set(obj, _("Show Folders"));
         elm_object_tooltip_text_set(obj, _("Show Folders"));
      }
 }
@@ -388,6 +392,7 @@ ephoto_window_add(const char *path)
    Ephoto *ephoto = calloc(1, sizeof(Ephoto));
    Evas_Object *ic, *but;
    char buf[PATH_MAX];
+   int ret;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(ephoto, NULL);
 
@@ -524,11 +529,13 @@ ephoto_window_add(const char *path)
    ic = elm_icon_add(ephoto->statusbar);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   elm_icon_standard_set(ic, "folder");
+   ret = elm_icon_standard_set(ic, "folder");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+
    but = elm_button_add(ephoto->statusbar);
    elm_object_part_content_set(but, "icon", ic);
+   if (!ret)
+     elm_object_text_set(but, _("Show Folders"));
    evas_object_smart_callback_add(but, "clicked", _folder_icon_clicked, ephoto);
    elm_object_tooltip_text_set(but, _("Show Folders"));
    elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_RIGHT);
@@ -570,12 +577,15 @@ ephoto_window_add(const char *path)
    ic = elm_icon_add(ephoto->statusbar);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   elm_icon_standard_set(ic, "media-playback-start");
+   ret = elm_icon_standard_set(ic, "media-playback-start");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+   
    but = elm_button_add(ephoto->statusbar);
    elm_object_part_content_set(but, "icon", ic);
-   evas_object_smart_callback_add(but, "clicked", _slideshow_icon_clicked, ephoto);
+   if (!ret)
+     elm_object_text_set(but, _("Slideshow"));
+   evas_object_smart_callback_add(but, "clicked",
+       _slideshow_icon_clicked, ephoto);
    elm_object_tooltip_text_set(but, _("Slideshow"));
    elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
    elm_box_pack_end(ephoto->statusbar, but);
@@ -584,12 +594,15 @@ ephoto_window_add(const char *path)
    ic = elm_icon_add(ephoto->statusbar);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
-   elm_icon_standard_set(ic, "preferences-system");
+   ret = elm_icon_standard_set(ic, "preferences-other");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+
    but = elm_button_add(ephoto->statusbar);
    elm_object_part_content_set(but, "icon", ic);
-   evas_object_smart_callback_add(but, "clicked", _settings_icon_clicked, ephoto);
+   if (!ret)
+     elm_object_text_set(but, _("Settings"));
+   evas_object_smart_callback_add(but, "clicked",
+       _settings_icon_clicked, ephoto);
    elm_object_tooltip_text_set(but, _("Settings"));
    elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_LEFT);
    elm_box_pack_end(ephoto->statusbar, but);

@@ -1842,17 +1842,17 @@ ephoto_thumb_browser_show_controls(Ephoto *ephoto)
    ic = elm_icon_add(ephoto->controls_left);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
-   ret = elm_image_file_set(ic, PACKAGE_DATA_DIR "/images/single.png", NULL);
+   ret = elm_icon_standard_set(ic, "image-x-generic");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+   if (!ret)
+     ret = elm_image_file_set(ic, PACKAGE_DATA_DIR "/images/single.png", NULL);
+
    but = elm_button_add(ephoto->controls_left);
    if (!ret)
      elm_object_text_set(but, _("View Images"));
-   else
-     {
-        elm_object_part_content_set(but, "icon", ic);
-        elm_object_tooltip_text_set(but, _("View Images"));
-        elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
-     }
+   elm_object_part_content_set(but, "icon", ic);
+   elm_object_tooltip_text_set(but, _("View Images"));
+   elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
    evas_object_smart_callback_add(but, "clicked", _view_single, tb);
    elm_box_pack_end(ephoto->controls_left, but);
    evas_object_show(but);
@@ -1860,18 +1860,15 @@ ephoto_thumb_browser_show_controls(Ephoto *ephoto)
    ic = elm_icon_add(ephoto->controls_left);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    ret = elm_icon_standard_set(ic, "zoom-in");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+   
    but = elm_button_add(ephoto->controls_left);
    if (!ret)
      elm_object_text_set(but, _("Zoom In"));
-   else
-     {
-        elm_object_part_content_set(but, "icon", ic);
-        elm_object_tooltip_text_set(but, _("Zoom In"));
-        elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
-     }
+   elm_object_part_content_set(but, "icon", ic);
+   elm_object_tooltip_text_set(but, _("Zoom In"));
+   elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
    evas_object_smart_callback_add(but, "clicked", _zoom_in, tb);
    elm_box_pack_end(ephoto->controls_left, but);
    evas_object_show(but);
@@ -1879,18 +1876,15 @@ ephoto_thumb_browser_show_controls(Ephoto *ephoto)
    ic = elm_icon_add(ephoto->controls_left);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    elm_icon_standard_set(ic, "zoom-out");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+   
    but = elm_button_add(ephoto->controls_left);
    if (!ret)
      elm_object_text_set(but, _("Zoom Out"));
-   else
-     {
-        elm_object_part_content_set(but, "icon", ic);
-        elm_object_tooltip_text_set(but, _("Zoom Out"));
-        elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
-     }
+   elm_object_part_content_set(but, "icon", ic);
+   elm_object_tooltip_text_set(but, _("Zoom Out"));
+   elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
    evas_object_smart_callback_add(but, "clicked", _zoom_out, tb);
    elm_box_pack_end(ephoto->controls_left, but);
    evas_object_show(but);

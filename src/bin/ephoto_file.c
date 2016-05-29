@@ -37,7 +37,6 @@ _complete(Ephoto *ephoto, const char *title, const char *text)
    evas_object_show(label);
 
    ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
@@ -182,6 +181,7 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
    Ecore_Con_Event_Url_Complete *ev = event;
    Ecore_Event_Handler *handler;
    Evas_Object *popup, *box, *hbox, *label, *entry, *ic, *button;
+   int ret;
 
    if (ev->url_con != ephoto->url_up)
       return ECORE_CALLBACK_RENEW;
@@ -231,19 +231,19 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
    evas_object_show(entry);
 
    ic = elm_icon_add(hbox);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_HORIZONTAL, 1, 1);
-   elm_icon_standard_set(ic, "edit-copy");
+   ret = elm_icon_standard_set(ic, "edit-copy");
 
    button = elm_button_add(hbox);
    elm_object_part_content_set(button, "icon", ic);
+   if (!ret)
+     elm_object_text_set(button, _("Copy"));
    evas_object_smart_callback_add(button, "clicked", _upload_image_url_copy,
        entry);
    elm_box_pack_end(hbox, button);
    evas_object_show(button);
 
    ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
@@ -403,7 +403,6 @@ _new_dir(Ephoto *ephoto, const char *file)
    evas_object_data_set(popup, "entry", entry);
 
    ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "document-save");
 
@@ -415,7 +414,6 @@ _new_dir(Ephoto *ephoto, const char *file)
    evas_object_show(button);
 
    ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
@@ -534,7 +532,6 @@ _rename_file(Ephoto *ephoto, const char *file)
    free(string);
 
    ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "document-save");
 
@@ -546,7 +543,6 @@ _rename_file(Ephoto *ephoto, const char *file)
    evas_object_show(button);
 
    ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
@@ -1156,7 +1152,6 @@ _prompt_save_image_as_apply(void *data, Evas_Object *obj EINA_UNUSED, void *even
                  _("Are you sure you want to overwrite this image?"));
 
 	     ic = elm_icon_add(popup);
-	     elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
 	     evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
 		 1, 1);
 	     elm_icon_standard_set(ic, "document-save");
@@ -1170,7 +1165,6 @@ _prompt_save_image_as_apply(void *data, Evas_Object *obj EINA_UNUSED, void *even
 	     evas_object_show(button);
 
 	     ic = elm_icon_add(popup);
-	     elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
 	     evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
 		 1, 1);
 	     elm_icon_standard_set(ic, "window-close");
@@ -1289,7 +1283,6 @@ ephoto_file_save_image(Ephoto *ephoto, Ephoto_Entry *entry, Evas_Object *image)
        _("Are you sure you want to overwrite this image?"));
 
    ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "document-save");
 
@@ -1301,7 +1294,6 @@ ephoto_file_save_image(Ephoto *ephoto, Ephoto_Entry *entry, Evas_Object *image)
    evas_object_show(button);
 
    ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
@@ -1375,7 +1367,6 @@ ephoto_file_upload_image(Ephoto *ephoto, Ephoto_Entry *entry)
        _("Are you sure you want to upload this image publically to imgur.com?"));
 
    ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "document-save");
 
@@ -1388,7 +1379,6 @@ ephoto_file_upload_image(Ephoto *ephoto, Ephoto_Entry *entry)
    evas_object_show(button);
 
    ic = elm_icon_add(popup);
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
@@ -1433,7 +1423,6 @@ ephoto_file_move(Ephoto *ephoto, Eina_List *files, const char *path)
         popup = _prompt(ephoto, _("Move Files"), move_dir);
 
         ic = elm_icon_add(popup);
-        elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
         evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
             1);
         elm_icon_standard_set(ic, "document-save");
@@ -1447,7 +1436,6 @@ ephoto_file_move(Ephoto *ephoto, Eina_List *files, const char *path)
         evas_object_show(button);
 
         ic = elm_icon_add(popup);
-        elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
         evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
             1);
         elm_icon_standard_set(ic, "window-close");
@@ -1486,7 +1474,6 @@ ephoto_file_copy(Ephoto *ephoto, Eina_List *files, const char *path)
 	popup = _prompt(ephoto, _("Copy Files"), copy_dir);
 
 	ic = elm_icon_add(popup);
-	elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
 	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
 	    1);
 	elm_icon_standard_set(ic, "document-save");
@@ -1500,7 +1487,6 @@ ephoto_file_copy(Ephoto *ephoto, Eina_List *files, const char *path)
 	evas_object_show(button);
 
 	ic = elm_icon_add(popup);
-	elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
 	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
 	    1);
 	elm_icon_standard_set(ic, "window-close");
@@ -1539,7 +1525,6 @@ ephoto_file_paste(Ephoto *ephoto, Eina_List *files, Eina_Bool copy, const char *
                  _("Are you sure you want to move these files here?"));
 
              ic = elm_icon_add(popup);
-             elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
                  1, 1);
              elm_icon_standard_set(ic, "document-save");
@@ -1553,7 +1538,6 @@ ephoto_file_paste(Ephoto *ephoto, Eina_List *files, Eina_Bool copy, const char *
              evas_object_show(button);
 
              ic = elm_icon_add(popup);
-             elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
                  1, 1);
              elm_icon_standard_set(ic, "window-close");
@@ -1588,7 +1572,6 @@ ephoto_file_paste(Ephoto *ephoto, Eina_List *files, Eina_Bool copy, const char *
                  _("Are you sure you want to copy these files here?"));
 
              ic = elm_icon_add(popup);
-             elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
                  1, 1);
              elm_icon_standard_set(ic, "document-save");
@@ -1602,7 +1585,6 @@ ephoto_file_paste(Ephoto *ephoto, Eina_List *files, Eina_Bool copy, const char *
              evas_object_show(button);
 
              ic = elm_icon_add(popup);
-             elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
                  1, 1);
              elm_icon_standard_set(ic, "window-close");
@@ -1648,7 +1630,6 @@ ephoto_file_delete(Ephoto *ephoto, Eina_List *files, Eina_File_Type type)
               _("Are you sure you want to delete these files?"));
 
         ic = elm_icon_add(popup);
-        elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
         evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
             1);
         elm_icon_standard_set(ic, "document-save");
@@ -1662,7 +1643,6 @@ ephoto_file_delete(Ephoto *ephoto, Eina_List *files, Eina_File_Type type)
         evas_object_show(button);
 
         ic = elm_icon_add(popup);
-        elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
         evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
             1);
         elm_icon_standard_set(ic, "window-close");
@@ -1704,7 +1684,6 @@ ephoto_file_empty_trash(Ephoto *ephoto, Eina_List *files)
 	    _("Are you sure you want to empty the trash?"));
 
 	ic = elm_icon_add(popup);
-	elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
 	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
 	    1);
 	elm_icon_standard_set(ic, "document-save");
@@ -1718,7 +1697,6 @@ ephoto_file_empty_trash(Ephoto *ephoto, Eina_List *files)
 	evas_object_show(button);
 
 	ic = elm_icon_add(popup);
-	elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
 	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
 	    1);
 	elm_icon_standard_set(ic, "window-close");

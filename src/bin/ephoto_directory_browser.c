@@ -366,7 +366,6 @@ _dir_item_icon_get(void *data EINA_UNUSED, Evas_Object *obj,
       return NULL;
    Evas_Object *ic = elm_icon_add(obj);
 
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    elm_icon_standard_set(ic, "folder");
    return ic;
 }
@@ -434,7 +433,6 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
    ic = elm_icon_add(db->leftbox);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    elm_icon_standard_set(ic, "go-previous");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
    

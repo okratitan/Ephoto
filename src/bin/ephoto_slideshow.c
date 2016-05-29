@@ -254,18 +254,16 @@ _add_icon(Evas_Object *parent, const char *icon, const char *label, Evas_Object 
    ic = elm_icon_add(parent);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
-   elm_icon_order_lookup_set(ic, ELM_ICON_LOOKUP_FDO_THEME);
    ret = elm_icon_standard_set(ic, icon);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+
    but = elm_button_add(parent);
    if (!ret)
      elm_object_text_set(but, label);
-   else
-     {
-        elm_object_part_content_set(but, "icon", ic);
-        elm_object_tooltip_text_set(but, label);
-        elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
-     }
+   elm_object_part_content_set(but, "icon", ic);
+   elm_object_tooltip_text_set(but, label);
+   elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
+
    if (before)
      elm_box_pack_before(parent, but, before);
    else

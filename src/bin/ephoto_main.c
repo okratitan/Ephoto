@@ -223,6 +223,9 @@ _mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    Evas_Object *but = evas_object_data_get(ephoto->layout, "folder_button");
    Evas_Coord x, y, w, h, bx, by, bw, bh, cx, cy;
 
+   if (eina_list_count(ephoto->entries) < 1)
+     return;
+
    evas_pointer_canvas_xy_get(evas_object_evas_get(ephoto->dir_browser), &cx, &cy);
    evas_object_geometry_get(ephoto->dir_browser, &x, &y, &w, &h);
    evas_object_geometry_get(but, &bx, &by, &bw, &bh);

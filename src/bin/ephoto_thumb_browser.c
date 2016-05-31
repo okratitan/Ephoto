@@ -914,8 +914,12 @@ ephoto_thumb_browser_update_info_label(Ephoto *ephoto)
 
    if (!tb->totimages)
      {
-        elm_object_text_set(tb->nolabel,
-            _("No images matched your search"));
+        if (tb->searching)
+          elm_object_text_set(tb->nolabel,
+              _("No images matched your search"));
+        else
+          elm_object_text_set(tb->nolabel,
+              _("There are no images in this directory"));
         snprintf(buf, PATH_MAX, "<b>%s:</b> 0 %s        <b>%s:</b> 0%s",
             _("Total"), ngettext("image", "images", 0), _("Size"),
         ngettext("B", "B", 0));
@@ -1384,6 +1388,10 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
           }
      }
    tb->entries = tb->ephoto->entries;
+   if (eina_list_count(tb->entries) < 1)
+     {
+        ephoto_show_folders(tb->ephoto, EINA_FALSE);
+     }
    tb->dirs_only = 0;
    tb->thumbs_only = 0;
 

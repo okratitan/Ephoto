@@ -306,7 +306,7 @@ ephoto_slideshow_show_controls(Ephoto *ephoto)
        _add_icon(ss->notify, "view-fullscreen", _("Fullscreen"), NULL);
    evas_object_smart_callback_add(ss->fullscreen, "clicked", _fullscreen, ss);
    ss->fullscreen_after =
-       _add_icon(ss->notify, "preferences-system", _("Settings"), NULL);
+       _add_icon(ss->notify, "preferences-other", _("Settings"), NULL);
    evas_object_smart_callback_add(ss->fullscreen_after, "clicked", _settings, ss);
 
    elm_layout_content_set(ephoto->layout, "ephoto.swallow.controls", ss->notify);

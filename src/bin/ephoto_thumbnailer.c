@@ -7,6 +7,10 @@
 # include <netinet/in.h>
 #endif
 
+#ifdef _WIN32
+# include <winsock2.h>
+#endif
+
 #define SHSH(n, v) ((((v) << (n)) & 0xffffffff) | ((v) >> (32 - (n))))
 
 typedef struct _E_Thumb E_Thumb;
@@ -62,6 +66,7 @@ main(int argc,
           }
         else if (!strncmp(argv[i], "--nice=", 7))
           {
+#ifdef HAVE_NICE
              const char *val;
 
              val = argv[i] + 7;
@@ -69,6 +74,7 @@ main(int argc,
                {
                   if (nice(atoi(val)) < 0) perror("nice");
                }
+#endif
           }
      }
 

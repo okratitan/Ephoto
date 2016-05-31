@@ -51,6 +51,14 @@ ephoto_thumbnail_CPPFLAGS = \
 
 ephoto_thumbnail_LDADD = @EFL_LIBS@
 
+if HAVE_WIN32
+ephoto_thumbnail_LDADD += -lws2_32
+endif
+
+if HAVE_PO
+ephoto_thumbnail_LDADD += @LTLIBINTL@
+endif
+
 ephoto_thumbnail_SOURCES = \
 	ephoto_thumbnailer.c \
         ephoto_ipc.c \

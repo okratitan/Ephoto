@@ -79,7 +79,7 @@ static void _ephoto_thumb_search_start(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED);
 
 /*Common Callbacks*/
-static void
+/*static void
 _menu_dismissed_cb(void *data, Evas_Object *obj,
     void *event_info EINA_UNUSED)
 {
@@ -87,7 +87,7 @@ _menu_dismissed_cb(void *data, Evas_Object *obj,
 
    evas_object_del(obj);
    elm_object_focus_set(tb->main, EINA_TRUE);
-}
+}*/
 
 static void
 _menu_empty_cb(void *data, Evas_Object *obj EINA_UNUSED,
@@ -814,8 +814,8 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
                  _grid_menu_delete_cb, tb);
           }
      }
-   evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-       tb);
+   /*evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
+       tb);*/
    evas_object_show(menu);
 }
 static void
@@ -1842,7 +1842,7 @@ ephoto_thumb_browser_show_controls(Ephoto *ephoto)
    ic = elm_icon_add(ephoto->controls_left);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
-   ret = elm_icon_standard_set(ic, "image-x-generic");
+   ret = elm_icon_standard_set(ic, "view-list-details");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
    if (!ret)
      ret = elm_image_file_set(ic, PACKAGE_DATA_DIR "/images/single.png", NULL);

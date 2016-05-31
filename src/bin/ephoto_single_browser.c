@@ -150,7 +150,7 @@ _ephoto_get_file_size(const char *path)
    return strdup(isize);
 }
 
-static void
+/*static void
 _menu_dismissed_cb(void *data, Evas_Object *obj,
     void *event_info EINA_UNUSED)
 {
@@ -158,7 +158,7 @@ _menu_dismissed_cb(void *data, Evas_Object *obj,
 
    evas_object_del(obj);
    elm_object_focus_set(sb->event, EINA_TRUE);
-}
+}*/
 
 /*Image Viewer Callbacks*/
 static Evas_Object *
@@ -1442,8 +1442,8 @@ _ephoto_main_edit_menu(Ephoto_Single_Browser *sb)
 
    _add_edit_menu_items(sb, menu);
    
-   evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-       sb);
+   /*evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
+       sb);*/
    evas_object_show(menu);
 }
 

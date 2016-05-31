@@ -17,23 +17,20 @@ static Ecore_Ipc_Server *_e_ipc_server = NULL;
 int
 e_ipc_init(void)
 {
-   char buf[4096], buf2[128], buf3[4096];
-   char *tmp, *user, *base;
+   char buf[4096], buf3[4096];
+   const char *tmp, *user, *base;
    int pid, trynum = 0, id1 = 0;
-   struct stat st;
 
-   tmp = getenv("TMPDIR");
+   tmp = eina_environment_tmp_get();
    if (!tmp) tmp = "/tmp";
    base = tmp;
 
    tmp = getenv("XDG_RUNTIME_DIR");
    if (tmp)
      {
-        if (stat(tmp, &st) == 0)
+        if (ecore_file_exists(tmp))
           {
-             if ((st.st_uid == getuid()) &&
-                 ((st.st_mode & (S_IFDIR | S_IRWXU | S_IRWXG | S_IRWXO)) ==
-                  (S_IRWXU | S_IFDIR)))
+             if (ecore_file_is_dir(tmp) && ecore_file_can_write(tmp))
                base = tmp;
              else
                ERR("XDG_RUNTIME_DIR of '%s' failed permissions check", tmp);
@@ -45,11 +42,9 @@ e_ipc_init(void)
    tmp = getenv("SD_USER_SOCKETS_DIR");
    if (tmp)
      {
-        if (stat(tmp, &st) == 0)
+        if (ecore_file_exists(tmp))
           {
-             if ((st.st_uid == getuid()) &&
-                 ((st.st_mode & (S_IFDIR | S_IRWXU | S_IRWXG | S_IRWXO)) ==
-                  (S_IRWXU | S_IFDIR)))
+             if (ecore_file_is_dir(tmp) && ecore_file_can_write(tmp))
                base = tmp;
              else
                ERR("SD_USER_SOCKETS_DIR of '%s' failed permissions check", tmp);
@@ -59,18 +54,6 @@ e_ipc_init(void)
      }
 
    user = getenv("USER");
-   if (!user)
-     {
-        int uidint;
-
-        user = "__unknown__";
-        uidint = getuid();
-        if (uidint >= 0)
-          {
-             snprintf(buf2, sizeof(buf2), "%i", uidint);
-             user = buf2;
-          }
-     }
 
    setenv("EPHOTO_IPC_SOCKET", "", 1);
 

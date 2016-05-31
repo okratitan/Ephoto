@@ -1087,9 +1087,9 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
         const char *n = eina_list_data_get(eina_list_next(l));
 
         it = eina_file_direct_ls(dir);
-         EINA_ITERATOR_FOREACH(it, finfo)
+        cur = next; 
+        EINA_ITERATOR_FOREACH(it, finfo)
           {
-             cur = next;
              if (finfo->type == EINA_FILE_DIR && 
                  strncmp(finfo->path + finfo->name_start, ".", 1))
                {

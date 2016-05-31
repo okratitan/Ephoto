@@ -385,11 +385,11 @@ _config_about(Evas_Object *parent)
    evas_object_show(box);
 
    img = elm_image_add(box);
-   evas_object_size_hint_min_set(img, 75, 75);
-   elm_image_preload_disabled_set(img, EINA_TRUE);
+   evas_object_image_size_set(elm_image_object_get(img), 200, 100);
+   evas_object_size_hint_min_set(img, 200, 100);
+   evas_object_size_hint_max_set(img, 200, 100);
+   elm_image_preload_disabled_set(img, EINA_FALSE);
    elm_image_file_set(img, PACKAGE_DATA_DIR "/images/ephoto.png", NULL);
-   evas_object_size_hint_weight_set(img, 0.0, 0.0);
-   evas_object_size_hint_align_set(img, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_box_pack_end(box, img);
    evas_object_show(img);
 

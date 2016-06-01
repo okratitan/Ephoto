@@ -651,8 +651,7 @@ ephoto_window_add(const char *path)
         eina_stringshare_replace(&ephoto->config->directory,
             ecore_file_realpath(dir));
 	free(dir);
-	ephoto_single_browser_path_pending_set(ephoto->single_browser, path);
-
+        ephoto_single_browser_path_pending_set(ephoto->single_browser, path);
 	elm_naviframe_item_simple_promote(ephoto->pager,
 	    ephoto->single_browser);
         ephoto_single_browser_show_controls(ephoto);

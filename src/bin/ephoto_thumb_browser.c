@@ -79,7 +79,7 @@ static void _ephoto_thumb_search_start(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED);
 
 /*Common Callbacks*/
-/*static void
+static void
 _menu_dismissed_cb(void *data, Evas_Object *obj,
     void *event_info EINA_UNUSED)
 {
@@ -87,7 +87,7 @@ _menu_dismissed_cb(void *data, Evas_Object *obj,
 
    evas_object_del(obj);
    elm_object_focus_set(tb->main, EINA_TRUE);
-}*/
+}
 
 static void
 _menu_empty_cb(void *data, Evas_Object *obj EINA_UNUSED,
@@ -814,8 +814,8 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
                  _grid_menu_delete_cb, tb);
           }
      }
-   /*evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-       tb);*/
+   evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
+       tb);
    evas_object_show(menu);
 }
 static void
@@ -1373,19 +1373,14 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
      }
    else if (tb->ephoto->state == EPHOTO_STATE_SINGLE)
      {
+        ephoto_single_browser_entry_set(tb->ephoto->single_browser, NULL);
         if (tb->ephoto->entries)
           {
-             ephoto_single_browser_entry_set(tb->ephoto->single_browser, NULL);
              ephoto_single_browser_entries_set(tb->ephoto->single_browser,
                  tb->ephoto->entries);
-             ephoto_single_browser_entry_set(tb->ephoto->single_browser,
-                 eina_list_nth(tb->ephoto->entries, 0));
           }
         else
-          {
-             ephoto_single_browser_entry_set(tb->ephoto->single_browser, NULL);
-             ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
-          }
+          ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
      }
    tb->entries = tb->ephoto->entries;
    if (eina_list_count(tb->entries) < 1)

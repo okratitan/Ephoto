@@ -150,7 +150,7 @@ _ephoto_get_file_size(const char *path)
    return strdup(isize);
 }
 
-/*static void
+static void
 _menu_dismissed_cb(void *data, Evas_Object *obj,
     void *event_info EINA_UNUSED)
 {
@@ -158,7 +158,7 @@ _menu_dismissed_cb(void *data, Evas_Object *obj,
 
    evas_object_del(obj);
    elm_object_focus_set(sb->event, EINA_TRUE);
-}*/
+}
 
 /*Image Viewer Callbacks*/
 static Evas_Object *
@@ -1273,9 +1273,15 @@ _entry_free(void *data, const Ephoto_Entry *entry)
 }
 
 static Eina_Bool
-_ephoto_single_populate_end(void *data EINA_UNUSED, int type EINA_UNUSED,
+_ephoto_single_populate_end(void *data, int type EINA_UNUSED,
     void *event EINA_UNUSED)
 {
+   Ephoto_Single_Browser *sb = data;
+
+   if (!sb->entry)
+     ephoto_single_browser_entry_set(sb->main,
+                 eina_list_nth(sb->ephoto->entries, 0));
+
    return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -1442,8 +1448,8 @@ _ephoto_main_edit_menu(Ephoto_Single_Browser *sb)
 
    _add_edit_menu_items(sb, menu);
    
-   /*evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-       sb);*/
+   evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
+       sb);
    evas_object_show(menu);
 }
 
@@ -1664,15 +1670,23 @@ void
 ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
 {
    Ephoto_Single_Browser *sb = evas_object_data_get(obj, "single_browser");
+   char *dir;
 
-   if (sb->entry)
-      ephoto_entry_free_listener_del(sb->entry, _entry_free, sb);
-
-   sb->entry = entry;
-
+   if (sb->entry && !entry)
+     {
+        dir = ecore_file_dir_get(sb->entry->path);
+        if (!eina_streq(sb->ephoto->config->directory, dir))
+          {
+             ephoto_entry_free_listener_del(sb->entry, _entry_free, sb);
+             sb->entry = entry;
+          }
+        free(dir);
+     }
    if (entry)
-     ephoto_entry_free_listener_add(entry, _entry_free, sb);
-
+     {
+        sb->entry = entry;
+        ephoto_entry_free_listener_add(entry, _entry_free, sb);
+     }
    _ephoto_single_browser_recalc(sb);
    if (sb->edited_image_data)
      {

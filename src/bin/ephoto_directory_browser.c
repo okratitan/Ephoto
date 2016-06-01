@@ -47,7 +47,7 @@ static void _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
     Evas_Object *obj EINA_UNUSED, void *event_info);
 
 /*File Pane Callbacks*/
-/*static void
+static void
 _menu_dismissed_cb(void *data, Evas_Object *obj,
     void *event_info EINA_UNUSED)
 {
@@ -56,7 +56,7 @@ _menu_dismissed_cb(void *data, Evas_Object *obj,
    db->ephoto->menu_blocking = EINA_FALSE;
    evas_object_del(obj);
    elm_object_focus_set(db->main, EINA_TRUE);
-}*/
+}
 
 static void
 _menu_empty_cb(void *data, Evas_Object *obj EINA_UNUSED,
@@ -648,8 +648,8 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
         menu_it = elm_menu_item_add(menu, NULL, "user-trash", _("Trash"),
             _dir_go_trash, db);
      }
-   /*evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-            db);*/
+   evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
+            db);
    evas_object_show(menu);
 }
 

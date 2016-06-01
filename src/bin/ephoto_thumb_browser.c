@@ -1373,14 +1373,17 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
      }
    else if (tb->ephoto->state == EPHOTO_STATE_SINGLE)
      {
-        ephoto_single_browser_entry_set(tb->ephoto->single_browser, NULL);
         if (tb->ephoto->entries)
           {
+             ephoto_single_browser_entry_set(tb->ephoto->single_browser, NULL);
              ephoto_single_browser_entries_set(tb->ephoto->single_browser,
                  tb->ephoto->entries);
           }
         else
-          ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
+          {
+             ephoto_single_browser_entry_set(tb->ephoto->single_browser, NULL);
+             ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
+          }
      }
    tb->entries = tb->ephoto->entries;
    if (eina_list_count(tb->entries) < 1)

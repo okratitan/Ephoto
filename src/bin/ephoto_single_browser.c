@@ -1278,7 +1278,7 @@ _ephoto_single_populate_end(void *data, int type EINA_UNUSED,
 {
    Ephoto_Single_Browser *sb = data;
 
-   if (!sb->entry)
+   if (!sb->entry && sb->ephoto->state == EPHOTO_STATE_SINGLE)
      ephoto_single_browser_entry_set(sb->main,
                  eina_list_nth(sb->ephoto->entries, 0));
 

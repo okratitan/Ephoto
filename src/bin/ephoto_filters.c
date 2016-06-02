@@ -29,18 +29,13 @@ _demul_color_alpha(int color, int alpha)
       return color;
 }
 
-void
-ephoto_filter_blur(Evas_Object *main, Evas_Object *image)
+static unsigned int *
+_blur(unsigned int *im_data, int rad, Evas_Coord w, Evas_Coord h)
 {
-   unsigned int *im_data, *im_data_new, *p1, *p2;
-   int rad = 3;
-   Evas_Coord x, y, w, h, mx, my, mw, mh, mt, xx, yy;
+   unsigned int *im_data_new, *p1, *p2;
+   Evas_Coord x, y, mx, my, mw, mh, mt, xx, yy;
    int a, r, g, b;
    int *as, *rs, *gs, *bs;
-
-   im_data =
-       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
 
    im_data_new = malloc(sizeof(unsigned int) * w * h);
    as = malloc(sizeof(int) * w);
@@ -120,7 +115,140 @@ ephoto_filter_blur(Evas_Object *main, Evas_Object *image)
    free(gs);
    free(bs);
 
-   ephoto_single_browser_image_data_done(main, im_data_new,
+   return im_data_new;
+}
+
+static unsigned int *
+_grayscale(Evas_Object *image) {
+   unsigned int *im_data, *im_data_new;
+   int gray, i, r, g, b, a;
+   Evas_Coord w, h;
+
+   im_data =
+       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
+   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
+
+   im_data_new = malloc(sizeof(unsigned int) * w * h);
+
+   for (i = 0; i < (w * h); i++)
+     {
+        b = (int) ((im_data[i]) & 0xff);
+        g = (int) ((im_data[i] >> 8) & 0xff);
+        r = (int) ((im_data[i] >> 16) & 0xff);
+        a = (int) ((im_data[i] >> 24) & 0xff);
+        b = _mul_color_alpha(b, a);
+        g = _mul_color_alpha(g, a);
+        r = _mul_color_alpha(r, a);
+        gray = (int) ((0.3 * r) + (0.59 * g) + (0.11 * b));
+        if (a >= 0 && a < 255)
+           gray = (gray * a) / 255;
+        im_data_new[i] = (a << 24) | (gray << 16) | (gray << 8) | gray;
+     }
+   return im_data_new;
+}
+
+static unsigned int *
+_posterize(unsigned int *im_data, Evas_Coord w, Evas_Coord h, float rad)
+{
+   unsigned int *im_data_new;
+   int i, rr, gg, bb, a;
+   double fr, fg, fb;
+
+   im_data_new = malloc(sizeof(unsigned int) * w * h);
+   for (i = 0; i < (w * h); i++)
+     {
+        fb = ((im_data[i]) & 0xff);
+        fg = ((im_data[i] >> 8) & 0xff);
+        fr = ((im_data[i] >> 16) & 0xff);
+        a = (int) ((im_data[i] >> 24) & 0xff);
+        fr /= 255;
+        fg /= 255;
+        fb /= 255;
+        rr = 255 * rint((fr * rad)) / rad;
+        rr = _normalize_color(rr);
+        gg = 255 * rint((fg * rad)) / rad;
+        gg = _normalize_color(gg);
+        bb = 255 * rint((fb * rad)) / rad;
+        bb = _normalize_color(bb);
+        im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
+     }
+   return im_data_new;
+}
+
+static unsigned int *
+_negative(unsigned int *im_data, Evas_Coord w, Evas_Coord h)
+{
+   unsigned int *im_data_new;
+   int i, r, g, b, rr, gg, bb, a;
+
+   im_data_new = malloc(sizeof(unsigned int) * w * h);
+   for (i = 0; i < (w * h); i++)
+     {
+        b = (int) ((im_data[i]) & 0xff);
+        g = (int) ((im_data[i] >> 8) & 0xff);
+        r = (int) ((im_data[i] >> 16) & 0xff);
+        a = (int) ((im_data[i] >> 24) & 0xff);
+        b = _mul_color_alpha(b, a);
+        g = _mul_color_alpha(g, a);
+        r = _mul_color_alpha(r, a);
+        rr = 255 - r;
+        gg = 255 - g;
+        bb = 255 - b;
+        rr = _normalize_color(rr);
+        gg = _normalize_color(gg);
+        bb = _normalize_color(bb);
+        bb = _demul_color_alpha(bb, a);
+        gg = _demul_color_alpha(gg, a);
+        rr = _demul_color_alpha(rr, a);
+        im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
+     }
+   return im_data_new;
+}
+
+static unsigned int *
+_dodge(unsigned int *im_data, unsigned int *im_data_two, Evas_Coord w, Evas_Coord h)
+{
+   unsigned int *im_data_new;
+   float r, g, b, rr, gg, bb;
+   int i, rrr, ggg, bbb;
+   im_data_new = malloc(sizeof(unsigned int) * w * h);
+   for (i = 0; i < (w * h); i++)
+     {
+        b = ((im_data[i]) & 0xff);
+        g = ((im_data[i] >> 8) & 0xff);
+        r = ((im_data[i] >> 16) & 0xff);
+  
+        bb = ((im_data_two[i]) & 0xff);
+        gg = ((im_data_two[i] >> 8) & 0xff);
+        rr = ((im_data_two[i] >> 16) & 0xff);
+   
+        b *= 256;
+        g *= 256;
+        r *= 256;
+  
+        bbb = rint(b / (256 - bb));
+        ggg = rint(g / (256 - gg));
+        rrr = rint(r / (256 - rr));
+
+        rrr = _normalize_color(rrr);
+        ggg = _normalize_color(ggg);
+        bbb = _normalize_color(bbb);
+ 
+        im_data_new[i] = (255 << 24) | (rrr << 16) | (ggg << 8) | bbb;
+     }
+   return im_data_new;
+}
+
+void
+ephoto_filter_blur(Evas_Object *main, Evas_Object *image)
+{
+   Evas_Coord w, h;
+   unsigned int *im_data;
+
+   im_data =
+       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
+   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
+   ephoto_single_browser_image_data_done(main, _blur(im_data, 9, w, h),
        w, h);
 }
 
@@ -183,31 +311,11 @@ ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image)
 void
 ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image)
 {
-   unsigned int *im_data, *im_data_new;
-   int gray, i, r, g, b, a;
    Evas_Coord w, h;
 
-   im_data =
-       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
    evas_object_image_size_get(elm_image_object_get(image), &w, &h);
 
-   im_data_new = malloc(sizeof(unsigned int) * w * h);
-
-   for (i = 0; i < (w * h); i++)
-     {
-	b = (int) ((im_data[i]) & 0xff);
-	g = (int) ((im_data[i] >> 8) & 0xff);
-	r = (int) ((im_data[i] >> 16) & 0xff);
-	a = (int) ((im_data[i] >> 24) & 0xff);
-	b = _mul_color_alpha(b, a);
-	g = _mul_color_alpha(g, a);
-	r = _mul_color_alpha(r, a);
-	gray = (int) ((0.3 * r) + (0.59 * g) + (0.11 * b));
-	if (a >= 0 && a < 255)
-	   gray = (gray * a) / 255;
-	im_data_new[i] = (a << 24) | (gray << 16) | (gray << 8) | gray;
-     }
-   ephoto_single_browser_image_data_done(main, im_data_new,
+   ephoto_single_browser_image_data_done(main, _grayscale(image),
        w, h);
 }
 
@@ -243,6 +351,66 @@ ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image)
 	im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
      }
    ephoto_single_browser_image_data_done(main, im_data_new,
+       w, h);
+}
+
+void
+ephoto_filter_posterize(Evas_Object *main, Evas_Object *image)
+{
+   unsigned int *im_data, *im_data_new;
+   Evas_Coord w, h;
+
+   im_data =
+       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
+   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
+   im_data_new = _posterize(im_data, w, h, 2.0);
+
+   ephoto_single_browser_image_data_done(main, im_data_new,
+       w, h);
+}
+
+void
+ephoto_filter_cartoon(Evas_Object *main, Evas_Object *image)
+{
+   unsigned int *im_data, *im_data_new, *im_data_new_two;
+   Evas_Coord w, h;
+
+   im_data =
+       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
+   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
+   im_data_new = _blur(im_data, 5, w, h);
+   im_data_new_two = _posterize(im_data_new, w, h, 5.0);
+
+   ephoto_single_browser_image_data_done(main, im_data_new_two,
+       w, h);
+}
+
+void ephoto_filter_invert(Evas_Object *main, Evas_Object *image)
+{
+   unsigned int *im_data, *im_data_new;
+   Evas_Coord w, h;
+
+   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
+   im_data =
+       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
+   im_data_new = _negative(im_data, w, h);
+
+   ephoto_single_browser_image_data_done(main, im_data_new,
+       w, h);
+}
+
+void ephoto_filter_sketch(Evas_Object *main, Evas_Object *image)
+{
+   unsigned int *im_data, *im_data_new, *im_data_new_two, *im_data_new_three;
+   Evas_Coord w, h;
+
+   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
+   im_data = _grayscale(image);
+   im_data_new = _negative(im_data, w, h);
+   im_data_new_two = _dodge(im_data, im_data_new, w, h);
+   im_data_new_three = _blur(im_data_new_two, 3, w, h);
+
+   ephoto_single_browser_image_data_done(main, im_data_new_three,
        w, h);
 }
 

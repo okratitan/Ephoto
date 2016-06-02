@@ -1167,6 +1167,66 @@ _go_old_photo(void *data, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
+_go_posterize(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+
+   if (sb->viewer)
+     {
+        sb->editing = EINA_TRUE;
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+
+        ephoto_filter_posterize(sb->main, v->image);
+     }
+}
+
+static void
+_go_cartoon(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+
+   if (sb->viewer)
+     {
+        sb->editing = EINA_TRUE;
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+
+        ephoto_filter_cartoon(sb->main, v->image);
+     }
+}
+
+static void
+_go_invert(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+
+   if (sb->viewer)
+     {
+        sb->editing = EINA_TRUE;
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+
+        ephoto_filter_invert(sb->main, v->image);
+     }
+}
+
+static void
+_go_sketch(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+
+   if (sb->viewer)
+     {
+        sb->editing = EINA_TRUE;
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+
+        ephoto_filter_sketch(sb->main, v->image);
+     }
+}
+
+static void
 _image_changed(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
@@ -1398,22 +1458,29 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
        _("Brightness/Contrast/Gamma"), _go_bcg, sb);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Hue/Saturation/Value"),
        _go_hsv, sb);
-   elm_menu_item_add(menu, menu_itt, "insert-image", _("Red Eye Removal"),
-       _go_reye, sb);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Color Levels"),
        _go_color, sb);
+   elm_menu_item_add(menu, menu_itt, "insert-image", _("Red Eye Removal"),
+       _go_reye, sb);
 
    menu_itt =
        elm_menu_item_add(menu, menu_it, "document-properties", _("Filters"), NULL,
        NULL);
-   elm_menu_item_add(menu, menu_itt, "insert-image", _("Blur"), _go_blur, sb);
-   elm_menu_item_add(menu, menu_itt, "insert-image", _("Sharpen"), _go_sharpen,
-       sb);
-   elm_menu_item_separator_add(menu, menu_itt);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Black and White"),
        _go_black_and_white, sb);
+   elm_menu_item_add(menu, menu_itt, "insert-image", _("Blur"), _go_blur, sb);
+   elm_menu_item_add(menu, menu_itt, "insert-image", _("Cartoon"),
+       _go_cartoon, sb);
+   elm_menu_item_add(menu, menu_itt, "insert-image", _("Invert Colors"),
+       _go_invert, sb);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Old Photo"),
        _go_old_photo, sb);
+   elm_menu_item_add(menu, menu_itt, "insert-image", _("Posterize"),
+       _go_posterize, sb);
+   elm_menu_item_add(menu, menu_itt, "insert-image", _("Sharpen"), _go_sharpen,
+       sb);
+   elm_menu_item_add(menu, menu_itt, "insert-image", _("Sketch"),
+       _go_sketch, sb);
 
    menu_it =
        elm_menu_item_add(menu, NULL, "document-properties", _("View"), NULL,

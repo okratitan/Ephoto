@@ -145,6 +145,10 @@ void ephoto_filter_blur(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image);
+void ephoto_filter_cartoon(Evas_Object *main, Evas_Object *image);
+void ephoto_filter_posterize(Evas_Object *main, Evas_Object *image);
+void ephoto_filter_sketch(Evas_Object *main, Evas_Object *image);
+void ephoto_filter_invert(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_histogram_eq(Evas_Object *main, Evas_Object *image);
 
 /*file functions*/

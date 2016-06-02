@@ -148,7 +148,7 @@ _grayscale(Evas_Object *image) {
 }
 
 static unsigned int *
-_posterize(unsigned int *im_data, Evas_Coord w, Evas_Coord h, float rad)
+_posterize(unsigned int *im_data, double rad, Evas_Coord w, Evas_Coord h)
 {
    unsigned int *im_data_new;
    int i, rr, gg, bb, a;
@@ -209,7 +209,7 @@ static unsigned int *
 _dodge(unsigned int *im_data, unsigned int *im_data_two, Evas_Coord w, Evas_Coord h)
 {
    unsigned int *im_data_new;
-   float r, g, b, rr, gg, bb;
+   double r, g, b, rr, gg, bb;
    int i, rrr, ggg, bbb;
    im_data_new = malloc(sizeof(unsigned int) * w * h);
    for (i = 0; i < (w * h); i++)
@@ -217,23 +217,23 @@ _dodge(unsigned int *im_data, unsigned int *im_data_two, Evas_Coord w, Evas_Coor
         b = ((im_data[i]) & 0xff);
         g = ((im_data[i] >> 8) & 0xff);
         r = ((im_data[i] >> 16) & 0xff);
-  
+
         bb = ((im_data_two[i]) & 0xff);
         gg = ((im_data_two[i] >> 8) & 0xff);
         rr = ((im_data_two[i] >> 16) & 0xff);
-   
-        b *= 256;
-        g *= 256;
-        r *= 256;
   
-        bbb = rint(b / (256 - bb));
-        ggg = rint(g / (256 - gg));
-        rrr = rint(r / (256 - rr));
+        b *= 255;
+        g *= 255;
+        r *= 255;
+  
+        bbb = rint(b / (255 - bb));
+        ggg = rint(g / (255 - gg));
+        rrr = rint(r / (255 - rr));
 
         rrr = _normalize_color(rrr);
         ggg = _normalize_color(ggg);
         bbb = _normalize_color(bbb);
- 
+
         im_data_new[i] = (255 << 24) | (rrr << 16) | (ggg << 8) | bbb;
      }
    return im_data_new;
@@ -363,7 +363,7 @@ ephoto_filter_posterize(Evas_Object *main, Evas_Object *image)
    im_data =
        evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
    evas_object_image_size_get(elm_image_object_get(image), &w, &h);
-   im_data_new = _posterize(im_data, w, h, 2.0);
+   im_data_new = _posterize(im_data, 2.0, w, h);
 
    ephoto_single_browser_image_data_done(main, im_data_new,
        w, h);
@@ -379,7 +379,7 @@ ephoto_filter_cartoon(Evas_Object *main, Evas_Object *image)
        evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
    evas_object_image_size_get(elm_image_object_get(image), &w, &h);
    im_data_new = _blur(im_data, 5, w, h);
-   im_data_new_two = _posterize(im_data_new, w, h, 5.0);
+   im_data_new_two = _posterize(im_data_new, 5.0, w, h);
 
    ephoto_single_browser_image_data_done(main, im_data_new_two,
        w, h);
@@ -407,8 +407,8 @@ void ephoto_filter_sketch(Evas_Object *main, Evas_Object *image)
    evas_object_image_size_get(elm_image_object_get(image), &w, &h);
    im_data = _grayscale(image);
    im_data_new = _negative(im_data, w, h);
-   im_data_new_two = _dodge(im_data, im_data_new, w, h);
-   im_data_new_three = _blur(im_data_new_two, 3, w, h);
+   im_data_new_two = _blur(im_data_new, 4, w, h);
+   im_data_new_three = _dodge(im_data, im_data_new_two, w, h);
 
    ephoto_single_browser_image_data_done(main, im_data_new_three,
        w, h);

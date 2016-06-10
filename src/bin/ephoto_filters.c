@@ -1,9 +1,24 @@
 #include "ephoto.h"
 
+typedef enum _Ephoto_Image_Filter Ephoto_Image_Filter;
 typedef struct _Ephoto_Filter Ephoto_Filter;
+
+enum _Ephoto_Image_Filter
+{
+   EPHOTO_IMAGE_FILTER_BLUR,
+   EPHOTO_IMAGE_FILTER_CARTOON,
+   EPHOTO_IMAGE_FILTER_EQUALIZE,
+   EPHOTO_IMAGE_FILTER_GRAYSCALE,
+   EPHOTO_IMAGE_FILTER_INVERT,
+   EPHOTO_IMAGE_FILTER_POSTERIZE,
+   EPHOTO_IMAGE_FILTER_SEPIA,
+   EPHOTO_IMAGE_FILTER_SHARPEN,
+   EPHOTO_IMAGE_FILTER_SKETCH
+};
 
 struct _Ephoto_Filter
 {
+   Ephoto_Image_Filter filter;
    Evas_Object *main;
    Evas_Object *image;
    Evas_Object *popup;
@@ -16,6 +31,8 @@ struct _Ephoto_Filter
    int qpos;
    int qcount;
    double drad;
+   unsigned int *hist;
+   unsigned int *cdf;
    unsigned int *im_data;
    unsigned int *im_data_new;
    unsigned int *im_data_two;
@@ -24,9 +41,44 @@ struct _Ephoto_Filter
 static Eina_Bool _blur(void *data);
 static Eina_Bool _sharpen(void *data);
 static Eina_Bool _grayscale(void *data);
+static Eina_Bool _sepia(void *data);
 static Eina_Bool _negative(void *data);
 static Eina_Bool _posterize(void *data);
 static Eina_Bool _dodge(void *data);
+static Eina_Bool _histogram_eq(void *data);
+
+static Ephoto_Filter *
+_initialize_filter(Ephoto_Image_Filter filter,
+    Evas_Object *main, Evas_Object *image)
+{
+   Ephoto_Filter *ef = calloc(1, sizeof(Ephoto_Filter));
+   Evas_Coord w, h;
+   unsigned int *im_data;
+
+   im_data =
+       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
+   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
+
+   ef->filter = filter;
+   ef->main = main;
+   ef->image = image;
+   ef->im_data = malloc(sizeof(unsigned int) * w * h);
+   ef->im_data = memcpy(ef->im_data, im_data, sizeof(unsigned int) * w * h);
+   ef->im_data_new = malloc(sizeof(unsigned int) * w * h);
+   ef->im_data_two = NULL;
+   ef->rad = 0;
+   ef->drad = 0.0;
+   ef->pos = 0;
+   ef->w = w;
+   ef->h = h;
+   ef->qpos = 0;
+   ef->qcount = 0;
+   ef->queue = NULL;
+   ef->hist = NULL;
+   ef->cdf = NULL;
+
+   return ef;
+}
 
 static int
 _normalize_color(int color)
@@ -55,6 +107,14 @@ _demul_color_alpha(int color, int alpha)
       return (color * alpha) / 255;
    else
       return color;
+}
+
+static void
+_create_hist(Ephoto_Filter *ef)
+{
+   int i;
+   for (i = 0; i < 256; i++)
+      ef->hist[i] = 0;
 }
 
 static Evas_Object *
@@ -133,6 +193,12 @@ _idler_finishing_cb(Ephoto_Filter *ef, Eina_Bool im_data_two)
         ef->im_data = malloc(sizeof(unsigned int) * ef->w * ef->h);
         ef->im_data = memcpy(ef->im_data, ef->im_data_new,
             sizeof(unsigned int) * ef->w * ef->h);
+        if (ef->hist)
+          free(ef->hist);
+        ef->hist = NULL;
+        if (ef->cdf)
+          free(ef->cdf);
+        ef->cdf = NULL;
         ef->pos = 0;
         ef->qpos++;
         ecore_idler_del(ef->idler);
@@ -253,7 +319,7 @@ _blur(void *data)
 	       }
 	  }
         passes++;
-        if (passes == 5)
+        if (passes == 500)
           {
              free(as);
              free(rs);
@@ -323,7 +389,7 @@ _sharpen(void *data)
              p1++;
           }
         passes++;
-        if (passes == 5)
+        if (passes == 500)
           {
              ef->pos = y++;
              return EINA_TRUE;
@@ -358,7 +424,48 @@ _grayscale(void *data)
            gray = (gray * a) / 255;
         ef->im_data_new[i] = (a << 24) | (gray << 16) | (gray << 8) | gray;
         passes++;
-        if (passes == 5)
+        if (passes == 500)
+          {
+             ef->pos = i++;
+             return EINA_TRUE;
+          }
+     }
+
+   _idler_finishing_cb(ef, EINA_FALSE);
+
+   return EINA_FALSE;
+}
+
+static Eina_Bool
+_sepia(void *data)
+{
+   Ephoto_Filter *ef = data;
+   int i, r, rr, g, gg, b, bb, a, passes = 0;
+   Evas_Coord w, h;
+
+   w = ef->w;
+   h = ef->h;
+   for (i = ef->pos; i < (w * h); i++)
+     {
+        b = (int) ((ef->im_data[i]) & 0xff);
+        g = (int) ((ef->im_data[i] >> 8) & 0xff);
+        r = (int) ((ef->im_data[i] >> 16) & 0xff);
+        a = (int) ((ef->im_data[i] >> 24) & 0xff);
+        b = _mul_color_alpha(b, a);
+        g = _mul_color_alpha(g, a);
+        r = _mul_color_alpha(r, a);
+        rr = (int) ((r * .393) + (g * .769) + (b * .189));
+        rr = _normalize_color(rr);
+        gg = (int) ((r * .349) + (g * .686) + (b * .168));
+        gg = _normalize_color(gg);
+        bb = (int) ((r * .272) + (g * .534) + (b * .131));
+        bb = _normalize_color(bb);
+        bb = _demul_color_alpha(bb, a);
+        gg = _demul_color_alpha(gg, a);
+        rr = _demul_color_alpha(rr, a);
+        ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
+        passes++;
+        if (passes == 500)
           {
              ef->pos = i++;
              return EINA_TRUE;
@@ -398,7 +505,7 @@ _posterize(void *data)
         bb = _normalize_color(bb);
         ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
         passes++;
-        if (passes == 5)
+        if (passes == 500)
           {
              ef->pos = i++;
              return EINA_TRUE;
@@ -441,14 +548,16 @@ _negative(void *data)
         ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
 
         passes++;
-        if (passes == 5)
+        if (passes == 500)
           {
              ef->pos = i++;
              return EINA_TRUE;
           }
      }
-
-   _idler_finishing_cb(ef, EINA_TRUE);
+   if (ef->filter == EPHOTO_IMAGE_FILTER_SKETCH)
+     _idler_finishing_cb(ef, EINA_TRUE);
+   else
+     _idler_finishing_cb(ef, EINA_FALSE);
 
    return EINA_FALSE;
 }
@@ -488,7 +597,7 @@ _dodge(void *data)
         ef->im_data_new[i] = (255 << 24) | (rrr << 16) | (ggg << 8) | bbb;
 
         passes++;
-        if (passes == 5)
+        if (passes == 500)
           {
              ef->pos = i++;
              return EINA_TRUE;
@@ -500,31 +609,105 @@ _dodge(void *data)
    return EINA_FALSE;
 }
 
+static Eina_Bool
+_histogram_eq(void *data)
+{
+   Ephoto_Filter *ef = data;
+   Evas_Coord x, y, yy, w, h;
+   unsigned int *p1, *p2;
+   int i, a, r, g, b, bb, gg, rr, norm;
+   int total, passes = 0;
+   double sum;
+   float hh, s, v, nv;
+
+   w = ef->w;
+   h = ef->h;
+   total = ef->w * ef->h;
+   for (y = ef->pos; y < h; y++)
+     {
+        p1 = ef->im_data + (y * w);
+        for (x = 0; x < w; x++)
+          {
+             b = (int) ((*p1) & 0xff);
+             g = (int) ((*p1 >> 8) & 0xff);
+             r = (int) ((*p1 >> 16) & 0xff);
+             a = (int) ((*p1 >> 24) & 0xff);
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);
+             evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
+             norm = (int) round((double) v * (double) 255);
+             ef->hist[norm] += 1;
+             p1++;
+          }
+        passes++;
+        if (passes == 500 || y == (h - 1))
+          {
+             ef->pos = y + 1;
+             if (passes == 500 && y != (h - 1))
+               {
+                  return EINA_TRUE;
+               }
+             else
+               {
+                  ef->pos = h;
+                  sum = 0; 
+                  for (i = 0; i < 256; i++)
+                    {
+                       sum += ((double) ef->hist[i] / 
+                           (double) total);
+                       ef->cdf[i] = (int) round(sum * 255);
+                    }
+               }
+          }
+     }
+   passes = 0;
+   for (yy = ef->pos; (yy - h) < h; yy++)
+     {
+        p1 = ef->im_data + ((yy - h) * w);
+        p2 = ef->im_data_new + ((yy - h) * w);
+        for (x = 0; x < w; x++)
+          {
+             b = (int) ((*p1) & 0xff);
+             g = (int) ((*p1 >> 8) & 0xff);
+             r = (int) ((*p1 >> 16) & 0xff);
+             a = (int) ((*p1 >> 24) & 0xff);
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);
+             evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
+             norm = (int) round((double) v * (double) 255);
+             nv = (float) ef->cdf[norm] / (float) 255;
+             evas_color_hsv_to_rgb(hh, s, nv, &rr, &gg, &bb);
+             bb = _normalize_color(bb);
+             gg = _normalize_color(gg);
+             rr = _normalize_color(rr);
+             bb = _demul_color_alpha(bb, a);
+             gg = _demul_color_alpha(gg, a);
+             rr = _demul_color_alpha(rr, a);
+             *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
+             p2++;
+             p1++;
+          }
+        passes++;
+        if (passes == 500)
+          {
+             ef->pos = yy++;
+             return EINA_TRUE;
+          }
+     }
+   _idler_finishing_cb(ef, EINA_FALSE);
+
+   return EINA_FALSE;
+}
+
 void
 ephoto_filter_blur(Evas_Object *main, Evas_Object *image)
 {
-   Ephoto_Filter *ef = calloc(1, sizeof(Ephoto_Filter));
-   Evas_Coord w, h;
-   unsigned int *im_data;
+   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_BLUR,
+       main, image);
 
-   im_data =
-       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
-
-   ef->main = main;
-   ef->image = image;
-   ef->im_data = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data = memcpy(ef->im_data, im_data, sizeof(unsigned int) * w * h);
-   ef->im_data_new = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data_two = NULL;
    ef->rad = 9;
-   ef->drad = 0.0;
-   ef->pos = 0;
-   ef->w = w;
-   ef->h = h;
-   ef->qpos = 0;
-   ef->qcount = 0;
-   ef->queue = NULL;
    ef->popup = _processing(main);
    ef->idler = ecore_idler_add(_blur, ef);
 }
@@ -532,28 +715,10 @@ ephoto_filter_blur(Evas_Object *main, Evas_Object *image)
 void
 ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image)
 {
-   Ephoto_Filter *ef = calloc(1, sizeof(Ephoto_Filter));
-   unsigned int *im_data;
-   Evas_Coord w, h;
+   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SHARPEN,
+       main, image);
 
-   im_data =
-       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
-
-   ef->main = main;
-   ef->image = image;
-   ef->im_data = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data = memcpy(ef->im_data, im_data, sizeof(unsigned int) * w * h);
-   ef->im_data_new = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data_two = NULL;
-   ef->rad = 0;
-   ef->drad = 0.0;
    ef->pos = 1;
-   ef->w = w;
-   ef->h = h;
-   ef->qpos = 0;
-   ef->qcount = 0;
-   ef->queue = NULL;
    ef->popup = _processing(main);
    ef->idler = ecore_idler_add(_sharpen, ef);
 }
@@ -561,28 +726,9 @@ ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image)
 void
 ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image)
 {
-   Ephoto_Filter *ef = calloc(1, sizeof(Ephoto_Filter));
-   unsigned int *im_data;
-   Evas_Coord w, h;
+   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_GRAYSCALE,
+       main, image);
 
-   im_data =
-       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
-
-   ef->main = main;
-   ef->image = image;
-   ef->im_data = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data = memcpy(ef->im_data, im_data, sizeof(unsigned int) * w * h);
-   ef->im_data_new = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data_two = NULL;
-   ef->rad = 0;
-   ef->drad = 0.0;
-   ef->pos = 0;
-   ef->w = w;
-   ef->h = h;
-   ef->qpos = 0;
-   ef->qcount = 0;
-   ef->queue = NULL;
    ef->popup = _processing(main);
    ef->idler = ecore_idler_add(_grayscale, ef);
 }
@@ -590,63 +736,20 @@ ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image)
 void
 ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image)
 {
-   unsigned int *im_data, *im_data_new;
-   int i, r, rr, g, gg, b, bb, a;
-   Evas_Coord w, h;
+   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SEPIA,
+       main, image);
 
-   im_data =
-       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
-   im_data_new = malloc(sizeof(unsigned int) * w * h);
-   for (i = 0; i < (w * h); i++)
-     {
-	b = (int) ((im_data[i]) & 0xff);
-	g = (int) ((im_data[i] >> 8) & 0xff);
-	r = (int) ((im_data[i] >> 16) & 0xff);
-	a = (int) ((im_data[i] >> 24) & 0xff);
-	b = _mul_color_alpha(b, a);
-	g = _mul_color_alpha(g, a);
-	r = _mul_color_alpha(r, a);
-	rr = (int) ((r * .393) + (g * .769) + (b * .189));
-	rr = _normalize_color(rr);
-	gg = (int) ((r * .349) + (g * .686) + (b * .168));
-	gg = _normalize_color(gg);
-	bb = (int) ((r * .272) + (g * .534) + (b * .131));
-	bb = _normalize_color(bb);
-	bb = _demul_color_alpha(bb, a);
-	gg = _demul_color_alpha(gg, a);
-	rr = _demul_color_alpha(rr, a);
-	im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
-     }
-   ephoto_single_browser_image_data_done(main, im_data_new,
-       w, h);
+   ef->popup = _processing(main);
+   ef->idler = ecore_idler_add(_sepia, ef);
 }
 
 void
 ephoto_filter_posterize(Evas_Object *main, Evas_Object *image)
 {
-   Ephoto_Filter *ef = calloc(1, sizeof(Ephoto_Filter));
-   unsigned int *im_data;
-   Evas_Coord w, h;
+   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_POSTERIZE,
+       main, image);
 
-   im_data =
-       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
-
-   ef->main = main;
-   ef->image = image;
-   ef->im_data = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data = memcpy(ef->im_data, im_data, sizeof(unsigned int) * w * h);
-   ef->im_data_new = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data_two = NULL;
-   ef->rad = 0;
    ef->drad = 2.0;
-   ef->pos = 0;
-   ef->w = w;
-   ef->h = h;
-   ef->qpos = 0;
-   ef->qcount = 0;
-   ef->queue = NULL;
    ef->popup = _processing(main);
    ef->idler = ecore_idler_add(_posterize, ef);
 }
@@ -654,25 +757,11 @@ ephoto_filter_posterize(Evas_Object *main, Evas_Object *image)
 void
 ephoto_filter_cartoon(Evas_Object *main, Evas_Object *image)
 {
-   Ephoto_Filter *ef = calloc(1, sizeof(Ephoto_Filter));
-   unsigned int *im_data;
-   Evas_Coord w, h;
+   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_CARTOON,
+       main, image);
 
-   im_data =
-       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
-
-   ef->main = main;
-   ef->image = image;
-   ef->im_data = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data = memcpy(ef->im_data, im_data, sizeof(unsigned int) * w * h);
-   ef->im_data_new = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data_two = NULL;
    ef->rad = 5;
    ef->drad = 5.0;
-   ef->pos = 0;
-   ef->w = w;
-   ef->h = h;
    ef->qpos = 0;
    ef->qcount = 1;
    ef->queue = eina_list_append(ef->queue, _posterize);
@@ -682,53 +771,19 @@ ephoto_filter_cartoon(Evas_Object *main, Evas_Object *image)
 
 void ephoto_filter_invert(Evas_Object *main, Evas_Object *image)
 {
-   Ephoto_Filter *ef = calloc(1, sizeof(Ephoto_Filter));
-   unsigned int *im_data;
-   Evas_Coord w, h;
+   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_INVERT,
+       main, image);
 
-   im_data =
-       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
-
-   ef->main = main;
-   ef->image = image;
-   ef->im_data = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data = memcpy(ef->im_data, im_data, sizeof(unsigned int) * w * h); 
-   ef->im_data_new = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data_two = NULL;
-   ef->rad = 0;
-   ef->rad = 0.0;
-   ef->pos = 0;
-   ef->w = w;
-   ef->h = h;
-   ef->qpos = 0;
-   ef->qcount = 0;
-   ef->queue = NULL;
    ef->popup = _processing(main);
    ef->idler = ecore_idler_add(_negative, ef);
 }
 
 void ephoto_filter_sketch(Evas_Object *main, Evas_Object *image)
 {
-   Ephoto_Filter *ef = calloc(1, sizeof(Ephoto_Filter));
-   unsigned int *im_data;
-   Evas_Coord w, h;
+   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SKETCH,
+       main, image);
 
-   im_data =
-       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
-
-   ef->main = main;
-   ef->image = image;
-   ef->im_data = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data = memcpy(ef->im_data, im_data, sizeof(unsigned int) * w * h);
-   ef->im_data_new = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data_two = NULL;
    ef->rad = 4;
-   ef->drad = 0.0;
-   ef->pos = 0;
-   ef->w = w;
-   ef->h = h;
    ef->qpos = 0;
    ef->qcount = 3;
    ef->queue = eina_list_append(ef->queue, _negative);
@@ -741,71 +796,12 @@ void ephoto_filter_sketch(Evas_Object *main, Evas_Object *image)
 void
 ephoto_filter_histogram_eq(Evas_Object *main, Evas_Object *image)
 {
-   unsigned int *im_data, *im_data_new, *p1, *p2;
-   Evas_Coord x, y, w, h;
-   int i, hist[256], cdf[256];
-   int a, r, g, b, bb, gg, rr, norm, total;
-   float hh, s, v, nv, sum;
+   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_EQUALIZE,
+       main, image);
 
-   im_data =
-       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
-   im_data_new = malloc(sizeof(unsigned int) * w * h);
-   total = w * h;
-   for (i = 0; i < 256; i++)
-      hist[i] = 0;
-   for (y = 0; y < h; y++)
-     {
-	p1 = im_data + (y * w);
-	for (x = 0; x < w; x++)
-	  {
-	     b = (int) ((*p1) & 0xff);
-	     g = (int) ((*p1 >> 8) & 0xff);
-	     r = (int) ((*p1 >> 16) & 0xff);
-	     a = (int) ((*p1 >> 24) & 0xff);
-	     b = _mul_color_alpha(b, a);
-	     g = _mul_color_alpha(g, a);
-	     r = _mul_color_alpha(r, a);
-	     evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
-	     norm = (int) round((double) v * (double) 255);
-	     hist[norm] += 1;
-	     p1++;
-	  }
-     }
-   sum = 0;
-   for (i = 0; i < 256; i++)
-     {
-	sum += ((double) hist[i] / (double) total);
-	cdf[i] = (int) round(sum * 255);
-     }
-   for (y = 0; y < h; y++)
-     {
-	p1 = im_data + (y * w);
-	p2 = im_data_new + (y * w);
-	for (x = 0; x < w; x++)
-	  {
-	     b = (int) ((*p1) & 0xff);
-	     g = (int) ((*p1 >> 8) & 0xff);
-	     r = (int) ((*p1 >> 16) & 0xff);
-	     a = (int) ((*p1 >> 24) & 0xff);
-	     b = _mul_color_alpha(b, a);
-	     g = _mul_color_alpha(g, a);
-	     r = _mul_color_alpha(r, a);
-	     evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
-	     norm = (int) round((double) v * (double) 255);
-	     nv = (float) cdf[norm] / (float) 255;
-	     evas_color_hsv_to_rgb(hh, s, nv, &rr, &gg, &bb);
-	     bb = _normalize_color(bb);
-	     gg = _normalize_color(gg);
-	     rr = _normalize_color(rr);
-	     bb = _demul_color_alpha(bb, a);
-	     gg = _demul_color_alpha(gg, a);
-	     rr = _demul_color_alpha(rr, a);
-	     *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
-	     p2++;
-	     p1++;
-	  }
-     }
-   ephoto_single_browser_image_data_done(main, im_data_new,
-       w, h);
+   ef->hist = malloc(sizeof(unsigned int) * 256);
+   ef->cdf = malloc(sizeof(unsigned int) * 256);
+   _create_hist(ef);
+   ef->popup = _processing(main);
+   ef->idler = ecore_idler_add(_histogram_eq, ef);
 }

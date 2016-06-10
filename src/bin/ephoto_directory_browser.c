@@ -564,7 +564,7 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 {
    Ephoto_Directory_Browser *db = data;
    Evas_Object *menu;
-   Elm_Object_Item *item, *menu_it;
+   Elm_Object_Item *item;
    Evas_Event_Mouse_Up *info = event_info;
    char trash[PATH_MAX];
    Evas_Coord x, y;
@@ -619,33 +619,30 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    menu = elm_menu_add(db->ephoto->win);
    elm_menu_move(menu, x, y);
 
-   menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("Edit"),
-       NULL, NULL);
    if (strcmp(db->ephoto->config->directory, trash))
      {
-        elm_menu_item_add(menu, menu_it, "folder-new", _("New Folder"),
+        elm_menu_item_add(menu, NULL, "folder-new", _("New Folder"),
               _fsel_menu_new_dir_cb, db);
      }
    if (item)
      {
         evas_object_data_set(item, "directory_browser", db);
-        elm_menu_item_add(menu, menu_it, "edit", _("Rename"),
+        elm_menu_item_add(menu, NULL, "edit", _("Rename"),
             _fsel_menu_rename_cb, item);
-	elm_menu_item_add(menu, menu_it, "edit-paste", _("Paste"),
+	elm_menu_item_add(menu, NULL, "edit-paste", _("Paste"),
 	    _fsel_menu_paste_cb, db);
      }
    else if (!strcmp(db->ephoto->config->directory, trash) &&
      elm_genlist_first_item_get(db->fsel))
      {
-        elm_menu_item_add(menu, menu_it, "edit-delete", _("Empty Trash"),
+        elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
             _menu_empty_cb, db);
      }
    if (strcmp(db->ephoto->config->directory, trash) && item)
      {
-        elm_menu_item_add(menu, menu_it, "edit-delete", _("Delete"),
+        elm_menu_item_add(menu, NULL, "edit-delete", _("Delete"),
              _fsel_menu_delete_cb, db);
-        elm_menu_item_separator_add(menu, NULL);
-        menu_it = elm_menu_item_add(menu, NULL, "user-trash", _("Trash"),
+        elm_menu_item_add(menu, NULL, "user-trash", _("Trash"),
             _dir_go_trash, db);
      }
    evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,

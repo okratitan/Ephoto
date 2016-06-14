@@ -13,7 +13,8 @@ enum _Ephoto_Image_Filter
    EPHOTO_IMAGE_FILTER_POSTERIZE,
    EPHOTO_IMAGE_FILTER_SEPIA,
    EPHOTO_IMAGE_FILTER_SHARPEN,
-   EPHOTO_IMAGE_FILTER_SKETCH
+   EPHOTO_IMAGE_FILTER_SKETCH,
+   EPHOTO_IMAGE_FILTER_SOBEL
 };
 
 struct _Ephoto_Filter
@@ -45,6 +46,7 @@ static Eina_Bool _sepia(void *data);
 static Eina_Bool _negative(void *data);
 static Eina_Bool _posterize(void *data);
 static Eina_Bool _dodge(void *data);
+static Eina_Bool _sobel(void *data);
 static Eina_Bool _histogram_eq(void *data);
 
 static Ephoto_Filter *
@@ -511,7 +513,6 @@ _posterize(void *data)
              return EINA_TRUE;
           }
      }
-
    _idler_finishing_cb(ef, EINA_FALSE);
 
    return EINA_FALSE;
@@ -604,6 +605,69 @@ _dodge(void *data)
           }
      }
 
+   _idler_finishing_cb(ef, EINA_FALSE);
+
+   return EINA_FALSE;
+}
+
+static Eina_Bool
+_sobel(void *data)
+{
+   Ephoto_Filter *ef = data;
+   Evas_Coord x, y, w, h;
+   int i, j, passes = 0;
+   unsigned int *p;
+   float sobx[3][3] = {{-1, 0, 1},
+                       {-2, 0, 2},
+                       {-1, 0, 1}};
+   float soby[3][3] = {{-1, -2, -1},
+                       {0, 0, 0},
+                       {1, 2, 1}};
+
+   w = ef->w;
+   h = ef->h;
+   for (y = ef->pos; y < h; y++)
+     {
+        p = ef->im_data_new + (y * w);
+        for (x = 0; x < w; x++)
+          {
+             int pval = 0, a, r, g, b;
+             double hpval = 0.0, vpval = 0.0;
+             if (y > 0 && x > 0 && y < (h - 2) && x < (w - 2))
+               {
+                  for (i = -1; i <= 1; i++)
+                    {
+                       for (j = -1; j <= 1; j++)
+                         {
+                            int index, pix;
+ 
+                            index = (y + i) * w + x + j;
+                            pix = ef->im_data[index];
+                            hpval += pix * sobx[i+1][j+1];
+                            vpval += pix * soby[i+1][j+1];
+                         }
+                    }
+               }
+             pval = abs(hpval) + abs(vpval);
+             *p = pval;
+             b = (int) ((*p) & 0xff);
+             g = (int) ((*p >> 8) & 0xff);
+             r = (int) ((*p >> 16) & 0xff);
+             a = (int) ((*p >> 24) & 0xff);
+             b = _normalize_color(b);
+             g = _normalize_color(g);
+             r = _normalize_color(r);
+             a = _normalize_color(a);
+             *p = (a << 24) | (r << 16) | (g << 8) | b;
+             p++;
+          }
+        passes++;
+        if (passes == 500)
+          {
+             ef->pos = y++;
+             return EINA_TRUE;
+          }
+     }
    _idler_finishing_cb(ef, EINA_FALSE);
 
    return EINA_FALSE;
@@ -760,7 +824,7 @@ ephoto_filter_cartoon(Evas_Object *main, Evas_Object *image)
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_CARTOON,
        main, image);
 
-   ef->rad = 5;
+   ef->rad = 9;
    ef->drad = 5.0;
    ef->qpos = 0;
    ef->qcount = 1;
@@ -791,6 +855,20 @@ void ephoto_filter_sketch(Evas_Object *main, Evas_Object *image)
    ef->queue = eina_list_append(ef->queue, _dodge);
    ef->popup = _processing(main);
    ef->idler = ecore_idler_add(_grayscale, ef);  
+}
+
+void ephoto_filter_edge(Evas_Object *main, Evas_Object *image)
+{
+   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SOBEL,
+       main, image);
+
+   ef->rad = 3;
+   ef->qpos = 0;
+   ef->qcount = 2;
+   ef->queue = eina_list_append(ef->queue, _grayscale);
+   ef->queue = eina_list_append(ef->queue, _sobel);
+   ef->popup = _processing(main);
+   ef->idler = ecore_idler_add(_blur, ef);
 }
 
 void

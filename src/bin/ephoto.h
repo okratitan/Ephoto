@@ -149,6 +149,7 @@ void ephoto_filter_cartoon(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_posterize(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_sketch(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_invert(Evas_Object *main, Evas_Object *image);
+void ephoto_filter_edge(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_histogram_eq(Evas_Object *main, Evas_Object *image);
 
 /*file functions*/

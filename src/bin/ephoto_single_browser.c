@@ -1227,6 +1227,21 @@ _go_sketch(void *data, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
+_go_edge(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+
+   if (sb->viewer)
+     {
+        sb->editing = EINA_TRUE;
+        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+
+        ephoto_filter_edge(sb->main, v->image);
+     }
+}
+
+static void
 _image_changed(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
@@ -1471,6 +1486,8 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Blur"), _go_blur, sb);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Cartoon"),
        _go_cartoon, sb);
+   elm_menu_item_add(menu, menu_itt, "insert-image", _("Edge Detect"),
+       _go_edge, sb);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Invert Colors"),
        _go_invert, sb);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Old Photo"),

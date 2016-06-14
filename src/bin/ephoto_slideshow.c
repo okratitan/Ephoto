@@ -384,9 +384,7 @@ _slideshow_item_get(void *data, Evas_Object *obj)
 	  }
      }
    Evas_Object *image = elm_image_add(obj);
-
    elm_image_file_set(image, entry->path, group);
-   elm_object_style_set(image, "shadow");
    evas_object_event_callback_add(image, EVAS_CALLBACK_SHOW, _image_shown,
        entry);
 

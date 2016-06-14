@@ -1182,7 +1182,7 @@ _go_posterize(void *data, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
-_go_cartoon(void *data, Evas_Object *obj EINA_UNUSED,
+_go_painting(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
@@ -1192,7 +1192,7 @@ _go_cartoon(void *data, Evas_Object *obj EINA_UNUSED,
         sb->editing = EINA_TRUE;
         Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-        ephoto_filter_cartoon(sb->main, v->image);
+        ephoto_filter_painting(sb->main, v->image);
      }
 }
 
@@ -1297,7 +1297,6 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
    evas_object_show(v->table);
 
    v->image = elm_image_add(v->table);
-   elm_object_style_set(v->image, "ephoto");
    elm_image_preload_disabled_set(v->image, EINA_TRUE);
    elm_image_file_set(v->image, path, group);
    err = evas_object_image_load_error_get(elm_image_object_get(v->image));
@@ -1483,19 +1482,20 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
        NULL);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Black and White"),
        _go_black_and_white, sb);
-   elm_menu_item_add(menu, menu_itt, "insert-image", _("Blur"), _go_blur, sb);
-   elm_menu_item_add(menu, menu_itt, "insert-image", _("Cartoon"),
-       _go_cartoon, sb);
+   elm_menu_item_add(menu, menu_itt, "insert-image", _("Blur"),
+       _go_blur, sb);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Edge Detect"),
        _go_edge, sb);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Invert Colors"),
        _go_invert, sb);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Old Photo"),
        _go_old_photo, sb);
+   elm_menu_item_add(menu, menu_itt, "insert-image", _("Painting"),
+       _go_painting, sb);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Posterize"),
        _go_posterize, sb);
-   elm_menu_item_add(menu, menu_itt, "insert-image", _("Sharpen"), _go_sharpen,
-       sb);
+   elm_menu_item_add(menu, menu_itt, "insert-image", _("Sharpen"),
+       _go_sharpen, sb);
    elm_menu_item_add(menu, menu_itt, "insert-image", _("Sketch"),
        _go_sketch, sb);
 

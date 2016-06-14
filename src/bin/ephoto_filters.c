@@ -6,10 +6,10 @@ typedef struct _Ephoto_Filter Ephoto_Filter;
 enum _Ephoto_Image_Filter
 {
    EPHOTO_IMAGE_FILTER_BLUR,
-   EPHOTO_IMAGE_FILTER_CARTOON,
    EPHOTO_IMAGE_FILTER_EQUALIZE,
    EPHOTO_IMAGE_FILTER_GRAYSCALE,
    EPHOTO_IMAGE_FILTER_INVERT,
+   EPHOTO_IMAGE_FILTER_PAINTING,
    EPHOTO_IMAGE_FILTER_POSTERIZE,
    EPHOTO_IMAGE_FILTER_SEPIA,
    EPHOTO_IMAGE_FILTER_SHARPEN,
@@ -244,9 +244,9 @@ _blur(void *data)
    int a, r, g, b, rad, passes = 0;
    int *as, *rs, *gs, *bs;
 
+   im_data = ef->im_data;
    w = ef->w;
    h = ef->h;
-   im_data = ef->im_data;
    rad = ef->rad;
 
    as = malloc(sizeof(int) * w);
@@ -335,7 +335,6 @@ _blur(void *data)
    free(rs);
    free(gs);
    free(bs);
-
    _idler_finishing_cb(ef, EINA_FALSE);
 
    return EINA_FALSE;
@@ -819,12 +818,12 @@ ephoto_filter_posterize(Evas_Object *main, Evas_Object *image)
 }
 
 void
-ephoto_filter_cartoon(Evas_Object *main, Evas_Object *image)
+ephoto_filter_painting(Evas_Object *main, Evas_Object *image)
 {
-   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_CARTOON,
+   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_PAINTING,
        main, image);
 
-   ef->rad = 9;
+   ef->rad = 5;
    ef->drad = 5.0;
    ef->qpos = 0;
    ef->qcount = 1;

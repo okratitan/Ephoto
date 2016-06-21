@@ -6,6 +6,7 @@ typedef struct _Ephoto_Filter Ephoto_Filter;
 enum _Ephoto_Image_Filter
 {
    EPHOTO_IMAGE_FILTER_BLUR,
+   EPHOTO_IMAGE_FILTER_DITHER,
    EPHOTO_IMAGE_FILTER_EQUALIZE,
    EPHOTO_IMAGE_FILTER_GRAYSCALE,
    EPHOTO_IMAGE_FILTER_INVERT,
@@ -28,6 +29,8 @@ struct _Ephoto_Filter
    Evas_Coord w;
    Evas_Coord h;
    int pos;
+   int blur_posx;
+   int blur_posy;
    int rad;
    int qpos;
    int qcount;
@@ -36,11 +39,13 @@ struct _Ephoto_Filter
    unsigned int *cdf;
    unsigned int *im_data;
    unsigned int *im_data_new;
+   unsigned int *im_data_orig;
    unsigned int *im_data_two;
 };
 
 static Eina_Bool _blur(void *data);
 static Eina_Bool _sharpen(void *data);
+static Eina_Bool _dither(void *data);
 static Eina_Bool _grayscale(void *data);
 static Eina_Bool _sepia(void *data);
 static Eina_Bool _negative(void *data);
@@ -68,9 +73,12 @@ _initialize_filter(Ephoto_Image_Filter filter,
    ef->im_data = memcpy(ef->im_data, im_data, sizeof(unsigned int) * w * h);
    ef->im_data_new = malloc(sizeof(unsigned int) * w * h);
    ef->im_data_two = NULL;
+   ef->im_data_orig = NULL;
    ef->rad = 0;
    ef->drad = 0.0;
    ef->pos = 0;
+   ef->blur_posx = 0;
+   ef->blur_posy = 0;
    ef->w = w;
    ef->h = h;
    ef->qpos = 0;
@@ -175,6 +183,8 @@ _idler_finishing_cb(Ephoto_Filter *ef, Eina_Bool im_data_two)
           free(ef->im_data);
         if (ef->im_data_two)
           free(ef->im_data_two);
+        if (ef->im_data_orig)
+          free(ef->im_data_orig);
         free(ef);
      }
    else
@@ -230,111 +240,330 @@ _idler_finishing_cb(Ephoto_Filter *ef, Eina_Bool im_data_two)
                free(ef->im_data);
              if (ef->im_data_two)
                free(ef->im_data_two);
+             if (ef->im_data_orig)
+               free(ef->im_data_orig);
              free(ef);
           }
      }
+}
+
+static void
+_blur_vertical(Ephoto_Filter *ef, double rad)
+{
+   Evas_Coord y, w, h;
+   int i, at, rt, gt, bt, passes = 0;
+   unsigned int *as, *rs, *gs, *bs;
+   double iarr;
+
+   w = ef->w;
+   h = ef->h;
+
+   as = malloc(sizeof(unsigned int) * w * h);
+   rs = malloc(sizeof(unsigned int) * w * h);
+   gs = malloc(sizeof(unsigned int) * w * h);
+   bs = malloc(sizeof(unsigned int) * w * h);
+
+   for (i = 0; i < w * h; i++)
+     {
+        bs[i] = ef->im_data[i] & 0xff;
+        gs[i] = (ef->im_data[i] >> 8) & 0xff;
+        rs[i] = (ef->im_data[i] >> 16) & 0xff;
+        as[i] = (ef->im_data[i] >> 24) & 0xff;
+     }
+
+   iarr = (double) 1 / (rad + rad + 1);
+   for (y = ef->blur_posy; y < h; y++)
+     {
+        int t, l, rr;
+        int fr, fg, fb, fa;
+        int lvr, lvg, lvb, lva;
+        int valr, valg, valb, vala;
+
+        t = y * w;
+        l = t;
+        rr = t + rad;
+
+        fb = bs[t];
+        fg = gs[t];
+        fr = rs[t];
+        fa = as[t];
+
+        lvb = bs[t + w - 1];
+        lvg = gs[t + w - 1];
+        lvr = rs[t + w - 1];
+        lva = as[t + w - 1];
+
+        valb = (rad + 1) * fb;
+        valg = (rad + 1) * fg;
+        valr = (rad + 1) * fr;
+        vala = (rad + 1) * fa;
+
+        for (i = 0; i < rad; i++)
+          {
+             valb += bs[t + i];
+             valg += gs[t + i];
+             valr += rs[t + i];
+             vala += as[t + i];
+          }
+        for (i = 0; i <= rad; i++)
+          {
+             int r = rr++;
+
+             valb += bs[r] - fb;
+             valg += gs[r] - fg;
+             valr += rs[r] - fr;
+             vala += as[r] - fa;
+
+             bt = (int) round(valb * iarr);
+             gt = (int) round(valg * iarr);
+             rt = (int) round(valr * iarr);
+             at = (int) round(vala * iarr);
+
+             bt = _normalize_color(bt);
+             gt = _normalize_color(gt);
+             rt = _normalize_color(rt);
+             at = _normalize_color(at);
+             ef->im_data_new[t++] = (at << 24) | (rt << 16) 
+                 | (gt << 8) | bt;
+          }
+        for (i = rad + 1; i < w - rad; i++)
+          {
+             int r = rr++;
+             int ll = l++;
+
+             valb += bs[r] - bs[ll];
+             valg += gs[r] - gs[ll];
+             valr += rs[r] - rs[ll];
+             vala += as[r] - as[ll];
+
+             bt = (int) round(valb * iarr);
+             gt = (int) round(valg * iarr);
+             rt = (int) round(valr * iarr);
+             at = (int) round(vala * iarr);
+             bt = _normalize_color(bt);
+             gt = _normalize_color(gt);
+             rt = _normalize_color(rt);
+             at = _normalize_color(at);
+             ef->im_data_new[t++] = (at << 24) | (rt << 16) 
+                 | (gt << 8) | bt;
+          }
+        for (i = w - rad; i < w; i++)
+          {
+             int ll = l++;
+
+             valb += lvb - bs[ll];
+             valg += lvg - gs[ll];
+             valr += lvr - rs[ll];
+             vala += lva - as[ll];
+      
+             bt = (int) round(valb * iarr);
+             gt = (int) round(valg * iarr);
+             rt = (int) round(valr * iarr);
+             at = (int) round(vala * iarr);
+             bt = _normalize_color(bt);
+             gt = _normalize_color(gt);
+             rt = _normalize_color(rt);
+             at = _normalize_color(at);
+             ef->im_data_new[t++] = (at << 24) | (rt << 16) 
+                 | (gt << 8) | bt;
+          }
+        ef->blur_posy = y;
+        passes++;
+        if (passes == 500)
+          {
+             ef->blur_posy = y++;
+             break;
+          }
+     }
+   free(bs);
+   free(gs);
+   free(rs);
+   free(as);
+}
+
+static void
+_blur_horizontal(Ephoto_Filter *ef, double rad)
+{
+   Evas_Coord x, w, h;
+   int i, at, rt, gt, bt, passes = 0;
+   unsigned int *as, *rs, *gs, *bs;
+   double iarr;
+
+   w = ef->w;
+   h = ef->h;
+
+   as = malloc(sizeof(unsigned int) * w * h);
+   rs = malloc(sizeof(unsigned int) * w * h);
+   gs = malloc(sizeof(unsigned int) * w * h);
+   bs = malloc(sizeof(unsigned int) * w * h);
+
+   for (i = 0; i < w * h; i++)
+     {
+        bs[i] = ef->im_data_new[i] & 0xff;
+        gs[i] = (ef->im_data_new[i] >> 8) & 0xff;
+        rs[i] = (ef->im_data_new[i] >> 16) & 0xff;
+        as[i] = (ef->im_data_new[i] >> 24) & 0xff;
+     }
+
+   iarr = (double)1 / (rad + rad + 1);
+   for (x = ef->blur_posx; x < w; x++)
+     {
+        int t, l, rr;
+        int fr, fg, fb, fa;
+        int lvr, lvg, lvb, lva;
+        int valr, valg, valb, vala;
+
+        t = x;
+        l = t;
+        rr = t + rad * w;
+
+        fb = bs[t];
+        fg = gs[t];
+        fr = rs[t];
+        fa = as[t];
+
+        lvb = bs[t + w * (h - 1)];
+        lvg = gs[t + w * (h - 1)];
+        lvr = rs[t + w * (h - 1)];
+        lva = as[t + w * (h - 1)];
+
+        valb = (rad + 1) * fb;
+        valg = (rad + 1) * fg;
+        valr = (rad + 1) * fr;
+        vala = (rad + 1) * fa;
+
+        for (i = 0; i < rad; i++)
+          {
+             valb += bs[t + i * w];
+             valg += gs[t + i * w];
+             valr += rs[t + i * w];
+             vala += as[t + i * w];
+          }
+        for (i = 0; i <= rad; i++)
+          {
+             valb += bs[rr] - fb;
+             valg += gs[rr] - fg;
+             valr += rs[rr] - fr;
+             vala += as[rr] - fa;
+            
+             bt = (int) round(valb * iarr);
+             gt = (int) round(valg * iarr);
+             rt = (int) round(valr * iarr);
+             at = (int) round(vala * iarr);
+             bt = _normalize_color(bt);
+             gt = _normalize_color(gt);
+             rt = _normalize_color(rt);
+             at = _normalize_color(at);
+             ef->im_data[t] = (at << 24) | (rt << 16) 
+                 | (gt << 8) | bt;
+
+             rr += w;
+             t += w;
+          }
+        for (i = rad + 1; i < h - rad; i++)
+          {
+             valb += bs[rr] - bs[l];
+             valg += gs[rr] - gs[l];
+             valr += rs[rr] - rs[l];
+             vala += as[rr] - as[l];;
+
+             bt = (int) round(valb * iarr);
+             gt = (int) round(valg * iarr);
+             rt = (int) round(valr * iarr);
+             at = (int) round(vala * iarr);
+             bt = _normalize_color(bt);
+             gt = _normalize_color(gt);
+             rt = _normalize_color(rt);
+             at = _normalize_color(at);
+             ef->im_data[t] = (at << 24) | (rt << 16) 
+                 | (gt << 8) | bt;
+
+             l += w;
+             rr += w;
+             t += w;
+          }
+        for (i = h - rad; i < h; i++)
+          {
+             valb += lvb - bs[l];
+             valg += lvg - gs[l];
+             valr += lvr - rs[l];
+             vala += lva - as[l];
+
+             bt = (int) round(valb * iarr);
+             gt = (int) round(valg * iarr);
+             rt = (int) round(valr * iarr);
+             at = (int) round(vala * iarr);
+             bt = _normalize_color(bt);
+             gt = _normalize_color(gt);
+             rt = _normalize_color(rt);
+             at = _normalize_color(at);
+             ef->im_data[t] = (at << 24) | (rt << 16) 
+                 | (gt << 8) | bt;
+
+             l += w;
+             t += w;
+          }
+        ef->blur_posx = x;
+        passes++;
+        if (passes == 500)
+          {
+             ef->blur_posx = x++;
+             break;
+          }
+     }
+   free(bs);
+   free(gs);
+   free(rs);
+   free(as);
 }
 
 static Eina_Bool
 _blur(void *data)
 {
    Ephoto_Filter *ef = data;
-   unsigned int *im_data, *p1, *p2;
-   Evas_Coord x, y, w, h, mx, my, mw, mh, mt, xx, yy;
-   int a, r, g, b, rad, passes = 0;
-   int *as, *rs, *gs, *bs;
+   Evas_Coord w, h;
+   int wl, wu, m, i;
+   unsigned int sizes[3];
+   double ideal, rad;
 
-   im_data = ef->im_data;
    w = ef->w;
    h = ef->h;
-   rad = ef->rad;
+   rad = ef->w * .001 + ef->rad;
 
-   as = malloc(sizeof(int) * w);
-   rs = malloc(sizeof(int) * w);
-   gs = malloc(sizeof(int) * w);
-   bs = malloc(sizeof(int) * w);
+   ideal = sqrt((12 * rad * rad / 3) + 1);
+   wl = floor(ideal);
+   if (wl % 2 == 0)
+     wl--;
+   wu = wl + 2;
+   ideal = (12 * rad * rad - 3 * wl * wl -
+       4 * 3 * wl - 3 * 3) / (-4 * wl - 4);
+   m = round(ideal);
 
-   for (y = ef->pos; y < h; y++)
+   for (i = ef->pos; i < 3; i++)
      {
-	my = y - rad;
-	mh = (rad << 1) + 1;
-	if (my < 0)
-	  {
-	     mh += my;
-	     my = 0;
-	  }
-	if ((my + mh) > h)
-	  {
-	     mh = h - my;
-	  }
-	p1 = ef->im_data_new + (y * w);
-	memset(as, 0, w * sizeof(int));
-	memset(rs, 0, w * sizeof(int));
-	memset(gs, 0, w * sizeof(int));
-	memset(bs, 0, w * sizeof(int));
+        if (i < m)
+          sizes[i] = wl;
+        else
+          sizes[i] = wu;
 
-	for (yy = 0; yy < mh; yy++)
-	  {
-	     p2 = im_data + ((yy + my) * w);
-	     for (x = 0; x < w; x++)
-	       {
-		  as[x] += (*p2 >> 24) & 0xff;
-		  rs[x] += (*p2 >> 16) & 0xff;
-		  gs[x] += (*p2 >> 8) & 0xff;
-		  bs[x] += *p2 & 0xff;
-		  p2++;
-	       }
-	  }
-	if (w > ((rad << 1) + 1))
-	  {
-	     for (x = 0; x < w; x++)
-	       {
-		  a = 0;
-		  r = 0;
-		  g = 0;
-		  b = 0;
-		  mx = x - rad;
-		  mw = (rad << 1) + 1;
-		  if (mx < 0)
-		    {
-		       mw += mx;
-		       mx = 0;
-		    }
-		  if ((mx + mw) > w)
-		    {
-		       mw = w - mx;
-		    }
-		  mt = mw * mh;
-		  for (xx = mx; xx < (mw + mx); xx++)
-		    {
-		       a += as[xx];
-		       r += rs[xx];
-		       g += gs[xx];
-		       b += bs[xx];
-		    }
-		  a = a / mt;
-		  r = r / mt;
-		  g = g / mt;
-		  b = b / mt;
-		  *p1 = (a << 24) | (r << 16) | (g << 8) | b;
-		  p1++;
-	       }
-	  }
-        passes++;
-        if (passes == 500)
+        rad = (sizes[i] - 1) / 2;
+
+        ef->im_data_new = memcpy(ef->im_data_new, ef->im_data,
+            sizeof(unsigned int) * w * h);
+        if (ef->blur_posy < ef->h - 1)
+          _blur_vertical(ef, rad);
+        if (ef->blur_posy == ef->h -1)
+          _blur_horizontal(ef, rad);
+        if (ef->blur_posx == ef->w - 1 &&
+            ef->blur_posy == ef->h - 1)
           {
-             free(as);
-             free(rs);
-             free(gs);
-             free(bs);
-             ef->pos = y++;
-             return EINA_TRUE;
+             ef->pos = i+1;
+             ef->blur_posx = 0;
+             ef->blur_posy = 0;
           }
+        return EINA_TRUE;
      }
-   free(as);
-   free(rs);
-   free(gs);
-   free(bs);
+
    _idler_finishing_cb(ef, EINA_FALSE);
 
    return EINA_FALSE;
@@ -344,48 +573,43 @@ static Eina_Bool
 _sharpen(void *data)
 {
    Ephoto_Filter *ef = data;
-   unsigned int *p1, *p2;
+   unsigned int *p1, *p2, *p3;
    int a, r, g, b, passes = 0;
+   int aa, rr, gg, bb;
+   int aaa, rrr, ggg, bbb;
    Evas_Coord x, y, w, h;
 
    w = ef->w;
    h = ef->h;
 
-   for (y = ef->pos; y < (h - 1); y++)
+   for (y = ef->pos; y < h; y++)
      {
-        p1 = ef->im_data + 1 + (y * w);
-        p2 = ef->im_data_new + 1 + (y * w);
+        p1 = ef->im_data + (y * w);
+        p2 = ef->im_data_orig + (y * w);
+        p3 = ef->im_data_new + (y * w);
         for (x = 1; x < (w - 1); x++)
           {
-             b = (int) ((p1[0]) & 0xff) * 5;
-             g = (int) ((p1[0] >> 8) & 0xff) * 5;
-             r = (int) ((p1[0] >> 16) & 0xff) * 5;
-             a = (int) ((p1[0] >> 24) & 0xff) * 5;
-             b -= (int) ((p1[-1]) & 0xff);
-             g -= (int) ((p1[-1] >> 8) & 0xff);
-             r -= (int) ((p1[-1] >> 16) & 0xff);
-             a -= (int) ((p1[-1] >> 24) & 0xff);
-             b -= (int) ((p1[1]) & 0xff);
-             g -= (int) ((p1[1] >> 8) & 0xff);
-             r -= (int) ((p1[1] >> 16) & 0xff);
-             a -= (int) ((p1[1] >> 24) & 0xff);
-             b -= (int) ((p1[-w]) & 0xff);
-             g -= (int) ((p1[-w] >> 8) & 0xff);
-             r -= (int) ((p1[-w] >> 16) & 0xff);
-             a -= (int) ((p1[-w] >> 24) & 0xff);
-             b -= (int) ((p1[-w]) & 0xff);
-             g -= (int) ((p1[-w] >> 8) & 0xff);
-             r -= (int) ((p1[-w] >> 16) & 0xff);
-             a -= (int) ((p1[-w] >> 24) & 0xff);
-             a = (a & ((~a) >> 16));
-             a = ((a | ((a & 256) - ((a & 256) >> 8))));
-             r = (r & ((~r) >> 16));
-             r = ((r | ((r & 256) - ((r & 256) >> 8))));
-             g = (g & ((~g) >> 16));
-             g = ((g | ((g & 256) - ((g & 256) >> 8))));
-             b = (b & ((~b) >> 16));
-             b = ((b | ((b & 256) - ((b & 256) >> 8))));
-             *p2 = (a << 24) | (r << 16) | (g << 8) | b;
+             b = (int) (*p1 & 0xff);
+             g = (int) ((*p1 >> 8) & 0xff);
+             r = (int) ((*p1 >> 16) & 0xff);
+             a = (int) ((*p1 >> 24) & 0xff);
+             bb = (int) (*p2 & 0xff);
+             gg = (int) ((*p2 >> 8) & 0xff);
+             rr = (int) ((*p2 >> 16) & 0xff);
+             aa = (int) ((*p2 >> 24) & 0xff);
+
+             bbb = (int) ((2 * bb) - b);
+             ggg = (int) ((2 * gg) - g);
+             rrr = (int) ((2 * rr) - r);
+             aaa = (int) ((2 * aa) - a);
+
+             bbb = _normalize_color(bbb);
+             ggg = _normalize_color(ggg);
+             rrr = _normalize_color(rrr);
+             aaa = _normalize_color(aaa);
+
+             *p3 = (aaa << 24) | (rrr << 16) | (ggg << 8) | bbb;
+             p3++;
              p2++;
              p1++;
           }
@@ -400,6 +624,110 @@ _sharpen(void *data)
    _idler_finishing_cb(ef, EINA_FALSE);
 
    return EINA_FALSE;  
+}
+
+static Eina_Bool
+_dither(void *data)
+{
+   Ephoto_Filter *ef = data;
+   unsigned int *p1, *p2;
+   int a, r, g, b, passes = 0;
+   int aa, rr, gg, bb;
+   int aaa, rrr, ggg, bbb;
+   int erra, errr, errg, errb;
+   Evas_Coord x, y, w, h;
+
+   w = ef->w;
+   h = ef->h;
+
+   for (y = ef->pos; y < h; y++)
+     {
+        for (x = 1; x < w; x++)
+          {
+             p1 = ef->im_data + (y * w) + x;
+             p2 = ef->im_data_new + (y * w) + x;
+             b = (int) (*p1 & 0xff);
+             g = (int) ((*p1 >> 8) & 0xff);
+             r = (int) ((*p1 >> 16) & 0xff);
+             a = (int) ((*p1 >> 24) & 0xff);
+             bb = (b > 127) ? 255 : 0;
+             gg = (g > 127) ? 255 : 0;
+             rr = (r > 127) ? 255 : 0;
+             aa = (a > 127) ? 255 : 0;
+             *p2 = (aa << 24) | (rr << 16) | (gg << 8) | bb;
+             errb = b - bb;
+             errg = g - gg;
+             errr = r - rr;
+             erra = a - aa;
+
+             if ((x+1) < w)
+               {
+                  p1 = ef->im_data + (y * w) + (x+1);
+                  p2 = ef->im_data_new + (y * w) + (x+1);
+                  bbb = (int) (*p1 & 0xff) + (7.0/16) * errb;
+                  ggg = (int) ((*p1 >> 8) & 0xff) + (7.0/16) * errg;
+                  rrr = (int) ((*p1 >> 16) & 0xff) + (7.0/16) * errr;
+                  aaa = (int) ((*p1 >> 24) & 0xff) + (7.0/16) * erra;
+                  bbb = _normalize_color(bbb);
+                  ggg = _normalize_color(ggg);
+                  rrr = _normalize_color(rrr);
+                  aaa = _normalize_color(aaa);
+                  *p2 = (aaa << 24) | (rrr << 16) | (ggg << 8) | bbb;
+               }
+             if ((y+1) < h)
+               {
+                  p1 = ef->im_data + ((y+1) * w) + (x-1);
+                  p2 = ef->im_data_new + ((y+1) * w) + (x-1);
+                  bbb = (int) (*p1 & 0xff) + (3.0/16) * errb;
+                  ggg = (int) ((*p1 >> 8) & 0xff) + (3.0/16) * errg;
+                  rrr = (int) ((*p1 >> 16) & 0xff) + (3.0/16) * errr;
+                  aaa = (int) ((*p1 >> 24) & 0xff) + (3.0/16) * erra;
+                  bbb = _normalize_color(bbb);
+                  ggg = _normalize_color(ggg);
+                  rrr = _normalize_color(rrr);
+                  aaa = _normalize_color(aaa);
+                  *p2 = (aaa << 24) | (rrr << 16) | (ggg << 8) | bbb;             
+               }
+             if ((y+1) < h)
+               {
+                  p1 = ef->im_data + ((y+1) * w) + x;
+                  p2 = ef->im_data_new + ((y+1) * w) + x;
+                  bbb = (int) (*p1 & 0xff) + (5.0/16) * errb;
+                  ggg = (int) ((*p1 >> 8) & 0xff) + (5.0/16) * errg;
+                  rrr = (int) ((*p1 >> 16) & 0xff) + (5.0/16) * errr;
+                  aaa = (int) ((*p1 >> 24) & 0xff) + (5.0/16) * erra;
+                  bbb = _normalize_color(bbb);
+                  ggg = _normalize_color(ggg);
+                  rrr = _normalize_color(rrr);
+                  aaa = _normalize_color(aaa);
+                  *p2 = (aaa << 24) | (rrr << 16) | (ggg << 8) | bbb;
+               }
+             if ((y+1) < h && (x+1) < w)
+               {
+                  p1 = ef->im_data + ((y+1) * w) + (x+1);
+                  p2 = ef->im_data_new + ((y+1) * w) + (x+1);  
+                  bbb = (int) (*p1 & 0xff) + (1.0/16) * errb;
+                  ggg = (int) ((*p1 >> 8) & 0xff) + (1.0/16) * errg;
+                  rrr = (int) ((*p1 >> 16) & 0xff) + (1.0/16) * errr;
+                  aaa = (int) ((*p1 >> 24) & 0xff) + (1.0/16) * erra;
+                  bbb = _normalize_color(bbb);
+                  ggg = _normalize_color(ggg);
+                  rrr = _normalize_color(rrr);
+                  aaa = _normalize_color(aaa);
+                  *p2 = (aaa << 24) | (rrr << 16) | (ggg << 8) | bbb;
+               }
+          }
+        passes++;
+        if (passes == 500)
+          {
+             ef->pos = y++;
+             return EINA_TRUE;
+          }
+     }
+
+   _idler_finishing_cb(ef, EINA_FALSE);
+
+   return EINA_FALSE;
 }
 
 static Eina_Bool
@@ -780,10 +1108,27 @@ ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SHARPEN,
        main, image);
+   ef->im_data_orig = malloc(sizeof(unsigned int) * ef->w * ef->h);
+   ef->im_data_orig = memcpy(ef->im_data_orig, ef->im_data,
+       sizeof(unsigned int) * ef->w * ef->h);
 
    ef->pos = 1;
+   ef->rad = 9;
+   ef->qcount = 1;
+   ef->qpos = 0;
+   ef->queue = eina_list_append(ef->queue, _sharpen);
    ef->popup = _processing(main);
-   ef->idler = ecore_idler_add(_sharpen, ef);
+   ef->idler = ecore_idler_add(_blur, ef);
+}
+
+void
+ephoto_filter_dither(Evas_Object *main, Evas_Object *image)
+{
+   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_DITHER,
+       main, image);
+
+   ef->popup = _processing(main);
+   ef->idler = ecore_idler_add(_dither, ef);
 }
 
 void

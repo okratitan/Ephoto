@@ -1168,9 +1168,12 @@ ephoto_entry_free_listener_del(Ephoto_Entry *entry, void (*cb) (void *data,
      {
         if ((fl->cb == cb) && (fl->data == data))
 	  {
-	     entry->free_listeners =
-	         eina_list_remove_list(entry->free_listeners, l);
-	     break;
+             if (eina_list_data_find(entry->free_listeners, l))
+               {
+	          entry->free_listeners =
+	              eina_list_remove_list(entry->free_listeners, l);
+	          break;
+               }
           }
      }
 }

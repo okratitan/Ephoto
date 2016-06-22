@@ -754,7 +754,12 @@ _dither(void *data)
                   ef->im_data_new[index] = (a << 24) | (rr << 16) | 
                       (gg << 8) | bb;
                }
+/*Extra incrementing the x and y values to get
+ * the desired checkerboard effect is likely a
+ * bad hack*/
+             x++;
           }
+        y++;
         passes++;
         if (passes == 500)
           {

@@ -7,6 +7,7 @@ enum _Ephoto_Image_Filter
 {
    EPHOTO_IMAGE_FILTER_BLUR,
    EPHOTO_IMAGE_FILTER_DITHER,
+   EPHOTO_IMAGE_FILTER_EMBOSS,
    EPHOTO_IMAGE_FILTER_EQUALIZE,
    EPHOTO_IMAGE_FILTER_GRAYSCALE,
    EPHOTO_IMAGE_FILTER_INVERT,
@@ -1044,6 +1045,66 @@ _sobel(void *data)
 }
 
 static Eina_Bool
+_emboss(void *data)
+{
+   Ephoto_Filter *ef = data;
+   Evas_Coord x, y, w, h;
+   int i, j, passes = 0;
+   unsigned int *p;
+   float emboss[3][3] = {{1, 1, 1},
+                         {1, -2, 1},
+                         {-1, -1, -1}};
+
+   w = ef->w;
+   h = ef->h;
+   for (y = ef->pos; y < h; y++)
+     {
+        p = ef->im_data_new + (y * w);
+        for (x = 0; x < w; x++)
+          {
+             int a, r, g , b;
+             int aa = 0, rr = 0, gg = 0, bb = 0;
+             if (y > 0 && x > 0 && y < (h - 2) && x < (w - 2))
+               {
+                  for (i = -1; i <= 1; i++)
+                    {
+                       for (j = -1; j <= 1; j++)
+                         {
+                            int index, pix;
+                            index = (y + i) * w + x + j;
+                            pix = ef->im_data[index];
+                            bb += (int) ((pix) & 0xff) * 
+                                emboss[i+1][j+1];
+                            gg += (int) ((pix >> 8) & 0xff) *
+                                emboss[i+1][j+1];
+                            rr += (int) ((pix >> 16) & 0xff) *
+                                emboss[i+1][j+1];
+                         }
+                    }
+               }
+             bb += 127;
+             gg += 127;
+             rr += 127;
+             bb = _normalize_color(bb);
+             gg = _normalize_color(gg);
+             rr = _normalize_color(rr);
+             a = (*p >> 24) & 0xff;
+             *p = (a << 24) | (rr << 16) | (gg << 8) | bb;
+             p++;
+          }
+        passes++;
+        if (passes == 500)
+          {
+             ef->pos = y++;
+             return EINA_TRUE;
+          }
+     }
+   _idler_finishing_cb(ef, EINA_FALSE);
+
+   return EINA_FALSE;
+}
+
+static Eina_Bool
 _histogram_eq(void *data)
 {
    Ephoto_Filter *ef = data;
@@ -1256,6 +1317,15 @@ void ephoto_filter_edge(Evas_Object *main, Evas_Object *image)
    ef->queue = eina_list_append(ef->queue, _sobel);
    ef->popup = _processing(main);
    ef->idler = ecore_idler_add(_blur, ef);
+}
+
+void ephoto_filter_emboss(Evas_Object *main, Evas_Object *image)
+{
+   Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_EMBOSS,
+       main, image);
+
+   ef->popup = _processing(main);
+   ef->idler = ecore_idler_add(_emboss, ef);
 }
 
 void

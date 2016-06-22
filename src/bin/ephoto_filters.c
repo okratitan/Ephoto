@@ -1051,9 +1051,9 @@ _emboss(void *data)
    Evas_Coord x, y, w, h;
    int i, j, passes = 0;
    unsigned int *p;
-   float emboss[3][3] = {{1, 1, 1},
-                         {1, -2, 1},
-                         {-1, -1, -1}};
+   float emboss[3][3] = {{-2, -1, 0},
+                         {-1, 1, 1},
+                         {0, 1, 2}};
 
    w = ef->w;
    h = ef->h;
@@ -1061,9 +1061,8 @@ _emboss(void *data)
      {
         p = ef->im_data_new + (y * w);
         for (x = 0; x < w; x++)
-          {
-             int a, r, g , b;
-             int aa = 0, rr = 0, gg = 0, bb = 0;
+           {
+             int a = 0, rr = 0, gg = 0, bb = 0;
              if (y > 0 && x > 0 && y < (h - 2) && x < (w - 2))
                {
                   for (i = -1; i <= 1; i++)
@@ -1082,9 +1081,6 @@ _emboss(void *data)
                          }
                     }
                }
-             bb += 127;
-             gg += 127;
-             rr += 127;
              bb = _normalize_color(bb);
              gg = _normalize_color(gg);
              rr = _normalize_color(rr);

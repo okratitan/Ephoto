@@ -630,91 +630,129 @@ static Eina_Bool
 _dither(void *data)
 {
    Ephoto_Filter *ef = data;
-   unsigned int *p1, *p2;
-   int a, r, g, b, passes = 0;
-   int aa, rr, gg, bb;
-   int aaa, rrr, ggg, bbb;
-   int erra, errr, errg, errb;
    Evas_Coord x, y, w, h;
+   int a, r, g, b, passes = 0;
+   int rr, gg, bb;
+   int errr, errg, errb;
 
    w = ef->w;
    h = ef->h;
 
    for (y = ef->pos; y < h; y++)
      {
-        for (x = 1; x < w; x++)
+        for (x = 0; x < w; x++)
           {
-             p1 = ef->im_data + (y * w) + x;
-             p2 = ef->im_data_new + (y * w) + x;
-             b = (int) (*p1 & 0xff);
-             g = (int) ((*p1 >> 8) & 0xff);
-             r = (int) ((*p1 >> 16) & 0xff);
-             a = (int) ((*p1 >> 24) & 0xff);
+             int index = y * w + x;
+
+             b = (ef->im_data[index]) & 0xff;
+             g = ((ef->im_data[index] >> 8) & 0xff);
+             r = ((ef->im_data[index] >> 16) & 0xff);
+             a = ((ef->im_data[index] >> 24) & 0xff);
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);
              bb = (b > 127) ? 255 : 0;
              gg = (g > 127) ? 255 : 0;
              rr = (r > 127) ? 255 : 0;
-             aa = (a > 127) ? 255 : 0;
-             *p2 = (aa << 24) | (rr << 16) | (gg << 8) | bb;
+             rr = _normalize_color(rr);
+             gg = _normalize_color(gg);
+             bb = _normalize_color(bb);
+             bb = _demul_color_alpha(bb, a);
+             gg = _demul_color_alpha(gg, a);
+             rr = _demul_color_alpha(rr, a);
+             ef->im_data_new[index] = (a << 24) | (rr << 16) | 
+                 (gg << 8) | bb;
              errb = b - bb;
              errg = g - gg;
              errr = r - rr;
-             erra = a - aa;
 
              if ((x+1) < w)
                {
-                  p1 = ef->im_data + (y * w) + (x+1);
-                  p2 = ef->im_data_new + (y * w) + (x+1);
-                  bbb = (int) (*p1 & 0xff) + (7.0/16) * errb;
-                  ggg = (int) ((*p1 >> 8) & 0xff) + (7.0/16) * errg;
-                  rrr = (int) ((*p1 >> 16) & 0xff) + (7.0/16) * errr;
-                  aaa = (int) ((*p1 >> 24) & 0xff) + (7.0/16) * erra;
-                  bbb = _normalize_color(bbb);
-                  ggg = _normalize_color(ggg);
-                  rrr = _normalize_color(rrr);
-                  aaa = _normalize_color(aaa);
-                  *p2 = (aaa << 24) | (rrr << 16) | (ggg << 8) | bbb;
+                  index = y * w + x + 1;
+                  b = (ef->im_data[index] & 0xff);
+                  g = ((ef->im_data[index] >> 8) & 0xff);
+                  r = ((ef->im_data[index] >> 16) & 0xff);
+                  a = ((ef->im_data[index] >> 24) & 0xff);
+                  b = _mul_color_alpha(b, a);
+                  g = _mul_color_alpha(g, a);
+                  r = _mul_color_alpha(r, a);
+                  bb = b + ((7 * errb) >> 4);
+                  gg = g + ((7 * errg) >> 4);
+                  rr = r + ((7 * errr) >> 4);
+                  bb = _normalize_color(bb);
+                  gg = _normalize_color(gg);
+                  rr = _normalize_color(rr);
+                  bb = _demul_color_alpha(bb, a);
+                  gg = _demul_color_alpha(gg, a);
+                  rr = _demul_color_alpha(rr, a);
+                  ef->im_data_new[index] = (a << 24) | (rr << 16) | 
+                      (gg << 8) | bb;
+               }
+             if (x > 0 && (y+1) < h)
+               {
+                  index = (y + 1) * w + (x - 1);
+                  b = (ef->im_data[index] & 0xff);
+                  g = ((ef->im_data[index] >> 8) & 0xff);
+                  r = ((ef->im_data[index] >> 16) & 0xff);
+                  a = ((ef->im_data[index] >> 24) & 0xff);
+                  b = _mul_color_alpha(b, a);
+                  g = _mul_color_alpha(g, a);
+                  r = _mul_color_alpha(r, a);
+                  bb = b + ((3 * errb) >> 4);
+                  gg = g + ((3 * errg) >> 4);
+                  rr = r + ((3 * errr) >> 4);
+                  bb = _normalize_color(bb);
+                  gg = _normalize_color(gg);
+                  rr = _normalize_color(rr);
+                  bb = _demul_color_alpha(bb, a);
+                  gg = _demul_color_alpha(gg, a);
+                  rr = _demul_color_alpha(rr, a);
+                  ef->im_data_new[index] = (a << 24) | (rr << 16) | 
+                      (gg << 8) | bb;            
                }
              if ((y+1) < h)
                {
-                  p1 = ef->im_data + ((y+1) * w) + (x-1);
-                  p2 = ef->im_data_new + ((y+1) * w) + (x-1);
-                  bbb = (int) (*p1 & 0xff) + (3.0/16) * errb;
-                  ggg = (int) ((*p1 >> 8) & 0xff) + (3.0/16) * errg;
-                  rrr = (int) ((*p1 >> 16) & 0xff) + (3.0/16) * errr;
-                  aaa = (int) ((*p1 >> 24) & 0xff) + (3.0/16) * erra;
-                  bbb = _normalize_color(bbb);
-                  ggg = _normalize_color(ggg);
-                  rrr = _normalize_color(rrr);
-                  aaa = _normalize_color(aaa);
-                  *p2 = (aaa << 24) | (rrr << 16) | (ggg << 8) | bbb;             
-               }
-             if ((y+1) < h)
-               {
-                  p1 = ef->im_data + ((y+1) * w) + x;
-                  p2 = ef->im_data_new + ((y+1) * w) + x;
-                  bbb = (int) (*p1 & 0xff) + (5.0/16) * errb;
-                  ggg = (int) ((*p1 >> 8) & 0xff) + (5.0/16) * errg;
-                  rrr = (int) ((*p1 >> 16) & 0xff) + (5.0/16) * errr;
-                  aaa = (int) ((*p1 >> 24) & 0xff) + (5.0/16) * erra;
-                  bbb = _normalize_color(bbb);
-                  ggg = _normalize_color(ggg);
-                  rrr = _normalize_color(rrr);
-                  aaa = _normalize_color(aaa);
-                  *p2 = (aaa << 24) | (rrr << 16) | (ggg << 8) | bbb;
+                  index = (y + 1) * w + x;
+                  b = (ef->im_data[index] & 0xff);
+                  g = ((ef->im_data[index] >> 8) & 0xff);
+                  r = ((ef->im_data[index] >> 16) & 0xff);
+                  a = ((ef->im_data[index] >> 24) & 0xff);
+                  b = _mul_color_alpha(b, a);
+                  g = _mul_color_alpha(g, a);
+                  r = _mul_color_alpha(r, a);
+                  bb = b + ((5 * errb) >> 4);
+                  gg = g + ((5 * errg) >> 4);
+                  rr = r + ((5 * errr) >> 4);
+                  bb = _normalize_color(bb);
+                  gg = _normalize_color(gg);
+                  rr = _normalize_color(rr);
+                  bb = _demul_color_alpha(bb, a);
+                  gg = _demul_color_alpha(gg, a);
+                  rr = _demul_color_alpha(rr, a);
+                  ef->im_data_new[index] = (a << 24) | (rr << 16) | 
+                      (gg << 8) | bb;
                }
              if ((y+1) < h && (x+1) < w)
                {
-                  p1 = ef->im_data + ((y+1) * w) + (x+1);
-                  p2 = ef->im_data_new + ((y+1) * w) + (x+1);  
-                  bbb = (int) (*p1 & 0xff) + (1.0/16) * errb;
-                  ggg = (int) ((*p1 >> 8) & 0xff) + (1.0/16) * errg;
-                  rrr = (int) ((*p1 >> 16) & 0xff) + (1.0/16) * errr;
-                  aaa = (int) ((*p1 >> 24) & 0xff) + (1.0/16) * erra;
-                  bbb = _normalize_color(bbb);
-                  ggg = _normalize_color(ggg);
-                  rrr = _normalize_color(rrr);
-                  aaa = _normalize_color(aaa);
-                  *p2 = (aaa << 24) | (rrr << 16) | (ggg << 8) | bbb;
+                  index = (y + 1) * w + (x + 1);  
+                  b = (ef->im_data[index] & 0xff);
+                  g = ((ef->im_data[index] >> 8) & 0xff);
+                  r = ((ef->im_data[index] >> 16) & 0xff);
+                  a = ((ef->im_data[index] >> 24) & 0xff);
+                  b = _mul_color_alpha(b, a);
+                  g = _mul_color_alpha(g, a);
+                  r = _mul_color_alpha(r, a);
+                  bb = b + ((1 * errb) >> 4);
+                  gg = g + ((1 * errg) >> 4);
+                  rr = r + ((1 * errr) >> 4);
+                  bb = _normalize_color(bb);
+                  gg = _normalize_color(gg);
+                  rr = _normalize_color(rr);
+                  bb = _demul_color_alpha(bb, a);
+                  gg = _demul_color_alpha(gg, a);
+                  rr = _demul_color_alpha(rr, a);
+                  ef->im_data_new[index] = (a << 24) | (rr << 16) | 
+                      (gg << 8) | bb;
                }
           }
         passes++;

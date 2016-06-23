@@ -1006,7 +1006,7 @@ static void
 _histogram_eq(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Ephoto_Filter *ef = data;
-   Evas_Coord x, y, yy, w, h;
+   Evas_Coord x, y, w, h;
    unsigned int *p1, *p2;
    int i, a, r, g, b, bb, gg, rr, norm;
    int total;
@@ -1041,10 +1041,10 @@ _histogram_eq(void *data, Ecore_Thread *th EINA_UNUSED)
             (double) total);
              ef->cdf[i] = (int) round(sum * 255);
      }
-   for (yy = 0; (yy - h) < h; yy++)
+   for (y = 0; y < h; y++)
      {
-        p1 = ef->im_data + ((yy - h) * w);
-        p2 = ef->im_data_new + ((yy - h) * w);
+        p1 = ef->im_data + (y * w);
+        p2 = ef->im_data_new + (y * w);
         for (x = 0; x < w; x++)
           {
              b = ((*p1) & 0xff);

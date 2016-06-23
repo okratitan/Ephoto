@@ -645,10 +645,10 @@ _dither(void *data)
           {
              int index = y * w + x;
 
-             b = (ef->im_data[index]) & 0xff;
-             g = ((ef->im_data[index] >> 8) & 0xff);
-             r = ((ef->im_data[index] >> 16) & 0xff);
-             a = ((ef->im_data[index] >> 24) & 0xff);
+             b = (ef->im_data_new[index]) & 0xff;
+             g = ((ef->im_data_new[index] >> 8) & 0xff);
+             r = ((ef->im_data_new[index] >> 16) & 0xff);
+             a = ((ef->im_data_new[index] >> 24) & 0xff);
              b = _mul_color_alpha(b, a);
              g = _mul_color_alpha(g, a);
              r = _mul_color_alpha(r, a);
@@ -670,10 +670,10 @@ _dither(void *data)
              if ((x+1) < w)
                {
                   index = y * w + x + 1;
-                  b = (ef->im_data[index] & 0xff);
-                  g = ((ef->im_data[index] >> 8) & 0xff);
-                  r = ((ef->im_data[index] >> 16) & 0xff);
-                  a = ((ef->im_data[index] >> 24) & 0xff);
+                  b = (ef->im_data_new[index] & 0xff);
+                  g = ((ef->im_data_new[index] >> 8) & 0xff);
+                  r = ((ef->im_data_new[index] >> 16) & 0xff);
+                  a = ((ef->im_data_new[index] >> 24) & 0xff);
                   b = _mul_color_alpha(b, a);
                   g = _mul_color_alpha(g, a);
                   r = _mul_color_alpha(r, a);
@@ -692,10 +692,10 @@ _dither(void *data)
              if (x > 0 && (y+1) < h)
                {
                   index = (y + 1) * w + (x - 1);
-                  b = (ef->im_data[index] & 0xff);
-                  g = ((ef->im_data[index] >> 8) & 0xff);
-                  r = ((ef->im_data[index] >> 16) & 0xff);
-                  a = ((ef->im_data[index] >> 24) & 0xff);
+                  b = (ef->im_data_new[index] & 0xff);
+                  g = ((ef->im_data_new[index] >> 8) & 0xff);
+                  r = ((ef->im_data_new[index] >> 16) & 0xff);
+                  a = ((ef->im_data_new[index] >> 24) & 0xff);
                   b = _mul_color_alpha(b, a);
                   g = _mul_color_alpha(g, a);
                   r = _mul_color_alpha(r, a);
@@ -714,10 +714,10 @@ _dither(void *data)
              if ((y+1) < h)
                {
                   index = (y + 1) * w + x;
-                  b = (ef->im_data[index] & 0xff);
-                  g = ((ef->im_data[index] >> 8) & 0xff);
-                  r = ((ef->im_data[index] >> 16) & 0xff);
-                  a = ((ef->im_data[index] >> 24) & 0xff);
+                  b = (ef->im_data_new[index] & 0xff);
+                  g = ((ef->im_data_new[index] >> 8) & 0xff);
+                  r = ((ef->im_data_new[index] >> 16) & 0xff);
+                  a = ((ef->im_data_new[index] >> 24) & 0xff);
                   b = _mul_color_alpha(b, a);
                   g = _mul_color_alpha(g, a);
                   r = _mul_color_alpha(r, a);
@@ -736,10 +736,10 @@ _dither(void *data)
              if ((y+1) < h && (x+1) < w)
                {
                   index = (y + 1) * w + (x + 1);  
-                  b = (ef->im_data[index] & 0xff);
-                  g = ((ef->im_data[index] >> 8) & 0xff);
-                  r = ((ef->im_data[index] >> 16) & 0xff);
-                  a = ((ef->im_data[index] >> 24) & 0xff);
+                  b = (ef->im_data_new[index] & 0xff);
+                  g = ((ef->im_data_new[index] >> 8) & 0xff);
+                  r = ((ef->im_data_new[index] >> 16) & 0xff);
+                  a = ((ef->im_data_new[index] >> 24) & 0xff);
                   b = _mul_color_alpha(b, a);
                   g = _mul_color_alpha(g, a);
                   r = _mul_color_alpha(r, a);
@@ -755,12 +755,7 @@ _dither(void *data)
                   ef->im_data_new[index] = (a << 24) | (rr << 16) | 
                       (gg << 8) | bb;
                }
-/*Extra incrementing the x and y values to get
- * the desired checkerboard effect is likely a
- * bad hack*/
-             x++;
           }
-        y++;
         passes++;
         if (passes == 500)
           {
@@ -779,27 +774,31 @@ _grayscale(void *data)
 {
    Ephoto_Filter *ef = data;
    int gray, i, r, g, b, a, passes = 0;
-   Evas_Coord w, h;
+   Evas_Coord w, h, x, y;
 
    w = ef->w;
    h = ef->h;
-   for (i = ef->pos; i < (w * h); i++)
+   for (y = ef->pos; y < h; y++)
      {
-        b = (int) ((ef->im_data[i]) & 0xff);
-        g = (int) ((ef->im_data[i] >> 8) & 0xff);
-        r = (int) ((ef->im_data[i] >> 16) & 0xff);
-        a = (int) ((ef->im_data[i] >> 24) & 0xff);
-        b = _mul_color_alpha(b, a);
-        g = _mul_color_alpha(g, a);
-        r = _mul_color_alpha(r, a);
-        gray = (int) ((0.3 * r) + (0.59 * g) + (0.11 * b));
-        if (a >= 0 && a < 255)
-           gray = (gray * a) / 255;
-        ef->im_data_new[i] = (a << 24) | (gray << 16) | (gray << 8) | gray;
+        for (x = 0; x < w; x++)
+          {
+             i = y * w + x;
+             b = (int) ((ef->im_data[i]) & 0xff);
+             g = (int) ((ef->im_data[i] >> 8) & 0xff);
+             r = (int) ((ef->im_data[i] >> 16) & 0xff);
+             a = (int) ((ef->im_data[i] >> 24) & 0xff);
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);
+             gray = (int) ((0.3 * r) + (0.59 * g) + (0.11 * b));
+             if (a >= 0 && a < 255)
+               gray = (gray * a) / 255;
+             ef->im_data_new[i] = (a << 24) | (gray << 16) | (gray << 8) | gray;
+          }
         passes++;
         if (passes == 500)
           {
-             ef->pos = i++;
+             ef->pos = y++;
              return EINA_TRUE;
           }
      }
@@ -814,33 +813,38 @@ _sepia(void *data)
 {
    Ephoto_Filter *ef = data;
    int i, r, rr, g, gg, b, bb, a, passes = 0;
-   Evas_Coord w, h;
+   Evas_Coord w, h, x, y;
 
    w = ef->w;
    h = ef->h;
-   for (i = ef->pos; i < (w * h); i++)
+   for (y = ef->pos; y < h; y++)
      {
-        b = (int) ((ef->im_data[i]) & 0xff);
-        g = (int) ((ef->im_data[i] >> 8) & 0xff);
-        r = (int) ((ef->im_data[i] >> 16) & 0xff);
-        a = (int) ((ef->im_data[i] >> 24) & 0xff);
-        b = _mul_color_alpha(b, a);
-        g = _mul_color_alpha(g, a);
-        r = _mul_color_alpha(r, a);
-        rr = (int) ((r * .393) + (g * .769) + (b * .189));
-        rr = _normalize_color(rr);
-        gg = (int) ((r * .349) + (g * .686) + (b * .168));
-        gg = _normalize_color(gg);
-        bb = (int) ((r * .272) + (g * .534) + (b * .131));
-        bb = _normalize_color(bb);
-        bb = _demul_color_alpha(bb, a);
-        gg = _demul_color_alpha(gg, a);
-        rr = _demul_color_alpha(rr, a);
-        ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
+        for (x = 0; x < w; x++)
+          {
+             i = y * w + x;
+ 
+             b = (int) ((ef->im_data[i]) & 0xff);
+             g = (int) ((ef->im_data[i] >> 8) & 0xff);
+             r = (int) ((ef->im_data[i] >> 16) & 0xff);
+             a = (int) ((ef->im_data[i] >> 24) & 0xff);
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);
+             rr = (int) ((r * .393) + (g * .769) + (b * .189));
+             rr = _normalize_color(rr);
+             gg = (int) ((r * .349) + (g * .686) + (b * .168));
+             gg = _normalize_color(gg);
+             bb = (int) ((r * .272) + (g * .534) + (b * .131));
+             bb = _normalize_color(bb);
+             bb = _demul_color_alpha(bb, a);
+             gg = _demul_color_alpha(gg, a);
+             rr = _demul_color_alpha(rr, a);
+             ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
+          }
         passes++;
         if (passes == 500)
           {
-             ef->pos = i++;
+             ef->pos = y++;
              return EINA_TRUE;
           }
      }
@@ -856,34 +860,45 @@ _posterize(void *data)
    Ephoto_Filter *ef = data;
    int i, rr, gg, bb, a, passes = 0;
    double fr, fg, fb, rad;
-   Evas_Coord w, h;
+   Evas_Coord w, h, x, y;
 
    w = ef->w;
    h = ef->h;
    rad = ef->drad;
-   for (i = ef->pos; i < (w * h); i++)
+   for (y = ef->pos; y < h; y++)
      {
-        fb = ((ef->im_data[i]) & 0xff);
-        fg = ((ef->im_data[i] >> 8) & 0xff);
-        fr = ((ef->im_data[i] >> 16) & 0xff);
-        a = (int) ((ef->im_data[i] >> 24) & 0xff);
-        fr /= 255;
-        fg /= 255;
-        fb /= 255;
-        rr = 255 * rint((fr * rad)) / rad;
-        rr = _normalize_color(rr);
-        gg = 255 * rint((fg * rad)) / rad;
-        gg = _normalize_color(gg);
-        bb = 255 * rint((fb * rad)) / rad;
-        bb = _normalize_color(bb);
-        ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
+        for (x = 0; x < w; x++)
+          {
+             i = y * w + x;
+             fb = ((ef->im_data[i]) & 0xff);
+             fg = ((ef->im_data[i] >> 8) & 0xff);
+             fr = ((ef->im_data[i] >> 16) & 0xff);
+             a = ((ef->im_data[i] >> 24) & 0xff);
+             fb = _mul_color_alpha(fb, a);
+             fg = _mul_color_alpha(fg, a);
+             fr = _mul_color_alpha(fr, a);
+             fr /= 255;
+             fg /= 255;
+             fb /= 255;
+             rr = 255 * rint((fr * rad)) / rad;
+             rr = _normalize_color(rr);
+             gg = 255 * rint((fg * rad)) / rad;
+             gg = _normalize_color(gg);
+             bb = 255 * rint((fb * rad)) / rad;
+             bb = _normalize_color(bb);
+             bb = _demul_color_alpha(bb, a);
+             gg = _demul_color_alpha(gg, a);
+             rr = _demul_color_alpha(rr, a);
+             ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
+          }
         passes++;
         if (passes == 500)
           {
-             ef->pos = i++;
+             ef->pos = y++;
              return EINA_TRUE;
           }
      }
+
    _idler_finishing_cb(ef, EINA_FALSE);
 
    return EINA_FALSE;
@@ -895,34 +910,37 @@ _negative(void *data)
    Ephoto_Filter *ef = data;
    int i, r, g, b, rr, gg, bb, a;
    int passes = 0;
-   Evas_Coord w, h;
+   Evas_Coord w, h, x, y;
 
    w = ef->w;
    h = ef->h;
-   for (i = ef->pos; i < (w * h); i++)
+   for (y = ef->pos; y < h; y++)
      {
-        b = (int) ((ef->im_data[i]) & 0xff);
-        g = (int) ((ef->im_data[i] >> 8) & 0xff);
-        r = (int) ((ef->im_data[i] >> 16) & 0xff);
-        a = (int) ((ef->im_data[i] >> 24) & 0xff);
-        b = _mul_color_alpha(b, a);
-        g = _mul_color_alpha(g, a);
-        r = _mul_color_alpha(r, a);
-        rr = 255 - r;
-        gg = 255 - g;
-        bb = 255 - b;
-        rr = _normalize_color(rr);
-        gg = _normalize_color(gg);
-        bb = _normalize_color(bb);
-        bb = _demul_color_alpha(bb, a);
-        gg = _demul_color_alpha(gg, a);
-        rr = _demul_color_alpha(rr, a);
-        ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
-
+        for (x = 0; x < w; x++)
+          {
+             i = y * w + x;
+             b = (int) ((ef->im_data[i]) & 0xff);
+             g = (int) ((ef->im_data[i] >> 8) & 0xff);
+             r = (int) ((ef->im_data[i] >> 16) & 0xff);
+             a = (int) ((ef->im_data[i] >> 24) & 0xff);
+             b = _mul_color_alpha(b, a);
+             g = _mul_color_alpha(g, a);
+             r = _mul_color_alpha(r, a);
+             rr = 255 - r;
+             gg = 255 - g;
+             bb = 255 - b;
+             rr = _normalize_color(rr);
+             gg = _normalize_color(gg);
+             bb = _normalize_color(bb);
+             bb = _demul_color_alpha(bb, a);
+             gg = _demul_color_alpha(gg, a);
+             rr = _demul_color_alpha(rr, a);
+             ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
+          }
         passes++;
         if (passes == 500)
           {
-             ef->pos = i++;
+             ef->pos = y++;
              return EINA_TRUE;
           }
      }
@@ -938,40 +956,48 @@ static Eina_Bool
 _dodge(void *data)
 {
    Ephoto_Filter *ef = data;
-   double r, g, b, rr, gg, bb;
-   int i, rrr, ggg, bbb, passes = 0;;
-   Evas_Coord w, h;
+   double a, r, g, b, aa, rr, gg, bb;
+   int i, aaa, rrr, ggg, bbb, passes = 0;
+   Evas_Coord w, h, x, y;
 
    w = ef->w;
    h = ef->h;
-   for (i = ef->pos; i < (w * h); i++)
+   for (y = ef->pos; y < h; y++)
      {
-        b = ((ef->im_data_two[i]) & 0xff);
-        g = ((ef->im_data_two[i] >> 8) & 0xff);
-        r = ((ef->im_data_two[i] >> 16) & 0xff);
+        for (x = 0; x < w; x++)
+          {
+             i = y * w + x;
+             b = ((ef->im_data_two[i]) & 0xff);
+             g = ((ef->im_data_two[i] >> 8) & 0xff);
+             r = ((ef->im_data_two[i] >> 16) & 0xff);
+             a = ((ef->im_data_two[i] >> 24) & 0xff);
 
-        bb = ((ef->im_data[i]) & 0xff);
-        gg = ((ef->im_data[i] >> 8) & 0xff);
-        rr = ((ef->im_data[i] >> 16) & 0xff);
+             bb = ((ef->im_data[i]) & 0xff);
+             gg = ((ef->im_data[i] >> 8) & 0xff);
+             rr = ((ef->im_data[i] >> 16) & 0xff);
+             aa = ((ef->im_data[i] >> 24) & 0xff);
   
-        b *= 255;
-        g *= 255;
-        r *= 255;
+             b *= 255;
+             g *= 255;
+             r *= 255;
+             a *= 255;
   
-        bbb = rint(b / (255 - bb));
-        ggg = rint(g / (255 - gg));
-        rrr = rint(r / (255 - rr));
+             bbb = rint(b / (255 - bb));
+             ggg = rint(g / (255 - gg));
+             rrr = rint(r / (255 - rr));
+             aaa = rint(a / (255 - aa));
 
-        rrr = _normalize_color(rrr);
-        ggg = _normalize_color(ggg);
-        bbb = _normalize_color(bbb);
+             rrr = _normalize_color(rrr);
+             ggg = _normalize_color(ggg);
+             bbb = _normalize_color(bbb);
+             aaa = _normalize_color(aaa);
 
-        ef->im_data_new[i] = (255 << 24) | (rrr << 16) | (ggg << 8) | bbb;
-
+             ef->im_data_new[i] = (aaa << 24) | (rrr << 16) | (ggg << 8) | bbb;
+          }
         passes++;
         if (passes == 500)
           {
-             ef->pos = i++;
+             ef->pos = y++;
              return EINA_TRUE;
           }
      }
@@ -1062,7 +1088,7 @@ _emboss(void *data)
         p = ef->im_data_new + (y * w);
         for (x = 0; x < w; x++)
            {
-             int a = 0, rr = 0, gg = 0, bb = 0;
+             int aa = 0, rr = 0, gg = 0, bb = 0;
              if (y > 0 && x > 0 && y < (h - 2) && x < (w - 2))
                {
                   for (i = -1; i <= 1; i++)
@@ -1078,14 +1104,16 @@ _emboss(void *data)
                                 emboss[i+1][j+1];
                             rr += (int) ((pix >> 16) & 0xff) *
                                 emboss[i+1][j+1];
+                            aa += (int) ((pix >> 24) & 0xff) *
+                                emboss[i+1][j+1];
                          }
                     }
                }
+             aa = _normalize_color(aa);
              bb = _normalize_color(bb);
              gg = _normalize_color(gg);
              rr = _normalize_color(rr);
-             a = (*p >> 24) & 0xff;
-             *p = (a << 24) | (rr << 16) | (gg << 8) | bb;
+             *p = (aa << 24) | (rr << 16) | (gg << 8) | bb;
              p++;
           }
         passes++;
@@ -1226,6 +1254,8 @@ ephoto_filter_dither(Evas_Object *main, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_DITHER,
        main, image);
+   ef->im_data_new = memcpy(ef->im_data_new, ef->im_data,
+       sizeof(unsigned int) * ef->w * ef->h);
 
    ef->popup = _processing(main);
    ef->idler = ecore_idler_add(_dither, ef);

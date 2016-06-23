@@ -259,8 +259,8 @@ struct _Ephoto
    Eina_Bool editor_blocking;
 
    Ecore_File_Monitor *monitor;
-   Ecore_Idler *file_idler;
-   Eina_List *file_idler_pos;
+   Ecore_Thread *file_thread;
+   Eina_List *file_pos;
    Eina_List *upload_handlers;
    Ecore_Timer *overlay_timer;
    Ecore_Con_Url *url_up;

@@ -190,10 +190,10 @@ _win_free(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    Ephoto *ephoto = data;
    Ecore_Event_Handler *handler;
 
-   if (ephoto->file_idler)
-     ecore_idler_del(ephoto->file_idler);
-   if (ephoto->file_idler_pos)
-     eina_list_free(ephoto->file_idler_pos);
+   if (ephoto->file_thread)
+     ecore_thread_cancel(ephoto->file_thread);
+   if (ephoto->file_pos)
+      eina_list_free(ephoto->file_pos);
    if (ephoto->upload_handlers)
      EINA_LIST_FREE(ephoto->upload_handlers, handler)
        ecore_event_handler_del(handler);

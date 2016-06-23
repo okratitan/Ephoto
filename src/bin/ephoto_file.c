@@ -595,41 +595,18 @@ _processing(Ephoto *ephoto, const char *title, const char *text)
    return popup;
 }
 
-static Eina_Bool
-_move_idler_cb(void *data)
+static void
+_move_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
    const char *destination = evas_object_data_get(popup, "destination");
    const char *file;
-   int i;
 
-   if (!ephoto->file_idler_pos)
-      ephoto->file_idler_pos = eina_list_nth(ephoto->file_idler_pos, 0);
-   if (!ephoto->file_idler_pos)
+   if (!ephoto->file_pos)
+      ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);
+   EINA_LIST_FREE(ephoto->file_pos, file)
      {
-	ecore_idler_del(ephoto->file_idler);
-	ephoto->file_idler = NULL;
-	eina_list_free(ephoto->file_idler_pos);
-	ephoto->file_idler_pos = NULL;
-	if (ephoto->file_errors > 0)
-	  {
-	     char msg[PATH_MAX];
-
-	     snprintf(msg, PATH_MAX, "%s %d %s.",
-		 _("There was an error moving"), ephoto->file_errors,
-		 ngettext("file", "files", ephoto->file_errors));
-	     _complete(ephoto, _("Error"), msg);
-	  }
-        ephoto->file_errors = 0;
-	evas_object_del(popup);
-        evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
-        elm_object_focus_set(ephoto->pager, EINA_TRUE);
-	return EINA_FALSE;
-     }
-   for (i = 0; i < 5; i++)
-     {
-	file = eina_list_data_get(ephoto->file_idler_pos);
 	if (!file)
 	   break;
 	if (ecore_file_exists(file) && ecore_file_is_dir(destination) &&
@@ -662,9 +639,22 @@ _move_idler_cb(void *data)
 	     if (!ret)
                ephoto->file_errors++;
 	  }
-	ephoto->file_idler_pos = eina_list_next(ephoto->file_idler_pos);
      }
-   return EINA_TRUE;
+   if (ephoto->file_errors > 0)
+     {
+        char msg[PATH_MAX];
+
+        snprintf(msg, PATH_MAX, "%s %d %s.",
+            _("There was an error moving"), ephoto->file_errors,
+            ngettext("file", "files", ephoto->file_errors));
+        _complete(ephoto, _("Error"), msg);
+     }
+   ephoto->file_errors = 0;
+   ephoto->file_pos = NULL;
+
+   evas_object_del(popup);
+   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
+   elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
 static void
@@ -678,59 +668,25 @@ _move_files(Ephoto *ephoto, Eina_List *files,
    evas_object_data_set(popup, "destination", destination);
    evas_object_show(popup);
 
-   ephoto->file_idler_pos = eina_list_clone(files);
+   ephoto->file_pos = eina_list_clone(files);
    eina_list_free(files);
-   if (!ephoto->file_idler)
-     ephoto->file_idler = ecore_idler_add(_move_idler_cb, popup);
+   ephoto->file_thread = ecore_thread_run(_move_thread_cb,
+       NULL, NULL, popup);
 }
 
-static Eina_Bool
-_copy_idler_cb(void *data)
+static void
+_copy_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
    const char *destination = evas_object_data_get(popup, "destination");
    const char *file;
-   int i;
 
-   if (!ephoto->file_idler_pos)
-      ephoto->file_idler_pos = eina_list_nth(ephoto->file_idler_pos, 0);
-   if (!ephoto->file_idler_pos)
+   if (!ephoto->file_pos)
+      ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);
+   EINA_LIST_FREE(ephoto->file_pos, file)
      {
-	ecore_idler_del(ephoto->file_idler);
-	ephoto->file_idler = NULL;
-	eina_list_free(ephoto->file_idler_pos);
-	ephoto->file_idler_pos = NULL;
-	if (ephoto->file_errors > 0)
-	  {
-	     char msg[PATH_MAX];
-
-	     snprintf(msg, PATH_MAX, "%s %d %s.",
-		 _("There was an error copying"), ephoto->file_errors,
-		 ngettext("file", "files", ephoto->file_errors));
-	     _complete(ephoto, _("Error"), msg);
-	  }
-	ephoto->file_errors = 0;
-        if (strcmp(destination, ephoto->config->directory))
-          {
-             evas_object_del(popup);
-             evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
-             elm_object_focus_set(ephoto->pager, EINA_TRUE);
-
-             return EINA_FALSE;
-          }
-	evas_object_del(popup);
-        evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
-        elm_object_focus_set(ephoto->pager, EINA_TRUE);
-
-	return EINA_FALSE;
-     }
-   for (i = 0; i < 5; i++)
-     {
-	file = eina_list_data_get(ephoto->file_idler_pos);
-	if (!file)
-	   break;
-	if (ecore_file_exists(file) && ecore_file_is_dir(destination) &&
+        if (ecore_file_exists(file) && ecore_file_is_dir(destination) &&
 	    evas_object_image_extension_can_load_get(file))
 	  {
 	     char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
@@ -760,9 +716,22 @@ _copy_idler_cb(void *data)
 	     if (!ret)
 		ephoto->file_errors++;
 	  }
-	ephoto->file_idler_pos = eina_list_next(ephoto->file_idler_pos);
      }
-   return EINA_TRUE;
+   if (ephoto->file_errors > 0)
+     {
+        char msg[PATH_MAX];
+
+        snprintf(msg, PATH_MAX, "%s %d %s.",
+            _("There was an error copying"), ephoto->file_errors,
+            ngettext("file", "files", ephoto->file_errors));
+        _complete(ephoto, _("Error"), msg);
+     }
+   ephoto->file_errors = 0;
+   ephoto->file_pos = NULL;
+
+   evas_object_del(popup);
+   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
+   elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
 static void
@@ -775,51 +744,28 @@ _copy_files(Ephoto *ephoto, Eina_List *files,
    evas_object_data_set(popup, "destination", destination);
    evas_object_show(popup);
 
-   ephoto->file_idler_pos = eina_list_clone(files);
+   ephoto->file_pos = eina_list_clone(files);
    eina_list_free(files);
-   if (!ephoto->file_idler)
-     ephoto->file_idler = ecore_idler_add(_copy_idler_cb, popup);
+   ephoto->file_thread = ecore_thread_run(_copy_thread_cb,
+       NULL, NULL, popup);
 }
 
-static Eina_Bool
-_delete_idler_cb(void *data)
+static void
+_delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
    const char *file;
    char destination[PATH_MAX];
-   int i;
 
    snprintf(destination, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
    if (!ecore_file_exists(destination))
       ecore_file_mkpath(destination);
 
-   if (!ephoto->file_idler_pos)
-      ephoto->file_idler_pos = eina_list_nth(ephoto->file_idler_pos, 0);
-   if (!ephoto->file_idler_pos)
+   if (!ephoto->file_pos)
+      ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);
+   EINA_LIST_FREE(ephoto->file_pos, file)
      {
-	ecore_idler_del(ephoto->file_idler);
-	ephoto->file_idler = NULL;
-	eina_list_free(ephoto->file_idler_pos);
-	ephoto->file_idler_pos = NULL;
-	if (ephoto->file_errors > 0)
-	  {
-	     char msg[PATH_MAX];
-
-	     snprintf(msg, PATH_MAX, "%s %d %s.",
-		 _("There was an error deleting"), ephoto->file_errors,
-		 ngettext("file", "files", ephoto->file_errors));
-	     _complete(ephoto, _("Error"), msg);
-	  }
-	evas_object_del(popup);
-        evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
-        elm_object_focus_set(ephoto->pager, EINA_TRUE);
-
-	return EINA_FALSE;
-     }
-   for (i = 0; i < 5; i++)
-     {
-	file = eina_list_data_get(ephoto->file_idler_pos);
 	if (!file)
 	   break;
 	if (ecore_file_exists(file) && ecore_file_is_dir(destination))
@@ -851,9 +797,22 @@ _delete_idler_cb(void *data)
 	     if (!ret)
 	       ephoto->file_errors++;
 	  }
-	ephoto->file_idler_pos = eina_list_next(ephoto->file_idler_pos);
      }
-   return EINA_TRUE;
+   if (ephoto->file_errors > 0)
+     {
+        char msg[PATH_MAX];
+
+        snprintf(msg, PATH_MAX, "%s %d %s.",
+            _("There was an error deleting"), ephoto->file_errors,
+            ngettext("file", "files", ephoto->file_errors));
+        _complete(ephoto, _("Error"), msg);
+     }
+   ephoto->file_pos = NULL;
+   ephoto->file_errors = 0;
+
+   evas_object_del(popup);
+   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
+   elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
 static void
@@ -866,14 +825,14 @@ _delete_files(Ephoto *ephoto, Eina_List *files)
    evas_object_data_set(popup, "files", files);
    evas_object_show(popup);
 
-   ephoto->file_idler_pos = eina_list_clone(files);
+   ephoto->file_pos = eina_list_clone(files);
    eina_list_free(files);
-   if (!ephoto->file_idler)
-     ephoto->file_idler = ecore_idler_add(_delete_idler_cb, popup);
+   ephoto->file_thread = ecore_thread_run(_delete_thread_cb,
+       NULL, NULL, popup);
 }
 
-static Eina_Bool
-_delete_dir_idler_cb(void *data)
+static void
+_delete_dir_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
@@ -925,17 +884,12 @@ _delete_dir_idler_cb(void *data)
             _("There was an error deleting this directory"));
         _complete(ephoto, _("Error"), msg);
      }
-   ecore_idler_del(ephoto->file_idler);
-   ephoto->file_idler = NULL;
-   eina_list_free(ephoto->file_idler_pos);
-
+   ephoto->file_pos = NULL;
    ephoto->file_errors = 0;
 
    evas_object_del(popup);
    evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
-
-   return EINA_FALSE;
 }
 
 static void
@@ -948,50 +902,25 @@ _delete_dir(Ephoto *ephoto, Eina_List *files)
    evas_object_data_set(popup, "files", files);
    evas_object_show(popup);
 
-   ephoto->file_idler_pos = NULL;
-   if (!ephoto->file_idler)
-      ephoto->file_idler = ecore_idler_add(_delete_dir_idler_cb, popup);
+   ephoto->file_pos = NULL;
+   ephoto->file_thread = ecore_thread_run(_delete_dir_thread_cb,
+       NULL, NULL, popup);
 }
 
-static Eina_Bool
-_empty_trash_idler_cb(void *data)
+static void
+_empty_trash_thread_cb(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
    const char *file;
    char trash[PATH_MAX];
-   int i = 0;
 
    snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
 
-   if (!ephoto->file_idler_pos)
-      ephoto->file_idler_pos = eina_list_nth(ephoto->file_idler_pos, 0);
-   if (!ephoto->file_idler_pos)
+   if (!ephoto->file_pos)
+      ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);
+   EINA_LIST_FREE(ephoto->file_pos, file)
      {
-	ecore_idler_del(ephoto->file_idler);
-	ephoto->file_idler = NULL;
-	eina_list_free(ephoto->file_idler_pos);
-	ephoto->file_idler_pos = NULL;
-	if (ephoto->file_errors > 0)
-	  {
-	     char msg[PATH_MAX];
-
-	     snprintf(msg, PATH_MAX, "%s %d %s.",
-		 _("There was an error deleting"), ephoto->file_errors,
-		 ngettext("file", "files", ephoto->file_errors));
-	     _complete(ephoto, _("Error"), msg);
-	  }
-        ephoto->file_errors = 0;
-
-	evas_object_del(popup);
-        evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
-        elm_object_focus_set(ephoto->pager, EINA_TRUE);
-
-	return EINA_FALSE;
-     }
-   for (i = 0; i < 5; i++)
-     {
-	file = eina_list_data_get(ephoto->file_idler_pos);
 	if (!file)
 	   break;
 	if (ecore_file_exists(file))
@@ -1005,9 +934,22 @@ _empty_trash_idler_cb(void *data)
 	     if (!ret)
 		ephoto->file_errors++;
 	  }
-	ephoto->file_idler_pos = eina_list_next(ephoto->file_idler_pos);
      }
-   return EINA_TRUE;
+   if (ephoto->file_errors > 0)
+     {
+        char msg[PATH_MAX];
+
+        snprintf(msg, PATH_MAX, "%s %d %s.",
+            _("There was an error deleting"), ephoto->file_errors,
+            ngettext("file", "files", ephoto->file_errors));
+        _complete(ephoto, _("Error"), msg);
+     }
+   ephoto->file_pos = NULL;
+   ephoto->file_errors = 0;
+
+   evas_object_del(popup);
+   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
+   elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
 static void
@@ -1019,10 +961,10 @@ _empty_trash(Ephoto *ephoto, Eina_List *files)
    evas_object_data_set(popup, "ephoto", ephoto);
    evas_object_show(popup);
 
-   ephoto->file_idler_pos = eina_list_clone(files);
+   ephoto->file_pos = eina_list_clone(files);
    eina_list_free(files);
-   if (!ephoto->file_idler)
-      ephoto->file_idler = ecore_idler_add(_empty_trash_idler_cb, popup);
+   ephoto->file_thread = ecore_thread_run(_empty_trash_thread_cb,
+       NULL, NULL, popup);
 }
 
 static void

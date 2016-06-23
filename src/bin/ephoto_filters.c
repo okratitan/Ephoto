@@ -29,9 +29,6 @@ struct _Ephoto_Filter
    Eina_List *queue;
    Evas_Coord w;
    Evas_Coord h;
-   int pos;
-   int blur_posx;
-   int blur_posy;
    int rad;
    int qpos;
    int qcount;
@@ -213,7 +210,6 @@ _thread_finished_cb(void *data, Ecore_Thread *th EINA_UNUSED)
         if (ef->cdf)
           free(ef->cdf);
         ef->cdf = NULL;
-        ef->pos = 0;
         ef->qpos++;
         if (ef->qpos-1 < ef->qcount)
           {
@@ -532,10 +528,8 @@ _blur(void *data, Ecore_Thread *th EINA_UNUSED)
 
         ef->im_data_new = memcpy(ef->im_data_new, ef->im_data,
             sizeof(unsigned int) * w * h);
-        if (ef->blur_posy < ef->h - 1)
-          _blur_vertical(ef, rad);
-        if (ef->blur_posy == ef->h -1)
-          _blur_horizontal(ef, rad);
+        _blur_vertical(ef, rad);
+        _blur_horizontal(ef, rad);
      }
 }
 
@@ -1098,7 +1092,6 @@ ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image)
    ef->im_data_orig = memcpy(ef->im_data_orig, ef->im_data,
        sizeof(unsigned int) * ef->w * ef->h);
 
-   ef->pos = 1;
    ef->rad = 9;
    ef->qcount = 1;
    ef->qpos = 0;

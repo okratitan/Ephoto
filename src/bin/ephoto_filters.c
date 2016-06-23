@@ -25,7 +25,7 @@ struct _Ephoto_Filter
    Evas_Object *main;
    Evas_Object *image;
    Evas_Object *popup;
-   Ecore_Idler *idler;
+   Ecore_Thread *thread;;
    Eina_List *queue;
    Evas_Coord w;
    Evas_Coord h;
@@ -42,18 +42,20 @@ struct _Ephoto_Filter
    unsigned int *im_data_new;
    unsigned int *im_data_orig;
    unsigned int *im_data_two;
+   Eina_Bool save_data;
 };
 
-static Eina_Bool _blur(void *data);
-static Eina_Bool _sharpen(void *data);
-static Eina_Bool _dither(void *data);
-static Eina_Bool _grayscale(void *data);
-static Eina_Bool _sepia(void *data);
-static Eina_Bool _negative(void *data);
-static Eina_Bool _posterize(void *data);
-static Eina_Bool _dodge(void *data);
-static Eina_Bool _sobel(void *data);
-static Eina_Bool _histogram_eq(void *data);
+static void _blur(void *data, Ecore_Thread *th EINA_UNUSED);
+static void _sharpen(void *data, Ecore_Thread *th EINA_UNUSED);
+static void _dither(void *data, Ecore_Thread *th EINA_UNUSED);
+static void _grayscale(void *data, Ecore_Thread *th EINA_UNUSED);
+static void _sepia(void *data, Ecore_Thread *th EINA_UNUSED);
+static void _negative(void *data, Ecore_Thread *th EINA_UNUSED);
+static void _posterize(void *data, Ecore_Thread *th EINA_UNUSED);
+static void _dodge(void *data, Ecore_Thread *th EINA_UNUSED);
+static void _sobel(void *data, Ecore_Thread *th EINA_UNUSED);
+static void _emboss(void *data, Ecore_Thread *th EINA_UNUSED);
+static void _histogram_eq(void *data, Ecore_Thread *th EINA_UNUSED);
 
 static Ephoto_Filter *
 _initialize_filter(Ephoto_Image_Filter filter,
@@ -77,9 +79,6 @@ _initialize_filter(Ephoto_Image_Filter filter,
    ef->im_data_orig = NULL;
    ef->rad = 0;
    ef->drad = 0.0;
-   ef->pos = 0;
-   ef->blur_posx = 0;
-   ef->blur_posy = 0;
    ef->w = w;
    ef->h = h;
    ef->qpos = 0;
@@ -87,6 +86,7 @@ _initialize_filter(Ephoto_Image_Filter filter,
    ef->queue = NULL;
    ef->hist = NULL;
    ef->cdf = NULL;
+   ef->save_data = EINA_FALSE;
 
    return ef;
 }
@@ -168,13 +168,13 @@ _processing(Evas_Object *main)
 }
 
 static void
-_idler_finishing_cb(Ephoto_Filter *ef, Eina_Bool im_data_two)
+_thread_finished_cb(void *data, Ecore_Thread *th EINA_UNUSED)
 {
+   Ephoto_Filter *ef = data;
    if (ef->qcount == 0)
      {
         ephoto_single_browser_image_data_done(ef->main, ef->im_data_new,
             ef->w, ef->h);
-        ecore_idler_del(ef->idler);
         if (ef->popup)
           {
              evas_object_del(ef->popup);
@@ -190,7 +190,7 @@ _idler_finishing_cb(Ephoto_Filter *ef, Eina_Bool im_data_two)
      }
    else
      {
-        if (im_data_two)
+        if (ef->save_data)
           {
              if (ef->im_data_two)
                {
@@ -200,6 +200,7 @@ _idler_finishing_cb(Ephoto_Filter *ef, Eina_Bool im_data_two)
              ef->im_data_two = malloc(sizeof(unsigned int) * ef->w * ef->h);
              ef->im_data_two = memcpy(ef->im_data_two, ef->im_data,
                  sizeof(unsigned int) * ef->w * ef->h);
+             ef->save_data = EINA_FALSE;
           }
         free(ef->im_data);
         ef->im_data = NULL;
@@ -214,24 +215,18 @@ _idler_finishing_cb(Ephoto_Filter *ef, Eina_Bool im_data_two)
         ef->cdf = NULL;
         ef->pos = 0;
         ef->qpos++;
-        ecore_idler_del(ef->idler);
         if (ef->qpos-1 < ef->qcount)
           {
              free(ef->im_data_new);
              ef->im_data_new = NULL;
              ef->im_data_new = malloc(sizeof(unsigned int) * ef->w * ef->h);
-             if (ef->idler)
-               {
-                  ecore_idler_del(ef->idler);
-                  ef->idler = NULL;
-               }
-             ef->idler = ecore_idler_add(eina_list_nth(ef->queue, ef->qpos-1), ef);
+             ef->thread = ecore_thread_run(eina_list_nth(ef->queue, ef->qpos-1),
+                 _thread_finished_cb, NULL, ef);
           }
         else
           {
              ephoto_single_browser_image_data_done(ef->main, ef->im_data_new,
                  ef->w, ef->h);
-             ecore_idler_del(ef->idler);
              if (ef->popup)
                {
                   evas_object_del(ef->popup);
@@ -252,7 +247,7 @@ static void
 _blur_vertical(Ephoto_Filter *ef, double rad)
 {
    Evas_Coord y, w, h;
-   int i, at, rt, gt, bt, passes = 0;
+   int i, at, rt, gt, bt;
    unsigned int *as, *rs, *gs, *bs;
    double iarr;
 
@@ -273,7 +268,7 @@ _blur_vertical(Ephoto_Filter *ef, double rad)
      }
 
    iarr = (double) 1 / (rad + rad + 1);
-   for (y = ef->blur_posy; y < h; y++)
+   for (y = 0; y < h; y++)
      {
         int t, l, rr;
         int fr, fg, fb, fa;
@@ -368,13 +363,6 @@ _blur_vertical(Ephoto_Filter *ef, double rad)
              ef->im_data_new[t++] = (at << 24) | (rt << 16) 
                  | (gt << 8) | bt;
           }
-        ef->blur_posy = y;
-        passes++;
-        if (passes == 500)
-          {
-             ef->blur_posy = y++;
-             break;
-          }
      }
    free(bs);
    free(gs);
@@ -386,7 +374,7 @@ static void
 _blur_horizontal(Ephoto_Filter *ef, double rad)
 {
    Evas_Coord x, w, h;
-   int i, at, rt, gt, bt, passes = 0;
+   int i, at, rt, gt, bt;
    unsigned int *as, *rs, *gs, *bs;
    double iarr;
 
@@ -407,7 +395,7 @@ _blur_horizontal(Ephoto_Filter *ef, double rad)
      }
 
    iarr = (double)1 / (rad + rad + 1);
-   for (x = ef->blur_posx; x < w; x++)
+   for (x = 0; x < w; x++)
      {
         int t, l, rr;
         int fr, fg, fb, fa;
@@ -504,13 +492,6 @@ _blur_horizontal(Ephoto_Filter *ef, double rad)
              l += w;
              t += w;
           }
-        ef->blur_posx = x;
-        passes++;
-        if (passes == 500)
-          {
-             ef->blur_posx = x++;
-             break;
-          }
      }
    free(bs);
    free(gs);
@@ -518,8 +499,8 @@ _blur_horizontal(Ephoto_Filter *ef, double rad)
    free(as);
 }
 
-static Eina_Bool
-_blur(void *data)
+static void
+_blur(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Ephoto_Filter *ef = data;
    Evas_Coord w, h;
@@ -540,7 +521,7 @@ _blur(void *data)
        4 * 3 * wl - 3 * 3) / (-4 * wl - 4);
    m = round(ideal);
 
-   for (i = ef->pos; i < 3; i++)
+   for (i = 0; i < 3; i++)
      {
         if (i < m)
           sizes[i] = wl;
@@ -555,27 +536,15 @@ _blur(void *data)
           _blur_vertical(ef, rad);
         if (ef->blur_posy == ef->h -1)
           _blur_horizontal(ef, rad);
-        if (ef->blur_posx == ef->w - 1 &&
-            ef->blur_posy == ef->h - 1)
-          {
-             ef->pos = i+1;
-             ef->blur_posx = 0;
-             ef->blur_posy = 0;
-          }
-        return EINA_TRUE;
      }
-
-   _idler_finishing_cb(ef, EINA_FALSE);
-
-   return EINA_FALSE;
 }
 
-static Eina_Bool
-_sharpen(void *data)
+static void
+_sharpen(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Ephoto_Filter *ef = data;
    unsigned int *p1, *p2, *p3;
-   int a, r, g, b, passes = 0;
+   int a, r, g, b;
    int aa, rr, gg, bb;
    int aaa, rrr, ggg, bbb;
    Evas_Coord x, y, w, h;
@@ -583,7 +552,7 @@ _sharpen(void *data)
    w = ef->w;
    h = ef->h;
 
-   for (y = ef->pos; y < h; y++)
+   for (y = 0; y < h; y++)
      {
         p1 = ef->im_data + (y * w);
         p2 = ef->im_data_orig + (y * w);
@@ -614,32 +583,22 @@ _sharpen(void *data)
              p2++;
              p1++;
           }
-        passes++;
-        if (passes == 500)
-          {
-             ef->pos = y++;
-             return EINA_TRUE;
-          }
-     }
-
-   _idler_finishing_cb(ef, EINA_FALSE);
-
-   return EINA_FALSE;  
+     }  
 }
 
-static Eina_Bool
-_dither(void *data)
+static void
+_dither(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Ephoto_Filter *ef = data;
    Evas_Coord x, y, w, h;
-   int a, r, g, b, passes = 0;
+   int a, r, g, b;
    int rr, gg, bb;
    int errr, errg, errb;
 
    w = ef->w;
    h = ef->h;
 
-   for (y = ef->pos; y < h; y++)
+   for (y = 0; y < h; y++)
      {
         for (x = 0; x < w; x++)
           {
@@ -756,29 +715,19 @@ _dither(void *data)
                       (gg << 8) | bb;
                }
           }
-        passes++;
-        if (passes == 500)
-          {
-             ef->pos = y++;
-             return EINA_TRUE;
-          }
      }
-
-   _idler_finishing_cb(ef, EINA_FALSE);
-
-   return EINA_FALSE;
 }
 
-static Eina_Bool
-_grayscale(void *data)
+static void
+_grayscale(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Ephoto_Filter *ef = data;
-   int gray, i, r, g, b, a, passes = 0;
+   int gray, i, r, g, b, a;
    Evas_Coord w, h, x, y;
 
    w = ef->w;
    h = ef->h;
-   for (y = ef->pos; y < h; y++)
+   for (y = 0; y < h; y++)
      {
         for (x = 0; x < w; x++)
           {
@@ -795,44 +744,34 @@ _grayscale(void *data)
                gray = (gray * a) / 255;
              ef->im_data_new[i] = (a << 24) | (gray << 16) | (gray << 8) | gray;
           }
-        passes++;
-        if (passes == 500)
-          {
-             ef->pos = y++;
-             return EINA_TRUE;
-          }
      }
-
-   _idler_finishing_cb(ef, EINA_FALSE);
-
-   return EINA_FALSE;
 }
 
-static Eina_Bool
-_sepia(void *data)
+static void
+_sepia(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Ephoto_Filter *ef = data;
-   int i, r, rr, g, gg, b, bb, a, passes = 0;
+   int i, r, rr, g, gg, b, bb, a;
    Evas_Coord w, h, x, y;
 
    w = ef->w;
    h = ef->h;
-   for (y = ef->pos; y < h; y++)
+   for (y = 0; y < h; y++)
      {
         for (x = 0; x < w; x++)
           {
              i = y * w + x;
  
-             b = (int) ((ef->im_data[i]) & 0xff);
-             g = (int) ((ef->im_data[i] >> 8) & 0xff);
-             r = (int) ((ef->im_data[i] >> 16) & 0xff);
-             a = (int) ((ef->im_data[i] >> 24) & 0xff);
+             b = ((ef->im_data[i]) & 0xff);
+             g = ((ef->im_data[i] >> 8) & 0xff);
+             r = ((ef->im_data[i] >> 16) & 0xff);
+             a = ((ef->im_data[i] >> 24) & 0xff);
              b = _mul_color_alpha(b, a);
              g = _mul_color_alpha(g, a);
              r = _mul_color_alpha(r, a);
              rr = (int) ((r * .393) + (g * .769) + (b * .189));
              rr = _normalize_color(rr);
-             gg = (int) ((r * .349) + (g * .686) + (b * .168));
+             gg = ((r * .349) + (g * .686) + (b * .168));
              gg = _normalize_color(gg);
              bb = (int) ((r * .272) + (g * .534) + (b * .131));
              bb = _normalize_color(bb);
@@ -841,31 +780,21 @@ _sepia(void *data)
              rr = _demul_color_alpha(rr, a);
              ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
           }
-        passes++;
-        if (passes == 500)
-          {
-             ef->pos = y++;
-             return EINA_TRUE;
-          }
      }
-
-   _idler_finishing_cb(ef, EINA_FALSE);
-
-   return EINA_FALSE;
 }
 
-static Eina_Bool
-_posterize(void *data)
+static void
+_posterize(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Ephoto_Filter *ef = data;
-   int i, rr, gg, bb, a, passes = 0;
+   int i, rr, gg, bb, a;
    double fr, fg, fb, rad;
    Evas_Coord w, h, x, y;
 
    w = ef->w;
    h = ef->h;
    rad = ef->drad;
-   for (y = ef->pos; y < h; y++)
+   for (y = 0; y < h; y++)
      {
         for (x = 0; x < w; x++)
           {
@@ -891,38 +820,27 @@ _posterize(void *data)
              rr = _demul_color_alpha(rr, a);
              ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
           }
-        passes++;
-        if (passes == 500)
-          {
-             ef->pos = y++;
-             return EINA_TRUE;
-          }
      }
-
-   _idler_finishing_cb(ef, EINA_FALSE);
-
-   return EINA_FALSE;
 }
 
-static Eina_Bool
-_negative(void *data)
+static void
+_negative(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Ephoto_Filter *ef = data;
    int i, r, g, b, rr, gg, bb, a;
-   int passes = 0;
    Evas_Coord w, h, x, y;
 
    w = ef->w;
    h = ef->h;
-   for (y = ef->pos; y < h; y++)
+   for (y = 0; y < h; y++)
      {
         for (x = 0; x < w; x++)
           {
              i = y * w + x;
-             b = (int) ((ef->im_data[i]) & 0xff);
-             g = (int) ((ef->im_data[i] >> 8) & 0xff);
-             r = (int) ((ef->im_data[i] >> 16) & 0xff);
-             a = (int) ((ef->im_data[i] >> 24) & 0xff);
+             b = ((ef->im_data[i]) & 0xff);
+             g = ((ef->im_data[i] >> 8) & 0xff);
+             r = ((ef->im_data[i] >> 16) & 0xff);
+             a = ((ef->im_data[i] >> 24) & 0xff);
              b = _mul_color_alpha(b, a);
              g = _mul_color_alpha(g, a);
              r = _mul_color_alpha(r, a);
@@ -937,32 +855,22 @@ _negative(void *data)
              rr = _demul_color_alpha(rr, a);
              ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
           }
-        passes++;
-        if (passes == 500)
-          {
-             ef->pos = y++;
-             return EINA_TRUE;
-          }
      }
    if (ef->filter == EPHOTO_IMAGE_FILTER_SKETCH)
-     _idler_finishing_cb(ef, EINA_TRUE);
-   else
-     _idler_finishing_cb(ef, EINA_FALSE);
-
-   return EINA_FALSE;
+     ef->save_data = EINA_TRUE;
 }
 
-static Eina_Bool
-_dodge(void *data)
+static void
+_dodge(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Ephoto_Filter *ef = data;
    double a, r, g, b, aa, rr, gg, bb;
-   int i, aaa, rrr, ggg, bbb, passes = 0;
+   int i, aaa, rrr, ggg, bbb;
    Evas_Coord w, h, x, y;
 
    w = ef->w;
    h = ef->h;
-   for (y = ef->pos; y < h; y++)
+   for (y = 0; y < h; y++)
      {
         for (x = 0; x < w; x++)
           {
@@ -994,25 +902,15 @@ _dodge(void *data)
 
              ef->im_data_new[i] = (aaa << 24) | (rrr << 16) | (ggg << 8) | bbb;
           }
-        passes++;
-        if (passes == 500)
-          {
-             ef->pos = y++;
-             return EINA_TRUE;
-          }
      }
-
-   _idler_finishing_cb(ef, EINA_FALSE);
-
-   return EINA_FALSE;
 }
 
-static Eina_Bool
-_sobel(void *data)
+static void
+_sobel(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Ephoto_Filter *ef = data;
    Evas_Coord x, y, w, h;
-   int i, j, passes = 0;
+   int i, j;
    unsigned int *p;
    float sobx[3][3] = {{-1, 0, 1},
                        {-2, 0, 2},
@@ -1023,7 +921,7 @@ _sobel(void *data)
 
    w = ef->w;
    h = ef->h;
-   for (y = ef->pos; y < h; y++)
+   for (y = 0; y < h; y++)
      {
         p = ef->im_data_new + (y * w);
         for (x = 0; x < w; x++)
@@ -1047,10 +945,10 @@ _sobel(void *data)
                }
              pval = abs(hpval) + abs(vpval);
              *p = pval;
-             b = (int) ((*p) & 0xff);
-             g = (int) ((*p >> 8) & 0xff);
-             r = (int) ((*p >> 16) & 0xff);
-             a = (int) ((*p >> 24) & 0xff);
+             b = ((*p) & 0xff);
+             g = ((*p >> 8) & 0xff);
+             r = ((*p >> 16) & 0xff);
+             a = ((*p >> 24) & 0xff);
              b = _normalize_color(b);
              g = _normalize_color(g);
              r = _normalize_color(r);
@@ -1058,24 +956,15 @@ _sobel(void *data)
              *p = (a << 24) | (r << 16) | (g << 8) | b;
              p++;
           }
-        passes++;
-        if (passes == 500)
-          {
-             ef->pos = y++;
-             return EINA_TRUE;
-          }
      }
-   _idler_finishing_cb(ef, EINA_FALSE);
-
-   return EINA_FALSE;
 }
 
-static Eina_Bool
-_emboss(void *data)
+static void
+_emboss(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Ephoto_Filter *ef = data;
    Evas_Coord x, y, w, h;
-   int i, j, passes = 0;
+   int i, j;
    unsigned int *p;
    float emboss[3][3] = {{-2, -1, 0},
                          {-1, 1, 1},
@@ -1083,7 +972,7 @@ _emboss(void *data)
 
    w = ef->w;
    h = ef->h;
-   for (y = ef->pos; y < h; y++)
+   for (y = 0; y < h; y++)
      {
         p = ef->im_data_new + (y * w);
         for (x = 0; x < w; x++)
@@ -1116,41 +1005,32 @@ _emboss(void *data)
              *p = (aa << 24) | (rr << 16) | (gg << 8) | bb;
              p++;
           }
-        passes++;
-        if (passes == 500)
-          {
-             ef->pos = y++;
-             return EINA_TRUE;
-          }
      }
-   _idler_finishing_cb(ef, EINA_FALSE);
-
-   return EINA_FALSE;
 }
 
-static Eina_Bool
-_histogram_eq(void *data)
+static void
+_histogram_eq(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Ephoto_Filter *ef = data;
    Evas_Coord x, y, yy, w, h;
    unsigned int *p1, *p2;
    int i, a, r, g, b, bb, gg, rr, norm;
-   int total, passes = 0;
+   int total;
    double sum;
    float hh, s, v, nv;
 
    w = ef->w;
    h = ef->h;
    total = ef->w * ef->h;
-   for (y = ef->pos; y < h; y++)
+   for (y = 0; y < h; y++)
      {
         p1 = ef->im_data + (y * w);
         for (x = 0; x < w; x++)
           {
-             b = (int) ((*p1) & 0xff);
-             g = (int) ((*p1 >> 8) & 0xff);
-             r = (int) ((*p1 >> 16) & 0xff);
-             a = (int) ((*p1 >> 24) & 0xff);
+             b = ((*p1) & 0xff);
+             g = ((*p1 >> 8) & 0xff);
+             r = ((*p1 >> 16) & 0xff);
+             a = ((*p1 >> 24) & 0xff);
              b = _mul_color_alpha(b, a);
              g = _mul_color_alpha(g, a);
              r = _mul_color_alpha(r, a);
@@ -1159,38 +1039,24 @@ _histogram_eq(void *data)
              ef->hist[norm] += 1;
              p1++;
           }
-        passes++;
-        if (passes == 500 || y == (h - 1))
-          {
-             ef->pos = y + 1;
-             if (passes == 500 && y != (h - 1))
-               {
-                  return EINA_TRUE;
-               }
-             else
-               {
-                  ef->pos = h;
-                  sum = 0; 
-                  for (i = 0; i < 256; i++)
-                    {
-                       sum += ((double) ef->hist[i] / 
-                           (double) total);
-                       ef->cdf[i] = (int) round(sum * 255);
-                    }
-               }
-          }
      }
-   passes = 0;
-   for (yy = ef->pos; (yy - h) < h; yy++)
+   sum = 0; 
+   for (i = 0; i < 256; i++)
+     {
+        sum += ((double) ef->hist[i] / 
+            (double) total);
+             ef->cdf[i] = (int) round(sum * 255);
+     }
+   for (yy = 0; (yy - h) < h; yy++)
      {
         p1 = ef->im_data + ((yy - h) * w);
         p2 = ef->im_data_new + ((yy - h) * w);
         for (x = 0; x < w; x++)
           {
-             b = (int) ((*p1) & 0xff);
-             g = (int) ((*p1 >> 8) & 0xff);
-             r = (int) ((*p1 >> 16) & 0xff);
-             a = (int) ((*p1 >> 24) & 0xff);
+             b = ((*p1) & 0xff);
+             g = ((*p1 >> 8) & 0xff);
+             r = ((*p1 >> 16) & 0xff);
+             a = ((*p1 >> 24) & 0xff);
              b = _mul_color_alpha(b, a);
              g = _mul_color_alpha(g, a);
              r = _mul_color_alpha(r, a);
@@ -1208,16 +1074,7 @@ _histogram_eq(void *data)
              p2++;
              p1++;
           }
-        passes++;
-        if (passes == 500)
-          {
-             ef->pos = yy++;
-             return EINA_TRUE;
-          }
      }
-   _idler_finishing_cb(ef, EINA_FALSE);
-
-   return EINA_FALSE;
 }
 
 void
@@ -1228,7 +1085,8 @@ ephoto_filter_blur(Evas_Object *main, Evas_Object *image)
 
    ef->rad = 9;
    ef->popup = _processing(main);
-   ef->idler = ecore_idler_add(_blur, ef);
+   ef->thread = ecore_thread_run(_blur, _thread_finished_cb,
+       NULL, ef);
 }
 
 void
@@ -1246,7 +1104,8 @@ ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image)
    ef->qpos = 0;
    ef->queue = eina_list_append(ef->queue, _sharpen);
    ef->popup = _processing(main);
-   ef->idler = ecore_idler_add(_blur, ef);
+   ef->thread = ecore_thread_run(_blur, _thread_finished_cb,
+       NULL, ef);
 }
 
 void
@@ -1258,7 +1117,8 @@ ephoto_filter_dither(Evas_Object *main, Evas_Object *image)
        sizeof(unsigned int) * ef->w * ef->h);
 
    ef->popup = _processing(main);
-   ef->idler = ecore_idler_add(_dither, ef);
+   ef->thread = ecore_thread_run(_dither, _thread_finished_cb,
+       NULL, ef);
 }
 
 void
@@ -1268,7 +1128,8 @@ ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image)
        main, image);
 
    ef->popup = _processing(main);
-   ef->idler = ecore_idler_add(_grayscale, ef);
+   ef->thread = ecore_thread_run(_grayscale, _thread_finished_cb,
+       NULL, ef);
 }
 
 void
@@ -1278,7 +1139,8 @@ ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image)
        main, image);
 
    ef->popup = _processing(main);
-   ef->idler = ecore_idler_add(_sepia, ef);
+   ef->thread = ecore_thread_run(_sepia, _thread_finished_cb,
+       NULL, ef);
 }
 
 void
@@ -1289,7 +1151,8 @@ ephoto_filter_posterize(Evas_Object *main, Evas_Object *image)
 
    ef->drad = 2.0;
    ef->popup = _processing(main);
-   ef->idler = ecore_idler_add(_posterize, ef);
+   ef->thread = ecore_thread_run(_posterize, _thread_finished_cb,
+       NULL, ef);
 }
 
 void
@@ -1304,7 +1167,8 @@ ephoto_filter_painting(Evas_Object *main, Evas_Object *image)
    ef->qcount = 1;
    ef->queue = eina_list_append(ef->queue, _posterize);
    ef->popup = _processing(main);
-   ef->idler = ecore_idler_add(_blur, ef);
+   ef->thread = ecore_thread_run(_blur, _thread_finished_cb,
+       NULL, ef);
 }
 
 void ephoto_filter_invert(Evas_Object *main, Evas_Object *image)
@@ -1313,7 +1177,8 @@ void ephoto_filter_invert(Evas_Object *main, Evas_Object *image)
        main, image);
 
    ef->popup = _processing(main);
-   ef->idler = ecore_idler_add(_negative, ef);
+   ef->thread = ecore_thread_run(_negative, _thread_finished_cb,
+       NULL, ef);
 }
 
 void ephoto_filter_sketch(Evas_Object *main, Evas_Object *image)
@@ -1328,7 +1193,8 @@ void ephoto_filter_sketch(Evas_Object *main, Evas_Object *image)
    ef->queue = eina_list_append(ef->queue, _blur);
    ef->queue = eina_list_append(ef->queue, _dodge);
    ef->popup = _processing(main);
-   ef->idler = ecore_idler_add(_grayscale, ef);  
+   ef->thread = ecore_thread_run(_grayscale, _thread_finished_cb,
+       NULL, ef);  
 }
 
 void ephoto_filter_edge(Evas_Object *main, Evas_Object *image)
@@ -1342,7 +1208,8 @@ void ephoto_filter_edge(Evas_Object *main, Evas_Object *image)
    ef->queue = eina_list_append(ef->queue, _grayscale);
    ef->queue = eina_list_append(ef->queue, _sobel);
    ef->popup = _processing(main);
-   ef->idler = ecore_idler_add(_blur, ef);
+   ef->thread = ecore_thread_run(_blur, _thread_finished_cb,
+       NULL, ef);
 }
 
 void ephoto_filter_emboss(Evas_Object *main, Evas_Object *image)
@@ -1351,7 +1218,8 @@ void ephoto_filter_emboss(Evas_Object *main, Evas_Object *image)
        main, image);
 
    ef->popup = _processing(main);
-   ef->idler = ecore_idler_add(_emboss, ef);
+   ef->thread = ecore_thread_run(_emboss, _thread_finished_cb,
+       NULL, ef);
 }
 
 void
@@ -1364,5 +1232,6 @@ ephoto_filter_histogram_eq(Evas_Object *main, Evas_Object *image)
    ef->cdf = malloc(sizeof(unsigned int) * 256);
    _create_hist(ef);
    ef->popup = _processing(main);
-   ef->idler = ecore_idler_add(_histogram_eq, ef);
+   ef->thread = ecore_thread_run(_histogram_eq, _thread_finished_cb,
+       NULL, ef);
 }

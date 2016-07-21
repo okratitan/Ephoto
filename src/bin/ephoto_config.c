@@ -1,6 +1,6 @@
 #include "ephoto.h"
 
-#define CONFIG_VERSION 16
+#define CONFIG_VERSION 17
 
 static int _ephoto_config_load(Ephoto *ephoto);
 static Eina_Bool _ephoto_on_config_save(void *data);
@@ -39,6 +39,7 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
       eina_stringshare_replace(&ephoto->config->open, path);
    ephoto->config->prompts = elm_check_state_get(ephoto->config->show_prompts);
    ephoto->config->drop = elm_check_state_get(ephoto->config->move_drop);
+   ephoto->config->movess = elm_check_state_get(ephoto->config->slide_move);
    if (elm_spinner_value_get(ephoto->config->slide_time) > 0)
       ephoto->config->slideshow_timeout =
           elm_spinner_value_get(ephoto->config->slide_time);
@@ -148,10 +149,36 @@ _spinner_changed(void *data EINA_UNUSED, Evas_Object *obj,
    elm_spinner_label_format_set(obj, buf);
 }
 
+static Eina_List *
+_ephoto_transitions_list_get(const char *str)
+{
+   Eina_List *list = NULL;
+   const char *s, *b;
+   if (!str) return NULL;
+   for (b = s = str; 1; s++)
+     {
+        if ((*s == ' ') || (!*s))
+          {
+             char *t = malloc(s - b + 1);
+             if (t)
+               {
+                  strncpy(t, b, s - b);
+                  t[s - b] = 0;
+                  list = eina_list_append(list, eina_stringshare_add(t));
+                  free(t);
+               }
+             b = s + 1;
+          }
+        if (!*s) break;
+     }
+   return list;
+}
+
 static void
 _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
 {
-   Evas_Object *frame, *table, *label, *spinner, *hoversel;
+   Eina_List *transitions;
+   Evas_Object *frame, *table, *check, *label, *spinner, *hoversel;
    const Eina_List *l;
    const char *transition;
    char buf[PATH_MAX];
@@ -198,9 +225,12 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    elm_table_pack(table, label, 0, 1, 1, 1);
    evas_object_show(label);
 
+   transitions = _ephoto_transitions_list_get(edje_object_data_get(elm_layout_edje_get
+       (ephoto->slideshow), "transitions"));
+
    hoversel = elm_hoversel_add(table);
    elm_hoversel_hover_parent_set(hoversel, ephoto->win);
-   EINA_LIST_FOREACH(elm_slideshow_transitions_get(ephoto->slideshow), l,
+   EINA_LIST_FOREACH(transitions, l,
        transition) elm_hoversel_item_add(hoversel, transition, NULL, 0,
        _hv_select, transition);
    elm_hoversel_item_add(hoversel, "None", NULL, 0, _hv_select, NULL);
@@ -211,6 +241,14 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    elm_table_pack(table, hoversel, 1, 1, 1, 1);
    evas_object_show(hoversel);
    ephoto->config->slide_trans = hoversel;
+
+   check = elm_check_add(table);
+   elm_object_text_set(check, _("Moving Slideshow"));
+   evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
+   elm_check_state_set(check, ephoto->config->movess);
+   elm_table_pack(table, check, 0, 2, 2, 1);
+   evas_object_show(check);
+   ephoto->config->slide_move = check;
 }
 
 static Evas_Object *
@@ -700,6 +738,7 @@ ephoto_config_init(Ephoto *ephoto)
    C_VAL(D, T, open, EET_T_STRING);
    C_VAL(D, T, prompts, EET_T_INT);
    C_VAL(D, T, drop, EET_T_INT);
+   C_VAL(D, T, movess, EET_T_INT);
    switch (_ephoto_config_load(ephoto))
      {
        case 0:
@@ -714,6 +753,7 @@ ephoto_config_init(Ephoto *ephoto)
 	  ephoto->config->open = eina_stringshare_add(getenv("HOME"));
 	  ephoto->config->prompts = 1;
 	  ephoto->config->drop = 0;
+          ephoto->config->movess = 1;
 	  break;
 
        default:

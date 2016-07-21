@@ -50,8 +50,6 @@ static void _ephoto_update_bottom_bar(Ephoto_Single_Browser *sb);
 static void _ephoto_main_edit_menu(Ephoto_Single_Browser *sb);
 static void _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED,
     Evas_Object *obj EINA_UNUSED,void *event_info EINA_UNUSED);
-static void _ephoto_main_focused(void *data, Evas *e EINA_UNUSED,
-    Evas_Object *obj EINA_UNUSED,void *event_info EINA_UNUSED);
 static void _ephoto_show_settings(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED);
 static void _ephoto_main_back(void *data, Evas_Object *obj EINA_UNUSED,
@@ -821,7 +819,6 @@ _reset_yes(void *data, Evas_Object *obj EINA_UNUSED,
    if (sb->event)
      {
         elm_object_focus_set(sb->event, EINA_TRUE);
-        evas_object_freeze_events_set(sb->event, EINA_FALSE);
      }
 }
 
@@ -836,7 +833,6 @@ _reset_no(void *data, Evas_Object *obj EINA_UNUSED,
    if (sb->event)
      {
         elm_object_focus_set(sb->event, EINA_TRUE);
-        evas_object_freeze_events_set(sb->event, EINA_FALSE);
      }
 }
 
@@ -846,9 +842,6 @@ _reset_image(void *data, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto_Single_Browser *sb = data;
    Evas_Object *popup, *box, *label, *ic, *button;
-
-   if (sb->event)
-     evas_object_freeze_events_set(sb->event, EINA_TRUE);
 
    popup = elm_popup_add(sb->ephoto->win);
    elm_object_part_text_set(popup, "title,text", _("Reset Image"));
@@ -1715,22 +1708,6 @@ _ephoto_main_back(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EIN
 }
 
 static void
-_ephoto_main_focused(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
-    void *event_data EINA_UNUSED)
-{
-   Ephoto_Single_Browser *sb = data;
-
-   if (sb->ephoto->state == EPHOTO_STATE_SINGLE)
-     {
-	if (sb->event)
-          {
-             elm_object_focus_set(sb->event, EINA_TRUE);
-             evas_object_raise(sb->event);
-          }
-     }
-}
-
-static void
 _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
@@ -2050,12 +2027,9 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    sb->main = box;
 
    elm_box_horizontal_set(sb->main, EINA_FALSE);
-   elm_object_tree_focus_allow_set(sb->main, EINA_FALSE);
    evas_object_event_callback_add(sb->main, EVAS_CALLBACK_DEL, _ephoto_main_del, sb);
    evas_object_event_callback_add(sb->main, EVAS_CALLBACK_KEY_DOWN, _ephoto_main_key_down,
        sb);
-   evas_object_event_callback_add(sb->ephoto->win, EVAS_CALLBACK_FOCUS_IN,
-       _ephoto_main_focused, sb);
    evas_object_size_hint_weight_set(sb->main, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(sb->main, EVAS_HINT_FILL, EVAS_HINT_FILL);

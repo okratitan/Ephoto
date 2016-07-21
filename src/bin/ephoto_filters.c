@@ -130,8 +130,6 @@ _processing(Evas_Object *main)
 {
    Evas_Object *popup, *box, *label, *pb;
 
-   evas_object_freeze_events_set(main, EINA_TRUE);
-
    popup = elm_popup_add(main);
    elm_object_part_text_set(popup, "title,text", _("Applying Filter"));
    elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
@@ -175,7 +173,6 @@ _thread_finished_cb(void *data, Ecore_Thread *th EINA_UNUSED)
         if (ef->popup)
           {
              evas_object_del(ef->popup);
-             evas_object_freeze_events_set(ef->main, EINA_FALSE);
           }
         if (ef->im_data)
           free(ef->im_data);
@@ -226,7 +223,6 @@ _thread_finished_cb(void *data, Ecore_Thread *th EINA_UNUSED)
              if (ef->popup)
                {
                   evas_object_del(ef->popup);
-                  evas_object_freeze_events_set(ef->main, EINA_FALSE);
                }
              if (ef->im_data)
                free(ef->im_data);

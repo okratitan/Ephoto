@@ -92,6 +92,7 @@ Evas_Object *ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent);
 void ephoto_slideshow_entries_set(Evas_Object *obj, Eina_List *entries);
 void ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
 void ephoto_slideshow_show_controls(Ephoto *ephoto);
+void ephoto_slideshow_adjust_offsets(Ephoto *ephoto);
 /* smart callbacks called: "back" - the user wants to go back to the previous
  * screen. */
 
@@ -219,12 +220,14 @@ struct _Ephoto_Config
    const char *open;
    Eina_Bool prompts;
    Eina_Bool drop;
+   Eina_Bool movess;
    Evas_Object *slide_time;
    Evas_Object *slide_trans;
    Evas_Object *open_dir;
    Evas_Object *open_dir_custom;
    Evas_Object *show_prompts;
    Evas_Object *move_drop;
+   Evas_Object *slide_move;
 };
 
 struct _Ephoto

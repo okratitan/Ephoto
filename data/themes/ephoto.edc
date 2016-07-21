@@ -19,6 +19,8 @@ collections {
          public offsetv = 0;
          public custom = 0 ;
          public custom_folders = 0;
+         public folders_visible = 1;
+         public controls_visible = 1;
          public message(Msg_Type:type, id, ...) {
             if ((type == MSG_INT_SET) && (id == 1)) {
                new hoffset = getarg(2);
@@ -57,6 +59,54 @@ collections {
                set_state_val(PART:"ephoto.swallow.folders",
                    STATE_MIN, minw, 0);
             }
+         }
+         public hide_folders(val, Float:pos) {
+            set_int(folders_visible, 0);
+            set_state_anim(PART:"ephoto.swallow.folders",
+                           "hidden", 0.0, DECELERATE, pos);
+            set_state_anim(PART:"folders_shadow",
+                           "hidden", 0.0, DECELERATE, pos);
+            set_state_anim(PART:"ephoto,folders",
+                           "hidden", 0.0, DECELERATE, pos);
+         }
+         public show_folders(val, Float:pos) {
+            set_int(folders_visible, 1);
+            if (get_int(custom_folders)) {
+               set_state_anim(PART:"ephoto.swallow.folders",
+                              "custom", 0.0, ACCELERATE, pos);
+            }
+            else {
+               set_state_anim(PART:"ephoto.swallow.folders",
+                              "default", 0.0, ACCELERATE, pos);
+            }
+            set_state_anim(PART:"folders_shadow",
+                           "default", 0.0, ACCELERATE, pos);
+            set_state_anim(PART:"ephoto,folders",
+                           "default", 0.0, ACCELERATE, pos);
+         }
+         public hide_controls(val, Float:pos) {
+            set_int(controls_visible, 0);
+            set_state_anim(PART:"ephoto.swallow.controls",
+                           "hidden", 0.0, DECELERATE, pos);
+            set_state_anim(PART:"controls_shadow",
+                           "hidden", 0.0, DECELERATE, pos);
+            set_state_anim(PART:"ephoto,controls",
+                           "hidden", 0.0, DECELERATE, pos);
+         }
+         public show_controls(val, Float:pos) {
+            set_int(controls_visible, 1);
+            if (get_int(custom)) {
+               set_state_anim(PART:"ephoto.swallow.controls",
+                              "custom", 0.0, ACCELERATE, pos);
+            }
+            else {
+               set_state_anim(PART:"ephoto.swallow.controls",
+                              "default", 0.0, ACCELERATE, pos);
+            }
+            set_state_anim(PART:"controls_shadow",
+                           "default", 0.0, ACCELERATE, pos);
+            set_state_anim(PART:"ephoto,controls",
+                           "default", 0.0, ACCELERATE, pos);
          }
       }
       parts {
@@ -160,13 +210,13 @@ collections {
                min: 220 0;
                rel1.to: "ephoto.swallow.folders";
                rel2.to: "ephoto.swallow.folders";
-               visible: 0;
-            }
-            description { state: "visible" 0.0;
-               inherit: default 0.0;
-               rel1.to: "ephoto.swallow.folders";
-               rel2.to: "ephoto.swallow.folders";
+               color: 255 255 255 255;
                visible: 1;
+            }
+            description { state: "hidden" 0.0;
+               inherit: default 0.0;
+               color: 255 255 255 0;
+               visible: 0;
             }
          }
          image { name: "folders_shadow";
@@ -176,17 +226,16 @@ collections {
                fixed: 1 1;
                image.normal: "images/shadow_circle_vert.png";
                min: 32 0;
-               color: 255 255 255 0;
-               visible: 0;
-            }
-            description { state: "visible" 0.0;
-               inherit: "default" 0.0;
-               fixed: 1 1;
                rel1.to: "ephoto,folders";
                rel1.relative: 1.0 0.0;
                rel2.to: "ephoto,folders";
                color: 255 255 255 128;
                visible: 1;
+            }
+            description { state: "hidden" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 0;
+               visible: 0;
             }
          }
          rect { name: "folders_base";
@@ -204,20 +253,19 @@ collections {
             clip_to: "ephoto,folders";
             description { state: "default" 0.0;
                fixed: 1 1;
-               rel1.to: "ephoto,controls";
-               rel1.relative: 0.0 0.0;
-               rel2.to: "ephoto,controls";
-               rel2.relative: 0.0 0.0;
-               visible: 0;
-            }
-            description { state: "visible" 0.0;
-               inherit: "default" 0.0;
+               min: 220 0;
                rel1.to: "ephoto.swallow.main";
                rel1.relative: 0.0 0.0;
                rel2.to: "ephoto,controls";
                rel2.relative: 0.0 0.0;
                align: 0.0 0.0;
+               color: 255 255 255 255;
                visible: 1;
+            }
+            description { state: "hidden" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 0;
+               visible: 0;
             }
          }
          rect { name: "ephoto,controls";
@@ -282,10 +330,6 @@ collections {
             description { state: "hidden" 0.0;
                inherit: "default" 0.0;
                color: 255 255 255 0;
-               rel1.to: "ephoto.swallow.main";
-               rel1.relative: 0.0 1.0;
-               rel2.to: "ephoto.swallow.main";
-               rel2.relative: 1.0 2.0;
                visible: 0;
             }
          }
@@ -307,42 +351,34 @@ collections {
          }
          program { signal: "ephoto,folders,hide";
             source: "ephoto";
-            action: STATE_SET "default" 0.0;
-            target: "ephoto.swallow.folders";
-            target: "folders_shadow";
-            target: "ephoto,folders";
+            script {
+               if (get_int(folders_visible)) {
+                  anim(1.0, "hide_folders", 1);
+               }
+            }
          }
          program { signal: "ephoto,folders,show";
             source: "ephoto";
             script {
-               if (get_int(custom_folders)) {
-                  set_state(PART:"ephoto.swallow.folders", "custom", 0.0);
+               if (!get_int(folders_visible)) {
+                  anim(0.5, "show_folders", 1);
                }
-               else {
-                  set_state(PART:"ephoto.swallow.folders", "visible", 0.0);
-               }
-               set_state(PART:"folders_shadow", "visible", 0.0);
-               set_state(PART:"ephoto,folders", "visible", 0.0);
             }
          }
          program { signal: "ephoto,controls,hide";
             source: "ephoto";
-            action: STATE_SET "hidden" 0.0;
-            target: "ephoto.swallow.controls";
-            target: "controls_shadow";
-            target: "ephoto,controls";
+            script {
+               if (get_int(controls_visible)) {
+                  anim(1.0, "hide_controls", 1);
+               }
+            }
          }
          program { signal: "ephoto,controls,show";
             source: "ephoto";
             script {
-               if (get_int(custom)) {
-                  set_state(PART:"ephoto.swallow.controls", "custom", 0.0);
+               if (!get_int(controls_visible)) {
+                  anim(0.5, "show_controls", 1);
                }
-               else {
-                  set_state(PART:"ephoto.swallow.controls", "default", 0.0);
-               }
-               set_state(PART:"controls_shadow", "default", 0.0);
-               set_state(PART:"ephoto,controls", "default", 0.0);
             }
          }
       }
@@ -368,6 +404,9 @@ collections {
       }
    }
    group { name: "ephoto,slideshow,base";
+      data {
+         item: transitions "fade black_fade horizontal vertical square";
+      }
       parts {
          rect { "background";
             scale: 1;
@@ -378,20 +417,255 @@ collections {
          }
          rect { "slide_clip";
             scale: 1;
-            description {
-               state: "default" 0.0;
+            description { state: "default" 0.0;
                rel1.to: "background";
                rel2.to: "background";
+               color: 255 255 255 255;
+            }
+            description { state: "black_fade_init" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 255;
+            }
+            description { state: "black_fade" 0.0;
+               inherit: "default" 0.0;
+               color: 0 0 0 255;
             }
          }
-         swallow { "ephoto.swallow.slideshow";
+         rect { "slide_clip2";
+            scale: 1;
+            description { state: "default" 0.0;
+               rel1.to: "background";
+               rel2.to: "background";
+               color: 255 255 255 0;
+            }
+            description { state: "black_fade_init" 0.0;
+               inherit: "default" 0.0;
+               color: 0 0 0 255;
+            }
+            description { state: "black_fade" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 255;
+            }
+         }
+         swallow { "ephoto.swallow.slideshow.item";
+            scale: 1;
+            mouse_events: 1;
+            clip_to: "slide_clip";
+            description {
+               state: "default" 0.0;
+               rel1.to: "slide_clip";
+               rel2.to: "slide_clip";
+            }
+         }
+         swallow { "ephoto.swallow.slideshow.item2";
+            scale: 1;
+            mouse_events: 1;
+            clip_to: "slide_clip2";
+            description {
+               state: "default" 0.0;
+               rel1.to: "slide_clip2";
+               rel2.to: "slide_clip2";
+            }
+         }
+      }
+      programs {
+         program {
+            signal: "ephoto,black_fade";
+            source: "ephoto";
+            action: STATE_SET "black_fade_init" 0.0;
+            target: "slide_clip";
+            target: "slide_clip2";
+            after: "black_fade_2";
+         }
+         program { name: "black_fade_2";
+            action: STATE_SET "black_fade" 0.0;
+            target: "slide_clip";
+            transition: SINUSOIDAL 0.75;
+            after: "black_fade_3";
+         }
+         program { name: "black_fade_3";
+            action: STATE_SET "black_fade" 0.0;
+            target: "slide_clip2";
+            transition: SINUSOIDAL 0.75;
+            after: "end";
+         }
+         program { name: "end";
+            action: SIGNAL_EMIT "ephoto,transition,end" "ephoto";
+         }
+         program {
+            signal: "ephoto,transition,done";
+            source: "ephoto";
+            action: STATE_SET "default" 0.0;
+            target: "slide_clip";
+            target: "slide_clip2";
+         }
+      }
+   }
+   group { name: "ephoto,slideshow,item";
+      script {
+         public timeout;
+         public message(Msg_Type:type, id, ...) {
+            if ((type == MSG_FLOAT_SET) && (id == 1)) {
+               new Float:time;
+               time = getfarg(2);
+               set_float(timeout, time);
+            }
+         }
+         public left_to_right(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_left_to_right", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public right_to_left(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_right_to_left", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public top_to_bottom(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_top_to_bottom", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public bottom_to_top(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_bottom_to_top", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+      }
+      parts {
+         rect { "background";
+            scale: 1;
+            description {
+               state: "default" 0.0;
+               color: 0 0 0 255;
+            }
+         }
+         rect { "slide_clip";
+            scale: 1;
+            description { state: "default" 0.0;
+               rel1.to: "background";
+               rel2.to: "background";
+               color: 255 255 255 255;
+            }
+         }
+         swallow { "ephoto.swallow.slideshow.item";
             scale: 1;
             clip_to: "slide_clip";
             mouse_events: 1;
             description {
                state: "default" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.0;
             }
-         }           
+            description {
+               state: "default_left_to_right" 0.0;
+               rel1.to: "background";
+               rel1.relative: -0.2 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "end_left_to_right" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: 0.0 0.0;
+               rel2.relative: 1.2 1.0;
+            }
+            description {
+               state: "default_right_to_left" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.2 1.0;
+            }
+            description {
+               state: "end_right_to_left" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: -0.2 0.0;
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "default_top_to_bottom" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 -0.2;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "end_top_to_bottom" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: 0.0 0.0;
+               rel2.relative: 1.0 1.2;
+            }
+            description {
+               state: "default_bottom_to_top" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.2;
+            }
+            description {
+               state: "end_bottom_to_top" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: 0.0 -0.2;
+               rel2.relative: 1.0 1.0;
+            }
+         }
+      }
+      programs {
+         program {
+            signal: "ephoto,slideshow,move,left,to,right";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "left_to_right", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,right,to,left";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "right_to_left", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,top,to,bottom";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "top_to_bottom", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,bottom,to,top";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "bottom_to_top", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,default,left,to,right";
+            source: "ephoto";
+            action: STATE_SET "default_left_to_right" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,right,to,left";
+            source: "ephoto";
+            action: STATE_SET "default_right_to_left" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,top,to,bottom";
+            source: "ephoto";
+            action: STATE_SET "default_top_to_bottom" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,bottom,to,top";
+            source: "ephoto";
+            action: STATE_SET "default_bottom_to_top" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
       }
    }
    group { name: "ephoto,image,cropper,base";

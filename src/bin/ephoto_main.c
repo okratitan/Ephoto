@@ -100,11 +100,13 @@ _ephoto_slideshow_show(Ephoto *ephoto, Ephoto_Entry *entry)
        "ephoto,controls,hide", "ephoto");
    edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
        "ephoto,folders,hide", "ephoto");
+   evas_object_hide(ephoto->dir_browser);
    ephoto->folders_toggle = EINA_FALSE;
    ephoto->blocking = EINA_FALSE;
    ephoto->menu_blocking = EINA_FALSE;
    ephoto->hover_blocking = EINA_FALSE;
    ephoto->editor_blocking = EINA_FALSE;
+   ephoto_slideshow_adjust_offsets(ephoto);
 }
 
 static void
@@ -242,6 +244,7 @@ _mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      }
    edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
        "ephoto,folders,hide", "ephoto");
+   evas_object_hide(ephoto->dir_browser);
    ephoto->folders_toggle = EINA_FALSE;
    elm_object_tooltip_text_set(but, _("Show Folders"));   
 }
@@ -274,7 +277,10 @@ _timer_cb(void *data)
 
    edje_object_signal_emit(edje, "ephoto,controls,hide", "ephoto");
    if (ephoto->folders_toggle)
-     edje_object_signal_emit(edje, "ephoto,folders,hide", "ephoto");
+     {
+        edje_object_signal_emit(edje, "ephoto,folders,hide", "ephoto");
+        evas_object_hide(ephoto->dir_browser);
+     }
    ecore_timer_del(ephoto->overlay_timer);
    ephoto->overlay_timer = NULL;
 
@@ -298,7 +304,10 @@ _mouse_move_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    ephoto->overlay_timer = NULL;
    edje_object_signal_emit(edje, "ephoto,controls,show", "ephoto");
    if (ephoto->folders_toggle)
-     edje_object_signal_emit(edje, "ephoto,folders,show", "ephoto");
+     {
+        edje_object_signal_emit(edje, "ephoto,folders,show", "ephoto");
+        evas_object_show(ephoto->dir_browser);
+     }
    ephoto->overlay_timer = ecore_timer_add(3.0, _timer_cb, ephoto);
 }
 
@@ -335,6 +344,7 @@ _folder_icon_clicked(void *data, Evas_Object *obj,
      {
         edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
             "ephoto,folders,show", "ephoto");
+        evas_object_show(ephoto->dir_browser);
         ephoto->folders_toggle = EINA_TRUE;
         if (elm_object_text_get(obj))
           elm_object_text_set(obj, _("Hide Folders"));
@@ -344,6 +354,7 @@ _folder_icon_clicked(void *data, Evas_Object *obj,
      {
         edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
             "ephoto,folders,hide", "ephoto");
+        evas_object_hide(ephoto->dir_browser);
         ephoto->folders_toggle = EINA_FALSE;
         if (elm_object_text_get(obj))
           elm_object_text_set(obj, _("Show Folders"));
@@ -384,6 +395,7 @@ ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle)
         _mouse_move_cb(ephoto, NULL, NULL, NULL);
         edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
             "ephoto,folders,show", "ephoto");
+        evas_object_show(ephoto->dir_browser);
         ephoto->folders_toggle = EINA_TRUE;
         elm_object_tooltip_text_set(but, _("Hide Folders"));
      }
@@ -391,6 +403,7 @@ ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle)
      {
         edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
             "ephoto,folders,hide", "ephoto");
+        evas_object_hide(ephoto->dir_browser);
         ephoto->folders_toggle = EINA_FALSE;
         elm_object_tooltip_text_set(but, _("Show Folders"));
      }
@@ -459,7 +472,6 @@ ephoto_window_add(const char *path)
    evas_object_show(ephoto->layout);
 
    ephoto->pager = elm_naviframe_add(ephoto->win);
-   elm_object_focus_allow_set(ephoto->pager, EINA_FALSE);
    elm_naviframe_prev_btn_auto_pushed_set(ephoto->pager, EINA_FALSE);
    evas_object_size_hint_weight_set(ephoto->pager, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
@@ -522,7 +534,6 @@ ephoto_window_add(const char *path)
    evas_object_show(ephoto->dir_browser);
 
    ephoto->statusbar = elm_box_add(ephoto->layout);
-   elm_object_tree_focus_allow_set(ephoto->statusbar, EINA_FALSE);
    elm_box_horizontal_set(ephoto->statusbar, EINA_TRUE);
    evas_object_size_hint_weight_set(ephoto->statusbar,
        EVAS_HINT_EXPAND, 0.0);

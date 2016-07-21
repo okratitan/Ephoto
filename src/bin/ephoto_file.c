@@ -8,7 +8,6 @@ _complete_ok(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
 
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
@@ -17,7 +16,6 @@ _complete(Ephoto *ephoto, const char *title, const char *text)
 {
    Evas_Object *popup, *box, *label, *ic, *button;
 
-   evas_object_freeze_events_set(ephoto->pager, EINA_TRUE);
 
    popup = elm_popup_add(ephoto->win);
    elm_object_part_text_set(popup, "title,text", title);
@@ -60,7 +58,6 @@ _prompt_cancel(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
 
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
@@ -68,8 +65,6 @@ static Evas_Object *
 _prompt(Ephoto *ephoto, const char *title, const char *text)
 {
    Evas_Object *popup, *box, *label;
-
-   evas_object_freeze_events_set(ephoto->pager, EINA_TRUE);
 
    popup = elm_popup_add(ephoto->win);
    elm_object_part_text_set(popup, "title,text", title);
@@ -115,7 +110,6 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
 	     ephoto_single_browser_entry_set(ephoto->single_browser, entry);
 	     evas_object_del(popup);
              elm_object_focus_set(ephoto->pager, EINA_TRUE);
-             evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
 	     return;
 	  }
      }
@@ -131,7 +125,6 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
      }
    evas_object_del(popup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
 }
 
 static void
@@ -188,9 +181,6 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
 
    evas_object_del(ppopup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
-
-   evas_object_freeze_events_set(ephoto->pager, EINA_TRUE);
 
    popup = elm_popup_add(ephoto->win);
    elm_object_part_text_set(popup, "title,text", _("Image Uploaded"));
@@ -353,7 +343,6 @@ _new_dir_confirm(void *data, Evas_Object *obj EINA_UNUSED,
             _("There was an error creating this directory."));
      }
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
@@ -365,7 +354,6 @@ _new_dir_cancel(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
 
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
@@ -373,8 +361,6 @@ static void
 _new_dir(Ephoto *ephoto, const char *file)
 {
    Evas_Object *popup, *box, *entry, *button, *ic;
-
-   evas_object_freeze_events_set(ephoto->pager, EINA_TRUE);
 
    popup = elm_popup_add(ephoto->win);
    elm_object_part_text_set(popup, "title,text", _("New Directory"));
@@ -444,7 +430,6 @@ _rename_confirm(void *data, Evas_Object *obj EINA_UNUSED,
    if (!escaped)
      {
 	evas_object_del(popup);
-        evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
         elm_object_focus_set(ephoto->pager, EINA_TRUE);
 	return;
      }
@@ -471,7 +456,6 @@ _rename_confirm(void *data, Evas_Object *obj EINA_UNUSED,
               new_file_name);
      }
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
    free(escaped);
 }
@@ -484,7 +468,6 @@ _rename_cancel(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
 
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
@@ -494,7 +477,6 @@ _rename_file(Ephoto *ephoto, const char *file)
    Evas_Object *popup, *box, *entry, *button, *ic;
    char buf[PATH_MAX], *bn, *string;
 
-   evas_object_freeze_events_set(ephoto->pager, EINA_TRUE);
 
    popup = elm_popup_add(ephoto->win);
    if (ecore_file_is_dir(file))
@@ -561,8 +543,6 @@ static Evas_Object *
 _processing(Ephoto *ephoto, const char *title, const char *text)
 {
    Evas_Object *popup, *box, *label, *pb;
-
-   evas_object_freeze_events_set(ephoto->pager, EINA_TRUE);
 
    popup = elm_popup_add(ephoto->win);
    elm_object_part_text_set(popup, "title,text", title);
@@ -653,7 +633,6 @@ _move_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
    ephoto->file_pos = NULL;
 
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
@@ -730,7 +709,6 @@ _copy_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
    ephoto->file_pos = NULL;
 
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
@@ -811,7 +789,6 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
    ephoto->file_errors = 0;
 
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
@@ -888,7 +865,6 @@ _delete_dir_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
    ephoto->file_errors = 0;
 
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
@@ -948,7 +924,6 @@ _empty_trash_thread_cb(void *data, Ecore_Thread *th EINA_UNUSED)
    ephoto->file_errors = 0;
 
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
@@ -1031,7 +1006,6 @@ _prompt_save_image_apply(void *data, Evas_Object *obj EINA_UNUSED,
 	     ephoto_single_browser_entry_set(ephoto->single_browser, entry);
 	     evas_object_del(popup);
              elm_object_focus_set(ephoto->pager, EINA_TRUE);
-             evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
              return;
 	  }
      }
@@ -1044,7 +1018,6 @@ _prompt_save_image_apply(void *data, Evas_Object *obj EINA_UNUSED,
    ephoto_single_browser_entry_set(ephoto->single_browser, entry);
    evas_object_del(popup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
 }
 
 static void
@@ -1088,7 +1061,6 @@ _prompt_save_image_as_apply(void *data, Evas_Object *obj EINA_UNUSED, void *even
 	  {
 	     Evas_Object *popup, *ic, *button;
 
-             evas_object_freeze_events_set(ephoto->pager, EINA_TRUE);
 
 	     popup = _prompt(ephoto, _("Overwrite Image"),
                  _("Are you sure you want to overwrite this image?"));
@@ -1143,7 +1115,6 @@ _prompt_save_image_as_apply(void *data, Evas_Object *obj EINA_UNUSED, void *even
      }
    evas_object_del(opopup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
 }
 
 static void
@@ -1155,7 +1126,6 @@ _prompt_empty_apply(void *data, Evas_Object *obj EINA_UNUSED,
    Eina_List *files = evas_object_data_get(popup, "files");
 
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
    _empty_trash(ephoto, files);
 }
@@ -1170,7 +1140,6 @@ _prompt_delete_apply(void *data, Evas_Object *obj EINA_UNUSED,
    Eina_File_Type *type = evas_object_data_get(popup, "type");
 
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
    if (*type == EINA_FILE_DIR)
      _delete_dir(ephoto, files);
@@ -1188,7 +1157,6 @@ _prompt_move_apply(void *data, Evas_Object *obj EINA_UNUSED,
    const char *path = evas_object_data_get(popup, "path");
 
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
    _move_files(ephoto, files, path);
 }
@@ -1203,7 +1171,6 @@ _prompt_copy_apply(void *data, Evas_Object *obj EINA_UNUSED,
    const char *path = evas_object_data_get(popup, "path");
 
    evas_object_del(popup);
-   evas_object_freeze_events_set(ephoto->pager, EINA_FALSE);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
    _copy_files(ephoto, files, path);
 }
@@ -1219,7 +1186,6 @@ ephoto_file_save_image(Ephoto *ephoto, Ephoto_Entry *entry, Evas_Object *image)
             _("Error: Image could not be saved here!"));
         return;
      }
-   evas_object_freeze_events_set(ephoto->pager, EINA_TRUE);
 
    popup = _prompt(ephoto, _("Save Image"),
        _("Are you sure you want to overwrite this image?"));
@@ -1259,8 +1225,6 @@ ephoto_file_save_image_as(Ephoto *ephoto, Ephoto_Entry *entry, Evas_Object *imag
    int h;
 
    evas_object_geometry_get(ephoto->win, 0, 0, 0, &h);
-
-   evas_object_freeze_events_set(ephoto->pager, EINA_TRUE);
 
    popup = elm_popup_add(ephoto->win);
    elm_popup_scrollable_set(popup, EINA_TRUE);

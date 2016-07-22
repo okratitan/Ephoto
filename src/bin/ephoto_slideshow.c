@@ -217,6 +217,7 @@ static Eina_Bool
 _slideshow_transition(void *data)
 {
    Ephoto_Slideshow *ss = data;
+   char buf[PATH_MAX];
 
    if (ss->playing == 0)
      {
@@ -241,7 +242,8 @@ _slideshow_transition(void *data)
        ss->current_item);
    evas_object_show(ss->current_item);
 
-   elm_layout_signal_emit(ss->slideshow, "ephoto,black_fade", "ephoto");
+   snprintf(buf, PATH_MAX, "ephoto,%s", ss->ephoto->config->slideshow_transition);
+   elm_layout_signal_emit(ss->slideshow, buf, "ephoto");
    if (ss->ephoto->config->movess)
      {
         elm_layout_signal_emit(ss->current_item, _slideshow_move_start_get(ss), "ephoto");
@@ -268,6 +270,7 @@ _slideshow_play(Ephoto_Slideshow *ss)
             ss->slideshow);
         elm_layout_content_set(ss->slideshow, "ephoto.swallow.slideshow.item",
             ss->current_item);
+        evas_object_raise(ss->current_item);
         evas_object_show(ss->current_item);
      }
    _slideshow_move_randomize(ss);

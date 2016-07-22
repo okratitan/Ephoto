@@ -233,7 +233,7 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    EINA_LIST_FOREACH(transitions, l,
        transition) elm_hoversel_item_add(hoversel, transition, NULL, 0,
        _hv_select, transition);
-   elm_hoversel_item_add(hoversel, "None", NULL, 0, _hv_select, NULL);
+   elm_hoversel_item_add(hoversel, "none", NULL, 0, _hv_select, NULL);
    elm_object_text_set(hoversel, ephoto->config->slideshow_transition);
    evas_object_size_hint_weight_set(hoversel, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);

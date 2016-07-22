@@ -26,6 +26,7 @@ struct _Ephoto_Slideshow
    Evas_Object *fullscreen_after;
    Ephoto_Entry *entry;
    Eina_Bool playing;
+   Eina_Bool timer_end;
    Ecore_Timer *timer;
    Ephoto_Slideshow_Move move;
    float timeout;
@@ -117,6 +118,15 @@ _slideshow_move_randomize(Ephoto_Slideshow *ss)
 }
 
 static void
+_on_transition_raise(void *data, Evas_Object *obj EINA_UNUSED,
+    const char *emission EINA_UNUSED, const char *source EINA_UNUSED)
+{
+   Ephoto_Slideshow *ss = data;
+
+   evas_object_raise(ss->current_item);
+}
+
+static void
 _on_transition_end(void *data, Evas_Object *obj EINA_UNUSED,
     const char *emission EINA_UNUSED, const char *source EINA_UNUSED)
 {
@@ -134,6 +144,7 @@ _on_transition_end(void *data, Evas_Object *obj EINA_UNUSED,
      }
    elm_layout_content_set(ss->slideshow, "ephoto.swallow.slideshow.item",
        ss->current_item);
+   evas_object_raise(ss->current_item);
    evas_object_show(ss->current_item);
    elm_layout_signal_emit(ss->slideshow, "ephoto,transition,done", "ephoto");
 
@@ -214,7 +225,10 @@ _slideshow_transition(void *data)
         ss->timer = NULL;
         return EINA_FALSE;
      }
-   ss->current += 1;
+   if (ss->timer_end)
+     ss->current += 1;
+   else
+     ss->timer_end = EINA_TRUE;
    if (!eina_list_nth(ss->entries, ss->current))
      ss->current = 0;
    if (ss->old_item)
@@ -389,15 +403,14 @@ _first(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Slideshow *ss = data;
 
-   _slideshow_pause(ss);
-   if (ss->current_item)
+   if (ss->timer)
      {
-        elm_layout_content_unset(ss->slideshow, "ephoto.swallow.slideshow");
-        evas_object_del(ss->current_item);
-        ss->current_item = NULL;
+        ecore_timer_del(ss->timer);
+        ss->timer = NULL;
      }
    ss->current = 0;
-   _slideshow_play(ss);
+   ss->timer_end = EINA_FALSE;
+   _slideshow_transition(ss);
 }
 
 static void
@@ -405,15 +418,14 @@ _next(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Slideshow *ss = data;
 
-   _slideshow_pause(ss);
-   if (ss->current_item)
+   if (ss->timer)
      {
-        elm_layout_content_unset(ss->slideshow, "ephoto.swallow.slideshow");
-        evas_object_del(ss->current_item);
-        ss->current_item = NULL;
+        ecore_timer_del(ss->timer);
+        ss->timer = NULL;
      }
    ss->current += 1;
-   _slideshow_play(ss);
+   ss->timer_end = EINA_FALSE;
+   _slideshow_transition(ss);
 }
 
 static void
@@ -449,15 +461,14 @@ _previous(void *data, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto_Slideshow *ss = data;
 
-   _slideshow_pause(ss);
-   if (ss->current_item)
+   if (ss->timer)
      {
-        elm_layout_content_unset(ss->slideshow, "ephoto.swallow.slideshow.item");
-        evas_object_del(ss->current_item);
-        ss->current_item = NULL;
+        ecore_timer_del(ss->timer);
+        ss->timer = NULL;
      }
    ss->current -= 1;
-   _slideshow_play(ss);
+   ss->timer_end = EINA_FALSE;
+   _slideshow_transition(ss);
 }
 
 static void
@@ -465,15 +476,14 @@ _last(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Slideshow *ss = data;
 
-   _slideshow_pause(ss);
-   if (ss->current_item)
+   if (ss->timer)
      {
-        elm_layout_content_unset(ss->slideshow, "ephoto.swallow.slideshow");
-        evas_object_del(ss->current_item);
-        ss->current_item = NULL;
+        ecore_timer_del(ss->timer);
+        ss->timer = NULL;
      }
    ss->current = eina_list_count(ss->entries) - 1;
-   _slideshow_play(ss);
+   ss->timer_end = EINA_FALSE;
+   _slideshow_transition(ss);
 }
 
 static void
@@ -654,6 +664,7 @@ ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent)
    ss->old_item = NULL;
    ss->current_item = NULL;
    ss->event = NULL;
+   ss->timer_end = EINA_TRUE;
 
    elm_layout_file_set(slideshow, PACKAGE_DATA_DIR "/themes/ephoto.edj",
        "ephoto,slideshow,base");
@@ -666,6 +677,8 @@ ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent)
        EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(slideshow, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
+   edje_object_signal_callback_add(elm_layout_edje_get(ss->slideshow),
+       "ephoto,transition,raise", "ephoto", _on_transition_raise, ss);
    edje_object_signal_callback_add(elm_layout_edje_get(ss->slideshow),
        "ephoto,transition,end", "ephoto", _on_transition_end, ss);
    return ss->slideshow;

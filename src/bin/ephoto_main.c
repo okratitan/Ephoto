@@ -77,6 +77,7 @@ _ephoto_single_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    ephoto->menu_blocking = EINA_FALSE;
    ephoto->hover_blocking = EINA_FALSE;
    ephoto->editor_blocking = EINA_FALSE;
+   ephoto_show_folders(ephoto, EINA_TRUE);
    ephoto_single_browser_show_controls(ephoto);
    ephoto_single_browser_adjust_offsets(ephoto);
 }
@@ -98,14 +99,11 @@ _ephoto_slideshow_show(Ephoto *ephoto, Ephoto_Entry *entry)
    _ephoto_state_set(ephoto, EPHOTO_STATE_SLIDESHOW);
    edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
        "ephoto,controls,hide", "ephoto");
-   edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
-       "ephoto,folders,hide", "ephoto");
-   evas_object_hide(ephoto->dir_browser);
-   ephoto->folders_toggle = EINA_FALSE;
    ephoto->blocking = EINA_FALSE;
    ephoto->menu_blocking = EINA_FALSE;
    ephoto->hover_blocking = EINA_FALSE;
    ephoto->editor_blocking = EINA_FALSE;
+   ephoto_show_folders(ephoto, EINA_TRUE);
    ephoto_slideshow_adjust_offsets(ephoto);
 }
 
@@ -117,6 +115,7 @@ _ephoto_single_browser_back(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto_Entry *entry = event_info;
 
    ephoto->selentries = NULL;
+   ephoto_show_folders(ephoto, EINA_TRUE);
    _ephoto_thumb_browser_show(ephoto, entry);
 }
 

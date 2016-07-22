@@ -446,7 +446,8 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_show(but);
 
    db->fsel = elm_genlist_add(db->leftbox);
-   elm_genlist_select_mode_set(db->fsel, ELM_OBJECT_SELECT_MODE_ALWAYS);
+   elm_genlist_select_mode_set(db->fsel, ELM_OBJECT_SELECT_MODE_NONE);
+   elm_genlist_highlight_mode_set(db->fsel, EINA_TRUE);
    evas_object_size_hint_weight_set(db->fsel, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(db->fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -672,7 +673,9 @@ _ephoto_directory_view_add(Ephoto_Directory_Browser *db)
    evas_object_show(db->leftbox);
 
    db->fsel = elm_genlist_add(db->leftbox);
-   elm_genlist_select_mode_set(db->fsel, ELM_OBJECT_SELECT_MODE_ALWAYS); evas_object_size_hint_weight_set(db->fsel, EVAS_HINT_EXPAND,
+   elm_genlist_select_mode_set(db->fsel, ELM_OBJECT_SELECT_MODE_NONE);
+   elm_genlist_highlight_mode_set(db->fsel, EINA_TRUE);
+   evas_object_size_hint_weight_set(db->fsel, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(db->fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_smart_callback_add(db->fsel, "expand,request",

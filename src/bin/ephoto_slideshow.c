@@ -400,8 +400,6 @@ _slideshow_transition(void *data)
    elm_layout_signal_emit(ss->slideshow, buf, "ephoto");
    if (ss->ephoto->config->movess)
      {
-        printf("%s\n", _slideshow_move_start_get(ss));
-        printf("%s\n", _slideshow_move_end_get(ss));
         elm_layout_signal_emit(ss->current_item, _slideshow_move_start_get(ss), "ephoto");
         elm_layout_signal_emit(ss->current_item, _slideshow_move_end_get(ss), "ephoto");
         _slideshow_move_randomize(ss);
@@ -439,8 +437,6 @@ _slideshow_play(Ephoto_Slideshow *ss)
 
    if (ss->ephoto->config->movess)
      {
-        printf("%s\n", _slideshow_move_start_get(ss));
-        printf("%s\n", _slideshow_move_end_get(ss)); 
         elm_layout_signal_emit(ss->current_item, _slideshow_move_start_get(ss), "ephoto");
         elm_layout_signal_emit(ss->current_item, _slideshow_move_end_get(ss), "ephoto");
         _slideshow_move_randomize(ss);

@@ -612,6 +612,106 @@ collections {
                                    "end_bottom_to_top", 0.0,
                                    SINUSOIDAL, pos);
          }
+         public left_in(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_left_in", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public right_in(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_right_in", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public top_in(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_top_in", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public bottom_in(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_bottom_in", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public left_out(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_left_out", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public right_out(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_right_out", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public top_out(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_top_out", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public bottom_out(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_bottom_out", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public left_top_corner(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_left_top_corner", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public right_top_corner(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_right_top_corner", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public right_bottom_corner(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_right_bottom_corner", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public left_bottom_corner(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_left_bottom_corner", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public left_top_corner_in(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_left_top_corner_in", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public right_top_corner_in(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_right_top_corner_in", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public right_bottom_corner_in(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_right_bottom_corner_in", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public left_bottom_corner_in(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_left_bottom_corner_in", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public left_top_corner_out(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_left_top_corner_out", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public right_top_corner_out(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_right_top_corner_out", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public right_bottom_corner_out(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_right_bottom_corner_out", 0.0,
+                                   SINUSOIDAL, pos);
+         }
+         public left_bottom_corner_out(val, Float:pos) {
+            set_state_anim(PART:"ephoto.swallow.slideshow.item",
+                                   "end_left_bottom_corner_out", 0.0,
+                                   SINUSOIDAL, pos);
+         }
       }
       parts {
          rect { "background";
@@ -692,6 +792,269 @@ collections {
                rel1.relative: 0.0 -0.2;
                rel2.relative: 1.0 1.0;
             }
+            description {
+               state: "default_left_in" 0.0;
+               rel1.to: "background";
+               rel1.relative: -0.5 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "end_left_in" 0.0;
+               rel1.to: "background";
+               rel1.relative: -0.1 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "default_right_in" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.5 1.0;
+            }
+            description {
+               state: "end_right_in" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.1 1.0;
+            }
+            description {
+               state: "default_top_in" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 -0.5;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "end_top_in" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 -0.1;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "default_bottom_in" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.5;
+            }
+            description {
+               state: "end_bottom_in" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: 0.0 0.0;
+               rel2.relative: 1.0 1.1;
+            }
+            description {
+               state: "default_left_out" 0.0;
+               rel1.to: "background";
+               rel1.relative: -0.1 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "end_left_out" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: -0.5 0.0;
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "default_right_out" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.1 1.0;
+            }
+            description {
+               state: "end_right_out" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: 0.0 0.0;
+               rel2.relative: 1.5 1.0;
+            }
+            description {
+               state: "default_top_out" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 -0.1;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "end_top_out" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: 0.0 -0.5;
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "default_bottom_out" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "end_bottom_out" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: 0.0 0.0;
+               rel2.relative: 1.0 1.4;
+            }
+            description {
+               state: "default_left_top_corner" 0.0;
+               rel1.to: "background";
+               rel1.relative: -0.2 -0.2;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "end_left_top_corner" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: 0.0 0.0;
+               rel2.relative: 1.2 1.2;
+            }
+            description {
+               state: "default_right_top_corner" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 -0.2;
+               rel2.to: "background";
+               rel2.relative: 1.2 1.0;
+            }
+            description {
+               state: "end_right_top_corner" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: -0.2 0.0;
+               rel2.relative: 1.0 1.2;
+            }
+            description {
+               state: "default_right_bottom_corner" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.2 1.2;
+            }
+            description {
+               state: "end_right_bottom_corner" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: -0.2 -0.2;
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "default_left_bottom_corner" 0.0;
+               rel1.to: "background";
+               rel1.relative: -0.2 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.2;
+            }
+            description {
+               state: "end_left_bottom_corner" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: 0.0 -0.2;
+               rel2.relative: 1.2 1.0;
+            }
+            description {
+               state: "default_left_top_corner_in" 0.0;
+               rel1.to: "background";
+               rel1.relative: -0.5 -0.5;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "end_left_top_corner_in" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: -0.1 -0.1;
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "default_right_top_corner_in" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 -0.5;
+               rel2.to: "background";
+               rel2.relative: 1.5 1.0;
+            }
+            description {
+               state: "end_right_top_corner_in" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: 0.0 -0.1;
+               rel2.relative: 1.1 1.0;
+            }
+            description {
+               state: "default_right_bottom_corner_in" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.5 1.5;
+            }
+            description {
+               state: "end_right_bottom_corner_in" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: 0.0 0.0;
+               rel2.relative: 1.1 1.1;
+            }
+            description {
+               state: "default_left_bottom_corner_in" 0.0;
+               rel1.to: "background";
+               rel1.relative: -0.5 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.5;
+            }
+            description {
+               state: "end_left_bottom_corner_in" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: -0.1 0.0;
+               rel2.relative: 1.0 1.1;
+            }
+            description {
+               state: "default_left_top_corner_out" 0.0;
+               rel1.to: "background";
+               rel1.relative: -0.1 -0.1;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "end_left_top_corner_out" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: -0.5 -0.5;
+               rel2.relative: 1.0 1.0;
+            }
+            description {
+               state: "default_right_top_corner_out" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 -0.1;
+               rel2.to: "background";
+               rel2.relative: 1.1 1.0;
+            }
+            description {
+               state: "end_right_top_corner_out" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: 0.0 -0.5;
+               rel2.relative: 1.5 1.0;
+            }
+            description {
+               state: "default_right_bottom_corner_out" 0.0;
+               rel1.to: "background";
+               rel1.relative: 0.0 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.1 1.1;
+            }
+            description {
+               state: "end_right_bottom_corner_out" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: 0.0 0.0;
+               rel2.relative: 1.5 1.5;
+            }
+            description {
+               state: "default_left_bottom_corner_out" 0.0;
+               rel1.to: "background";
+               rel1.relative: -0.1 0.0;
+               rel2.to: "background";
+               rel2.relative: 1.0 1.1;
+            }
+            description {
+               state: "end_left_bottom_corner_out" 0.0;
+               inherit: "default" 0.0;
+               rel1.relative: -0.5 0.0;
+               rel2.relative: 1.0 1.5;
+            }
          }
       }
       programs {
@@ -724,6 +1087,146 @@ collections {
             }
          }
          program {
+            signal: "ephoto,slideshow,move,left,in";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "left_in", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,right,in";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "right_in", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,top,in";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "top_in", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,bottom,in";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "bottom_in", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,left,out";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "left_out", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,right,out";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "right_out", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,top,out";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "top_out", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,bottom,out";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "bottom_out", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,left,top,corner";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "left_top_corner", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,right,top,corner";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "right_top_corner", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,right,bottom,corner";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "right_bottom_corner", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,left,bottom,corner";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "left_bottom_corner", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,left,top,corner,in";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "left_top_corner_in", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,right,top,corner,in";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "right_top_corner_in", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,right,bottom,corner,in";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "right_bottom_corner_in", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,left,bottom,corner,in";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "left_bottom_corner_in", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,left,top,corner,out";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "left_top_corner_out", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,right,top,corner,out";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "right_top_corner_out", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,right,bottom,corner,out";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "right_bottom_corner_out", 1);
+            }
+         }
+         program {
+            signal: "ephoto,slideshow,move,left,bottom,corner,out";
+            source: "ephoto";
+            script {
+               anim(get_float(timeout), "left_bottom_corner_out", 1);
+            }
+         }
+         program {
             signal: "ephoto,slideshow,default,left,to,right";
             source: "ephoto";
             action: STATE_SET "default_left_to_right" 0.0;
@@ -745,6 +1248,126 @@ collections {
             signal: "ephoto,slideshow,default,bottom,to,top";
             source: "ephoto";
             action: STATE_SET "default_bottom_to_top" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,left,in";
+            source: "ephoto";
+            action: STATE_SET "default_left_in" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,right,in";
+            source: "ephoto";
+            action: STATE_SET "default_right_in" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,top,in";
+            source: "ephoto";
+            action: STATE_SET "default_top_in" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,bottom,in";
+            source: "ephoto";
+            action: STATE_SET "default_bottom_in" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,left,out";
+            source: "ephoto";
+            action: STATE_SET "default_left_out" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,right,out";
+            source: "ephoto";
+            action: STATE_SET "default_right_out" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,top,out";
+            source: "ephoto";
+            action: STATE_SET "default_top_out" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,bottom,out";
+            source: "ephoto";
+            action: STATE_SET "default_bottom_out" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,left,top,corner";
+            source: "ephoto";
+            action: STATE_SET "default_left_top_corner" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,right,top,corner";
+            source: "ephoto";
+            action: STATE_SET "default_right_top_corner" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,right,bottom,corner";
+            source: "ephoto";
+            action: STATE_SET "default_right_bottom_corner" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,left,bottom,corner";
+            source: "ephoto";
+            action: STATE_SET "default_left_bottom_corner" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,left,top,corner,in";
+            source: "ephoto";
+            action: STATE_SET "default_left_top_corner_in" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,right,top,corner,in";
+            source: "ephoto";
+            action: STATE_SET "default_right_top_corner_in" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,right,bottom,corner,in";
+            source: "ephoto";
+            action: STATE_SET "default_right_bottom_corner_in" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,left,bottom,corner,in";
+            source: "ephoto";
+            action: STATE_SET "default_left_bottom_corner_in" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,left,top,corner,out";
+            source: "ephoto";
+            action: STATE_SET "default_left_top_corner_out" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,right,top,corner,out";
+            source: "ephoto";
+            action: STATE_SET "default_right_top_corner_out" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,right,bottom,corner,out";
+            source: "ephoto";
+            action: STATE_SET "default_right_bottom_corner_out" 0.0;
+            target: "ephoto.swallow.slideshow.item";
+         }
+         program {
+            signal: "ephoto,slideshow,default,left,bottom,corner,out";
+            source: "ephoto";
+            action: STATE_SET "default_left_bottom_corner_out" 0.0;
             target: "ephoto.swallow.slideshow.item";
          }
       }

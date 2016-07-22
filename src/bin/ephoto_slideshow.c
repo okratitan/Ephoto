@@ -8,7 +8,27 @@ enum _Ephoto_Slideshow_Move
    EPHOTO_SLIDESHOW_MOVE_LEFT_TO_RIGHT,
    EPHOTO_SLIDESHOW_MOVE_RIGHT_TO_LEFT,
    EPHOTO_SLIDESHOW_MOVE_TOP_TO_BOTTOM,
-   EPHOTO_SLIDESHOW_MOVE_BOTTOM_TO_TOP
+   EPHOTO_SLIDESHOW_MOVE_BOTTOM_TO_TOP,
+   EPHOTO_SLIDESHOW_MOVE_LEFT_IN,
+   EPHOTO_SLIDESHOW_MOVE_RIGHT_IN,
+   EPHOTO_SLIDESHOW_MOVE_TOP_IN,
+   EPHOTO_SLIDESHOW_MOVE_BOTTOM_IN,
+   EPHOTO_SLIDESHOW_MOVE_LEFT_OUT,
+   EPHOTO_SLIDESHOW_MOVE_RIGHT_OUT,
+   EPHOTO_SLIDESHOW_MOVE_TOP_OUT,
+   EPHOTO_SLIDESHOW_MOVE_BOTTOM_OUT,
+   EPHOTO_SLIDESHOW_MOVE_LEFT_TOP_CORNER,
+   EPHOTO_SLIDESHOW_MOVE_RIGHT_TOP_CORNER,
+   EPHOTO_SLIDESHOW_MOVE_RIGHT_BOTTOM_CORNER,
+   EPHOTO_SLIDESHOW_MOVE_LEFT_BOTTOM_CORNER,
+   EPHOTO_SLIDESHOW_MOVE_LEFT_TOP_CORNER_IN,
+   EPHOTO_SLIDESHOW_MOVE_RIGHT_TOP_CORNER_IN,
+   EPHOTO_SLIDESHOW_MOVE_RIGHT_BOTTOM_CORNER_IN,
+   EPHOTO_SLIDESHOW_MOVE_LEFT_BOTTOM_CORNER_IN,
+   EPHOTO_SLIDESHOW_MOVE_LEFT_TOP_CORNER_OUT,
+   EPHOTO_SLIDESHOW_MOVE_RIGHT_TOP_CORNER_OUT,
+   EPHOTO_SLIDESHOW_MOVE_RIGHT_BOTTOM_CORNER_OUT,
+   EPHOTO_SLIDESHOW_MOVE_LEFT_BOTTOM_CORNER_OUT
 };
 
 struct _Ephoto_Slideshow
@@ -63,6 +83,46 @@ _slideshow_move_end_get(Ephoto_Slideshow *ss)
           return "ephoto,slideshow,move,top,to,bottom";
         case EPHOTO_SLIDESHOW_MOVE_BOTTOM_TO_TOP:
           return "ephoto,slideshow,move,bottom,to,top";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_IN:
+          return "ephoto,slideshow,move,left,in";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_IN:
+          return "ephoto,slideshow,move,right,in";
+        case EPHOTO_SLIDESHOW_MOVE_TOP_IN:
+          return "ephoto,slideshow,move,top,in";
+        case EPHOTO_SLIDESHOW_MOVE_BOTTOM_IN:
+          return "ephoto,slideshow,move,bottom,in";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_OUT:
+          return "ephoto,slideshow,move,left,out";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_OUT:
+          return "ephoto,slideshow,move,right,out";
+        case EPHOTO_SLIDESHOW_MOVE_TOP_OUT:
+          return "ephoto,slideshow,move,top,out";
+        case EPHOTO_SLIDESHOW_MOVE_BOTTOM_OUT:
+          return "ephoto,slideshow,move,bottom,out";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_TOP_CORNER:
+          return "ephoto,slideshow,move,left,top,corner";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_TOP_CORNER:
+          return "ephoto,slideshow,move,right,top,corner";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_BOTTOM_CORNER:
+          return "ephoto,slideshow,move,right,bottom,corner";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_BOTTOM_CORNER:
+          return "ephoto,slideshow,move,left,bottom,corner";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_TOP_CORNER_IN:
+          return "ephoto,slideshow,move,left,top,corner,in";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_TOP_CORNER_IN:
+          return "ephoto,slideshow,move,right,top,corner,in";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_BOTTOM_CORNER_IN:
+          return "ephoto,slideshow,move,right,bottom,corner,in";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_BOTTOM_CORNER_IN:
+          return "ephoto,slideshow,move,left,bottom,corner,in";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_TOP_CORNER_OUT:
+          return "ephoto,slideshow,move,left,top,corner,out";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_TOP_CORNER_OUT:
+          return "ephoto,slideshow,move,right,top,corner,out";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_BOTTOM_CORNER_OUT:
+          return "ephoto,slideshow,move,right,bottom,corner,out";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_BOTTOM_CORNER_OUT:
+          return "ephoto,slideshow,move,left,bottom,corner,out";
         default: return "default";
      }
 }
@@ -80,6 +140,46 @@ _slideshow_move_start_get(Ephoto_Slideshow *ss)
           return "ephoto,slideshow,default,top,to,bottom";
         case EPHOTO_SLIDESHOW_MOVE_BOTTOM_TO_TOP:
           return "ephoto,slideshow,default,bottom,to,top";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_IN:
+          return "ephoto,slideshow,default,left,in";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_IN:
+          return "ephoto,slideshow,default,right,in";
+        case EPHOTO_SLIDESHOW_MOVE_TOP_IN:
+          return "ephoto,slideshow,default,top,in";
+        case EPHOTO_SLIDESHOW_MOVE_BOTTOM_IN:
+          return "ephoto,slideshow,default,bottom,in";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_OUT:
+          return "ephoto,slideshow,default,left,out";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_OUT:
+          return "ephoto,slideshow,default,right,out";
+        case EPHOTO_SLIDESHOW_MOVE_TOP_OUT:
+          return "ephoto,slideshow,default,top,out";
+        case EPHOTO_SLIDESHOW_MOVE_BOTTOM_OUT:
+          return "ephoto,slideshow,default,bottom,out";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_TOP_CORNER:
+          return "ephoto,slideshow,default,left,top,corner";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_TOP_CORNER:
+          return "ephoto,slideshow,default,right,top,corner";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_BOTTOM_CORNER:
+          return "ephoto,slideshow,default,right,bottom,corner";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_BOTTOM_CORNER:
+          return "ephoto,slideshow,default,left,bottom,corner";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_TOP_CORNER_IN:
+          return "ephoto,slideshow,default,left,top,corner,in";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_TOP_CORNER_IN:
+          return "ephoto,slideshow,default,right,top,corner,in";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_BOTTOM_CORNER_IN:
+          return "ephoto,slideshow,default,right,bottom,corner,in";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_BOTTOM_CORNER_IN:
+          return "ephoto,slideshow,default,left,bottom,corner,in";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_TOP_CORNER_OUT:
+          return "ephoto,slideshow,default,left,top,corner,out";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_TOP_CORNER_OUT:
+          return "ephoto,slideshow,default,right,top,corner,out";
+        case EPHOTO_SLIDESHOW_MOVE_RIGHT_BOTTOM_CORNER_OUT:
+          return "ephoto,slideshow,default,right,bottom,corner,out";
+        case EPHOTO_SLIDESHOW_MOVE_LEFT_BOTTOM_CORNER_OUT:
+          return "ephoto,slideshow,default,left,bottom,corner,out";
         default: return "default";
      }
 }
@@ -88,7 +188,7 @@ static void
 _slideshow_move_randomize(Ephoto_Slideshow *ss)
 {
    int i, r = 0;
-   int range = 4;
+   int range = 24;
    int buckets = RAND_MAX / range;
    int limit = buckets * range;
 
@@ -112,6 +212,66 @@ _slideshow_move_randomize(Ephoto_Slideshow *ss)
           break;
         case 3:
           ss->move = EPHOTO_SLIDESHOW_MOVE_BOTTOM_TO_TOP;
+          break;
+        case 4:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_LEFT_IN;
+          break;
+        case 5:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_RIGHT_IN;
+          break;
+        case 6:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_TOP_IN;
+          break;
+        case 7:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_BOTTOM_IN;
+          break;
+        case 8:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_LEFT_OUT;
+          break;
+        case 9:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_RIGHT_OUT;
+          break;
+        case 10:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_TOP_OUT;
+          break;
+        case 11:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_BOTTOM_OUT;
+          break;
+        case 12:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_LEFT_TOP_CORNER;
+          break;
+        case 13:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_RIGHT_TOP_CORNER;
+          break;
+        case 14:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_RIGHT_BOTTOM_CORNER;
+          break;
+        case 15:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_LEFT_BOTTOM_CORNER;
+          break;
+        case 16:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_LEFT_TOP_CORNER_IN;
+          break;
+        case 17:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_RIGHT_TOP_CORNER_IN;
+          break;
+        case 18:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_RIGHT_BOTTOM_CORNER_IN;
+          break;
+        case 19:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_LEFT_BOTTOM_CORNER_IN;
+          break;
+        case 20:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_LEFT_TOP_CORNER_OUT;
+          break;
+        case 21:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_RIGHT_TOP_CORNER_OUT;
+          break;
+        case 22:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_RIGHT_BOTTOM_CORNER_OUT;
+          break;
+        case 23:
+          ss->move = EPHOTO_SLIDESHOW_MOVE_LEFT_BOTTOM_CORNER_OUT;
           break;
         default: ss->move = EPHOTO_SLIDESHOW_MOVE_LEFT_TO_RIGHT;
      }
@@ -240,6 +400,8 @@ _slideshow_transition(void *data)
    elm_layout_signal_emit(ss->slideshow, buf, "ephoto");
    if (ss->ephoto->config->movess)
      {
+        printf("%s\n", _slideshow_move_start_get(ss));
+        printf("%s\n", _slideshow_move_end_get(ss));
         elm_layout_signal_emit(ss->current_item, _slideshow_move_start_get(ss), "ephoto");
         elm_layout_signal_emit(ss->current_item, _slideshow_move_end_get(ss), "ephoto");
         _slideshow_move_randomize(ss);
@@ -277,6 +439,8 @@ _slideshow_play(Ephoto_Slideshow *ss)
 
    if (ss->ephoto->config->movess)
      {
+        printf("%s\n", _slideshow_move_start_get(ss));
+        printf("%s\n", _slideshow_move_end_get(ss)); 
         elm_layout_signal_emit(ss->current_item, _slideshow_move_start_get(ss), "ephoto");
         elm_layout_signal_emit(ss->current_item, _slideshow_move_end_get(ss), "ephoto");
         _slideshow_move_randomize(ss);

@@ -218,38 +218,6 @@ _win_free(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
-_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Ephoto *ephoto = data;
-   Evas_Object *but = evas_object_data_get(ephoto->layout, "folder_button");
-   Evas_Coord x, y, w, h, bx, by, bw, bh, cx, cy;
-
-   if (eina_list_count(ephoto->entries) < 1)
-     return;
-
-   evas_pointer_canvas_xy_get(evas_object_evas_get(ephoto->dir_browser), &cx, &cy);
-   evas_object_geometry_get(ephoto->dir_browser, &x, &y, &w, &h);
-   evas_object_geometry_get(but, &bx, &by, &bw, &bh);
-
-   if (cx >= x && cx <= x+w)
-     {
-        if (cy >= y && cy <= y+h)
-          return;
-     }
-   if (cx >= bx && cx <= bx+bw)
-     {
-        if (cy >= by && cy <= by+bh)
-          return;
-     }
-   edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
-       "ephoto,folders,hide", "ephoto");
-   evas_object_hide(ephoto->dir_browser);
-   ephoto->folders_toggle = EINA_FALSE;
-   elm_object_tooltip_text_set(but, _("Show Folders"));   
-}
-
-static void
 _resize_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
@@ -312,8 +280,8 @@ _mouse_move_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
-_mouse_out_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+_mouse_out_cb(void *data, Evas_Object *obj EINA_UNUSED,
+    const char *emission EINA_UNUSED, const char *source EINA_UNUSED)
 {
    Ephoto *ephoto = data;
    ephoto->blocking = EINA_FALSE;
@@ -324,8 +292,8 @@ _mouse_out_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
-_mouse_in_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+_mouse_in_cb(void *data, Evas_Object *obj EINA_UNUSED,
+    const char *emission EINA_UNUSED, const char *source EINA_UNUSED)
 {
    Ephoto *ephoto = data;
    ephoto->blocking = EINA_TRUE;
@@ -466,8 +434,10 @@ ephoto_window_add(const char *path)
        EVAS_HINT_FILL);
    evas_object_event_callback_add(ephoto->layout, EVAS_CALLBACK_MOUSE_MOVE,
        _mouse_move_cb, ephoto);
-   evas_object_event_callback_add(ephoto->layout, EVAS_CALLBACK_MOUSE_UP,
-       _mouse_up_cb, ephoto);
+   edje_object_signal_callback_add(elm_layout_edje_get(ephoto->layout),
+       "ephoto,block", "ephoto", _mouse_in_cb, ephoto);
+   edje_object_signal_callback_add(elm_layout_edje_get(ephoto->layout),
+       "ephoto,unblock", "ephoto", _mouse_out_cb, ephoto);
    elm_win_resize_object_add(ephoto->win, ephoto->layout);
    evas_object_show(ephoto->layout);
 
@@ -527,10 +497,6 @@ ephoto_window_add(const char *path)
    ephoto->dir_browser = ephoto_directory_browser_add(ephoto, ephoto->layout);
    elm_layout_content_set(ephoto->layout, "ephoto.swallow.folders",
        ephoto->dir_browser);
-   evas_object_event_callback_add(ephoto->dir_browser, EVAS_CALLBACK_MOUSE_IN,
-       _mouse_in_cb, ephoto);
-   evas_object_event_callback_add(ephoto->dir_browser, EVAS_CALLBACK_MOUSE_OUT,
-       _mouse_out_cb, ephoto);
    evas_object_show(ephoto->dir_browser);
 
    ephoto->statusbar = elm_box_add(ephoto->layout);
@@ -541,10 +507,6 @@ ephoto_window_add(const char *path)
        EVAS_HINT_FILL);
    elm_layout_content_set(ephoto->layout, "ephoto.swallow.controls",
        ephoto->statusbar);
-   evas_object_event_callback_add(ephoto->statusbar, EVAS_CALLBACK_MOUSE_IN,
-       _mouse_in_cb, ephoto);
-   evas_object_event_callback_add(ephoto->statusbar, EVAS_CALLBACK_MOUSE_OUT,
-       _mouse_out_cb, ephoto);
    evas_object_show(ephoto->statusbar);
 
    ic = elm_icon_add(ephoto->statusbar);

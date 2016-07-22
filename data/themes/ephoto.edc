@@ -349,6 +349,22 @@ collections {
             target: "editor_shadow";
             target: "ephoto,editor";
          }
+         program { signal: "mouse,in";
+            source: "ephoto.swallow.controls";
+            action: SIGNAL_EMIT "ephoto,block" "ephoto";
+         }
+         program { signal: "mouse,out";
+            source: "ephoto.swallow.controls";
+            action: SIGNAL_EMIT "ephoto,unblock" "ephoto";
+         }
+         program { signal: "mouse,in";
+            source: "ephoto.swallow.folders";
+            action: SIGNAL_EMIT "ephoto,block" "ephoto";
+         }
+         program { signal: "mouse,out";
+            source: "ephoto.swallow.folders";
+            action: SIGNAL_EMIT "ephoto,unblock" "ephoto";
+         }
          program { signal: "ephoto,folders,hide";
             source: "ephoto";
             script {

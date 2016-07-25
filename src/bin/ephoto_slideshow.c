@@ -348,7 +348,7 @@ _slideshow_item_get(Ephoto_Slideshow *ss, Ephoto_Entry *entry, Evas_Object *pare
    evas_object_data_set(layout, "entry", entry);
 
    image = elm_image_add(parent);
-   elm_image_preload_disabled_set(image, EINA_TRUE);
+   elm_image_preload_disabled_set(image, EINA_FALSE);
    elm_image_smooth_set(image, EINA_FALSE);
    elm_image_file_set(image, entry->path, group);
    elm_image_fill_outside_set(image, EINA_TRUE);

@@ -196,12 +196,21 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    elm_object_content_set(frame, table);
    evas_object_show(table);
 
+   check = elm_check_add(table);
+   elm_object_text_set(check, _("Moving Slideshow"));
+   evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(check, 0.5, 0.5);
+   elm_check_state_set(check, ephoto->config->movess);
+   elm_table_pack(table, check, 0, 0, 2, 1);
+   evas_object_show(check);
+   ephoto->config->slide_move = check;
+
    label = elm_label_add(table);
    memset(buf, 0, PATH_MAX);
    snprintf(buf, PATH_MAX, "%s:", _("Show Each Slide For"));
    elm_object_text_set(label, buf);
    evas_object_size_hint_align_set(label, 0.0, EVAS_HINT_FILL);
-   elm_table_pack(table, label, 0, 0, 1, 1);
+   elm_table_pack(table, label, 0, 1, 1, 1);
    evas_object_show(label);
 
    spinner = elm_spinner_add(table);
@@ -213,7 +222,7 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    elm_spinner_step_set(spinner, 1);
    elm_spinner_value_set(spinner, ephoto->config->slideshow_timeout);
    elm_spinner_min_max_set(spinner, 1, 60);
-   elm_table_pack(table, spinner, 1, 0, 1, 1);
+   elm_table_pack(table, spinner, 1, 1, 1, 1);
    evas_object_show(spinner);
    ephoto->config->slide_time = spinner;
 
@@ -222,7 +231,7 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    snprintf(buf, PATH_MAX, "%s:", _("Slide Transition"));
    elm_object_text_set(label, buf);
    evas_object_size_hint_align_set(label, 0.0, EVAS_HINT_FILL);
-   elm_table_pack(table, label, 0, 1, 1, 1);
+   elm_table_pack(table, label, 0, 2, 1, 1);
    evas_object_show(label);
 
    transitions = _ephoto_transitions_list_get(edje_object_data_get(elm_layout_edje_get
@@ -238,17 +247,9 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(hoversel, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(hoversel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_table_pack(table, hoversel, 1, 1, 1, 1);
+   elm_table_pack(table, hoversel, 1, 2, 1, 1);
    evas_object_show(hoversel);
    ephoto->config->slide_trans = hoversel;
-
-   check = elm_check_add(table);
-   elm_object_text_set(check, _("Moving Slideshow"));
-   evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
-   elm_check_state_set(check, ephoto->config->movess);
-   elm_table_pack(table, check, 0, 2, 2, 1);
-   evas_object_show(check);
-   ephoto->config->slide_move = check;
 }
 
 static Evas_Object *

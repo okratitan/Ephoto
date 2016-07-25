@@ -39,7 +39,8 @@ struct _Ephoto_Directory_Browser
    const char *back_directory;
 };
 
-static Elm_Genlist_Item_Class _ephoto_dir_class;
+static Elm_Genlist_Item_Class *_ephoto_dir_class;
+static Elm_Genlist_Item_Class *_ephoto_dir_tree_class;
 
 static char * _drag_data_extract(char **drag_data);
 
@@ -446,7 +447,7 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_show(but);
 
    db->fsel = elm_genlist_add(db->leftbox);
-   elm_genlist_select_mode_set(db->fsel, ELM_OBJECT_SELECT_MODE_NONE);
+   elm_genlist_select_mode_set(db->fsel, ELM_OBJECT_SELECT_MODE_ALWAYS);
    elm_genlist_highlight_mode_set(db->fsel, EINA_TRUE);
    evas_object_size_hint_weight_set(db->fsel, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
@@ -673,7 +674,7 @@ _ephoto_directory_view_add(Ephoto_Directory_Browser *db)
    evas_object_show(db->leftbox);
 
    db->fsel = elm_genlist_add(db->leftbox);
-   elm_genlist_select_mode_set(db->fsel, ELM_OBJECT_SELECT_MODE_NONE);
+   elm_genlist_select_mode_set(db->fsel, ELM_OBJECT_SELECT_MODE_ALWAYS);
    elm_genlist_highlight_mode_set(db->fsel, EINA_TRUE);
    evas_object_size_hint_weight_set(db->fsel, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
@@ -734,7 +735,7 @@ _monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
         if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_TREE &&
             elm_genlist_item_expanded_get(entry->item) == EINA_TRUE)
           {
-             ic = &_ephoto_dir_class;
+             ic = _ephoto_dir_tree_class;
              snprintf(buf, PATH_MAX, "%s", path);
              e = ephoto_entry_new(entry->ephoto, path, basename(buf),
                  EINA_FILE_DIR);
@@ -750,7 +751,7 @@ _monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
           {
              Elm_Object_Item *parent;
 
-             ic = &_ephoto_dir_class;
+             ic = _ephoto_dir_class;
              parent =
                  elm_genlist_item_insert_before(entry->genlist, ic, entry,
                      entry->parent, entry->item, ELM_GENLIST_ITEM_TREE, NULL, NULL);
@@ -783,7 +784,7 @@ _monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
           {
              Elm_Object_Item *parent;
 
-             ic = &_ephoto_dir_class;
+             ic = _ephoto_dir_tree_class;
              parent =
                  elm_genlist_item_insert_before(entry->genlist, ic, entry,
                  entry->parent, entry->item, ELM_GENLIST_ITEM_NONE, NULL, NULL);
@@ -848,7 +849,7 @@ _top_monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
         e = ephoto_entry_new(db->ephoto, path, basename(buf),
             EINA_FILE_DIR);
         e->genlist = db->fsel;
-        ic = &_ephoto_dir_class;
+        ic = _ephoto_dir_class;
         e->item =
             elm_genlist_item_append(db->fsel, ic, e,
             NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
@@ -921,16 +922,20 @@ _todo_items_process(void *data)
       if (entry->is_dir && !entry->item)
         {
 	   const Elm_Genlist_Item_Class *ic;
-
-	   ic = &_ephoto_dir_class;
 	   if (_check_for_subdirs(entry))
-             entry->item =
-                 elm_genlist_item_sorted_insert(db->fsel, ic, entry,
-                 entry->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp, NULL, NULL);
+             {
+                ic = _ephoto_dir_tree_class;
+                entry->item =
+                    elm_genlist_item_sorted_insert(db->fsel, ic, entry,
+                    entry->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp, NULL, NULL);
+             }
            else
-             entry->item =
-                 elm_genlist_item_sorted_insert(db->fsel, ic, entry,
-                 entry->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp, NULL, NULL);
+             {
+                ic = _ephoto_dir_class;
+                entry->item =
+                    elm_genlist_item_sorted_insert(db->fsel, ic, entry,
+                    entry->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp, NULL, NULL);
+             }
 	   if (!entry->item)
 	     {
 		ephoto_entry_free(db->ephoto, entry);
@@ -1099,15 +1104,20 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
                   if (entry->is_dir && !entry->item)
                     {
                        const Elm_Genlist_Item_Class *ic;
-                       ic = &_ephoto_dir_class;
                        if (_check_for_subdirs(entry))
-                         entry->item =
-                             elm_genlist_item_sorted_insert(db->fsel, ic, entry,
-                             entry->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp, NULL, NULL);
+                         {
+                            ic = _ephoto_dir_tree_class;
+                            entry->item =
+                                elm_genlist_item_sorted_insert(db->fsel, ic, entry,
+                                entry->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp, NULL, NULL);
+                         }
                        else
-                         entry->item =
-                             elm_genlist_item_sorted_insert(db->fsel, ic, entry,
-                             entry->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp, NULL, NULL);
+                         {
+                            ic = _ephoto_dir_class;
+                            entry->item =
+                                elm_genlist_item_sorted_insert(db->fsel, ic, entry,
+                                entry->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp, NULL, NULL);
+                         }
                        if (!entry->item)
                          {
                             ephoto_entry_free(db->ephoto, entry);
@@ -1146,11 +1156,19 @@ ephoto_directory_browser_add(Ephoto *ephoto, Evas_Object *parent)
    db = calloc(1, sizeof(Ephoto_Directory_Browser));
    EINA_SAFETY_ON_NULL_GOTO(db, error);
 
-   _ephoto_dir_class.item_style = "tree_effect";
-   _ephoto_dir_class.func.text_get = _dir_item_text_get;
-   _ephoto_dir_class.func.content_get = _dir_item_icon_get;
-   _ephoto_dir_class.func.state_get = NULL;
-   _ephoto_dir_class.func.del = _dir_item_del;
+   _ephoto_dir_class = elm_genlist_item_class_new();
+   _ephoto_dir_class->item_style = "default";
+   _ephoto_dir_class->func.text_get = _dir_item_text_get;
+   _ephoto_dir_class->func.content_get = _dir_item_icon_get;
+   _ephoto_dir_class->func.state_get = NULL;
+   _ephoto_dir_class->func.del = _dir_item_del;
+
+   _ephoto_dir_tree_class = elm_genlist_item_class_new();
+   _ephoto_dir_tree_class->item_style = "default";
+   _ephoto_dir_tree_class->func.text_get = _dir_item_text_get;
+   _ephoto_dir_tree_class->func.content_get = _dir_item_icon_get;
+   _ephoto_dir_tree_class->func.state_get = NULL;
+   _ephoto_dir_tree_class->func.del = _dir_item_del;
 
    db->ephoto = ephoto;
    db->dir_current = NULL;

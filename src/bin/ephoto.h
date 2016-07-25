@@ -142,6 +142,8 @@ void ephoto_color_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
     Evas_Object *image);
 void ephoto_red_eye_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
     Evas_Object *image);
+void ephoto_scale_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
+    Evas_Object *image);
 void ephoto_filter_blur(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image);
 void ephoto_filter_dither(Evas_Object *main, Evas_Object *image);

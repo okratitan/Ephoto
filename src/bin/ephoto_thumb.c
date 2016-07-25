@@ -258,6 +258,7 @@ e_thumb_client_data(Ecore_Ipc_Event_Client_Data *e)
                        eth->busy = 0;
                        _pending--;
                        eth->done = 1;
+                       e_thumb_icon_end(obj);
                        if (_pending == 0) _e_thumb_thumbnailers_kill();
                        if (ecore_file_exists(icon))
                          {

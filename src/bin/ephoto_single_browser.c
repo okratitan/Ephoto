@@ -1027,21 +1027,6 @@ _crop_image(void *data, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
-_scale_image(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Ephoto_Single_Browser *sb = data;
-
-   if (sb->viewer)
-     {
-        sb->editing = EINA_TRUE;
-        Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
-
-        ephoto_scale_add(sb->ephoto, sb->main, sb->mhbox, v->image);
-     }
-}
-
-static void
 _go_bcg(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
@@ -1490,7 +1475,6 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
        elm_menu_item_add(menu, menu_it, "document-properties", _("Transform"),
        NULL, NULL);
    elm_menu_item_add(menu, menu_itt, "edit-cut", _("Crop"), _crop_image, sb);
-   elm_menu_item_add(menu, menu_itt, "zoom-in", _("Scale"), _scale_image, sb);
    elm_menu_item_separator_add(menu, menu_itt);
    elm_menu_item_add(menu, menu_itt, "object-rotate-left", _("Rotate Left"),
        _go_rotate_counterclock, sb);

@@ -32,11 +32,10 @@ ephoto_SOURCES = \
         ephoto_ipc.c \
         ephoto_main.c \
         ephoto_red_eye.c \
-        ephoto_scale.c \
-        ephoto_single_browser.c \
-        ephoto_slideshow.c \
         ephoto_thumb.c \
-        ephoto_thumb_browser.c
+        ephoto_thumb_browser.c \
+        ephoto_single_browser.c \
+        ephoto_slideshow.c
 
 internal_bindir = $(datadir)/$(PACKAGE)
 internal_bin_PROGRAMS = ephoto_thumbnail

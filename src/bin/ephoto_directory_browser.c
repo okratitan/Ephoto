@@ -723,9 +723,10 @@ _monitor_cb(void *data, int type,
    if (!entry)
      return ECORE_CALLBACK_PASS_ON;
 
+   printf("%s\n", ev->filename);
+
    snprintf(file, PATH_MAX, "%s", ev->filename);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
-
    if (strcmp(entry->path, dir))
      return ECORE_CALLBACK_PASS_ON;
    if (type == EIO_MONITOR_DIRECTORY_CREATED)
@@ -738,7 +739,7 @@ _monitor_cb(void *data, int type,
         if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_TREE &&
             elm_genlist_item_expanded_get(entry->item) == EINA_TRUE)
           {
-             ic = _ephoto_dir_tree_class;
+             ic = _ephoto_dir_class;
              snprintf(buf, PATH_MAX, "%s", ev->filename);
              e = ephoto_entry_new(entry->ephoto, ev->filename, basename(buf),
                  EINA_FILE_DIR);
@@ -764,24 +765,53 @@ _monitor_cb(void *data, int type,
                               _monitor_cb, e));
                }
           }
-        if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_NONE)
+        else if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_NONE)
           {
              Elm_Object_Item *parent;
 
-             ic = _ephoto_dir_class;
+             ic = _ephoto_dir_tree_class;
              parent =
                  elm_genlist_item_insert_before(entry->genlist, ic, entry,
                      entry->parent, entry->item, ELM_GENLIST_ITEM_TREE, NULL, NULL);
              entry->no_delete = EINA_TRUE;
+             elm_object_item_del(entry->item);
+             entry->item = parent;
+             entry->no_delete = EINA_FALSE;
+          }
+        return ECORE_CALLBACK_PASS_ON;
+     }
+   else if (type == EIO_MONITOR_DIRECTORY_DELETED)
+     {
+        item = elm_genlist_first_item_get(entry->genlist);
+        while (item)
+          {
+             e = elm_object_item_data_get(item);
+             if (!strcmp(e->path, ev->filename))
+               {
+                    elm_object_item_del(e->item);
+                    break;
+               }
+             item = elm_genlist_item_next_get(item);
+          }
+        printf("%s\n", entry->path);
+        if (_check_for_subdirs(entry) == EINA_FALSE)
+          {
+             Elm_Object_Item *parent;
+             printf("%s\n", entry->path);
+             ic = _ephoto_dir_class;
+             parent =
+                 elm_genlist_item_insert_before(entry->genlist, ic, entry,
+                 entry->parent, entry->item, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+              
+             entry->no_delete = EINA_TRUE;
+             elm_object_item_del(entry->item);
              if (entry->monitor)
                {
                   eio_monitor_del(entry->monitor);
                   EINA_LIST_FREE(entry->monitor_handlers, handler)
                     ecore_event_handler_del(handler);
                }
-             elm_object_item_del(entry->item);
              entry->item = parent;
-             entry->no_delete = EINA_FALSE;
              entry->monitor = eio_monitor_add(entry->path);
              entry->monitor_handlers =
                  eina_list_append(entry->monitor_handlers,
@@ -795,36 +825,8 @@ _monitor_cb(void *data, int type,
                  eina_list_append(entry->monitor_handlers,
                      ecore_event_handler_add(EIO_MONITOR_DIRECTORY_DELETED,
                          _monitor_cb, entry));
-          }
-        return ECORE_CALLBACK_PASS_ON;
-     }
-   else if (type == EIO_MONITOR_DIRECTORY_DELETED)
-     {
-        item = elm_genlist_first_item_get(entry->genlist);
-        while (item)
-          {
-             e = elm_object_item_data_get(item);
-             if (!strcmp(e->path, ev->filename))
-               {
-                  elm_object_item_del(e->item);
-                  //if (!strcmp(e->path, e->ephoto->config->directory))
-                  break;
-               }
-             item = elm_genlist_item_next_get(item);
-          }
-        if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_TREE &&
-            _check_for_subdirs(entry) == EINA_FALSE)
-          {
-             Elm_Object_Item *parent;
-
-             ic = _ephoto_dir_tree_class;
-             parent =
-                 elm_genlist_item_insert_before(entry->genlist, ic, entry,
-                 entry->parent, entry->item, ELM_GENLIST_ITEM_NONE, NULL, NULL);
-             entry->no_delete = EINA_TRUE;
-             elm_object_item_del(entry->item);
-             entry->item = parent;
              entry->no_delete = EINA_FALSE;
+             
           }
         if (!ecore_file_exists(entry->ephoto->config->directory))
           {

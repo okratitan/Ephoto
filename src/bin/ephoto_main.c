@@ -50,6 +50,7 @@ _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    ephoto_thumb_browser_show_controls(ephoto);
    evas_object_freeze_events_set(ephoto->single_browser, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->slideshow, EINA_TRUE);
+   evas_object_freeze_events_set(ephoto->thumb_browser, EINA_FALSE);
    if ((entry) && (entry->item))
      elm_gengrid_item_bring_in(entry->item, ELM_GENGRID_ITEM_SCROLLTO_IN);
 }
@@ -84,6 +85,7 @@ _ephoto_single_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    ephoto_single_browser_adjust_offsets(ephoto);
    evas_object_freeze_events_set(ephoto->thumb_browser, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->slideshow, EINA_TRUE);
+   evas_object_freeze_events_set(ephoto->single_browser, EINA_FALSE);
 }
 
 static void
@@ -112,6 +114,7 @@ _ephoto_slideshow_show(Ephoto *ephoto, Ephoto_Entry *entry)
    ephoto_slideshow_adjust_offsets(ephoto);
    evas_object_freeze_events_set(ephoto->single_browser, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->thumb_browser, EINA_TRUE);
+   evas_object_freeze_events_set(ephoto->slideshow, EINA_FALSE);
 }
 
 static void

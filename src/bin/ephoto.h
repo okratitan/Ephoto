@@ -263,7 +263,8 @@ struct _Ephoto
    Eina_Bool folders_toggle;
    Eina_Bool editor_blocking;
 
-   Ecore_File_Monitor *monitor;
+   Eio_Monitor *monitor;
+   Eina_List *monitor_handlers;
    Ecore_Thread *file_thread;
    Eina_List *file_pos;
    Eina_List *upload_handlers;
@@ -301,7 +302,8 @@ struct _Ephoto_Entry
    const char *label;
    double size;
    Ephoto *ephoto;
-   Ecore_File_Monitor *monitor;
+   Eio_Monitor *monitor;
+   Eina_List *monitor_handlers;
    Elm_Object_Item *item;
    Elm_Object_Item *parent;
    Eina_List *free_listeners;

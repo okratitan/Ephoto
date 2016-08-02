@@ -32,7 +32,8 @@ struct _Ephoto_Single_Browser
 struct _Ephoto_Viewer
 {
    Eina_List *handlers;
-   Ecore_File_Monitor *monitor;
+   Eio_Monitor *monitor;
+   Eina_List *monitor_handlers;
    Evas_Object *scroller;
    Evas_Object *table;
    Evas_Object *image;
@@ -257,19 +258,24 @@ _viewer_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Viewer *v = data;
+   Ecore_Event_Handler *handler;
    if (v->monitor)
-     ecore_file_monitor_del(v->monitor);
+     {
+        eio_monitor_del(v->monitor);
+        EINA_LIST_FREE(v->monitor_handlers, handler)
+          ecore_event_handler_del(handler);
+     }
    free(v);
 }
 
-static void
-_monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
-    Ecore_File_Event event, const char *path EINA_UNUSED)
+static Eina_Bool
+_monitor_cb(void *data, int type,
+    void *event EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-   if (event == ECORE_FILE_EVENT_MODIFIED)
+   if (type == EIO_MONITOR_FILE_MODIFIED)
      {
         if (!ecore_file_exists(sb->entry->path))
           ephoto_entry_free(sb->ephoto, sb->entry);
@@ -292,7 +298,7 @@ _monitor_cb(void *data, Ecore_File_Monitor *em EINA_UNUSED,
                }
           }
      }
-   return;
+   return ECORE_CALLBACK_PASS_ON;
 }
 
 static void
@@ -1358,7 +1364,15 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
      }
 
 
-   v->monitor = ecore_file_monitor_add(path, _monitor_cb, sb);
+   v->monitor = eio_monitor_add(path);
+   v->monitor_handlers =
+       eina_list_append(v->monitor_handlers,
+           ecore_event_handler_add(EIO_MONITOR_FILE_MODIFIED,
+               _monitor_cb, sb));
+   v->monitor_handlers =
+       eina_list_append(v->monitor_handlers,
+           ecore_event_handler_add(EIO_MONITOR_FILE_DELETED,
+               _monitor_cb, sb));
    return v->scroller;
 
   error:

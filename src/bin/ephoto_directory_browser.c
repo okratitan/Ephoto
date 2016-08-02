@@ -723,8 +723,6 @@ _monitor_cb(void *data, int type,
    if (!entry)
      return ECORE_CALLBACK_PASS_ON;
 
-   printf("%s\n", ev->filename);
-
    snprintf(file, PATH_MAX, "%s", ev->filename);
    snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
    if (strcmp(entry->path, dir))
@@ -793,11 +791,9 @@ _monitor_cb(void *data, int type,
                }
              item = elm_genlist_item_next_get(item);
           }
-        printf("%s\n", entry->path);
         if (_check_for_subdirs(entry) == EINA_FALSE)
           {
              Elm_Object_Item *parent;
-             printf("%s\n", entry->path);
              ic = _ephoto_dir_class;
              parent =
                  elm_genlist_item_insert_before(entry->genlist, ic, entry,

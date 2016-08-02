@@ -927,7 +927,8 @@ ephoto_thumb_browser_update_info_label(Ephoto *ephoto)
      }
    else
      {
-        elm_object_text_set(tb->nolabel, " ");
+        if (tb->nolabel)
+          elm_object_text_set(tb->nolabel, " ");
         totsize = tb->totsize;
         if (totsize < 1024.0)
            snprintf(isize, sizeof(isize), "%'.0f%s", totsize, ngettext("B",
@@ -1811,6 +1812,7 @@ ephoto_thumb_browser_remove(Ephoto *ephoto, Ephoto_Entry *entry)
           }
         ephoto_thumb_browser_update_info_label(tb->ephoto);
         elm_object_item_del(entry->item);
+        ephoto_entry_free(tb->ephoto, entry);
      }
 }
 

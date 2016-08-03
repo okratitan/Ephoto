@@ -117,7 +117,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
        _open_hv_select, ephoto);
    elm_hoversel_item_add(hoversel, _("Custom Directory"), NULL, 0,
        _open_hv_select, ephoto);
-   elm_object_text_set(hoversel, ephoto->config->directory);
+   elm_object_text_set(hoversel, ephoto->config->open);
    evas_object_data_set(hoversel, "ephoto", ephoto);
    evas_object_size_hint_weight_set(hoversel, EVAS_HINT_EXPAND,
        EVAS_HINT_FILL);

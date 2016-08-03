@@ -1719,6 +1719,15 @@ _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 
 /*Ephoto Thumb Browser Public Functions*/
 void
+ephoto_thumb_browser_clear(Ephoto *ephoto)
+{
+   Ephoto_Thumb_Browser *tb =
+       evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
+
+   elm_gengrid_clear(tb->grid);
+}  
+
+void
 ephoto_thumb_browser_paste(Ephoto *ephoto, Elm_Object_Item *item)
 {
    Ephoto_Thumb_Browser *tb =

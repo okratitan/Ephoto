@@ -654,6 +654,12 @@ ephoto_window_add(const char *path)
    elm_layout_signal_emit(ephoto->layout, "ephoto,folders,show", "ephoto");
    ephoto->overlay_timer = ecore_timer_add(5.0, _timer_cb, ephoto);
 
+   if (ephoto->config->firstrun)
+     {
+        _settings_icon_clicked(ephoto, NULL, NULL);
+        ephoto->config->firstrun = 0;
+     }
+
    return ephoto->win;
 }
 

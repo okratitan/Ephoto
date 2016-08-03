@@ -105,6 +105,7 @@ void ephoto_thumb_browser_update(Ephoto *ephoto, Ephoto_Entry *entry);
 void ephoto_thumb_browser_update_info_label(Ephoto *ephoto);
 void ephoto_thumb_browser_slideshow(Evas_Object *obj);
 void ephoto_thumb_browser_paste(Ephoto *ephoto, Elm_Object_Item *item);
+void ephoto_thumb_browser_clear(Ephoto *ephoto);
 /* smart callbacks called: "selected" - an item in the thumb browser is
  * selected. The selected Ephoto_Entry is passed as event_info argument. */
 
@@ -112,6 +113,7 @@ void ephoto_thumb_browser_paste(Ephoto *ephoto, Elm_Object_Item *item);
 Evas_Object *ephoto_directory_browser_add(Ephoto *ephoto, Evas_Object *parent);
 void ephoto_directory_browser_initialize_structure(Ephoto *ephoto);
 void ephoto_directory_browser_top_dir_set(Ephoto *ephoto, const char *dir);
+void ephoto_directory_browser_clear(Ephoto *ephoto);
 
 /*thumbnailing functions taken from enlightenment*/
 int e_thumb_init(void);
@@ -223,6 +225,7 @@ struct _Ephoto_Config
    Eina_Bool prompts;
    Eina_Bool drop;
    Eina_Bool movess;
+   Eina_Bool firstrun;
    Evas_Object *slide_time;
    Evas_Object *slide_trans;
    Evas_Object *open_dir;

@@ -1105,6 +1105,15 @@ _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 }
 
 void
+ephoto_directory_browser_clear(Ephoto *ephoto)
+{
+   Ephoto_Directory_Browser *db =
+       evas_object_data_get(ephoto->dir_browser, "directory_browser");
+
+   elm_genlist_clear(db->fsel);
+}
+
+void
 ephoto_directory_browser_top_dir_set(Ephoto *ephoto, const char *dir)
 {
    Ephoto_Directory_Browser *db =

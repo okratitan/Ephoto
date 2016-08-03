@@ -576,6 +576,16 @@ _processing(Ephoto *ephoto, const char *title, const char *text)
 }
 
 static void
+_thread_end_cb(void *data, Ecore_Thread *et EINA_UNUSED)
+{
+   Evas_Object *popup = data;
+   Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
+
+   evas_object_del(popup);
+   elm_object_focus_set(ephoto->pager, EINA_TRUE);
+}
+
+static void
 _move_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 {
    Evas_Object *popup = data;
@@ -631,9 +641,6 @@ _move_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
      }
    ephoto->file_errors = 0;
    ephoto->file_pos = NULL;
-
-   evas_object_del(popup);
-   elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
 static void
@@ -650,7 +657,7 @@ _move_files(Ephoto *ephoto, Eina_List *files,
    ephoto->file_pos = eina_list_clone(files);
    eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_move_thread_cb,
-       NULL, NULL, popup);
+       _thread_end_cb, _thread_end_cb, popup);
 }
 
 static void
@@ -707,9 +714,6 @@ _copy_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
      }
    ephoto->file_errors = 0;
    ephoto->file_pos = NULL;
-
-   evas_object_del(popup);
-   elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
 static void
@@ -725,7 +729,7 @@ _copy_files(Ephoto *ephoto, Eina_List *files,
    ephoto->file_pos = eina_list_clone(files);
    eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_copy_thread_cb,
-       NULL, NULL, popup);
+       _thread_end_cb, NULL, popup);
 }
 
 static void
@@ -787,9 +791,6 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
      }
    ephoto->file_pos = NULL;
    ephoto->file_errors = 0;
-
-   evas_object_del(popup);
-   elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
 static void
@@ -805,7 +806,7 @@ _delete_files(Ephoto *ephoto, Eina_List *files)
    ephoto->file_pos = eina_list_clone(files);
    eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_delete_thread_cb,
-       NULL, NULL, popup);
+       _thread_end_cb, NULL, popup);
 }
 
 static void
@@ -863,9 +864,6 @@ _delete_dir_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
      }
    ephoto->file_pos = NULL;
    ephoto->file_errors = 0;
-
-   evas_object_del(popup);
-   elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
 static void
@@ -880,7 +878,7 @@ _delete_dir(Ephoto *ephoto, Eina_List *files)
 
    ephoto->file_pos = NULL;
    ephoto->file_thread = ecore_thread_run(_delete_dir_thread_cb,
-       NULL, NULL, popup);
+       _thread_end_cb, NULL, popup);
 }
 
 static void
@@ -922,9 +920,6 @@ _empty_trash_thread_cb(void *data, Ecore_Thread *th EINA_UNUSED)
      }
    ephoto->file_pos = NULL;
    ephoto->file_errors = 0;
-
-   evas_object_del(popup);
-   elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
 static void
@@ -939,7 +934,7 @@ _empty_trash(Ephoto *ephoto, Eina_List *files)
    ephoto->file_pos = eina_list_clone(files);
    eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_empty_trash_thread_cb,
-       NULL, NULL, popup);
+       _thread_end_cb, NULL, popup);
 }
 
 static void

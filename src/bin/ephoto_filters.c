@@ -63,8 +63,8 @@ _initialize_filter(Ephoto_Image_Filter filter,
    unsigned int *im_data;
 
    im_data =
-       evas_object_image_data_get(elm_image_object_get(image), EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
+       evas_object_image_data_get(image, EINA_FALSE);
+   evas_object_image_size_get(image, &w, &h);
 
    ef->filter = filter;
    ef->main = main;

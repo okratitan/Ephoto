@@ -275,9 +275,9 @@ _bcg_apply(void *data, int type EINA_UNUSED,
    Evas_Coord w, h;
 
    image_data =
-       evas_object_image_data_get(elm_image_object_get(ebcg->image),
+       evas_object_image_data_get(ebcg->image,
        EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(ebcg->image), &w, &h);
+   evas_object_image_size_get(ebcg->image, &w, &h);
    ephoto_single_browser_image_data_done(ebcg->main, image_data, w, h);
    ephoto_editor_del(ebcg->editor);
 
@@ -335,9 +335,9 @@ ephoto_bcg_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Obje
    ebcg->parent = parent;
    ebcg->image = image;
    im_data =
-       evas_object_image_data_get(elm_image_object_get(ebcg->image),
+       evas_object_image_data_get(ebcg->image,
        EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(ebcg->image), &ebcg->w,
+   evas_object_image_size_get(ebcg->image, &ebcg->w,
        &ebcg->h);
    ebcg->original_im_data = malloc(sizeof(unsigned int) * ebcg->w * ebcg->h);
    memcpy(ebcg->original_im_data, im_data,

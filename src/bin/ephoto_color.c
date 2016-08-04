@@ -260,9 +260,9 @@ _color_apply(void *data, int type EINA_UNUSED,
    Evas_Coord w, h;
 
    image_data =
-       evas_object_image_data_get(elm_image_object_get(eco->image),
+       evas_object_image_data_get(eco->image,
            EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(eco->image), &w, &h);
+   evas_object_image_size_get(eco->image, &w, &h);
    ephoto_single_browser_image_data_done(eco->main, image_data, w, h);
    ephoto_editor_del(eco->editor);
 
@@ -320,9 +320,9 @@ ephoto_color_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Ob
    eco->parent = parent;
    eco->image = image;
    im_data =
-       evas_object_image_data_get(elm_image_object_get(eco->image),
+       evas_object_image_data_get(eco->image,
            EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(eco->image), &eco->w,
+   evas_object_image_size_get(eco->image, &eco->w,
        &eco->h);
    eco->original_im_data = malloc(sizeof(unsigned int) * eco->w * eco->h);
    memcpy(eco->original_im_data, im_data,

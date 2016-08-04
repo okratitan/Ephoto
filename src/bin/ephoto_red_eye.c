@@ -151,9 +151,9 @@ _reye_apply(void *data, int type EINA_UNUSED,
    Evas_Coord w, h;
 
    image_data =
-       evas_object_image_data_get(elm_image_object_get(er->image),
+       evas_object_image_data_get(er->image,
            EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(er->image), &w, &h);
+   evas_object_image_size_get(er->image, &w, &h);
    ephoto_single_browser_image_data_done(er->main, image_data, w, h);
    ephoto_editor_del(er->editor);
 
@@ -211,9 +211,9 @@ ephoto_red_eye_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_
    er->parent = parent;
    er->image = image;
    im_data =
-       evas_object_image_data_get(elm_image_object_get(er->image),
+       evas_object_image_data_get(er->image,
            EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(er->image), &er->w,
+   evas_object_image_size_get(er->image, &er->w,
        &er->h);
    er->original_im_data = malloc(sizeof(unsigned int) * er->w * er->h);
    memcpy(er->original_im_data, im_data,

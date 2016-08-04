@@ -40,6 +40,10 @@ struct _Ephoto_Viewer
    double zoom;
    Eina_Bool fit:1;
    Eina_Bool zoom_first:1;
+   double duration;
+   int frame_count;
+   int cur_frame;
+   Ecore_Timer *anim_timer;
 };
 
 /*Common Callbacks*/
@@ -94,7 +98,7 @@ _ephoto_update_bottom_bar(Ephoto_Single_Browser *sb)
    if (sb->editing)
      return;
 
-   evas_object_image_size_get(elm_image_object_get(v->image),
+   evas_object_image_size_get(v->image,
             &w, &h);
    tmp = _ephoto_get_file_size(sb->entry->path);
    snprintf(image_info, PATH_MAX,
@@ -265,6 +269,8 @@ _viewer_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
         EINA_LIST_FREE(v->monitor_handlers, handler)
           ecore_event_handler_del(handler);
      }
+   if (v->anim_timer)
+     ecore_timer_del(v->anim_timer);
    free(v);
 }
 
@@ -312,7 +318,7 @@ _viewer_zoom_apply(Ephoto_Viewer *v, double zoom)
    Evas_Object *image;
 
    image = v->image;
-   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
+   evas_object_image_size_get(image, &w, &h);
    w *= zoom;
    h *= zoom;
    evas_object_size_hint_min_set(v->image, w, h);
@@ -328,7 +334,7 @@ _viewer_zoom_fit_apply(Ephoto_Viewer *v)
 
    image = v->image;
    evas_object_geometry_get(v->scroller, NULL, NULL, &cw, &ch);
-   evas_object_image_size_get(elm_image_object_get(image), &iw, &ih);
+   evas_object_image_size_get(image, &iw, &ih);
 
    if ((cw <= 0) || (ch <= 0))
       return;
@@ -355,7 +361,7 @@ _viewer_resized(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 
 	image = v->image;
 	evas_object_geometry_get(v->scroller, NULL, NULL, &cw, &ch);
-	evas_object_image_size_get(elm_image_object_get(image), &iw, &ih);
+	evas_object_image_size_get(image, &iw, &ih);
 
 	if ((cw <= 0) || (ch <= 0))
 	   return;
@@ -453,9 +459,9 @@ _orient_apply(Ephoto_Single_Browser *sb)
      }
    elm_table_unpack(v->table, v->image);
    elm_object_content_unset(v->scroller);
-   elm_image_object_size_get(v->image, &w, &h);
+   evas_object_image_size_get(v->image, &w, &h);
    sb->edited_image_data =
-       evas_object_image_data_get(elm_image_object_get(v->image), EINA_FALSE);
+       evas_object_image_data_get(v->image, EINA_FALSE);
    sb->ew = w;
    sb->eh = h;
    evas_object_size_hint_min_set(v->image, w, h);
@@ -1312,15 +1318,36 @@ _image_changed(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 }
 
 /*Image Viewer Function*/
+static Eina_Bool
+_animate_cb(void *data)
+{
+   Ephoto_Viewer *v = data;
+   
+   v->cur_frame++;
+   if (v->cur_frame > v->frame_count)
+     v->cur_frame = 1;
+   evas_object_image_animated_frame_set(v->image, v->cur_frame);
+   v->duration = evas_object_image_animated_frame_duration_get(v->image,
+       v->cur_frame, 0);
+   if (v->duration > 0)
+     ecore_timer_interval_set(v->anim_timer, v->duration);
+
+   return ECORE_CALLBACK_RENEW;
+}
+
 static Evas_Object *
 _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
 {
    Ephoto_Viewer *v = calloc(1, sizeof(Ephoto_Viewer));
    int err;
-
-   v->zoom_first = EINA_TRUE;
    Evas_Coord w, h;
    const char *group = _ephoto_get_edje_group(path);
+
+   v->zoom_first = EINA_TRUE;
+   v->cur_frame = 0;
+   v->anim_timer = NULL;
+   v->duration = 0;
+   v->frame_count = 0;
 
    v->scroller = elm_scroller_add(parent);
    evas_object_size_hint_weight_set(v->scroller, EVAS_HINT_EXPAND,
@@ -1341,13 +1368,15 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
    elm_object_content_set(v->scroller, v->table);
    evas_object_show(v->table);
 
-   v->image = elm_image_add(v->table);
-   elm_image_preload_disabled_set(v->image, EINA_TRUE);
-   elm_image_file_set(v->image, path, group);
-   err = evas_object_image_load_error_get(elm_image_object_get(v->image));
+   v->image = evas_object_image_add(evas_object_evas_get(v->table));
+   evas_object_image_filled_set(v->image, EINA_TRUE);
+   evas_object_image_smooth_scale_set(v->image, sb->ephoto->config->smooth);
+   evas_object_image_preload(v->image, EINA_FALSE);
+   evas_object_image_file_set(v->image, path, group);
+   err = evas_object_image_load_error_get(v->image);
    if (err != EVAS_LOAD_ERROR_NONE)
      goto error;
-   evas_object_image_size_get(elm_image_object_get(v->image), &w, &h);
+   evas_object_image_size_get(v->image, &w, &h);
    elm_drop_target_add(v->image, ELM_SEL_FORMAT_IMAGE, NULL, NULL, NULL, NULL,
        NULL, NULL, NULL, NULL);
    evas_object_size_hint_min_set(v->image, w, h);
@@ -1359,10 +1388,14 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
    evas_object_event_callback_add(v->image, EVAS_CALLBACK_RESIZE, _image_changed, sb);
    elm_table_pack(v->table, v->image, 0, 0, 1, 1);
    evas_object_show(v->image);
-   if (elm_image_animated_available_get(v->image))
+   if (evas_object_image_animated_get(v->image))
      {
-        elm_image_animated_set(v->image, EINA_TRUE);
-        elm_image_animated_play_set(v->image, EINA_TRUE);
+        v->frame_count = evas_object_image_animated_frame_count_get(v->image);
+        v->cur_frame = 1;
+        evas_object_image_animated_frame_set(v->image, v->cur_frame);
+        v->duration = evas_object_image_animated_frame_duration_get(v->image,
+            v->cur_frame, 0);
+        v->anim_timer = ecore_timer_add(v->duration, _animate_cb, v);
      }
 
 
@@ -1894,8 +1927,8 @@ ephoto_single_browser_image_data_update(Evas_Object *main, Evas_Object *image,
 
    if (sb->editing)
      {
-	evas_object_image_data_set(elm_image_object_get(image), image_data);
-	evas_object_image_data_update_add(elm_image_object_get(image), 0, 0, w,
+	evas_object_image_data_set(image, image_data);
+	evas_object_image_data_update_add(image, 0, 0, w,
 	    h);
      }
 }
@@ -1912,9 +1945,9 @@ ephoto_single_browser_image_data_done(Evas_Object *main,
         Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
         if (sb->cropping)
              sb->cropping = EINA_FALSE;
-        evas_object_image_size_set(elm_image_object_get(v->image), w, h);
-        evas_object_image_data_set(elm_image_object_get(v->image), image_data);
-        evas_object_image_data_update_add(elm_image_object_get(v->image), 0, 0, w,
+        evas_object_image_size_set(v->image, w, h);
+        evas_object_image_data_set(v->image, image_data);
+        evas_object_image_data_update_add(v->image, 0, 0, w,
             h);
         sb->edited_image_data = image_data;
         sb->ew = w;
@@ -1938,11 +1971,11 @@ ephoto_single_browser_cancel_editing(Evas_Object *main)
 	   sb->cropping = EINA_FALSE;
 	if (sb->edited_image_data)
 	  {
-	     evas_object_image_size_set(elm_image_object_get(v->image), sb->ew,
+	     evas_object_image_size_set(v->image, sb->ew,
 		 sb->eh);
-	     evas_object_image_data_set(elm_image_object_get(v->image),
+	     evas_object_image_data_set(v->image,
 		 sb->edited_image_data);
-	     evas_object_image_data_update_add(elm_image_object_get(v->image), 0,
+	     evas_object_image_data_update_add(v->image, 0,
 		 0, sb->ew, sb->eh);
 	  }
 	sb->editing = EINA_FALSE;

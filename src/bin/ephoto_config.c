@@ -1,6 +1,6 @@
 #include "ephoto.h"
 
-#define CONFIG_VERSION 18
+#define CONFIG_VERSION 19
 
 static int _ephoto_config_load(Ephoto *ephoto);
 static Eina_Bool _ephoto_on_config_save(void *data);
@@ -50,6 +50,7 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
    ephoto->config->prompts = elm_check_state_get(ephoto->config->show_prompts);
    ephoto->config->drop = elm_check_state_get(ephoto->config->move_drop);
    ephoto->config->movess = elm_check_state_get(ephoto->config->slide_move);
+   ephoto->config->smooth = elm_check_state_get(ephoto->config->smooth_scale);
    if (elm_spinner_value_get(ephoto->config->slide_time) > 0)
       ephoto->config->slideshow_timeout =
           elm_spinner_value_get(ephoto->config->slide_time);
@@ -108,6 +109,14 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(check);
    ephoto->config->move_drop = check;
 
+   check = elm_check_add(table);
+   elm_object_text_set(check, _("Smooth Scale Images"));
+   evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
+   elm_check_state_set(check, ephoto->config->smooth);
+   elm_table_pack(table, check, 0, 3, 1, 1);
+   evas_object_show(check);
+   ephoto->config->smooth_scale = check;
+
    hoversel = elm_hoversel_add(table);
    elm_hoversel_hover_parent_set(hoversel, ephoto->win);
    elm_hoversel_item_add(hoversel, _("Root Directory"), NULL, 0,
@@ -123,7 +132,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(hoversel, EVAS_HINT_EXPAND,
        EVAS_HINT_FILL);
    evas_object_size_hint_align_set(hoversel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_table_pack(table, hoversel, 0, 3, 1, 1);
+   elm_table_pack(table, hoversel, 0, 4, 1, 1);
    evas_object_show(hoversel);
    ephoto->config->open_dir = hoversel;
 
@@ -136,7 +145,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
        ELM_SCROLLER_POLICY_OFF);
    evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_table_pack(table, entry, 0, 4, 1, 1);
+   elm_table_pack(table, entry, 0, 5, 1, 1);
    evas_object_show(entry);
    ephoto->config->open_dir_custom = entry;
 }
@@ -797,6 +806,7 @@ ephoto_config_init(Ephoto *ephoto)
 	  ephoto->config->prompts = 1;
 	  ephoto->config->drop = 0;
           ephoto->config->movess = 1;
+          ephoto->config->smooth = 1;
           ephoto->config->firstrun = 1;
 	  break;
 

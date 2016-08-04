@@ -225,6 +225,7 @@ struct _Ephoto_Config
    Eina_Bool prompts;
    Eina_Bool drop;
    Eina_Bool movess;
+   Eina_Bool smooth;
    Eina_Bool firstrun;
    Evas_Object *slide_time;
    Evas_Object *slide_trans;
@@ -232,6 +233,7 @@ struct _Ephoto_Config
    Evas_Object *open_dir_custom;
    Evas_Object *show_prompts;
    Evas_Object *move_drop;
+   Evas_Object *smooth_scale;
    Evas_Object *slide_move;
 };
 

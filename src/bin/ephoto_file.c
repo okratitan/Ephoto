@@ -115,7 +115,7 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
      }
    ephoto_single_browser_path_pending_set(ephoto->single_browser, file);
    success =
-       evas_object_image_save(elm_image_object_get(image), file,
+       evas_object_image_save(image, file,
            NULL, NULL);
    if (!success)
      {
@@ -1005,7 +1005,7 @@ _prompt_save_image_apply(void *data, Evas_Object *obj EINA_UNUSED,
 	  }
      }
    success =
-       evas_object_image_save(elm_image_object_get(image), entry->path,
+       evas_object_image_save(image, entry->path,
        NULL, NULL);
    if (!success)
       _complete(ephoto, _("Save Failed"),
@@ -1097,7 +1097,7 @@ _prompt_save_image_as_apply(void *data, Evas_Object *obj EINA_UNUSED, void *even
              ephoto_single_browser_path_pending_set
                  (ephoto->single_browser, buf);
 	     success =
-		 evas_object_image_save(elm_image_object_get(image), buf,
+		 evas_object_image_save(image, buf,
 		 NULL, NULL);
 	     if (!success)
                {

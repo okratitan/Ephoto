@@ -34,7 +34,7 @@ _calculate_cropper_size(void *data, Evas_Object *obj EINA_UNUSED,
        "ephoto.swallow.image", 0, 0, &w, &h);
    edje_object_part_geometry_get(elm_layout_edje_get(ec->layout),
        "ephoto.swallow.cropper", 0, 0, &cw, &ch);
-   evas_object_image_size_get(elm_image_object_get(ec->image), &iw, &ih);
+   evas_object_image_size_get(ec->image, &iw, &ih);
 
    scalew = (double) cw / (double) w;
    scaleh = (double) ch / (double) h;
@@ -69,8 +69,7 @@ _cropper_changed_width(void *data, Evas_Object *obj EINA_UNUSED,
        "ephoto.swallow.image", &lx, 0, &lw, 0);
    edje_object_part_geometry_get(elm_layout_edje_get(ec->layout),
        "ephoto.swallow.cropper", &cx, 0, &cw, 0);
-   evas_object_image_size_get(elm_image_object_get(ec->image), &iw, 0);
-
+   evas_object_image_size_get(ec->image, &iw, 0);
    scalew = (double) mw / (double) iw;
 
    nw = lw * scalew;
@@ -121,7 +120,7 @@ _cropper_changed_height(void *data, Evas_Object *obj EINA_UNUSED,
        "ephoto.swallow.image", 0, &ly, 0, &lh);
    edje_object_part_geometry_get(elm_layout_edje_get(ec->layout),
        "ephoto.swallow.cropper", 0, &cy, 0, &ch);
-   evas_object_image_size_get(elm_image_object_get(ec->image), 0, &ih);
+   evas_object_image_size_get(ec->image, 0, &ih);
 
    scaleh = (double) mh / (double) ih;
    nh = lh * scaleh;
@@ -188,10 +187,10 @@ _apply_crop(void *data, Evas_Object *obj EINA_UNUSED,
    edje_object_part_geometry_get(edje, "ephoto.swallow.image", &x, &y, &w, &h);
    edje_object_part_geometry_get(edje, "ephoto.swallow.cropper", &cx, &cy, &cw,
        &ch);
-   evas_object_image_size_get(elm_image_object_get(ec->image), &iw, &ih);
+   evas_object_image_size_get(ec->image, &iw, &ih);
 
    idata =
-       evas_object_image_data_get(elm_image_object_get(ec->image), EINA_FALSE);
+       evas_object_image_data_get(ec->image, EINA_FALSE);
 
    scalex = (double) (cx-x) / (double) w;
    scaley = (double) (cy-y) / (double) h;
@@ -535,7 +534,7 @@ _image_resize(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    Evas_Coord sx, sy, sw, sh, ix, iy, iw, ih, diffw, diffh;
 
    evas_object_geometry_get(ec->layout, &sx, &sy, &sw, &sh);
-   evas_object_image_size_get(elm_image_object_get(ec->image), &iw, &ih);
+   evas_object_image_size_get(ec->image, &iw, &ih);
 
    Evas_Coord nw, nh;
 
@@ -644,7 +643,7 @@ ephoto_cropper_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
    ec->image_parent = image_parent;
    ec->image = image;
 
-   evas_object_image_size_get(elm_image_object_get(image), &w, &h);
+   evas_object_image_size_get(image, &w, &h);
 
    ec->box = elm_box_add(image_parent);
    elm_box_homogeneous_set(ec->box, EINA_TRUE);

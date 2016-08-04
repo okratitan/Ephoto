@@ -107,7 +107,7 @@ _es_apply(void *data, int type EINA_UNUSED,
 
    w = round(elm_spinner_value_get(es->scalew));
    h = round(elm_spinner_value_get(es->scaleh));
-   evas_object_image_file_get(elm_image_object_get(es->image),
+   evas_object_image_file_get(es->image,
        NULL, &key);
 
    ee = ecore_evas_buffer_new(1, 1);
@@ -192,13 +192,13 @@ ephoto_scale_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
    es->tmp_file = eina_stringshare_add(buf);
    if (ecore_file_exists(es->tmp_file))
      ecore_file_unlink(es->tmp_file);
-   evas_object_image_save(elm_image_object_get(es->image), es->tmp_file,
+   evas_object_image_save(es->image, es->tmp_file,
        NULL, NULL);
 
    im_data =
-       evas_object_image_data_get(elm_image_object_get(es->image),
+       evas_object_image_data_get(es->image,
        EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(es->image), &es->w,
+   evas_object_image_size_get(es->image, &es->w,
        &es->h);
    es->original_im_data = malloc(sizeof(unsigned int) * es->w * es->h);
    memcpy(es->original_im_data, im_data,

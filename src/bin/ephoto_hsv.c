@@ -282,9 +282,9 @@ _hsv_apply(void *data, int type EINA_UNUSED,
    Evas_Coord w, h;
 
    image_data =
-       evas_object_image_data_get(elm_image_object_get(ehsv->image),
+       evas_object_image_data_get(ehsv->image,
        EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(ehsv->image), &w, &h);
+   evas_object_image_size_get(ehsv->image, &w, &h);
    ephoto_single_browser_image_data_done(ehsv->main, image_data, w, h);
    ephoto_editor_del(ehsv->editor);
 
@@ -342,9 +342,9 @@ ephoto_hsv_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Obje
    ehsv->parent = parent;
    ehsv->image = image;
    im_data =
-       evas_object_image_data_get(elm_image_object_get(ehsv->image),
+       evas_object_image_data_get(ehsv->image,
        EINA_FALSE);
-   evas_object_image_size_get(elm_image_object_get(ehsv->image), &ehsv->w,
+   evas_object_image_size_get(ehsv->image, &ehsv->w,
        &ehsv->h);
    ehsv->original_im_data = malloc(sizeof(unsigned int) * ehsv->w * ehsv->h);
    memcpy(ehsv->original_im_data, im_data,

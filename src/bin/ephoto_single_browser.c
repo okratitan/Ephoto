@@ -275,6 +275,8 @@ _monitor_cb(void *data, int type,
    Ephoto_Single_Browser *sb = data;
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
+   if (sb->edited_image_data)
+     return ECORE_CALLBACK_PASS_ON;
    if (type == EIO_MONITOR_FILE_MODIFIED)
      {
         if (!ecore_file_exists(sb->entry->path))

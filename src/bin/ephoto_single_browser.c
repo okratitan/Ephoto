@@ -1491,15 +1491,16 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
    elm_menu_item_add(menu, menu_it, "document-save", _("Save"), _save_image, sb);
    elm_menu_item_add(menu, menu_it, "document-save-as", _("Save As"),
        _save_image_as, sb);
-   elm_menu_item_add(menu, menu_it, "document-send", _("Upload"), _upload_image,
-       sb);
-   menu_it =
-       elm_menu_item_add(menu, NULL, "document-properties", _("Edit"), NULL, NULL);
-   elm_menu_item_add(menu, menu_it, "edit-undo", _("Reset"), _reset_image, sb);
-   elm_menu_item_add(menu, menu_it, "edit", _("Rename"),
+    elm_menu_item_add(menu, menu_it, "edit", _("Rename"),
             _rename_image, sb);
    elm_menu_item_add(menu, menu_it, "edit-delete", _("Delete"),
             _delete_image, sb);
+   elm_menu_item_add(menu, menu_it, "document-send", _("Upload"), _upload_image,
+       sb);
+  
+   menu_it =
+       elm_menu_item_add(menu, NULL, "document-properties", _("Edit"), NULL, NULL);
+   elm_menu_item_add(menu, menu_it, "edit-undo", _("Reset"), _reset_image, sb);
    elm_menu_item_separator_add(menu, menu_it);
    menu_itt =
        elm_menu_item_add(menu, menu_it, "document-properties", _("Transform"),

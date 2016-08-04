@@ -37,7 +37,8 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
 
    if (ecore_file_is_dir(path) || !strcmp(path, "Last"))
       eina_stringshare_replace(&ephoto->config->open, path);
-   if (strcmp(path, ephoto->config->directory) && strcmp(path, "Last"))
+   if (strcmp(path, ephoto->config->directory) && strcmp(path, "Last") &&
+          ecore_file_exists(path))
      {
         ephoto_directory_browser_clear(ephoto);
         ephoto_thumb_browser_clear(ephoto);
@@ -295,22 +296,22 @@ _config_settings(Ephoto *ephoto, Evas_Object *parent, Evas_Object *popup)
    elm_box_pack_end(box, hbox);
    evas_object_show(hbox);
 
-   ic = elm_icon_add(box);
+   ic = elm_icon_add(hbox);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "document-save");
 
-   button = elm_button_add(box);
+   button = elm_button_add(hbox);
    elm_object_text_set(button, _("Save"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _config_save_cb, popup);
    elm_box_pack_end(hbox, button);
    evas_object_show(button);
 
-   ic = elm_icon_add(box);
+   ic = elm_icon_add(hbox);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
 
-   button = elm_button_add(box);
+   button = elm_button_add(hbox);
    elm_object_text_set(button, _("Close"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _config_close_cb, popup);

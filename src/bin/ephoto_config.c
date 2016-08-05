@@ -78,7 +78,7 @@ _open_hv_select(void *data, Evas_Object *obj, void *event_info)
 static void
 _config_general(Ephoto *ephoto, Evas_Object *parent)
 {
-   Evas_Object *frame, *table, *check, *hoversel, *entry;
+   Evas_Object *frame, *table, *check, *hoversel, *entry, *label;
 
    frame = elm_frame_add(parent);
    elm_object_text_set(frame, _("General"));
@@ -117,6 +117,12 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(check);
    ephoto->config->smooth_scale = check;
 
+   label = elm_label_add(table);
+   elm_object_text_set(label, _("Directory To Open Ephoto In:"));
+   evas_object_size_hint_align_set(label, 0.5, 0.5);
+   elm_table_pack(table, label, 0, 4, 1, 1);
+   evas_object_show(label); 
+
    hoversel = elm_hoversel_add(table);
    elm_hoversel_hover_parent_set(hoversel, ephoto->win);
    elm_hoversel_item_add(hoversel, _("Root Directory"), NULL, 0,
@@ -132,7 +138,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(hoversel, EVAS_HINT_EXPAND,
        EVAS_HINT_FILL);
    evas_object_size_hint_align_set(hoversel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_table_pack(table, hoversel, 0, 4, 1, 1);
+   elm_table_pack(table, hoversel, 0, 5, 1, 1);
    evas_object_show(hoversel);
    ephoto->config->open_dir = hoversel;
 
@@ -145,7 +151,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
        ELM_SCROLLER_POLICY_OFF);
    evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_table_pack(table, entry, 0, 5, 1, 1);
+   elm_table_pack(table, entry, 0, 6, 1, 1);
    evas_object_show(entry);
    ephoto->config->open_dir_custom = entry;
 }

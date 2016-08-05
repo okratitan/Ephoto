@@ -6,6 +6,7 @@ static Ecore_Timer *_1s_hold = NULL;
 
 typedef struct _Ephoto_Single_Browser Ephoto_Single_Browser;
 typedef struct _Ephoto_Viewer Ephoto_Viewer;
+typedef struct _Ephoto_History Ephoto_History;
 
 struct _Ephoto_Single_Browser
 {
@@ -22,6 +23,8 @@ struct _Ephoto_Single_Browser
    Ephoto_Orient orient;
    Eina_List *handlers;
    Eina_List *entries;
+   Eina_List *history;
+   unsigned int history_pos;
    Eina_Bool editing:1;
    Eina_Bool cropping:1;
    unsigned int *edited_image_data;
@@ -44,6 +47,13 @@ struct _Ephoto_Viewer
    int frame_count;
    int cur_frame;
    Ecore_Timer *anim_timer;
+};
+
+struct _Ephoto_History
+{
+   unsigned int *im_data;
+   Evas_Coord w;
+   Evas_Coord h;
 };
 
 /*Common Callbacks*/
@@ -821,6 +831,48 @@ _last_entry(Ephoto_Single_Browser *sb)
 }
 
 static void
+_undo_image(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+   Ephoto_History *eh;
+
+   if (!v)
+     return;
+
+   if (sb->history && sb->history_pos > 0)
+     {
+        sb->history_pos--;
+        eh = eina_list_nth(sb->history, sb->history_pos);
+        evas_object_image_size_set(v->image, eh->w, eh->h);
+        evas_object_image_data_set(v->image, eh->im_data);
+        evas_object_image_data_update_add(v->image, 0, 0, eh->w, eh->h);
+     }
+}
+
+static void
+_redo_image(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+   Ephoto_History *eh;
+
+   if (!v)
+     return;
+
+   if (sb->history && sb->history_pos < (eina_list_count(sb->history)-1))
+     {
+        sb->history_pos++;
+        eh = eina_list_nth(sb->history, sb->history_pos);
+        evas_object_image_size_set(v->image, eh->w, eh->h);
+        evas_object_image_data_set(v->image, eh->im_data);
+        evas_object_image_data_update_add(v->image, 0, 0, eh->w, eh->h);
+     }
+}
+
+static void
 _reset_yes(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
@@ -1398,7 +1450,6 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
         v->anim_timer = ecore_timer_add(v->duration, _animate_cb, v);
      }
 
-
    v->monitor = eio_monitor_add(path);
    v->monitor_handlers =
        eina_list_append(v->monitor_handlers,
@@ -1533,6 +1584,8 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
   
    menu_it =
        elm_menu_item_add(menu, NULL, "document-properties", _("Edit"), NULL, NULL);
+   elm_menu_item_add(menu, menu_it, "edit-undo", _("Undo"), _undo_image, sb);
+   elm_menu_item_add(menu, menu_it, "edit-redo", _("Redo"), _redo_image, sb);
    elm_menu_item_add(menu, menu_it, "edit-undo", _("Reset"), _reset_image, sb);
    elm_menu_item_separator_add(menu, menu_it);
    menu_itt =
@@ -1686,6 +1739,17 @@ _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNU
           {
              _reset_image(sb, NULL, NULL);
           }
+        else if (!strcmp(k, "z"))
+          {
+             if (!shift)
+               _undo_image(sb, NULL, NULL);
+             else
+               _redo_image(sb, NULL, NULL);
+          }
+        else if (!strcmp(k, "y"))
+          {
+             _redo_image(sb, NULL, NULL);
+          }
 	return;
      }
 
@@ -1781,6 +1845,7 @@ _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    Ecore_Event_Handler *handler;
    Eina_Iterator *tmps;
    Eina_File_Direct_Info *info;
+   Ephoto_History *eh;
 
    EINA_LIST_FREE(sb->handlers, handler) ecore_event_handler_del(handler);
    if (sb->entry)
@@ -1796,6 +1861,17 @@ _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
       if (!strncmp(bname, "tmp", 3))
 	 ecore_file_unlink(info->path);
    }
+   if (sb->history)
+     {
+        EINA_LIST_FREE(sb->history, eh)
+          {
+             free(eh->im_data);
+             free(eh);
+             eh = NULL;
+          }
+        sb->history = NULL;
+        sb->history_pos = 0;
+     }
    free(sb);
 }
 
@@ -1830,6 +1906,9 @@ void
 ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
 {
    Ephoto_Single_Browser *sb = evas_object_data_get(obj, "single_browser");
+   Ephoto_Viewer *v;
+   Ephoto_History *eh;
+   Evas_Coord w, h;
    char *dir;
 
    if (sb->entry && !entry)
@@ -1854,8 +1933,30 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
 	sb->ew = 0;
 	sb->eh = 0;
      }
+   if (sb->history)
+     {
+        EINA_LIST_FREE(sb->history, eh)
+          {
+             free(eh->im_data);
+             free(eh);
+             eh = NULL;
+          }
+        sb->history = NULL;
+        sb->history_pos = 0;
+     }
    if (sb->viewer)
-      _zoom_fit(sb);
+     {
+        v = evas_object_data_get(sb->viewer, "viewer");
+        evas_object_image_size_get(v->image, &w, &h);
+        eh = calloc(1, sizeof(Ephoto_History));
+        eh->im_data = malloc(sizeof(unsigned int) * w * h);
+        eh->im_data = memcpy(eh->im_data, evas_object_image_data_get(v->image, EINA_FALSE),
+            sizeof(unsigned int) * w * h);
+        eh->w = w;
+        eh->h = h;
+        sb->history = eina_list_append(sb->history, eh);
+        _zoom_fit(sb);
+     }
    if (sb->event)
      {
 	evas_object_del(sb->event);
@@ -1938,6 +2039,8 @@ ephoto_single_browser_image_data_done(Evas_Object *main,
     unsigned int *image_data, Evas_Coord w, Evas_Coord h)
 {
    Ephoto_Single_Browser *sb = evas_object_data_get(main, "single_browser");
+   Ephoto_History *eh;
+   Eina_List *l;
 
    if (sb->editing)
      {
@@ -1952,6 +2055,30 @@ ephoto_single_browser_image_data_done(Evas_Object *main,
         sb->edited_image_data = image_data;
         sb->ew = w;
         sb->eh = h;
+        if (sb->history_pos < (eina_list_count(sb->history)-1))
+          {
+             int count;
+
+             count = sb->history_pos + 1;
+             l = eina_list_nth_list(sb->history, count);
+             while (l)
+               {
+                  eh = eina_list_data_get(l);
+                  sb->history = eina_list_remove_list(sb->history, l);
+                  free(eh->im_data);
+                  free(eh);
+                  eh = NULL;
+                  l = eina_list_nth_list(sb->history, count);
+               }
+          }
+        eh = calloc(1, sizeof(Ephoto_History));
+        eh->im_data = malloc(sizeof(unsigned int) * sb->ew * sb->eh);
+        eh->im_data = memcpy(eh->im_data, sb->edited_image_data,
+            sizeof(unsigned int) * sb->ew * sb->eh);
+        eh->w = sb->ew;
+        eh->h = sb->eh;
+        sb->history = eina_list_append(sb->history, eh);
+        sb->history_pos = eina_list_count(sb->history) - 1;
         _ephoto_update_bottom_bar(sb);
         sb->editing = EINA_FALSE;
         _zoom_fit(sb);
@@ -2089,6 +2216,8 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    sb->editing = EINA_FALSE;
    sb->cropping = EINA_FALSE;
    sb->main = box;
+   sb->history = NULL;
+   sb->history_pos = 0;
 
    elm_box_horizontal_set(sb->main, EINA_FALSE);
    evas_object_event_callback_add(sb->main, EVAS_CALLBACK_DEL, _ephoto_main_del, sb);

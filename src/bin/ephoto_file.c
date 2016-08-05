@@ -1422,8 +1422,8 @@ ephoto_file_paste(Ephoto *ephoto, Eina_List *files, Eina_Bool copy, const char *
              Evas_Object *popup;
 
              popup =
-                 _prompt(ephoto, _("Move Files"),
-                 _("Are you sure you want to move these files here?"));
+                 _prompt(ephoto, _("Paste Files"),
+                 _("Are you sure you want to paste these files here?"));
 
              ic = elm_icon_add(popup);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,

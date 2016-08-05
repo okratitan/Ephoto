@@ -631,7 +631,7 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
      {
         evas_object_data_set(item, "directory_browser", db);
         elm_menu_item_add(menu, NULL, "edit", _("Rename"),
-            _fsel_menu_rename_cb, item);
+            _fsel_menu_rename_cb, db);
 	elm_menu_item_add(menu, NULL, "edit-paste", _("Paste"),
 	    _fsel_menu_paste_cb, db);
      }

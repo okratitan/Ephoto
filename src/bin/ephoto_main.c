@@ -741,6 +741,10 @@ _ephoto_populate_filter(void *data, Eio_File *handler EINA_UNUSED,
      {
         return EINA_TRUE;
      }
+   else if (info->type == EINA_FILE_LNK && !ed->thumbs_only)
+     {
+        return ecore_file_is_dir(ecore_file_realpath(info->path));
+     }
    if (!ed->dirs_only)
      return _ephoto_eina_file_direct_info_image_useful(info);
    else
@@ -1065,7 +1069,10 @@ ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label,
    entry->basename = ecore_file_file_get(entry->path);
    entry->label = eina_stringshare_add(label);
    if (type == EINA_FILE_DIR)
-      entry->is_dir = EINA_TRUE;
+     entry->is_dir = EINA_TRUE;
+   else if (type == EINA_FILE_LNK && ecore_file_is_dir(
+       ecore_file_realpath(entry->path)))
+     entry->is_dir = EINA_TRUE;
    else
       entry->is_dir = EINA_FALSE;
    return entry;

@@ -391,11 +391,13 @@ _check_for_subdirs(Ephoto_Entry *entry)
      return EINA_FALSE;
    EINA_ITERATOR_FOREACH(ls, info)
      {
-        if (info->type == EINA_FILE_DIR)
-          {
-             eina_iterator_free(ls);
-             return EINA_TRUE;
-          }
+        if (info->type != EINA_FILE_DIR && info->type != EINA_FILE_LNK)
+          continue;
+        if (info->type == EINA_FILE_LNK && !ecore_file_is_dir(
+            ecore_file_realpath(info->path)))
+          continue;
+        eina_iterator_free(ls);
+        return EINA_TRUE;
      }
    eina_iterator_free(ls);
    return EINA_FALSE;
@@ -729,7 +731,7 @@ _monitor_cb(void *data, int type,
      return ECORE_CALLBACK_PASS_ON;
    if (type == EIO_MONITOR_DIRECTORY_CREATED)
      {
-        if (!ecore_file_is_dir(ev->filename))
+        if (!ecore_file_is_dir(ecore_file_realpath(ev->filename)))
           return ECORE_CALLBACK_PASS_ON;
         if (ephoto_entry_exists(entry->ephoto, ev->filename))
           return ECORE_CALLBACK_PASS_ON;
@@ -833,7 +835,7 @@ _monitor_cb(void *data, int type,
      }
    else if (type == EIO_MONITOR_DIRECTORY_MODIFIED)
      {
-        if (!ecore_file_is_dir(ev->filename))
+        if (!ecore_file_is_dir(ecore_file_realpath(ev->filename)))
           return ECORE_CALLBACK_PASS_ON;
         if ((elm_genlist_item_expanded_get(entry->item) == EINA_TRUE))
           {
@@ -874,7 +876,7 @@ _top_monitor_cb(void *data, int type,
      return ECORE_CALLBACK_PASS_ON;
    if (type == EIO_MONITOR_DIRECTORY_CREATED)
      {
-        if (!ecore_file_is_dir(ev->filename))
+        if (!ecore_file_is_dir(ecore_file_realpath(ev->filename)))
           return ECORE_CALLBACK_PASS_ON; 
         if (ephoto_entry_exists(db->ephoto, ev->filename))
           return ECORE_CALLBACK_PASS_ON;
@@ -924,7 +926,7 @@ _top_monitor_cb(void *data, int type,
      }
    else if (type == EIO_MONITOR_DIRECTORY_MODIFIED)
      {
-        if (!ecore_file_is_dir(ev->filename))
+        if (!ecore_file_is_dir(ecore_file_realpath(ev->filename)))
           return ECORE_CALLBACK_PASS_ON;
         item = elm_genlist_first_item_get(db->fsel);
         while (item)
@@ -1068,6 +1070,11 @@ _ephoto_dir_entry_create(void *data, int type EINA_UNUSED, void *event)
 	db->todo_items = eina_list_append(db->todo_items, e);
 	db->animator.count++;
      }
+   else if (ecore_file_is_dir(ecore_file_realpath(e->path)))
+     {
+        db->todo_items = eina_list_append(db->todo_items, e);
+        db->animator.count++;
+     }
    if (!db->animator.todo_items)
       db->animator.todo_items = ecore_animator_add(_todo_items_process, db);
 
@@ -1185,8 +1192,12 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
         cur = next; 
         EINA_ITERATOR_FOREACH(it, finfo)
           {
-             if (finfo->type == EINA_FILE_DIR && 
-                 strncmp(finfo->path + finfo->name_start, ".", 1))
+             if (finfo->type != EINA_FILE_DIR && finfo->type != EINA_FILE_LNK)
+               continue;
+             if (finfo->type == EINA_FILE_LNK && !ecore_file_is_dir(
+                 ecore_file_realpath(finfo->path)))
+               continue;
+             if (strncmp(finfo->path + finfo->name_start, ".", 1))
                {
                   Ephoto_Entry *entry = ephoto_entry_new(db->ephoto, finfo->path,
                       finfo->path+finfo->name_start, finfo->type);

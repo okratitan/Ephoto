@@ -1417,7 +1417,7 @@ _ephoto_thumb_entry_create(void *data, int type EINA_UNUSED, void *event)
    Ephoto_Entry *e;
 
    e = ev->entry;
-   if (!e->is_dir)
+   if (!e->is_dir && !ecore_file_is_dir(ecore_file_realpath(e->path)))
      {
 	Eina_File *f;
 

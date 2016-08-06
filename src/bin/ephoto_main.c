@@ -745,7 +745,7 @@ _ephoto_populate_filter(void *data, Eio_File *handler EINA_UNUSED,
      {
         return ecore_file_is_dir(ecore_file_realpath(info->path));
      }
-   if (!ed->dirs_only)
+   else if (!ed->dirs_only)
      return _ephoto_eina_file_direct_info_image_useful(info);
    else
      return EINA_FALSE;

@@ -1387,7 +1387,7 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
           }
      }
    tb->entries = tb->ephoto->entries;
-   if (eina_list_count(tb->entries) < 1)
+   if (eina_list_count(tb->entries) < 1 && tb->ephoto->config->folders)
      {
         ephoto_show_folders(tb->ephoto, EINA_FALSE);
      }

@@ -1,6 +1,6 @@
 #include "ephoto.h"
 
-#define CONFIG_VERSION 19
+#define CONFIG_VERSION 20
 
 static int _ephoto_config_load(Ephoto *ephoto);
 static Eina_Bool _ephoto_on_config_save(void *data);
@@ -51,6 +51,7 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
    ephoto->config->drop = elm_check_state_get(ephoto->config->move_drop);
    ephoto->config->movess = elm_check_state_get(ephoto->config->slide_move);
    ephoto->config->smooth = elm_check_state_get(ephoto->config->smooth_scale);
+   ephoto->config->folders = elm_check_state_get(ephoto->config->show_folders);
    if (elm_spinner_value_get(ephoto->config->slide_time) > 0)
       ephoto->config->slideshow_timeout =
           elm_spinner_value_get(ephoto->config->slide_time);
@@ -94,10 +95,18 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(table);
 
    check = elm_check_add(table);
+   elm_object_text_set(check, _("Show Folders On Start"));
+   evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
+   elm_check_state_set(check, ephoto->config->folders);
+   elm_table_pack(table, check, 0, 1, 1, 1);
+   evas_object_show(check);
+   ephoto->config->show_folders = check;
+
+   check = elm_check_add(table);
    elm_object_text_set(check, _("Prompt Before Changing The Filesystem"));
    evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
    elm_check_state_set(check, ephoto->config->prompts);
-   elm_table_pack(table, check, 0, 1, 1, 1);
+   elm_table_pack(table, check, 0, 2, 1, 1);
    evas_object_show(check);
    ephoto->config->show_prompts = check;
 
@@ -105,7 +114,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    elm_object_text_set(check, _("Move Files When Dropped"));
    evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
    elm_check_state_set(check, ephoto->config->drop);
-   elm_table_pack(table, check, 0, 2, 1, 1);
+   elm_table_pack(table, check, 0, 3, 1, 1);
    evas_object_show(check);
    ephoto->config->move_drop = check;
 
@@ -113,14 +122,14 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    elm_object_text_set(check, _("Smooth Scale Images"));
    evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
    elm_check_state_set(check, ephoto->config->smooth);
-   elm_table_pack(table, check, 0, 3, 1, 1);
+   elm_table_pack(table, check, 0, 4, 1, 1);
    evas_object_show(check);
    ephoto->config->smooth_scale = check;
 
    label = elm_label_add(table);
    elm_object_text_set(label, _("Directory To Open Ephoto In:"));
    evas_object_size_hint_align_set(label, 0.5, 0.5);
-   elm_table_pack(table, label, 0, 4, 1, 1);
+   elm_table_pack(table, label, 0, 5, 1, 1);
    evas_object_show(label); 
 
    hoversel = elm_hoversel_add(table);
@@ -138,7 +147,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(hoversel, EVAS_HINT_EXPAND,
        EVAS_HINT_FILL);
    evas_object_size_hint_align_set(hoversel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_table_pack(table, hoversel, 0, 5, 1, 1);
+   elm_table_pack(table, hoversel, 0, 6, 1, 1);
    evas_object_show(hoversel);
    ephoto->config->open_dir = hoversel;
 
@@ -151,7 +160,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
        ELM_SCROLLER_POLICY_OFF);
    evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_table_pack(table, entry, 0, 6, 1, 1);
+   elm_table_pack(table, entry, 0, 7, 1, 1);
    evas_object_show(entry);
    ephoto->config->open_dir_custom = entry;
 }
@@ -800,6 +809,9 @@ ephoto_config_init(Ephoto *ephoto)
    C_VAL(D, T, prompts, EET_T_INT);
    C_VAL(D, T, drop, EET_T_INT);
    C_VAL(D, T, movess, EET_T_INT);
+   C_VAL(D, T, smooth, EET_T_INT);
+   C_VAL(D, T, firstrun, EET_T_INT);
+   C_VAL(D, T, folders, EET_T_INT);
    switch (_ephoto_config_load(ephoto))
      {
        case 0:
@@ -817,6 +829,7 @@ ephoto_config_init(Ephoto *ephoto)
           ephoto->config->movess = 1;
           ephoto->config->smooth = 1;
           ephoto->config->firstrun = 1;
+          ephoto->config->folders = 1;
 	  break;
 
        default:

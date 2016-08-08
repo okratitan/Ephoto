@@ -47,6 +47,8 @@ _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    ephoto->menu_blocking = EINA_FALSE;
    ephoto->hover_blocking = EINA_FALSE;
    ephoto->editor_blocking = EINA_FALSE;
+   ephoto->folders_toggle = EINA_TRUE;
+   ephoto_show_folders(ephoto, EINA_TRUE);
    ephoto_thumb_browser_show_controls(ephoto);
    evas_object_freeze_events_set(ephoto->single_browser, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->slideshow, EINA_TRUE);
@@ -395,7 +397,7 @@ Evas_Object *
 ephoto_window_add(const char *path)
 {
    Ephoto *ephoto = calloc(1, sizeof(Ephoto));
-   Evas_Object *ic, *but;
+   Evas_Object *ic, *but, *fold;
    char buf[PATH_MAX];
    int ret;
 
@@ -538,6 +540,7 @@ ephoto_window_add(const char *path)
    elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_RIGHT);
    elm_box_pack_end(ephoto->statusbar, but);
    evas_object_show(but);
+   fold = but;
    evas_object_data_set(ephoto->layout, "folder_button", but);
 
    ephoto->controls_left = elm_box_add(ephoto->statusbar);
@@ -650,8 +653,17 @@ ephoto_window_add(const char *path)
        ephoto->config->window_height);
    evas_object_show(ephoto->win);
 
+   if (!ephoto->config->folders)
+     {
+        edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
+            "ephoto,folders,hide,start", "ephoto");
+        evas_object_hide(ephoto->dir_browser);
+        ephoto->folders_toggle = EINA_FALSE;
+        elm_object_tooltip_text_set(fold, _("Show Folders"));
+     }
+   else
+     elm_layout_signal_emit(ephoto->layout, "ephoto,folders,show", "ephoto");
    elm_layout_signal_emit(ephoto->layout, "ephoto,controls,show", "ephoto");
-   elm_layout_signal_emit(ephoto->layout, "ephoto,folders,show", "ephoto");
    ephoto->overlay_timer = ecore_timer_add(5.0, _timer_cb, ephoto);
 
    if (ephoto->config->firstrun)

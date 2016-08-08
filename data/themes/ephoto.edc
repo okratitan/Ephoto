@@ -365,6 +365,13 @@ collections {
             source: "ephoto.swallow.folders";
             action: SIGNAL_EMIT "ephoto,unblock" "ephoto";
          }
+         program { signal: "ephoto,folders,hide,start";
+            source: "ephoto";
+            action: STATE_SET "hidden" 0.0;
+            target: "ephoto.swallow.folders";
+            target: "folders_shadow";
+            target: "ephoto,folders";
+         }
          program { signal: "ephoto,folders,hide";
             source: "ephoto";
             script {

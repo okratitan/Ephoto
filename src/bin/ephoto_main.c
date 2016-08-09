@@ -753,7 +753,8 @@ _ephoto_populate_filter(void *data, Eio_File *handler EINA_UNUSED,
      {
         return EINA_TRUE;
      }
-   else if (info->type == EINA_FILE_LNK && !ed->thumbs_only)
+   else if (info->type == EINA_FILE_LNK && ecore_file_is_dir(
+       ecore_file_realpath(info->path)))
      {
         return ecore_file_is_dir(ecore_file_realpath(info->path));
      }

@@ -1336,6 +1336,9 @@ _ephoto_thumb_populate_start(void *data, int type EINA_UNUSED,
 {
    Ephoto_Thumb_Browser *tb = data;
 
+   if (tb->dirs_only)
+     return ECORE_CALLBACK_PASS_ON;
+
    tb->animator.processed = 0;
    tb->animator.count = 0;
    if (tb->ephoto->selentries)
@@ -1355,6 +1358,9 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
     void *event EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = data;
+
+   if (tb->dirs_only)
+     return ECORE_CALLBACK_PASS_ON;
 
    tb->ls = NULL;
    if (tb->main_deleted)
@@ -1403,6 +1409,9 @@ _ephoto_thumb_populate_error(void *data, int type EINA_UNUSED,
 {
    Ephoto_Thumb_Browser *tb = data;
 
+   if (tb->dirs_only)
+     return ECORE_CALLBACK_PASS_ON;
+
    tb->thumbs_only = 0;
    tb->dirs_only = 0;
 
@@ -1415,6 +1424,9 @@ _ephoto_thumb_entry_create(void *data, int type EINA_UNUSED, void *event)
    Ephoto_Thumb_Browser *tb = data;
    Ephoto_Event_Entry_Create *ev = event;
    Ephoto_Entry *e;
+
+   if (tb->dirs_only)
+     return ECORE_CALLBACK_PASS_ON;
 
    e = ev->entry;
    if (!e->is_dir && !ecore_file_is_dir(ecore_file_realpath(e->path)))
@@ -1718,6 +1730,15 @@ _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 
 
 /*Ephoto Thumb Browser Public Functions*/
+void 
+ephoto_thumb_browser_dirs_only_set(Ephoto *ephoto, Eina_Bool dirs_only)
+{
+   Ephoto_Thumb_Browser *tb =
+       evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
+
+   tb->dirs_only = dirs_only;
+}
+
 void
 ephoto_thumb_browser_clear(Ephoto *ephoto)
 {

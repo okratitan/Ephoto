@@ -106,6 +106,7 @@ void ephoto_thumb_browser_update_info_label(Ephoto *ephoto);
 void ephoto_thumb_browser_slideshow(Evas_Object *obj);
 void ephoto_thumb_browser_paste(Ephoto *ephoto, Elm_Object_Item *item);
 void ephoto_thumb_browser_clear(Ephoto *ephoto);
+void ephoto_thumb_browser_dirs_only_set(Ephoto *ephoto, Eina_Bool dirs_only);
 /* smart callbacks called: "selected" - an item in the thumb browser is
  * selected. The selected Ephoto_Entry is passed as event_info argument. */
 

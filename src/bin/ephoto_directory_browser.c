@@ -274,9 +274,10 @@ _on_list_expanded(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
    path = entry->path;
    db->dirs_only = 0;
    if (!strcmp(path, db->ephoto->config->directory))
-     db->dirs_only = 1;
-   else
-     db->dirs_only = 0;
+     {
+        db->dirs_only = 1;
+        ephoto_thumb_browser_dirs_only_set(db->ephoto, EINA_TRUE);
+     }
    db->thumbs_only = 0;
    ephoto_directory_set(db->ephoto, path, it, db->dirs_only, db->thumbs_only);
    ephoto_title_set(db->ephoto, db->ephoto->config->directory);
@@ -1040,6 +1041,7 @@ _ephoto_dir_populate_end(void *data, int type EINA_UNUSED,
 	return ECORE_CALLBACK_PASS_ON;
      }
    db->dirs_only = 0;
+   ephoto_thumb_browser_dirs_only_set(db->ephoto, EINA_FALSE);
    db->thumbs_only = 0;
 
    return ECORE_CALLBACK_PASS_ON;
@@ -1052,6 +1054,7 @@ _ephoto_dir_populate_error(void *data, int type EINA_UNUSED,
    Ephoto_Directory_Browser *db = data;
 
    db->dirs_only = 0;
+   ephoto_thumb_browser_dirs_only_set(db->ephoto, EINA_FALSE);
    db->thumbs_only = 0;
 
    return ECORE_CALLBACK_PASS_ON;
@@ -1268,6 +1271,8 @@ ephoto_directory_browser_add(Ephoto *ephoto, Evas_Object *parent)
 
    db = calloc(1, sizeof(Ephoto_Directory_Browser));
    EINA_SAFETY_ON_NULL_GOTO(db, error);
+
+   ephoto_thumb_browser_dirs_only_set(ephoto, EINA_FALSE);
 
    _ephoto_dir_class = elm_genlist_item_class_new();
    _ephoto_dir_class->item_style = "default";

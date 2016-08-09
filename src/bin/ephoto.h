@@ -311,11 +311,13 @@ struct _Ephoto_Entry
    double size;
    Ephoto *ephoto;
    Eio_Monitor *monitor;
+   Eio_Monitor *link_monitor;
    Eina_List *monitor_handlers;
    Elm_Object_Item *item;
    Elm_Object_Item *parent;
    Eina_List *free_listeners;
    Eina_Bool is_dir;
+   Eina_Bool is_link;
    Eina_Bool no_delete;
    Evas_Object *genlist;
 };

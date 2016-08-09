@@ -1088,6 +1088,11 @@ ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label,
      entry->is_dir = EINA_TRUE;
    else
       entry->is_dir = EINA_FALSE;
+   if (type == EINA_FILE_LNK)
+     entry->is_link = EINA_TRUE;
+   else
+     entry->is_link = EINA_FALSE;
+
    return entry;
 }
 
@@ -1132,6 +1137,8 @@ ephoto_entry_free(Ephoto *ephoto, Ephoto_Entry *entry)
    eina_stringshare_del(entry->label);
    if (entry->monitor)
      {
+        if (entry->link_monitor)
+          eio_monitor_del(entry->link_monitor);
         eio_monitor_del(entry->monitor);
         EINA_LIST_FREE(entry->monitor_handlers, handler)
           ecore_event_handler_del(handler);

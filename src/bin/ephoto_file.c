@@ -754,28 +754,37 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 	  {
 	     char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
 	     int ret;
+             struct stat s;
 
-	     snprintf(fp, PATH_MAX, "%s", file);
-	     snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
-	     if (ecore_file_exists(dest))
-	       {
-		  snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
-		      basename(fp));
-		  if (ecore_file_exists(extra))
-		    {
-		       int count;
-
-		       for (count = 2; ecore_file_exists(extra); count++)
-			 {
-			    memset(extra, 0, sizeof(extra));
-			    snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
-				destination, count, basename(fp));
-			 }
-		    }
-		  ret = ecore_file_mv(file, extra);
-	       }
+             lstat(file, &s);
+             if (S_ISLNK(s.st_mode))
+               {
+                  ret = ecore_file_unlink(file);
+               }
              else
-	       ret = ecore_file_mv(file, dest);
+               { 
+	          snprintf(fp, PATH_MAX, "%s", file);
+	          snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
+	          if (ecore_file_exists(dest))
+	            {
+		       snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
+		           basename(fp));
+		       if (ecore_file_exists(extra))
+		         {
+		            int count;
+
+		            for (count = 2; ecore_file_exists(extra); count++)
+			      {
+			         memset(extra, 0, sizeof(extra));
+			         snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
+				     destination, count, basename(fp));
+			      }
+		         }
+		       ret = ecore_file_mv(file, extra);
+	            }
+                  else
+	            ret = ecore_file_mv(file, dest);
+               }
 	     if (!ret)
 	       ephoto->file_errors++;
 	  }

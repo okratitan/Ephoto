@@ -756,6 +756,8 @@ _ephoto_populate_filter(void *data, Eio_File *handler EINA_UNUSED,
    else if (info->type == EINA_FILE_LNK && ecore_file_is_dir(
        ecore_file_realpath(info->path)))
      {
+        if (ed->thumbs_only)
+          return EINA_FALSE;
         return ecore_file_is_dir(ecore_file_realpath(info->path));
      }
    else if (!ed->dirs_only)
@@ -1087,7 +1089,7 @@ ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label,
        ecore_file_realpath(entry->path)))
      entry->is_dir = EINA_TRUE;
    else
-      entry->is_dir = EINA_FALSE;
+     entry->is_dir = EINA_FALSE;
    if (type == EINA_FILE_LNK)
      entry->is_link = EINA_TRUE;
    else
@@ -1137,8 +1139,6 @@ ephoto_entry_free(Ephoto *ephoto, Ephoto_Entry *entry)
    eina_stringshare_del(entry->label);
    if (entry->monitor)
      {
-        if (entry->link_monitor)
-          eio_monitor_del(entry->link_monitor);
         eio_monitor_del(entry->monitor);
         EINA_LIST_FREE(entry->monitor_handlers, handler)
           ecore_event_handler_del(handler);

@@ -311,7 +311,6 @@ struct _Ephoto_Entry
    double size;
    Ephoto *ephoto;
    Eio_Monitor *monitor;
-   Eio_Monitor *link_monitor;
    Eina_List *monitor_handlers;
    Elm_Object_Item *item;
    Elm_Object_Item *parent;

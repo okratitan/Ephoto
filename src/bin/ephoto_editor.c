@@ -124,5 +124,7 @@ ephoto_editor_del(Evas_Object *obj)
 
    if (frame)
      evas_object_del(frame);
+
+   ecore_event_add(EPHOTO_EVENT_EDITOR_BACK, NULL, NULL, NULL);
 }
 

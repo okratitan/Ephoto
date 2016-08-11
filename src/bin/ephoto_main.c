@@ -7,6 +7,7 @@ int EPHOTO_EVENT_POPULATE_ERROR = 0;
 int EPHOTO_EVENT_EDITOR_RESET = 0;
 int EPHOTO_EVENT_EDITOR_APPLY = 0;
 int EPHOTO_EVENT_EDITOR_CANCEL = 0;
+int EPHOTO_EVENT_EDITOR_BACK = 0;
 
 typedef struct _Ephoto_Entry_Free_Listener Ephoto_Entry_Free_Listener;
 struct _Ephoto_Entry_Free_Listener
@@ -410,6 +411,7 @@ ephoto_window_add(const char *path)
    EPHOTO_EVENT_EDITOR_RESET = ecore_event_type_new();
    EPHOTO_EVENT_EDITOR_APPLY = ecore_event_type_new();
    EPHOTO_EVENT_EDITOR_CANCEL = ecore_event_type_new();
+   EPHOTO_EVENT_EDITOR_BACK = ecore_event_type_new();
 
    ephoto->selentries = NULL;
    ephoto->blocking = EINA_FALSE;

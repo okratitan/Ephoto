@@ -186,10 +186,11 @@ collections {
             clip_to: "ephoto,editor";
             description { state: "default" 0.0;
                fixed: 1 1;
+               min: 220 0;
                rel1.to: "ephoto,main,clip";
                rel1.relative: 1.0 0.0;
                rel2.to: "ephoto,main,clip";
-               rel2.relative: 1.0 1.0;
+               rel2.relative: 2.0 1.0;
                visible: 0;
             }
             description { state: "visible" 0.0;

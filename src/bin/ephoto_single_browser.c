@@ -1417,6 +1417,7 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
    evas_object_show(v->table);
 
    v->image = evas_object_image_add(evas_object_evas_get(v->table));
+   evas_object_image_load_orientation_set(v->image, EINA_TRUE);
    evas_object_image_filled_set(v->image, EINA_TRUE);
    evas_object_image_smooth_scale_set(v->image, sb->ephoto->config->smooth);
    evas_object_image_preload(v->image, EINA_FALSE);

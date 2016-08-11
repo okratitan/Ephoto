@@ -1749,6 +1749,7 @@ _editor_menu(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNU
 
    vbox = elm_box_add(box);
    elm_box_horizontal_set(vbox, EINA_FALSE);
+   elm_box_homogeneous_set(vbox, EINA_TRUE);
    evas_object_size_hint_weight_set(vbox, 0.0, EVAS_HINT_EXPAND);
    evas_object_size_hint_min_set(vbox, 30, 30);
    evas_object_size_hint_align_set(vbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -1790,6 +1791,7 @@ static void
 _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
 {
    elm_menu_item_add(menu, NULL, "insert-image", _("Edit"), _editor_menu, sb);
+   elm_menu_item_add(menu, NULL, "edit-clear", _("Reset"), _reset_image, sb);
    elm_menu_item_add(menu, NULL, "document-save", _("Save"), _save_image, sb);
    elm_menu_item_add(menu, NULL, "document-save-as", _("Save As"),
        _save_image_as, sb);

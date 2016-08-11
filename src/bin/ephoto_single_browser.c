@@ -1603,9 +1603,12 @@ _header_text_get(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA
 }
 
 Evas_Object *
-_item_content_get(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA_UNUSED)
+_item_content_get(void *data, Evas_Object *obj EINA_UNUSED, const char *part)
 {
    Evas_Object *ic = data;
+
+   if (!strcmp(part, "elm.swallow.end"))
+     return NULL;
 
    return ic;
 }

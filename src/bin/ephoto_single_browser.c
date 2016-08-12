@@ -1592,7 +1592,10 @@ _item_text_get(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA_U
    Evas_Object *ic = data;
    char *txt = evas_object_data_get(ic, "label");
 
-   return strdup(txt);
+   if (txt)
+     return strdup(txt);
+   else
+     return NULL;
 }
 
 char *
@@ -1600,7 +1603,10 @@ _header_text_get(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA
 {
    char *txt = data;
 
-   return strdup(txt);
+   if (txt)
+     return strdup(txt);
+   else
+     return NULL;
 }
 
 Evas_Object *

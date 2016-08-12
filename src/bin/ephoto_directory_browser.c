@@ -387,7 +387,7 @@ _dir_item_del(void *data, Evas_Object *obj EINA_UNUSED)
 static Eina_Bool
 _check_for_subdirs(Ephoto_Entry *entry)
 {
-   Eina_Iterator *ls = eina_file_direct_ls(entry->path);
+   Eina_Iterator *ls = eina_file_stat_ls(entry->path);
    Eina_File_Direct_Info *info;
 
    if (!ls)

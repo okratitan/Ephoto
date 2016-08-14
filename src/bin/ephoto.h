@@ -55,7 +55,7 @@ Evas_Object *ephoto_window_add(const char *path);
 void ephoto_title_set(Ephoto *ephoto, const char *title);
 void ephoto_thumb_size_set(Ephoto *ephoto, int size);
 Evas_Object *ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent,
-    const char *path);
+    Ephoto_Entry *entry);
 void ephoto_thumb_path_set(Evas_Object *obj, const char *path);
 void ephoto_directory_set(Ephoto *ephoto, const char *path,
     Elm_Object_Item *expanded, Eina_Bool dirs_only, Eina_Bool thumbs_only);
@@ -107,6 +107,7 @@ void ephoto_thumb_browser_slideshow(Evas_Object *obj);
 void ephoto_thumb_browser_paste(Ephoto *ephoto, Elm_Object_Item *item);
 void ephoto_thumb_browser_clear(Ephoto *ephoto);
 void ephoto_thumb_browser_dirs_only_set(Ephoto *ephoto, Eina_Bool dirs_only);
+void ephoto_thumb_browser_resort(Ephoto *ephoto, Ephoto_Entry *entry);
 /* smart callbacks called: "selected" - an item in the thumb browser is
  * selected. The selected Ephoto_Entry is passed as event_info argument. */
 
@@ -202,7 +203,8 @@ enum _Ephoto_Sort
    EPHOTO_SORT_ALPHABETICAL_ASCENDING,
    EPHOTO_SORT_ALPHABETICAL_DESCENDING,
    EPHOTO_SORT_MODTIME_ASCENDING,
-   EPHOTO_SORT_MODTIME_DESCENDING
+   EPHOTO_SORT_MODTIME_DESCENDING,
+   EPHOTO_SORT_SIMILARITY
 };
 
 enum _Ephoto_Ipc_Domain
@@ -308,6 +310,7 @@ struct _Ephoto_Entry
    const char *path;
    const char *basename;
    const char *label;
+   char *sort_id;
    double size;
    Ephoto *ephoto;
    Eio_Monitor *monitor;
@@ -319,6 +322,7 @@ struct _Ephoto_Entry
    Eina_Bool is_link;
    Eina_Bool no_delete;
    Evas_Object *genlist;
+   Evas_Object *thumb;
 };
 
 struct _Ephoto_Event_Entry_Create

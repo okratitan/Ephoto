@@ -992,18 +992,6 @@ ephoto_thumb_size_set(Ephoto *ephoto, int size)
 }
 
 static void
-_thumb_gen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
-{
-   Ephoto_Entry *entry = data;
-   const char *id = e_thumb_sort_id_get(entry->thumb);
-
-   if (id)
-     entry->sort_id = strdup(id);
-   e_thumb_icon_end(entry->thumb); 
-   ephoto_thumb_browser_insert(entry->ephoto, entry);
-}
-
-static void
 _thumb_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj,
     void *event_info EINA_UNUSED)
 {
@@ -1014,10 +1002,9 @@ _thumb_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj,
 }
 
 Evas_Object *
-ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, Ephoto_Entry *entry)
+ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, const char *path)
 {
    Evas_Object *o;
-   const char *path = entry->path;
 
    if (path)
      {
@@ -1035,10 +1022,7 @@ ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, Ephoto_Entry *entry)
 	          o = e_thumb_icon_add(parent); 
                   e_thumb_icon_file_set(o, path, NULL);
                   e_thumb_icon_size_set(o, ephoto->thumb_gen_size,
-                      ephoto->thumb_gen_size);
-                  evas_object_smart_callback_add(o, "e_thumb_gen",
-                      _thumb_gen, entry);
-                  entry->thumb = o;
+                     ephoto->thumb_gen_size);
                   e_thumb_icon_begin(o);
                }
 	  }
@@ -1048,17 +1032,11 @@ ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, Ephoto_Entry *entry)
 	     e_thumb_icon_file_set(o, path, NULL);
              e_thumb_icon_size_set(o, ephoto->thumb_gen_size,
                  ephoto->thumb_gen_size);
-             evas_object_smart_callback_add(o, "e_thumb_gen",
-                 _thumb_gen, entry);
-             entry->thumb = o;
              e_thumb_icon_begin(o);
           }
      }
    else
-     {
-        o = e_thumb_icon_add(parent);
-        entry->thumb = o;
-     }
+      o = e_thumb_icon_add(parent);
    if (!o)
       return NULL;
 
@@ -1159,7 +1137,6 @@ ephoto_entry_free(Ephoto *ephoto, Ephoto_Entry *entry)
                  node);
           }
      }
-   free(entry->sort_id);
    eina_stringshare_del(entry->path);
    eina_stringshare_del(entry->label);
    if (entry->monitor)

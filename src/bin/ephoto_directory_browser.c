@@ -708,7 +708,8 @@ _ephoto_directory_view_add(Ephoto_Directory_Browser *db)
 static void
 _todo_items_free(Ephoto_Directory_Browser *db)
 {
-   eina_list_free(db->todo_items);
+   if (eina_list_count(db->todo_items))
+     eina_list_free(db->todo_items);
    db->todo_items = NULL;
 }
 

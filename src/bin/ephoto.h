@@ -301,6 +301,7 @@ struct _Ephoto
    Ephoto_State state, prev_state;
 
    Ephoto_Config *config;
+   Ephoto_Sort sort;
 };
 
 struct _Ephoto_Entry

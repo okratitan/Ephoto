@@ -207,7 +207,7 @@ _win_free(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 
    if (ephoto->file_thread)
      ecore_thread_cancel(ephoto->file_thread);
-   if (ephoto->file_pos)
+   if (eina_list_count(ephoto->file_pos))
       eina_list_free(ephoto->file_pos);
    if (ephoto->upload_handlers)
      EINA_LIST_FREE(ephoto->upload_handlers, handler)
@@ -419,6 +419,8 @@ ephoto_window_add(const char *path)
    ephoto->hover_blocking = EINA_FALSE;
    ephoto->folders_toggle = EINA_TRUE;
    ephoto->editor_blocking = EINA_FALSE;
+   ephoto->entries = NULL;
+   ephoto->sort = EPHOTO_SORT_ALPHABETICAL_ASCENDING;
    ephoto->win = elm_win_util_standard_add("ephoto", "Ephoto");
    if (!ephoto->win)
      {
@@ -695,8 +697,36 @@ int
 ephoto_entries_cmp(const void *pa, const void *pb)
 {
    const Ephoto_Entry *a = pa, *b = pb;
+   int i = 0;
+   long long moda, modb;
 
-   return strcoll(a->basename, b->basename);
+   i = strcasecmp(a->basename, b->basename);
+   moda = ecore_file_mod_time(a->path);
+   modb = ecore_file_mod_time(b->path);
+   switch (a->ephoto->sort)
+     {
+        case EPHOTO_SORT_ALPHABETICAL_ASCENDING:
+           return i;
+        case EPHOTO_SORT_ALPHABETICAL_DESCENDING:
+           return i * -1;
+        case EPHOTO_SORT_MODTIME_ASCENDING:
+           if (moda < modb)
+             return -1;
+           else if (moda > modb)
+             return 1;
+           else
+             return i;
+        case EPHOTO_SORT_MODTIME_DESCENDING:
+           if (moda < modb)
+             return 1;
+           else if (moda > modb)
+             return -1;
+           else
+             return i * -1;
+        default:
+           return i;
+     }
+   return i;
 }
 
 static void
@@ -800,6 +830,7 @@ _ephoto_populate_entries(Ephoto_Dir_Data *ed)
        ephoto_entry_free(entry->ephoto, entry);
    else if (!ed->dirs_only)
      ephoto_entries_free(ed->ephoto);
+   ed->ephoto->entries = NULL;
 
    ed->ephoto->ls =
        eio_file_stat_ls(ed->ephoto->config->directory, _ephoto_populate_filter,
@@ -1185,5 +1216,7 @@ ephoto_entries_free(Ephoto *ephoto)
 {
    Ephoto_Entry *entry;
 
-   EINA_LIST_FREE(ephoto->entries, entry) ephoto_entry_free(ephoto, entry);
+   EINA_LIST_FREE(ephoto->entries, entry)
+     ephoto_entry_free(ephoto, entry);
+   ephoto->entries = NULL;
 }

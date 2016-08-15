@@ -72,6 +72,7 @@ static void _ephoto_main_back(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED);
 static void _ephoto_main_del(void *data, Evas *e EINA_UNUSED,
     Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED);
+static void _next_entry(Ephoto_Single_Browser *sb);
 
 /*Common*/
 static const char *
@@ -297,7 +298,13 @@ _monitor_cb(void *data, int type,
    if (type == EIO_MONITOR_FILE_MODIFIED)
      {
         if (!ecore_file_exists(sb->entry->path))
-          ephoto_entry_free(sb->ephoto, sb->entry);
+          {
+             if (eina_list_count(sb->entries) > 1)
+               _next_entry(sb);
+             else
+               _ephoto_main_back(sb, NULL, NULL);
+             ephoto_entry_free(sb->ephoto, sb->entry);
+          }
         else
           {
              Evas_Object *tmp;
@@ -1466,19 +1473,6 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
 }
 
 /*Single Browser Populating Functions*/
-static void
-_entry_free(void *data, const Ephoto_Entry *entry)
-{
-   Ephoto_Single_Browser *sb = data;
-
-   if (entry == sb->entry)
-     {
-        if (eina_list_count(sb->entries) <= 1)
-          evas_object_smart_callback_call(sb->main, "back", NULL);
-        else
-          _next_entry(sb);
-     }
-}
 
 static Eina_Bool
 _ephoto_single_populate_end(void *data, int type EINA_UNUSED,
@@ -1995,9 +1989,8 @@ _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    Eina_File_Direct_Info *info;
    Ephoto_History *eh;
 
-   EINA_LIST_FREE(sb->handlers, handler) ecore_event_handler_del(handler);
-   if (sb->entry)
-     ephoto_entry_free_listener_del(sb->entry, _entry_free, sb);
+   EINA_LIST_FREE(sb->handlers, handler)
+     ecore_event_handler_del(handler);
    if (sb->pending_path)
      eina_stringshare_del(sb->pending_path);
    if (sb->edit_main)
@@ -2066,7 +2059,6 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
         dir = ecore_file_dir_get(sb->entry->path);
         if (!eina_streq(sb->ephoto->config->directory, dir))
           {
-             ephoto_entry_free_listener_del(sb->entry, _entry_free, sb);
              sb->entry = entry;
           }
         free(dir);
@@ -2074,7 +2066,6 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
    if (entry)
      {
         sb->entry = entry;
-        ephoto_entry_free_listener_add(entry, _entry_free, sb);
      }
    _ephoto_single_browser_recalc(sb);
    if (sb->edited_image_data)

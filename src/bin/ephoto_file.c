@@ -655,7 +655,8 @@ _move_files(Ephoto *ephoto, Eina_List *files,
    evas_object_show(popup);
 
    ephoto->file_pos = eina_list_clone(files);
-   eina_list_free(files);
+   if (eina_list_count(files))
+     eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_move_thread_cb,
        _thread_end_cb, _thread_end_cb, popup);
 }
@@ -727,7 +728,8 @@ _copy_files(Ephoto *ephoto, Eina_List *files,
    evas_object_show(popup);
 
    ephoto->file_pos = eina_list_clone(files);
-   eina_list_free(files);
+   if (eina_list_count(files))
+     eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_copy_thread_cb,
        _thread_end_cb, NULL, popup);
 }
@@ -813,7 +815,8 @@ _delete_files(Ephoto *ephoto, Eina_List *files)
    evas_object_show(popup);
 
    ephoto->file_pos = eina_list_clone(files);
-   eina_list_free(files);
+   if (eina_list_count(files))
+     eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_delete_thread_cb,
        _thread_end_cb, NULL, popup);
 }
@@ -941,7 +944,8 @@ _empty_trash(Ephoto *ephoto, Eina_List *files)
    evas_object_show(popup);
 
    ephoto->file_pos = eina_list_clone(files);
-   eina_list_free(files);
+   if (eina_list_count(files))
+     eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_empty_trash_thread_cb,
        _thread_end_cb, NULL, popup);
 }

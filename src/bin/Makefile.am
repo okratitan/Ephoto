@@ -8,6 +8,7 @@ ephoto_CPPFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src/bin \
 	-DPACKAGE_DATA_DIR=\"$(datadir)/$(PACKAGE)\" \
+        -DPACKAGE_LIB_DIR=\"$(libdir)/$(PACKAGE)\" \
         -Wall \
         -Wextra \
         -Wshadow \
@@ -38,13 +39,14 @@ ephoto_SOURCES = \
         ephoto_thumb.c \
         ephoto_thumb_browser.c
 
-internal_bindir = $(datadir)/$(PACKAGE)
+internal_bindir = $(libdir)/$(PACKAGE)
 internal_bin_PROGRAMS = ephoto_thumbnail
 
 ephoto_thumbnail_CPPFLAGS = \
 	-I$(top_srcdir) \
         -I$(top_srcdir)/src/bin \
         -DPACKAGE_DATA_DIR=\"$(datadir)/$(PACKAGE)\" \
+        -DPACKAGE_LIB_DIR=\"$(libdir)/$(PACKAGE)\" \
         -Wall \
         -Wextra \
         -Wshadow \

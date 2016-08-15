@@ -29,6 +29,8 @@ struct _Ephoto_Thumb_Browser
    Evas_Object *nolabel;
    Evas_Object *search;
    Evas_Object *menu;
+   Evas_Object *hover;
+   Elm_Object_Item *similarity;
    Elm_Object_Item *last_sel;
    Ephoto_Sort sort;
    Eio_File *ls;
@@ -284,7 +286,7 @@ _thumb_file_icon_get(void *data, Evas_Object *obj,
 
    if (e)
      {
-        thumb = ephoto_thumb_add(e->ephoto, obj, e->path);
+        thumb = ephoto_thumb_add(e->ephoto, obj, e);
         evas_object_show(thumb);
      }
    return thumb;
@@ -293,7 +295,7 @@ _thumb_file_icon_get(void *data, Evas_Object *obj,
 static void
 _thumb_item_del(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED)
 {
-   /* The entry is already freed when changing directories. */
+   /*The entry is already freed when changing directories*/
 }
 
 static int
@@ -373,6 +375,20 @@ _entry_cmp_grid_mod_desc(const void *pa, const void *pb)
      }
 }
 
+static int
+_entry_cmp_grid_similarity(const void *pa, const void *pb)
+{
+   const Ephoto_Entry *a, *b;
+
+   a = elm_object_item_data_get(pa);
+   b = elm_object_item_data_get(pb);
+
+   if (!a->sort_id || !b->sort_id)
+     return 0;
+   else
+     return strcmp(a->sort_id, b->sort_id);
+}
+
 static void
 _sort_alpha_asc(void *data, Evas_Object *obj,
     void *event_data EINA_UNUSED)
@@ -443,6 +459,110 @@ _sort_mod_desc(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_show(ic);
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
+}
+
+static Eina_Bool
+_similarity_items_process(void *data)
+{
+   Ephoto_Thumb_Browser *tb = data;
+   Ephoto_Entry *entry;
+   int i = 0;
+
+   if ((tb->animator.processed == tb->animator.count))
+     {
+        Evas_Object *popup = evas_object_data_get(tb->grid, "popup");
+
+        if (tb->animator.count == 0)
+          return EINA_TRUE;
+        tb->animator.todo_items = NULL;
+        tb->processing = 0;
+        if (popup)
+          {
+             evas_object_del(popup);
+             evas_object_data_del(popup, "popup");
+          }
+        return EINA_FALSE;
+     }
+   tb->animator.todo_items = NULL;
+   tb->processing = 1;
+   EINA_LIST_FREE(tb->todo_items, entry)
+   {
+      i++;
+      if (i > TODO_ITEM_MIN_BATCH)
+         return EINA_TRUE;
+      const Elm_Gengrid_Item_Class *ic;
+
+      ic = &_ephoto_thumb_file_class;
+      if (tb->sort == EPHOTO_SORT_SIMILARITY)
+        entry->item =
+            elm_gengrid_item_sorted_insert(tb->grid, ic, entry,
+                _entry_cmp_grid_similarity, NULL, NULL);
+      if (entry->item)
+        {
+           elm_object_item_data_set(entry->item, entry);
+        }
+      else
+        {
+           ephoto_entry_free(tb->ephoto, entry);
+        }
+      tb->animator.processed++;
+   }
+   return EINA_TRUE;
+}
+
+static void
+_sort_similarity(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_data EINA_UNUSED)
+{
+   Ephoto_Thumb_Browser *tb = data;
+   Evas_Object *popup, *box, *label, *pb, *ic;
+
+   tb->sort = EPHOTO_SORT_SIMILARITY;
+   tb->thumbs_only = 1;
+   tb->dirs_only = 0;
+   ic = elm_icon_add(obj);
+
+   elm_icon_standard_set(ic, "view-sort-ascending");
+   elm_object_part_content_set(obj, "icon", ic);
+   evas_object_show(ic);
+
+   ephoto_thumb_browser_clear(tb->ephoto);
+
+   tb->todo_items = eina_list_clone(tb->entries);
+   tb->animator.count = eina_list_count(tb->todo_items);
+   tb->animator.processed = 0;
+   if (!tb->animator.todo_items)
+      tb->animator.todo_items = ecore_animator_add(_similarity_items_process, tb);
+
+   popup = elm_popup_add(tb->ephoto->win);
+   elm_object_part_text_set(popup, "title,text", _("Sorting"));
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
+
+   box = elm_box_add(popup);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(box);
+
+   label = elm_label_add(box);
+   elm_object_text_set(label, _("Sorting Images By Similarity"));
+   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_box_pack_end(box, label);
+   evas_object_show(label);
+
+   pb = elm_progressbar_add(box);
+   evas_object_size_hint_weight_set(pb, EVAS_HINT_EXPAND, 0.0);
+   evas_object_size_hint_align_set(pb, EVAS_HINT_FILL, 0.5);
+   elm_object_style_set(pb, "wheel");
+   elm_progressbar_pulse_set(pb, EINA_TRUE);
+   elm_box_pack_end(box, pb);
+   evas_object_show(pb);
+   elm_progressbar_pulse(pb, EINA_TRUE);
+
+   evas_object_data_set(tb->grid, "popup", popup);
+   elm_object_part_content_set(popup, "default", box);
+   evas_object_show(popup);
 }
 
 static void
@@ -1027,9 +1147,7 @@ _ephoto_thumb_search_go(void *data, Evas_Object *obj EINA_UNUSED,
    elm_box_unpack(tb->gridbox, tb->original_grid);
    evas_object_hide(tb->original_grid);
 
-   elm_theme_extension_add(NULL, PACKAGE_DATA_DIR "/themes/ephoto.edj");
    tb->grid = elm_gengrid_add(tb->gridbox);
-   elm_object_style_set(tb->grid, "noclip");
    evas_object_size_hint_weight_set(tb->grid, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->grid, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -1082,7 +1200,7 @@ _ephoto_thumb_search_go(void *data, Evas_Object *obj EINA_UNUSED,
                e->item =
                    elm_gengrid_item_sorted_insert(tb->grid, ic, e,
                    _entry_cmp_grid_mod_desc, NULL, NULL);
-             if (e->item)
+              if (e->item)
                {
                   Eina_File *f;
                   elm_object_item_data_set(e->item, e);
@@ -1234,9 +1352,7 @@ _ephoto_thumb_view_add(Ephoto_Thumb_Browser *tb)
        EVAS_HINT_FILL);
    evas_object_show(tb->gridbox);
 
-   elm_theme_extension_add(NULL, PACKAGE_DATA_DIR "/themes/ephoto.edj");
    tb->grid = elm_gengrid_add(tb->gridbox);
-   elm_object_style_set(tb->grid, "noclip");
    evas_object_size_hint_weight_set(tb->grid, EVAS_HINT_EXPAND,
        EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(tb->grid, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -1283,11 +1399,11 @@ _todo_items_process(void *data)
           return EINA_TRUE;
         tb->animator.todo_items = NULL;
         tb->processing = 0;
+        elm_object_item_disabled_set(tb->similarity, EINA_FALSE);
 	return EINA_FALSE;
      }
    if ((tb->ls) && (eina_list_count(tb->todo_items) < TODO_ITEM_MIN_BATCH))
       return EINA_TRUE;
-
    tb->animator.todo_items = NULL;
    tb->processing = 1;
    EINA_LIST_FREE(tb->todo_items, entry)
@@ -1339,6 +1455,21 @@ _ephoto_thumb_populate_start(void *data, int type EINA_UNUSED,
    if (tb->dirs_only)
      return ECORE_CALLBACK_PASS_ON;
 
+   if (tb->sort == EPHOTO_SORT_SIMILARITY)
+     {
+        Evas_Object *ic;
+
+        tb->sort = EPHOTO_SORT_ALPHABETICAL_ASCENDING;
+
+        ic = elm_icon_add(tb->hover);
+        elm_icon_standard_set(ic, "view-sort-ascending");
+        elm_object_part_content_set(tb->hover, "icon", ic);
+        evas_object_show(ic);
+
+        elm_object_text_set(tb->hover, _("Sort"));
+     }
+
+   elm_object_item_disabled_set(tb->similarity, EINA_TRUE);
    tb->animator.processed = 0;
    tb->animator.count = 0;
    if (tb->ephoto->selentries)
@@ -1937,6 +2068,8 @@ ephoto_thumb_browser_show_controls(Ephoto *ephoto)
        "view-sort-ascending", ELM_ICON_STANDARD, _sort_mod_asc, tb);
    elm_hoversel_item_add(hover, _("Modification Time Descending"),
        "view-sort-descending", ELM_ICON_STANDARD, _sort_mod_desc, tb);
+   tb->similarity = elm_hoversel_item_add(hover, _("Image Simalarity"),
+       "view-sort-ascending", ELM_ICON_STANDARD, _sort_similarity, tb);
    elm_object_text_set(hover, _("Sort"));
    ic = elm_icon_add(hover);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
@@ -1950,6 +2083,8 @@ ephoto_thumb_browser_show_controls(Ephoto *ephoto)
    evas_object_smart_callback_add(hover, "dismissed", _hover_dismissed_cb, tb);
    elm_box_pack_end(ephoto->controls_right, hover);
    evas_object_show(hover);
+   tb->hover = hover;
+   elm_object_item_disabled_set(tb->similarity, EINA_TRUE);
 }
 
 Evas_Object *

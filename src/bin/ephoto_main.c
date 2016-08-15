@@ -992,86 +992,82 @@ ephoto_thumb_size_set(Ephoto *ephoto, int size)
 }
 
 static void
+_thumb_gen_cb(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_data EINA_UNUSED)
+{
+   Ephoto_Entry *entry = data;
+   const char *id;
+
+   if (!entry)
+     return;
+
+   id = e_thumb_sort_id_get(entry->thumb);
+   e_thumb_icon_end(entry->thumb);
+   if (!id || entry->sort_id)
+     return;
+
+   if (entry->sort_id)
+     eina_stringshare_replace(&entry->sort_id, id);
+   else
+     entry->sort_id = eina_stringshare_add(id);
+}
+
+static void
 _thumb_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj,
     void *event_info EINA_UNUSED)
 {
    Ephoto *ephoto = data;
 
-   e_thumb_icon_end(obj);
    ephoto->thumbs = eina_list_remove(ephoto->thumbs, obj);
 }
 
 Evas_Object *
-ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, const char *path)
+ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, Ephoto_Entry *entry)
 {
-   Evas_Object *o;
+   Evas_Object *o = NULL;
 
-   if (path)
+   if (entry->path)
      {
-	const char *ext = strrchr(path, '.');
+	const char *ext = strrchr(entry->path, '.');
 
 	if (ext)
 	  {
 	     ext++;
 	     if ((strcasecmp(ext, "edj") == 0))
                {
+                  const char *group = NULL;
+
 		  o = elm_icon_add(parent);
-               }
-	     else
-               {
-	          o = e_thumb_icon_add(parent); 
-                  e_thumb_icon_file_set(o, path, NULL);
-                  e_thumb_icon_size_set(o, ephoto->thumb_gen_size,
-                     ephoto->thumb_gen_size);
-                  e_thumb_icon_begin(o);
+                  if (edje_file_group_exists(entry->path, "e/desktop/background"))
+                    group = "e/desktop/background";
+                  else
+                    {
+                       Eina_List *g = edje_file_collection_list(entry->path);
+
+                       group = eina_list_data_get(g);
+                       edje_file_collection_list_free(g);
+                    }
+                  elm_image_file_set(o, entry->path, group);
                }
 	  }
-        else
+        if (!o)
           {
 	     o = e_thumb_icon_add(parent);
-	     e_thumb_icon_file_set(o, path, NULL);
+             evas_object_smart_callback_add(o, "e_thumb_gen", _thumb_gen_cb, entry);
+	     e_thumb_icon_file_set(o, entry->path, NULL);
              e_thumb_icon_size_set(o, ephoto->thumb_gen_size,
                  ephoto->thumb_gen_size);
              e_thumb_icon_begin(o);
+             entry->thumb = o;
           }
      }
    else
-      o = e_thumb_icon_add(parent);
-   if (!o)
-      return NULL;
+     return NULL;
 
    ephoto->thumbs = eina_list_append(ephoto->thumbs, o);
    evas_object_event_callback_add(o, EVAS_CALLBACK_DEL, _thumb_del, ephoto);
 
    return o;
-}
-
-void
-ephoto_thumb_path_set(Evas_Object *obj, const char *path)
-{
-   const char *group = NULL;
-   const char *ext = strrchr(path, '.');
-
-   if (ext)
-     {
-	ext++;
-        if ((strcasecmp(ext, "edj") == 0))
-	  {
-	     if (edje_file_group_exists(path, "e/desktop/background"))
-		group = "e/desktop/background";
-	     else
-	       {
-		  Eina_List *g = edje_file_collection_list(path);
-
-		  group = eina_list_data_get(g);
-		  edje_file_collection_list_free(g);
-	       }
-	     elm_image_file_set(obj, path, group);
-	     return;
-	  }
-     }
-   e_thumb_icon_file_set(obj, path, group);
-   e_thumb_icon_begin(obj);
 }
 
 Ephoto_Entry *
@@ -1085,6 +1081,7 @@ ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label,
    entry->path = eina_stringshare_add(path);
    entry->basename = ecore_file_file_get(entry->path);
    entry->label = eina_stringshare_add(label);
+   entry->sort_id = NULL;
    if (type == EINA_FILE_DIR)
      entry->is_dir = EINA_TRUE;
    else if (type == EINA_FILE_LNK && ecore_file_is_dir(
@@ -1136,6 +1133,8 @@ ephoto_entry_free(Ephoto *ephoto, Ephoto_Entry *entry)
              ephoto->selentries = eina_list_remove_list(ephoto->selentries,
                  node);
           }
+        if (entry->sort_id)
+          eina_stringshare_del(entry->sort_id);
      }
    eina_stringshare_del(entry->path);
    eina_stringshare_del(entry->label);

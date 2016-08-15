@@ -2084,7 +2084,6 @@ ephoto_thumb_browser_show_controls(Ephoto *ephoto)
    elm_box_pack_end(ephoto->controls_right, hover);
    evas_object_show(hover);
    tb->hover = hover;
-   elm_object_item_disabled_set(tb->similarity, EINA_TRUE);
 }
 
 Evas_Object *

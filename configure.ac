@@ -54,16 +54,16 @@ fi
 AM_CONDITIONAL([HAVE_PO], [test "x${have_po}" = "xyes"])
 
 PKG_CHECK_MODULES([EFL], [
- eina >= 1.7.0
- evas >= 1.7.0
- ecore >= 1.7.0
- ecore-file >= 1.7.0
- ecore-ipc >= 1.7.0
- edje >= 1.7.0
- eo >= 1.7.0
- eio >= 1.7.0
- elementary >= 1.7.0
- efreet-mime >= 1.7.0
+ eina >= 1.18.0
+ evas >= 1.18.0
+ ecore >= 1.18.0
+ ecore-file >= 1.18.0
+ ecore-ipc >= 1.18.0
+ edje >= 1.18.0
+ eo >= 1.18.0
+ eio >= 1.18.0
+ elementary >= 1.18.0
+ efreet-mime >= 1.18.0
 ])
 
 AC_CHECK_FUNCS([nice])

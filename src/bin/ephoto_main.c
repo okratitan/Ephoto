@@ -723,6 +723,11 @@ ephoto_entries_cmp(const void *pa, const void *pb)
              return -1;
            else
              return i * -1;
+        case EPHOTO_SORT_SIMILARITY:
+           if (!a->sort_id || !b->sort_id)
+             return 0;
+           else
+             return strcmp(a->sort_id, b->sort_id);
         default:
            return i;
      }
@@ -746,23 +751,26 @@ _ephoto_populate_main(void *data, Eio_File *handler EINA_UNUSED,
      e->parent = ed->expanded;
    else
      {
-	if (!ed->ephoto->entries)
-	   ed->ephoto->entries = eina_list_append(ed->ephoto->entries, e);
-	else
-	  {
-	     int near_cmp;
-	     Eina_List *near_node =
-		 eina_list_search_sorted_near_list(ed->ephoto->entries,
-		 ephoto_entries_cmp, e, &near_cmp);
-
-	     if (near_cmp < 0)
-		ed->ephoto->entries =
-		    eina_list_append_relative_list(ed->ephoto->entries, e,
-		    near_node);
+        if (ed->ephoto->sort != EPHOTO_SORT_SIMILARITY)
+          {
+	     if (!ed->ephoto->entries)
+	       ed->ephoto->entries = eina_list_append(ed->ephoto->entries, e);
 	     else
-		ed->ephoto->entries =
-		    eina_list_prepend_relative_list(ed->ephoto->entries, e,
-		    near_node);
+	       {
+	          int near_cmp;
+	          Eina_List *near_node =
+		      eina_list_search_sorted_near_list(ed->ephoto->entries,
+		           ephoto_entries_cmp, e, &near_cmp);
+
+	          if (near_cmp < 0)
+		    ed->ephoto->entries =
+		        eina_list_append_relative_list(ed->ephoto->entries, e,
+		            near_node);
+	          else
+		    ed->ephoto->entries =
+		        eina_list_prepend_relative_list(ed->ephoto->entries, e,
+		            near_node);
+               }
 	  }
 	e->parent = NULL;
      }
@@ -940,6 +948,7 @@ ephoto_directory_set(Ephoto *ephoto, const char *path, Evas_Object *expanded,
 {
    Ephoto_Dir_Data *ed;
    Ecore_Event_Handler *handler;
+   Evas_Object *o;
 
    ed = malloc(sizeof(Ephoto_Dir_Data));
    ed->ephoto = ephoto;
@@ -949,6 +958,9 @@ ephoto_directory_set(Ephoto *ephoto, const char *path, Evas_Object *expanded,
 
    if (!ecore_file_can_read(path))
      return;
+
+   EINA_LIST_FREE(ed->ephoto->thumbs, o)
+     evas_object_del(o);
 
    ephoto_title_set(ephoto, NULL);
    eina_stringshare_replace(&ephoto->config->directory,
@@ -1028,11 +1040,21 @@ _thumb_gen_cb(void *data, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto_Entry *entry = data;
    const char *id;
+   char *dir;
 
    if (!entry)
      return;
-
+   if (!entry->thumb)
+     return;
+   dir = ecore_file_dir_get(entry->path);
+   if (strcmp(dir, entry->ephoto->config->directory))
+     {
+        evas_object_del(entry->thumb);
+        return;
+     }
+   free(dir);
    id = e_thumb_sort_id_get(entry->thumb);
+   evas_object_smart_callback_del(entry->thumb, "e_thumb_gen", _thumb_gen_cb);
    e_thumb_icon_end(entry->thumb);
    if (!id || entry->sort_id)
      return;
@@ -1041,6 +1063,29 @@ _thumb_gen_cb(void *data, Evas_Object *obj EINA_UNUSED,
      eina_stringshare_replace(&entry->sort_id, id);
    else
      entry->sort_id = eina_stringshare_add(id);
+
+   if (entry->ephoto->sort == EPHOTO_SORT_SIMILARITY)
+     {
+        ephoto_thumb_browser_insert(entry->ephoto, entry);
+        if (!entry->ephoto->entries)
+          entry->ephoto->entries = eina_list_append(entry->ephoto->entries, entry);
+        else
+          {
+             int near_cmp;
+             Eina_List *near_node =
+                 eina_list_search_sorted_near_list(entry->ephoto->entries,
+                 ephoto_entries_cmp, entry, &near_cmp);
+
+             if (near_cmp < 0)
+                entry->ephoto->entries =
+                    eina_list_append_relative_list(entry->ephoto->entries, entry,
+                    near_node);
+             else
+                entry->ephoto->entries =
+                    eina_list_prepend_relative_list(entry->ephoto->entries, entry,
+                    near_node);
+          }
+     }
 }
 
 static void

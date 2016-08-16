@@ -807,19 +807,21 @@ _monitor_cb(void *data, int type,
      }
    else if (type == EIO_MONITOR_DIRECTORY_DELETED || type == EIO_MONITOR_FILE_DELETED)
      {
+        int found = 0;
         item = elm_genlist_first_item_get(entry->genlist);
         while (item)
           {
              e = elm_object_item_data_get(item);
-             if (!e->is_dir)
-               continue;
-             if (!strcmp(e->path, ev->filename))
+             if (e->is_dir && !strcmp(e->path, ev->filename))
                {
-                    elm_object_item_del(e->item);
-                    break;
+                  elm_object_item_del(e->item);
+                  found = 1;
+                  break;
                }
              item = elm_genlist_item_next_get(item);
           }
+        if (!found)
+          return ECORE_CALLBACK_PASS_ON;
         if (_check_for_subdirs(entry) == EINA_FALSE)
           {
              Elm_Object_Item *parent;
@@ -913,9 +915,7 @@ _top_monitor_cb(void *data, int type,
         while (item)
           {
              e = elm_object_item_data_get(item);
-             if (!e->is_dir)
-               continue;
-             if (!strcmp(e->path, ev->filename))
+             if (e->is_dir && !strcmp(e->path, ev->filename))
                {
                   if (!strcmp(ev->filename, db->ephoto->config->directory))
                     elm_genlist_item_expanded_set(e->parent, EINA_TRUE);

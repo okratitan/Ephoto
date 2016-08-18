@@ -354,7 +354,7 @@ ephoto_hsv_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Obje
        "ehsv", ehsv);
    evas_object_event_callback_add(ehsv->editor, EVAS_CALLBACK_DEL, _editor_del,
        ehsv);
-
+   
    slider = elm_slider_add(ehsv->editor);
    elm_object_text_set(slider, _("Value"));
    elm_slider_min_max_set(slider, -100, 100);

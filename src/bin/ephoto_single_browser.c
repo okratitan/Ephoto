@@ -1129,7 +1129,7 @@ _go_hsv(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
    Ephoto_Single_Browser *sb = data;
 
    if (sb->viewer)
-     {
+     { 
 	sb->editing = EINA_TRUE;
 	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
@@ -1570,6 +1570,7 @@ _edit_function_item_add(Evas_Object *parent, const char *icon, const char *label
    button = elm_button_add(parent);
    elm_object_tooltip_text_set(button, label);
    elm_object_tooltip_orient_set(button, ELM_TOOLTIP_ORIENT_LEFT);
+   elm_object_tooltip_window_mode_set(button, EINA_TRUE);
    elm_object_part_content_set(button, "icon", ic);
    evas_object_size_hint_min_set(button, 30*elm_config_scale_get(),
        30*elm_config_scale_get());
@@ -2289,7 +2290,7 @@ ephoto_single_browser_show_controls(Ephoto *ephoto)
    elm_object_part_content_set(but, "icon", ic);
    elm_object_tooltip_text_set(but, _("Zoom In"));
    elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
-      evas_object_smart_callback_add(but, "clicked", _zoom_in_cb, sb);
+   evas_object_smart_callback_add(but, "clicked", _zoom_in_cb, sb);
    elm_box_pack_end(ephoto->controls_left, but);
    evas_object_show(but);
 
@@ -2321,7 +2322,7 @@ ephoto_single_browser_show_controls(Ephoto *ephoto)
    elm_object_part_content_set(but, "icon", ic);
    elm_object_tooltip_text_set(but, _("Zoom Fit"));
    elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
-      evas_object_smart_callback_add(but, "clicked", _zoom_fit_cb, sb);
+   evas_object_smart_callback_add(but, "clicked", _zoom_fit_cb, sb);
    elm_box_pack_end(ephoto->controls_left, but);
    evas_object_show(but);
 

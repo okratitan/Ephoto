@@ -407,6 +407,7 @@ _sort_alpha_asc(void *data, Evas_Object *obj,
    evas_object_show(ic);
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
+   ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 }
 
 static void
@@ -426,6 +427,7 @@ _sort_alpha_desc(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_show(ic);
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
+   ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 }
 
 static void
@@ -445,6 +447,7 @@ _sort_mod_asc(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_show(ic);
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
+   ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 }
 
 static void
@@ -464,6 +467,7 @@ _sort_mod_desc(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_show(ic);
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
+   ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 }
 
 static void
@@ -483,6 +487,7 @@ _sort_similarity(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_show(ic);
    ephoto_directory_set(tb->ephoto, tb->ephoto->config->directory,
        NULL, tb->dirs_only, tb->thumbs_only);
+   ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
 }
 
 static void

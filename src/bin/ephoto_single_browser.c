@@ -55,6 +55,7 @@ struct _Ephoto_History
    unsigned int *im_data;
    Evas_Coord w;
    Evas_Coord h;
+   Ephoto_Orient orient;
 };
 
 /*Common Callbacks*/
@@ -319,7 +320,7 @@ _monitor_cb(void *data, int type,
              if (w > 0 && h > 0)
                {
                   evas_object_hide(v->image);
-                  elm_image_file_set(v->image, sb->entry->path, group);
+                  evas_object_image_file_set(v->image, sb->entry->path, group);
                   evas_object_show(v->image);
                }
           }
@@ -435,41 +436,44 @@ _viewer_zoom_fit(Evas_Object *obj)
 static void
 _orient_apply(Ephoto_Single_Browser *sb)
 {
+   Ephoto_History *eh = NULL;
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
    Evas_Coord w, h;
+   Eina_List *l;
+   char buf[PATH_MAX];
 
    switch (sb->orient)
      {
        case EPHOTO_ORIENT_0:
-	  elm_image_orient_set(v->image, ELM_IMAGE_ORIENT_NONE);
+	  evas_object_image_orient_set(v->image, EVAS_IMAGE_ORIENT_NONE);
 	  break;
 
        case EPHOTO_ORIENT_90:
-	  elm_image_orient_set(v->image, ELM_IMAGE_ROTATE_90);
+	  evas_object_image_orient_set(v->image, EVAS_IMAGE_ORIENT_90);
 	  break;
 
        case EPHOTO_ORIENT_180:
-	  elm_image_orient_set(v->image, ELM_IMAGE_ROTATE_180);
+	  evas_object_image_orient_set(v->image, EVAS_IMAGE_ORIENT_180);
 	  break;
 
        case EPHOTO_ORIENT_270:
-	  elm_image_orient_set(v->image, ELM_IMAGE_ROTATE_270);
+	  evas_object_image_orient_set(v->image, EVAS_IMAGE_ORIENT_270);
 	  break;
 
        case EPHOTO_ORIENT_FLIP_HORIZ:
-	  elm_image_orient_set(v->image, ELM_IMAGE_FLIP_HORIZONTAL);
+	  evas_object_image_orient_set(v->image, EVAS_IMAGE_FLIP_HORIZONTAL);
 	  break;
 
        case EPHOTO_ORIENT_FLIP_VERT:
-	  elm_image_orient_set(v->image, ELM_IMAGE_FLIP_VERTICAL);
+	  evas_object_image_orient_set(v->image, EVAS_IMAGE_FLIP_VERTICAL);
 	  break;
 
        case EPHOTO_ORIENT_FLIP_HORIZ_90:
-	  elm_image_orient_set(v->image, ELM_IMAGE_FLIP_TRANSPOSE);
+	  evas_object_image_orient_set(v->image, EVAS_IMAGE_FLIP_TRANSPOSE);
 	  break;
 
        case EPHOTO_ORIENT_FLIP_VERT_90:
-	  elm_image_orient_set(v->image, ELM_IMAGE_FLIP_TRANSVERSE);
+	  evas_object_image_orient_set(v->image, EVAS_IMAGE_FLIP_TRANSVERSE);
 	  break;
 
        default:
@@ -482,6 +486,34 @@ _orient_apply(Ephoto_Single_Browser *sb)
        evas_object_image_data_get(v->image, EINA_FALSE);
    sb->ew = w;
    sb->eh = h;
+   if (sb->history_pos < (eina_list_count(sb->history)-1))
+     {
+        int count;
+
+        count = sb->history_pos + 1;
+        l = eina_list_nth_list(sb->history, count);
+        while (l)
+          {
+             eh = eina_list_data_get(l);
+             sb->history = eina_list_remove_list(sb->history, l);
+             free(eh->im_data);
+             free(eh);
+             eh = NULL;
+             l = eina_list_nth_list(sb->history, count);
+          }
+     }
+   eh = calloc(1, sizeof(Ephoto_History));
+   eh->im_data = malloc(sizeof(unsigned int) * sb->ew * sb->eh);
+   eh->im_data = memcpy(eh->im_data, sb->edited_image_data,
+       sizeof(unsigned int) * sb->ew * sb->eh);
+   eh->w = sb->ew;
+   eh->h = sb->eh;
+   eh->orient = sb->orient;
+   sb->history = eina_list_append(sb->history, eh);
+   sb->history_pos = eina_list_count(sb->history) - 1;
+   snprintf(buf, PATH_MAX, "%s [%s]", sb->entry->basename, _("MODIFIED"));
+   ephoto_title_set(sb->ephoto, buf);
+   _ephoto_update_bottom_bar(sb);
    evas_object_size_hint_min_set(v->image, w, h);
    evas_object_size_hint_max_set(v->image, w, h);
    elm_table_pack(v->table, v->image, 0, 0, 1, 1);
@@ -853,9 +885,20 @@ _undo_image(void *data, Evas_Object *obj EINA_UNUSED,
      {
         sb->history_pos--;
         eh = eina_list_nth(sb->history, sb->history_pos);
+        evas_object_image_orient_set(v->image, eh->orient);
+        elm_table_unpack(v->table, v->image);
         evas_object_image_size_set(v->image, eh->w, eh->h);
         evas_object_image_data_set(v->image, eh->im_data);
         evas_object_image_data_update_add(v->image, 0, 0, eh->w, eh->h);
+        evas_object_size_hint_min_set(v->image, eh->w, eh->h);
+        evas_object_size_hint_max_set(v->image, eh->w, eh->h);
+        elm_table_pack(v->table, v->image, 0, 0, 1, 1);
+        if (sb->orient != eh->orient)
+          sb->orient = eh->orient;
+        if (v->fit)
+          _viewer_zoom_fit_apply(v);
+        else
+          _viewer_zoom_set(sb->viewer, _viewer_zoom_get(sb->viewer));
      }
 }
 
@@ -874,9 +917,21 @@ _redo_image(void *data, Evas_Object *obj EINA_UNUSED,
      {
         sb->history_pos++;
         eh = eina_list_nth(sb->history, sb->history_pos);
+        evas_object_image_orient_set(v->image, eh->orient);
+        elm_table_unpack(v->table, v->image);
+        elm_object_content_unset(v->scroller);
         evas_object_image_size_set(v->image, eh->w, eh->h);
         evas_object_image_data_set(v->image, eh->im_data);
         evas_object_image_data_update_add(v->image, 0, 0, eh->w, eh->h);
+        evas_object_size_hint_min_set(v->image, eh->w, eh->h);
+        evas_object_size_hint_max_set(v->image, eh->w, eh->h);
+        elm_table_pack(v->table, v->image, 0, 0, 1, 1);
+        if (sb->orient != eh->orient)
+          sb->orient = eh->orient;
+        if (v->fit)
+          _viewer_zoom_fit_apply(v);
+        else
+          _viewer_zoom_set(sb->viewer, _viewer_zoom_get(sb->viewer));
      }
 }
 
@@ -2096,6 +2151,7 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
             sizeof(unsigned int) * w * h);
         eh->w = w;
         eh->h = h;
+        eh->orient = sb->orient;
         sb->history = eina_list_append(sb->history, eh);
         _zoom_fit(sb);
      }
@@ -2183,6 +2239,7 @@ ephoto_single_browser_image_data_done(Evas_Object *main,
    Ephoto_Single_Browser *sb = evas_object_data_get(main, "single_browser");
    Ephoto_History *eh;
    Eina_List *l;
+   char buf[PATH_MAX];
 
    if (sb->editing)
      {
@@ -2219,8 +2276,11 @@ ephoto_single_browser_image_data_done(Evas_Object *main,
             sizeof(unsigned int) * sb->ew * sb->eh);
         eh->w = sb->ew;
         eh->h = sb->eh;
+        eh->orient = sb->orient;
         sb->history = eina_list_append(sb->history, eh);
         sb->history_pos = eina_list_count(sb->history) - 1;
+        snprintf(buf, PATH_MAX, "%s [%s]", sb->entry->basename, _("MODIFIED"));
+        ephoto_title_set(sb->ephoto, buf);
         _ephoto_update_bottom_bar(sb);
         sb->editing = EINA_FALSE;
         _zoom_fit(sb);

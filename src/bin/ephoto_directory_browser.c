@@ -612,6 +612,7 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
         if (it)
           elm_genlist_item_selected_set(it, EINA_FALSE);
         ephoto_directory_set(db->ephoto, db->ephoto->top_directory, NULL, 0, 1);
+        ephoto_title_set(db->ephoto, db->ephoto->top_directory);
      }
 
    if (info->button != 3)
@@ -1249,6 +1250,7 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
         free(dir);  
      }
    ephoto_directory_set(db->ephoto, db->ephoto->config->directory, next, EINA_FALSE, EINA_TRUE);
+   ephoto_title_set(db->ephoto, db->ephoto->config->directory);
    ephoto_directory_browser_top_dir_set(db->ephoto, "/");
    db->initializing = EINA_FALSE;
 }

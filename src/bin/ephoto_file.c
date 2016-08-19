@@ -1029,7 +1029,7 @@ _prompt_save_image_apply(void *data, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
-_prompt_save_image_as_apply(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
+_prompt_save_image_as_apply(void *data, Evas_Object *obj, void *event_info)
 {
    const char *selected = event_info;
    Evas_Object *opopup = data;
@@ -1121,6 +1121,8 @@ _prompt_save_image_as_apply(void *data, Evas_Object *obj EINA_UNUSED, void *even
                }
 	  }
      }
+   elm_object_content_unset(opopup);
+   evas_object_del(obj);
    evas_object_del(opopup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }

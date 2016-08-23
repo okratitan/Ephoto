@@ -604,24 +604,13 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
                _on_list_selected(db, NULL, item);
           }
      }
-   else if (!item)
-     {
-        Elm_Object_Item *it;
-
-        it = elm_genlist_selected_item_get(db->fsel);
-        if (it)
-          elm_genlist_item_selected_set(it, EINA_FALSE);
-        ephoto_directory_set(db->ephoto, db->ephoto->top_directory, NULL, 0, 1);
-        ephoto_title_set(db->ephoto, db->ephoto->top_directory);
-     }
-
    if (info->button != 3)
       return;
 
    snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
 
    if (item)
-      elm_genlist_item_selected_set(item, EINA_TRUE);
+     elm_genlist_item_selected_set(item, EINA_TRUE);
 
    db->ephoto->menu_blocking = EINA_TRUE;
 

@@ -1951,7 +1951,7 @@ _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNU
 	return;
      }
 
-   if (!strcmp(k, "Escape") && !sb->editing)
+   if (!strcmp(k, "Escape") && !sb->editing && !sb->edit_main)
      {
 	if (sb->event)
 	  {

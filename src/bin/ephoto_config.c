@@ -501,7 +501,7 @@ _config_about(Evas_Object *parent, Evas_Object *popup)
    evas_object_show(box);
 
    img = elm_image_add(box);
-   evas_object_image_size_set(elm_image_object_get(img), 200, 100);
+   evas_object_image_size_set(elm_image_object_get(img), 100, 100);
    evas_object_size_hint_min_set(img, 200, 100);
    evas_object_size_hint_max_set(img, 200, 100);
    elm_image_preload_disabled_set(img, EINA_FALSE);
@@ -509,7 +509,7 @@ _config_about(Evas_Object *parent, Evas_Object *popup)
    elm_box_pack_end(box, img);
    evas_object_show(img);
 
-   snprintf(ver, PATH_MAX, "<hilight><b>Version: %s</b></hilight>", VERSION);
+   snprintf(ver, PATH_MAX, "<hilight><b>Ephoto<br/>Version: %s</b></hilight>", VERSION);
 
    lbl = elm_label_add(box);
    elm_object_text_set(lbl, ver);

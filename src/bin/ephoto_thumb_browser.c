@@ -1330,7 +1330,6 @@ _todo_items_process(void *data)
           return EINA_TRUE;
         tb->animator.todo_items = NULL;
         tb->processing = 0;
-        elm_object_item_disabled_set(tb->similarity, EINA_FALSE);
 	return EINA_FALSE;
      }
    if ((tb->ls) && (eina_list_count(tb->todo_items) < TODO_ITEM_MIN_BATCH))
@@ -1390,7 +1389,6 @@ _ephoto_thumb_populate_start(void *data, int type EINA_UNUSED,
    if (tb->dirs_only)
      return ECORE_CALLBACK_PASS_ON;
 
-   elm_object_item_disabled_set(tb->similarity, EINA_TRUE);
    tb->animator.processed = 0;
    tb->animator.count = 0;
    if (eina_list_count(tb->ephoto->selentries))

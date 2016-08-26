@@ -1174,7 +1174,7 @@ ephoto_directory_browser_add(Ephoto *ephoto, Evas_Object *parent)
    ephoto_thumb_browser_dirs_only_set(ephoto, EINA_FALSE);
 
    _ephoto_dir_class = elm_genlist_item_class_new();
-   _ephoto_dir_class->item_style = "default";
+   _ephoto_dir_class->item_style = "indent";
    _ephoto_dir_class->func.text_get = _dir_item_text_get;
    _ephoto_dir_class->func.content_get = _dir_item_icon_get;
    _ephoto_dir_class->func.state_get = NULL;

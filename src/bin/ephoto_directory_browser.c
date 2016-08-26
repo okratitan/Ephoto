@@ -87,8 +87,8 @@ static Eina_Bool
 _drop_dropcb(void *data EINA_UNUSED, Evas_Object *obj, Elm_Object_Item *it,
     Elm_Selection_Data *ev, int xposret EINA_UNUSED, int yposret EINA_UNUSED)
 {
-   EINA_SAFETY_ON_NULL_RETURN_VAL(it, EINA_TRUE);
-
+   if (!it)
+     return EINA_FALSE;
    Ephoto_Entry *entry = elm_object_item_data_get(it);
    const char *path = entry->path;
    Eina_List *files = NULL;

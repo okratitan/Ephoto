@@ -2108,21 +2108,11 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
    Ephoto_Viewer *v;
    Ephoto_History *eh;
    Evas_Coord w, h;
-   char *dir;
 
-   if (sb->entry && !entry)
-     {
-        dir = ecore_file_dir_get(sb->entry->path);
-        if (!eina_streq(sb->ephoto->config->directory, dir))
-          {
-             sb->entry = entry;
-          }
-        free(dir);
-     }
-   if (entry)
-     {
-        sb->entry = entry;
-     }
+   if (!entry)
+     sb->entry = NULL;
+   else if (entry)
+     sb->entry = entry;
    _ephoto_single_browser_recalc(sb);
    if (sb->edited_image_data)
      {

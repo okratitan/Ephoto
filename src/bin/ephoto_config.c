@@ -127,7 +127,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    ephoto->config->smooth_scale = check;
 
    label = elm_label_add(table);
-   elm_object_text_set(label, _("Directory To Open Ephoto In:"));
+   elm_object_text_set(label, _("Top Level Directory"));
    evas_object_size_hint_align_set(label, 0.5, 0.5);
    elm_table_pack(table, label, 0, 5, 1, 1);
    evas_object_show(label); 

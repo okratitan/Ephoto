@@ -382,6 +382,15 @@ _settings_icon_clicked(void *data, Evas_Object *obj EINA_UNUSED,
    ephoto_config_main(ephoto);
 }
 
+static void
+_exit_icon_clicked(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   Ephoto *ephoto = data;
+
+   evas_object_del(ephoto->win);
+}
+
 /*Toggle determines whether to toggle folder visibility, or just force visible*/
 void
 ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle)
@@ -620,6 +629,23 @@ ephoto_window_add(const char *path)
    evas_object_smart_callback_add(but, "clicked",
        _settings_icon_clicked, ephoto);
    elm_object_tooltip_text_set(but, _("Settings"));
+   elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
+   elm_box_pack_end(ephoto->statusbar, but);
+   evas_object_show(but);
+
+   ic = elm_icon_add(ephoto->statusbar);
+   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
+       20*elm_config_scale_get());
+   ret = elm_icon_standard_set(ic, "application-exit");
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+
+   but = elm_button_add(ephoto->statusbar);
+   elm_object_part_content_set(but, "icon", ic);
+   if (!ret)
+     elm_object_text_set(but, _("Exit"));
+   evas_object_smart_callback_add(but, "clicked",
+       _exit_icon_clicked, ephoto);
+   elm_object_tooltip_text_set(but, _("Exit"));
    elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
    elm_box_pack_end(ephoto->statusbar, but);
    evas_object_show(but);

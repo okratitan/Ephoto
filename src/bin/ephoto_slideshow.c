@@ -779,7 +779,10 @@ ephoto_slideshow_show_controls(Ephoto *ephoto)
    evas_object_size_hint_weight_set(ss->notify, EVAS_HINT_EXPAND, 0.0);
    evas_object_size_hint_fill_set(ss->notify, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-   but = _add_icon(ss->notify, "window-close", _("Back"), NULL);
+   if (ephoto->prev_state == EPHOTO_STATE_SINGLE)
+     but = _add_icon(ss->notify, "view-list-icons", _("Back"), NULL);
+   else
+     but = _add_icon(ss->notify, "view-list-details", _("Back"), NULL);
    evas_object_smart_callback_add(but, "clicked", _back, ss);
    but = _add_icon(ss->notify, "go-first", _("First"), NULL);
    evas_object_smart_callback_add(but, "clicked", _first, ss);
@@ -800,6 +803,7 @@ ephoto_slideshow_show_controls(Ephoto *ephoto)
    ss->fullscreen_after =
        _add_icon(ss->notify, "preferences-other", _("Settings"), NULL);
    evas_object_smart_callback_add(ss->fullscreen_after, "clicked", _settings, ss);
+   
 
    elm_layout_content_set(ephoto->layout, "ephoto.swallow.controls", ss->notify);
 }

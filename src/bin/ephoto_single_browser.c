@@ -1862,6 +1862,10 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
    elm_menu_item_add(menu, NULL, "document-send", _("Upload"), _upload_image,
        sb);
    elm_menu_item_separator_add(menu, NULL);
+   elm_menu_item_add(menu, NULL, "zoom-fit", _("Zoom Fit"), _zoom_fit_cb,
+       sb);
+   elm_menu_item_add(menu, NULL, "zoom-original", _("Zoom 1:1"), _zoom_1_cb,
+       sb);
    elm_menu_item_add(menu, NULL, "object-rotate-left", _("Rotate Left"), _go_rotate_counterclock,
        sb);
    elm_menu_item_add(menu, NULL, "object-rotate-right", _("Rotate Right"), _go_rotate_clock,
@@ -2368,65 +2372,33 @@ ephoto_single_browser_show_controls(Ephoto *ephoto)
    ic = elm_icon_add(ephoto->controls_left);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
-   ret = elm_icon_standard_set(ic, "zoom-fit");
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
-
-   but = elm_button_add(ephoto->controls_left);
-   if (!ret)
-     elm_object_text_set(but, _("Zoom Fit"));
-   elm_object_part_content_set(but, "icon", ic);
-   elm_object_tooltip_text_set(but, _("Zoom Fit"));
-   elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
-   evas_object_smart_callback_add(but, "clicked", _zoom_fit_cb, sb);
-   elm_box_pack_end(ephoto->controls_left, but);
-   evas_object_show(but);
-
-   ic = elm_icon_add(ephoto->controls_left);
-   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
-       20*elm_config_scale_get());
-   elm_icon_standard_set(ic, "zoom-original");
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
-
-   but = elm_button_add(ephoto->controls_left);
-   if (!ret)
-     elm_object_text_set(but, _("Zoom 1:1"));
-   elm_object_part_content_set(but, "icon", ic);
-   elm_object_tooltip_text_set(but, _("Zoom 1:1"));
-   elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
-   evas_object_smart_callback_add(but, "clicked", _zoom_1_cb, sb);
-   elm_box_pack_end(ephoto->controls_left, but);
-   evas_object_show(but);
-
-   ic = elm_icon_add(ephoto->controls_right);
-   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
-       20*elm_config_scale_get());
    ret = elm_icon_standard_set(ic, "go-previous");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
 
-   but = elm_button_add(ephoto->controls_right);
+   but = elm_button_add(ephoto->controls_left);
    if (!ret)
      elm_object_text_set(but, _("Previous"));
    elm_object_part_content_set(but, "icon", ic);
    elm_object_tooltip_text_set(but, _("Previous"));
    elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
    evas_object_smart_callback_add(but, "clicked", _go_prev, sb);
-   elm_box_pack_end(ephoto->controls_right, but);
+   elm_box_pack_end(ephoto->controls_left, but);
    evas_object_show(but);
 
-   ic = elm_icon_add(ephoto->controls_right);
+   ic = elm_icon_add(ephoto->controls_left);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
    ret = elm_icon_standard_set(ic, "go-next");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
 
-   but = elm_button_add(ephoto->controls_right);
+   but = elm_button_add(ephoto->controls_left);
    if (!ret)
      elm_object_text_set(but, _("Next"));
    elm_object_part_content_set(but, "icon", ic);
    elm_object_tooltip_text_set(but, _("Next"));
    elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
    evas_object_smart_callback_add(but, "clicked", _go_next, sb);
-   elm_box_pack_end(ephoto->controls_right, but);
+   elm_box_pack_end(ephoto->controls_left, but);
    evas_object_show(but);
 
    ic = elm_icon_add(ephoto->controls_right);

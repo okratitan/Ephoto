@@ -35,8 +35,6 @@ _ephoto_state_set(Ephoto *ephoto, Ephoto_State state)
 static void
 _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
 {
-   ephoto_single_browser_entry_set(ephoto->single_browser, NULL);
-   ephoto_slideshow_entry_set(ephoto->slideshow, NULL);
    elm_naviframe_item_promote(ephoto->tb);
    elm_object_focus_set(ephoto->thumb_browser, EINA_TRUE);
    _ephoto_state_set(ephoto, EPHOTO_STATE_THUMB);
@@ -55,7 +53,21 @@ _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    evas_object_freeze_events_set(ephoto->slideshow, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->thumb_browser, EINA_FALSE);
    if ((entry) && (entry->item))
-     elm_gengrid_item_bring_in(entry->item, ELM_GENGRID_ITEM_SCROLLTO_IN);
+     {
+        Eina_List *l;
+        Elm_Object_Item *it;
+
+        l = eina_list_clone(elm_gengrid_selected_items_get(entry->gengrid));
+        if (eina_list_count(l) <= 1)
+          {
+             EINA_LIST_FREE(l, it)
+               elm_gengrid_item_selected_set(it, EINA_FALSE);
+             elm_gengrid_item_bring_in(entry->item, ELM_GENGRID_ITEM_SCROLLTO_IN);
+             elm_gengrid_item_selected_set(entry->item, EINA_TRUE);
+          }
+     }
+   ephoto_single_browser_entry_set(ephoto->single_browser, NULL);
+   ephoto_slideshow_entry_set(ephoto->slideshow, NULL);
 }
 
 static void

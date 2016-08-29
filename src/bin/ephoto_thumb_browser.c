@@ -1345,6 +1345,8 @@ _todo_items_process(void *data)
         {
 	   const Elm_Gengrid_Item_Class *ic;
 
+           entry->gengrid = tb->grid;
+
 	   ic = &_ephoto_thumb_file_class;
            if (tb->sort == EPHOTO_SORT_ALPHABETICAL_ASCENDING)
 	     entry->item =
@@ -1365,10 +1367,11 @@ _todo_items_process(void *data)
            else if (tb->sort == EPHOTO_SORT_SIMILARITY)
              entry->thumb =
                  ephoto_thumb_add(entry->ephoto, tb->grid, entry);
-                
+
 	   if (entry->item)
 	     {
 		elm_object_item_data_set(entry->item, entry);
+
              }
            else if (tb->sort != EPHOTO_SORT_SIMILARITY)
 	     {
@@ -1844,6 +1847,8 @@ ephoto_thumb_browser_insert(Ephoto *ephoto, Ephoto_Entry *entry)
         entry->size = eina_file_size_get(f);
         tb->totsize += (double) entry->size;
         eina_file_close(f);
+
+        entry->gengrid = tb->grid;
 
         ic = &_ephoto_thumb_file_class;
         if (tb->sort == EPHOTO_SORT_ALPHABETICAL_ASCENDING)

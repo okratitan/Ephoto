@@ -321,6 +321,7 @@ struct _Ephoto_Entry
    Eina_Bool is_link;
    Eina_Bool no_delete;
    Evas_Object *genlist;
+   Evas_Object *gengrid;
    Evas_Object *thumb;
 };
 

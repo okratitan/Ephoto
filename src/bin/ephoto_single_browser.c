@@ -1850,16 +1850,19 @@ _show_edit_main(void *data, int type EINA_UNUSED,
 static void
 _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
 {
-   elm_menu_item_add(menu, NULL, "insert-image", _("Edit"), _editor_menu, sb);
-   elm_menu_item_add(menu, NULL, "edit-clear", _("Reset"), _reset_image, sb);
-   elm_menu_item_add(menu, NULL, "document-save", _("Save"), _save_image, sb);
-   elm_menu_item_add(menu, NULL, "document-save-as", _("Save As"),
+   Elm_Object_Item *menu_it;
+
+   menu_it = elm_menu_item_add(menu, NULL, "insert-image", _("File"), NULL, NULL);
+   elm_menu_item_add(menu, menu_it, "insert-image", _("Edit"), _editor_menu, sb);
+   elm_menu_item_add(menu, menu_it, "edit-clear", _("Reset"), _reset_image, sb);
+   elm_menu_item_add(menu, menu_it, "document-save", _("Save"), _save_image, sb);
+   elm_menu_item_add(menu, menu_it, "document-save-as", _("Save As"),
        _save_image_as, sb);
-   elm_menu_item_add(menu, NULL, "edit", _("Rename"),
+   elm_menu_item_add(menu, menu_it, "edit", _("Rename"),
             _rename_image, sb);
-   elm_menu_item_add(menu, NULL, "edit-delete", _("Delete"),
+   elm_menu_item_add(menu, menu_it, "edit-delete", _("Delete"),
             _delete_image, sb);
-   elm_menu_item_add(menu, NULL, "document-send", _("Upload"), _upload_image,
+   elm_menu_item_add(menu, menu_it, "document-send", _("Upload"), _upload_image,
        sb);
    elm_menu_item_separator_add(menu, NULL);
    elm_menu_item_add(menu, NULL, "zoom-fit", _("Zoom Fit"), _zoom_fit_cb,

@@ -88,7 +88,10 @@ main(int argc,
    ecore_file_init();
    ecore_ipc_init();
 
-   snprintf(_thumbdir, PATH_MAX, "%s/.cache/ephoto/thumbnails", getenv("HOME"));
+   if (getenv("XDG_CACHE_HOME"))
+     snprintf(_thumbdir, PATH_MAX, "%s/ephoto/thumbnails", getenv("XDG_CACHE_HOME"));
+   else
+     snprintf(_thumbdir, PATH_MAX, "%s/.cache/ephoto/thumbnails", getenv("HOME"));
    ecore_file_mkpath(_thumbdir);
 
    if (_e_ipc_init()) ecore_main_loop_begin();

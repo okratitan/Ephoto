@@ -1861,6 +1861,11 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
             _delete_image, sb);
    elm_menu_item_add(menu, NULL, "document-send", _("Upload"), _upload_image,
        sb);
+   elm_menu_item_separator_add(menu, NULL);
+   elm_menu_item_add(menu, NULL, "object-rotate-left", _("Rotate Left"), _go_rotate_counterclock,
+       sb);
+   elm_menu_item_add(menu, NULL, "object-rotate-right", _("Rotate Right"), _go_rotate_clock,
+       sb);
 }
 
 static void

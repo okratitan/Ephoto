@@ -621,9 +621,13 @@ static int
 _ephoto_config_load(Ephoto *ephoto)
 {
    Eet_File *ef;
-   char buf[4096], buf2[4096];
+   char buf[4096], buf2[4096], xdg[4096];
 
-   snprintf(buf2, sizeof(buf2), "%s/.config/ephoto", getenv("HOME"));
+   snprintf(xdg, PATH_MAX, "%s", getenv("XDG_CONFIG_HOME"));
+   if (strlen(xdg))
+     snprintf(buf2, sizeof(buf2), "%s/ephoto", xdg);
+   else
+     snprintf(buf2, sizeof(buf2), "%s/.config/ephoto", getenv("HOME"));
    ecore_file_mkpath(buf2);
    snprintf(buf, sizeof(buf), "%s/ephoto.cfg", buf2);
 
@@ -660,9 +664,13 @@ _ephoto_on_config_save(void *data)
 {
    Ephoto *ephoto = data;
    Eet_File *ef;
-   char buf[4096], buf2[4096];
+   char buf[4096], buf2[4096], xdg[4096];
 
-   snprintf(buf, sizeof(buf), "%s/.config/ephoto/ephoto.cfg", getenv("HOME"));
+   snprintf(xdg, PATH_MAX, "%s", getenv("XDG_CONFIG_HOME"));
+   if (strlen(xdg))
+     snprintf(buf, sizeof(buf), "%s/ephoto/ephoto.cfg", xdg);
+   else
+     snprintf(buf, sizeof(buf), "%s/.config/ephoto/ephoto.cfg", getenv("HOME"));
    snprintf(buf2, sizeof(buf2), "%s.tmp", buf);
 
    ef = eet_open(buf2, EET_FILE_MODE_WRITE);

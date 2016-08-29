@@ -1870,7 +1870,7 @@ _ephoto_main_edit_menu(Ephoto_Single_Browser *sb)
    Evas_Coord x, y;
 
    evas_pointer_canvas_xy_get(evas_object_evas_get(sb->main), &x, &y);
-   menu = elm_menu_add(sb->main);
+   menu = elm_menu_add(sb->ephoto->win);
    elm_menu_move(menu, x, y);
 
    _add_edit_menu_items(sb, menu);

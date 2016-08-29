@@ -7,7 +7,6 @@ Highlights:
    * Many Fixes
 
 Fixes:
-Author: Stephen Houston <stephen@lenovo.fedora>
 Author: Stephen okra Houston <smhouston88@gmail.com>
     Ephoto: Add an exit icon to the control bar.  Update slideshow icons.  Use efreet for XDG.
     Ephoto: Add back in sorting by image similarity, this time with the crashing and bugs eliminated.

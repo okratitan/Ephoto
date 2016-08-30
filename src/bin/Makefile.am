@@ -16,7 +16,7 @@ ephoto_CPPFLAGS = \
 ephoto_LDADD =	@EFL_LIBS@
 if HAVE_PO
 ephoto_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"
-ephoto_LDADD += @LTLIBINTL@
+ephoto_LDADD += @LIBINTL@
 endif
 
 ephoto_SOURCES = \
@@ -59,7 +59,7 @@ ephoto_thumbnail_LDADD += -lws2_32
 endif
 
 if HAVE_PO
-ephoto_thumbnail_LDADD += @LTLIBINTL@
+ephoto_thumbnail_LDADD += @LIBINTL@
 endif
 
 ephoto_thumbnail_SOURCES = \

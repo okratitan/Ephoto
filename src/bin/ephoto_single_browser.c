@@ -1233,7 +1233,7 @@ _go_auto_eq(void *data, Evas_Object *obj EINA_UNUSED,
 	sb->editing = EINA_TRUE;
 	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-	ephoto_filter_histogram_eq(sb->main, v->image);
+	ephoto_filter_histogram_eq(sb->ephoto, v->image);
      }
 }
 
@@ -1248,7 +1248,7 @@ _go_blur(void *data, Evas_Object *obj EINA_UNUSED,
 	sb->editing = EINA_TRUE;
 	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-	ephoto_filter_blur(sb->main, v->image);
+	ephoto_filter_blur(sb->ephoto, v->image);
      }
 }
 
@@ -1263,7 +1263,7 @@ _go_sharpen(void *data, Evas_Object *obj EINA_UNUSED,
 	sb->editing = EINA_TRUE;
 	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-	ephoto_filter_sharpen(sb->main, v->image);
+	ephoto_filter_sharpen(sb->ephoto, v->image);
      }
 }
 
@@ -1278,7 +1278,7 @@ _go_dither(void *data, Evas_Object *obj EINA_UNUSED,
         sb->editing = EINA_TRUE;
         Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-        ephoto_filter_dither(sb->main, v->image);
+        ephoto_filter_dither(sb->ephoto, v->image);
      }
 }
 
@@ -1293,7 +1293,7 @@ _go_black_and_white(void *data, Evas_Object *obj EINA_UNUSED,
 	sb->editing = EINA_TRUE;
         Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-	ephoto_filter_black_and_white(sb->main, v->image);
+	ephoto_filter_black_and_white(sb->ephoto, v->image);
      }
 }
 
@@ -1308,7 +1308,7 @@ _go_old_photo(void *data, Evas_Object *obj EINA_UNUSED,
 	sb->editing = EINA_TRUE;
 	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-	ephoto_filter_old_photo(sb->main, v->image);
+	ephoto_filter_old_photo(sb->ephoto, v->image);
      }
 }
 
@@ -1323,7 +1323,7 @@ _go_posterize(void *data, Evas_Object *obj EINA_UNUSED,
         sb->editing = EINA_TRUE;
         Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-        ephoto_filter_posterize(sb->main, v->image);
+        ephoto_filter_posterize(sb->ephoto, v->image);
      }
 }
 
@@ -1338,7 +1338,7 @@ _go_painting(void *data, Evas_Object *obj EINA_UNUSED,
         sb->editing = EINA_TRUE;
         Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-        ephoto_filter_painting(sb->main, v->image);
+        ephoto_filter_painting(sb->ephoto, v->image);
      }
 }
 
@@ -1353,7 +1353,7 @@ _go_invert(void *data, Evas_Object *obj EINA_UNUSED,
         sb->editing = EINA_TRUE;
         Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-        ephoto_filter_invert(sb->main, v->image);
+        ephoto_filter_invert(sb->ephoto, v->image);
      }
 }
 
@@ -1368,7 +1368,7 @@ _go_sketch(void *data, Evas_Object *obj EINA_UNUSED,
         sb->editing = EINA_TRUE;
         Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-        ephoto_filter_sketch(sb->main, v->image);
+        ephoto_filter_sketch(sb->ephoto, v->image);
      }
 }
 
@@ -1383,7 +1383,7 @@ _go_edge(void *data, Evas_Object *obj EINA_UNUSED,
         sb->editing = EINA_TRUE;
         Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-        ephoto_filter_edge(sb->main, v->image);
+        ephoto_filter_edge(sb->ephoto, v->image);
      }
 }
 
@@ -1398,7 +1398,7 @@ _go_emboss(void *data, Evas_Object *obj EINA_UNUSED,
         sb->editing = EINA_TRUE;
         Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-        ephoto_filter_emboss(sb->main, v->image);
+        ephoto_filter_emboss(sb->ephoto, v->image);
      }
 }
 

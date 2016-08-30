@@ -146,18 +146,18 @@ void ephoto_red_eye_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
     Evas_Object *image);
 void ephoto_scale_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
     Evas_Object *image, const char *file);
-void ephoto_filter_blur(Evas_Object *main, Evas_Object *image);
-void ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image);
-void ephoto_filter_dither(Evas_Object *main, Evas_Object *image);
-void ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image);
-void ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image);
-void ephoto_filter_painting(Evas_Object *main, Evas_Object *image);
-void ephoto_filter_posterize(Evas_Object *main, Evas_Object *image);
-void ephoto_filter_sketch(Evas_Object *main, Evas_Object *image);
-void ephoto_filter_invert(Evas_Object *main, Evas_Object *image);
-void ephoto_filter_edge(Evas_Object *main, Evas_Object *image);
-void ephoto_filter_emboss(Evas_Object *main, Evas_Object *image);
-void ephoto_filter_histogram_eq(Evas_Object *main, Evas_Object *image);
+void ephoto_filter_blur(Ephoto *ephoto, Evas_Object *image);
+void ephoto_filter_sharpen(Ephoto *ephoto, Evas_Object *image);
+void ephoto_filter_dither(Ephoto *ephoto, Evas_Object *image);
+void ephoto_filter_black_and_white(Ephoto *ephoto, Evas_Object *image);
+void ephoto_filter_old_photo(Ephoto *ephoto, Evas_Object *image);
+void ephoto_filter_painting(Ephoto *ephoto, Evas_Object *image);
+void ephoto_filter_posterize(Ephoto *ephoto, Evas_Object *image);
+void ephoto_filter_sketch(Ephoto *ephoto, Evas_Object *image);
+void ephoto_filter_invert(Ephoto *ephoto, Evas_Object *image);
+void ephoto_filter_edge(Ephoto *ephoto, Evas_Object *image);
+void ephoto_filter_emboss(Ephoto *ephoto, Evas_Object *image);
+void ephoto_filter_histogram_eq(Ephoto *ephoto, Evas_Object *image);
 
 /*file functions*/
 void ephoto_file_save_image(Ephoto *ephoto, Ephoto_Entry *entry, 

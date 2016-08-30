@@ -22,7 +22,7 @@ enum _Ephoto_Image_Filter
 struct _Ephoto_Filter
 {
    Ephoto_Image_Filter filter;
-   Evas_Object *main;
+   Ephoto *ephoto;
    Evas_Object *image;
    Evas_Object *popup;
    Ecore_Thread *thread;;
@@ -56,7 +56,7 @@ static void _histogram_eq(void *data, Ecore_Thread *th EINA_UNUSED);
 
 static Ephoto_Filter *
 _initialize_filter(Ephoto_Image_Filter filter,
-    Evas_Object *main, Evas_Object *image)
+    Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = calloc(1, sizeof(Ephoto_Filter));
    Evas_Coord w, h;
@@ -67,7 +67,7 @@ _initialize_filter(Ephoto_Image_Filter filter,
    evas_object_image_size_get(image, &w, &h);
 
    ef->filter = filter;
-   ef->main = main;
+   ef->ephoto = ephoto;
    ef->image = image;
    ef->im_data = malloc(sizeof(unsigned int) * w * h);
    ef->im_data = memcpy(ef->im_data, im_data, sizeof(unsigned int) * w * h);
@@ -159,6 +159,7 @@ _processing(Evas_Object *main)
 
    elm_object_part_content_set(popup, "default", box);
    evas_object_show(popup);
+
    return popup;
 }
 
@@ -168,8 +169,8 @@ _thread_finished_cb(void *data, Ecore_Thread *th EINA_UNUSED)
    Ephoto_Filter *ef = data;
    if (ef->qcount == 0)
      {
-        ephoto_single_browser_image_data_done(ef->main, ef->im_data_new,
-            ef->w, ef->h);
+        ephoto_single_browser_image_data_done(ef->ephoto->single_browser,
+            ef->im_data_new, ef->w, ef->h);
         if (ef->popup)
           {
              evas_object_del(ef->popup);
@@ -218,8 +219,8 @@ _thread_finished_cb(void *data, Ecore_Thread *th EINA_UNUSED)
           }
         else
           {
-             ephoto_single_browser_image_data_done(ef->main, ef->im_data_new,
-                 ef->w, ef->h);
+             ephoto_single_browser_image_data_done(ef->ephoto->single_browser,
+                 ef->im_data_new, ef->w, ef->h);
              if (ef->popup)
                {
                   evas_object_del(ef->popup);
@@ -1068,22 +1069,22 @@ _histogram_eq(void *data, Ecore_Thread *th EINA_UNUSED)
 }
 
 void
-ephoto_filter_blur(Evas_Object *main, Evas_Object *image)
+ephoto_filter_blur(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_BLUR,
-       main, image);
+       ephoto, image);
 
    ef->rad = 9;
-   ef->popup = _processing(main);
+   ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_blur, _thread_finished_cb,
        NULL, ef);
 }
 
 void
-ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image)
+ephoto_filter_sharpen(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SHARPEN,
-       main, image);
+       ephoto, image);
    ef->im_data_orig = malloc(sizeof(unsigned int) * ef->w * ef->h);
    ef->im_data_orig = memcpy(ef->im_data_orig, ef->im_data,
        sizeof(unsigned int) * ef->w * ef->h);
@@ -1092,88 +1093,88 @@ ephoto_filter_sharpen(Evas_Object *main, Evas_Object *image)
    ef->qcount = 1;
    ef->qpos = 0;
    ef->queue = eina_list_append(ef->queue, _sharpen);
-   ef->popup = _processing(main);
+   ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_blur, _thread_finished_cb,
        NULL, ef);
 }
 
 void
-ephoto_filter_dither(Evas_Object *main, Evas_Object *image)
+ephoto_filter_dither(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_DITHER,
-       main, image);
+       ephoto, image);
    ef->im_data_new = memcpy(ef->im_data_new, ef->im_data,
        sizeof(unsigned int) * ef->w * ef->h);
 
-   ef->popup = _processing(main);
+   ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_dither, _thread_finished_cb,
        NULL, ef);
 }
 
 void
-ephoto_filter_black_and_white(Evas_Object *main, Evas_Object *image)
+ephoto_filter_black_and_white(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_GRAYSCALE,
-       main, image);
+       ephoto, image);
 
-   ef->popup = _processing(main);
+   ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_grayscale, _thread_finished_cb,
        NULL, ef);
 }
 
 void
-ephoto_filter_old_photo(Evas_Object *main, Evas_Object *image)
+ephoto_filter_old_photo(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SEPIA,
-       main, image);
+       ephoto, image);
 
-   ef->popup = _processing(main);
+   ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_sepia, _thread_finished_cb,
        NULL, ef);
 }
 
 void
-ephoto_filter_posterize(Evas_Object *main, Evas_Object *image)
+ephoto_filter_posterize(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_POSTERIZE,
-       main, image);
+       ephoto, image);
 
    ef->drad = 2.0;
-   ef->popup = _processing(main);
+   ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_posterize, _thread_finished_cb,
        NULL, ef);
 }
 
 void
-ephoto_filter_painting(Evas_Object *main, Evas_Object *image)
+ephoto_filter_painting(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_PAINTING,
-       main, image);
+       ephoto, image);
 
    ef->rad = 5;
    ef->drad = 5.0;
    ef->qpos = 0;
    ef->qcount = 1;
    ef->queue = eina_list_append(ef->queue, _posterize);
-   ef->popup = _processing(main);
+   ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_blur, _thread_finished_cb,
        NULL, ef);
 }
 
-void ephoto_filter_invert(Evas_Object *main, Evas_Object *image)
+void ephoto_filter_invert(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_INVERT,
-       main, image);
+       ephoto, image);
 
-   ef->popup = _processing(main);
+   ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_negative, _thread_finished_cb,
        NULL, ef);
 }
 
-void ephoto_filter_sketch(Evas_Object *main, Evas_Object *image)
+void ephoto_filter_sketch(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SKETCH,
-       main, image);
+       ephoto, image);
 
    ef->rad = 4;
    ef->qpos = 0;
@@ -1181,46 +1182,46 @@ void ephoto_filter_sketch(Evas_Object *main, Evas_Object *image)
    ef->queue = eina_list_append(ef->queue, _negative);
    ef->queue = eina_list_append(ef->queue, _blur);
    ef->queue = eina_list_append(ef->queue, _dodge);
-   ef->popup = _processing(main);
+   ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_grayscale, _thread_finished_cb,
        NULL, ef);  
 }
 
-void ephoto_filter_edge(Evas_Object *main, Evas_Object *image)
+void ephoto_filter_edge(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SOBEL,
-       main, image);
+       ephoto, image);
 
    ef->rad = 3;
    ef->qpos = 0;
    ef->qcount = 2;
    ef->queue = eina_list_append(ef->queue, _grayscale);
    ef->queue = eina_list_append(ef->queue, _sobel);
-   ef->popup = _processing(main);
+   ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_blur, _thread_finished_cb,
        NULL, ef);
 }
 
-void ephoto_filter_emboss(Evas_Object *main, Evas_Object *image)
+void ephoto_filter_emboss(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_EMBOSS,
-       main, image);
+       ephoto, image);
 
-   ef->popup = _processing(main);
+   ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_emboss, _thread_finished_cb,
        NULL, ef);
 }
 
 void
-ephoto_filter_histogram_eq(Evas_Object *main, Evas_Object *image)
+ephoto_filter_histogram_eq(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_EQUALIZE,
-       main, image);
+       ephoto, image);
 
    ef->hist = malloc(sizeof(unsigned int) * 256);
    ef->cdf = malloc(sizeof(unsigned int) * 256);
    _create_hist(ef);
-   ef->popup = _processing(main);
+   ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_histogram_eq, _thread_finished_cb,
        NULL, ef);
 }

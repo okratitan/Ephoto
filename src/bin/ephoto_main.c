@@ -562,7 +562,7 @@ ephoto_window_add(const char *path)
      elm_object_text_set(but, _("Show Folders"));
    evas_object_smart_callback_add(but, "clicked", _folder_icon_clicked, ephoto);
    elm_object_tooltip_text_set(but, _("Show Folders"));
-   elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
+   elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_RIGHT);
    elm_box_pack_end(ephoto->statusbar, but);
    evas_object_show(but);
    fold = but;

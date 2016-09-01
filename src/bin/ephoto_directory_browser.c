@@ -110,11 +110,15 @@ _drop_dropcb(void *data EINA_UNUSED, Evas_Object *obj, Elm_Object_Item *it,
 
    while (s)
      {
+        if (evas_object_image_extension_can_load_get(s))
+          files = eina_list_append(files, s);
 	files = eina_list_append(files, s);
 	s = _drag_data_extract(&dd);
      }
    free(dd);
 
+   if (eina_list_count(files) <= 0)
+     return EINA_TRUE;
    if (db->ephoto->config->move_drop)
      ephoto_file_move(db->ephoto, files, path);
    else
@@ -136,12 +140,9 @@ _drop_item_getcb(Evas_Object *obj, Evas_Coord x, Evas_Coord y,
 }
 
 static void
-_drop_enter(void *data, Evas_Object *obj EINA_UNUSED)
+_drop_enter(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED)
 {
-   Ephoto_Directory_Browser *db = data;
-
-   if (db->dragging)
-     elm_object_cursor_set(db->main, ELM_CURSOR_TARGET);
+   return;
 }
 
 static void
@@ -151,7 +152,6 @@ _drop_leave(void *data, Evas_Object *obj EINA_UNUSED)
 
    if (db->dragging)
      {
-        elm_object_cursor_set(db->main, ELM_CURSOR_HAND2);
         if (db->dir_current)
           elm_genlist_item_selected_set(db->dir_current, EINA_TRUE);
      }
@@ -159,7 +159,7 @@ _drop_leave(void *data, Evas_Object *obj EINA_UNUSED)
 
 static void
 _drop_pos(void *data EINA_UNUSED, Evas_Object *cont EINA_UNUSED,
-    Elm_Object_Item *it EINA_UNUSED, Evas_Coord x EINA_UNUSED,
+    Elm_Object_Item *it, Evas_Coord x EINA_UNUSED,
     Evas_Coord y EINA_UNUSED, int xposret EINA_UNUSED,
     int yposret EINA_UNUSED, Elm_Xdnd_Action action EINA_UNUSED)
 {

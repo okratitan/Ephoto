@@ -79,6 +79,7 @@ static void _ephoto_thumb_search_cancel(void *data, Evas_Object *obj EINA_UNUSED
     void *event_info EINA_UNUSED);
 static void _ephoto_thumb_search_start(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED);
+static char * _drag_data_extract(char **drag_data);
 
 /*Common Callbacks*/
 static void
@@ -118,6 +119,131 @@ _5s_timeout_gone(void *data)
    _5s_timeout = NULL;
 
    return ECORE_CALLBACK_CANCEL;
+}
+
+static Eina_Bool
+_drop_dropcb(void *data EINA_UNUSED, Evas_Object *obj, Elm_Object_Item *it EINA_UNUSED,
+    Elm_Selection_Data *ev, int xposret EINA_UNUSED, int yposret EINA_UNUSED)
+{
+   Eina_List *files = NULL;
+   Ephoto_Thumb_Browser *tb = evas_object_data_get(obj, "thumb_browser");
+   const char *path = tb->ephoto->config->directory;
+   char *dir;
+
+   if (!ev->data)
+      return EINA_FALSE;
+   if (ev->len <= 0)
+      return EINA_FALSE;
+   if (!path)
+      return EINA_FALSE;
+
+   char *dd = strdup(ev->data);
+
+   if (!dd)
+      return EINA_FALSE;
+
+   char *s = _drag_data_extract(&dd);
+
+   while (s)
+     {
+        dir = ecore_file_dir_get(s);
+        if (!strcmp(path, dir))
+          {
+             free(dir);
+             break;
+          }
+        if (evas_object_image_extension_can_load_get(basename(s)))
+          files = eina_list_append(files, s);
+        free(dir);
+        s = _drag_data_extract(&dd);
+     }
+   free(dd);
+
+   if (eina_list_count(files) <= 0)
+     return EINA_TRUE;
+   if (tb->ephoto->config->move_drop)
+     ephoto_file_move(tb->ephoto, files, path);
+   else
+     ephoto_file_copy(tb->ephoto, files, path);
+   return EINA_TRUE;
+}
+
+static Elm_Object_Item *
+_drop_item_getcb(Evas_Object *obj EINA_UNUSED, Evas_Coord x EINA_UNUSED,
+    Evas_Coord y EINA_UNUSED,int *xposret EINA_UNUSED, int *yposret EINA_UNUSED)
+{
+   return NULL;
+}
+
+static void
+_drop_enter(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED)
+{
+   return;
+}
+
+static void
+_drop_leave(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED)
+{
+   return;
+}
+
+static void
+_drop_pos(void *data EINA_UNUSED, Evas_Object *cont EINA_UNUSED,
+    Elm_Object_Item *it EINA_UNUSED, Evas_Coord x EINA_UNUSED,
+    Evas_Coord y EINA_UNUSED, int xposret EINA_UNUSED,
+    int yposret EINA_UNUSED, Elm_Xdnd_Action action EINA_UNUSED)
+{
+   return;
+}
+
+static char *
+_drag_data_extract(char **drag_data)
+{
+   char *uri = NULL;
+
+   if (!drag_data)
+      return uri;
+
+   char *p = *drag_data;
+
+   if (!p)
+      return uri;
+   char *s = strstr(p, FILESEP);
+
+   if (s)
+      p += FILESEP_LEN;
+   s = strchr(p, '\n');
+   uri = p;
+   if (s)
+     {
+        if (s - p > 0)
+          {
+             char *s1 = s - 1;
+
+             if (s1[0] == '\r')
+                s1[0] = '\0';
+             else
+               {
+                  char *s2 = s + 1;
+
+                  if (s2[0] == '\r')
+                    {
+                       s[0] = '\0';
+                       s++;
+                    }
+                  else
+                     s[0] = '\0';
+               }
+          }
+        else
+           s[0] = '\0';
+        s++;
+     }
+   else
+     p = NULL;
+   *drag_data = s;
+
+   return uri;
 }
 
 static void
@@ -1299,6 +1425,9 @@ _ephoto_thumb_view_add(Ephoto_Thumb_Browser *tb)
        _grid_mouse_wheel, tb);
    elm_drag_item_container_add(tb->grid, ANIM_TIME, DRAG_TIMEOUT,
        _dnd_item_get, _dnd_item_data_get);
+   elm_drop_item_container_add(tb->grid, ELM_SEL_FORMAT_TARGETS,
+       _drop_item_getcb, _drop_enter, tb, _drop_leave, tb, _drop_pos, tb,
+       _drop_dropcb, NULL);
    evas_object_data_set(tb->grid, "thumb_browser", tb);
    elm_box_pack_end(tb->gridbox, tb->grid);
    evas_object_smart_callback_add(tb->grid, "changed", _grid_changed, tb);

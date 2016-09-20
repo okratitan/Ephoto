@@ -1560,21 +1560,9 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
         evas_object_smart_callback_call(tb->main, "changed,directory", NULL);        
         ephoto_thumb_browser_update_info_label(tb->ephoto);
      }
-   else if (tb->ephoto->state == EPHOTO_STATE_SINGLE)
-     {
-        if (tb->ephoto->entries)
-          {
-             ephoto_single_browser_entry_set(tb->ephoto->single_browser, NULL);
-             ephoto_single_browser_entries_set(tb->ephoto->single_browser,
-                 tb->ephoto->entries);
-          }
-        else
-          {
-             ephoto_single_browser_entry_set(tb->ephoto->single_browser, NULL);
-             ephoto_title_set(tb->ephoto, tb->ephoto->config->directory);
-          }
-     }
    tb->entries = tb->ephoto->entries;
+   ephoto_single_browser_entries_set(tb->ephoto->single_browser,
+                 tb->ephoto->entries);
    if (eina_list_count(tb->entries) < 1 && tb->ephoto->config->folders)
      {
         ephoto_show_folders(tb->ephoto, EINA_FALSE);

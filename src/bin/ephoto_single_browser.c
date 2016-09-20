@@ -1537,7 +1537,7 @@ _ephoto_single_populate_end(void *data, int type EINA_UNUSED,
 
    if (!sb->entry && sb->ephoto->state == EPHOTO_STATE_SINGLE)
      ephoto_single_browser_entry_set(sb->main,
-                 eina_list_nth(sb->ephoto->entries, 0));
+                 _first_entry_find(sb));
 
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -1554,8 +1554,7 @@ _ephoto_single_entry_create(void *data, int type EINA_UNUSED,
    if (sb->pending_path && !strcmp(e->path, sb->pending_path))
      {
 	eina_stringshare_del(sb->pending_path);
-	sb->pending_path = NULL;
-	ephoto_single_browser_entry_set(sb->ephoto->single_browser, e);
+	ephoto_single_browser_entry_set(sb->main, e);
      }
 
    return ECORE_CALLBACK_PASS_ON;
@@ -2108,9 +2107,35 @@ void
 ephoto_single_browser_entries_set(Evas_Object *obj, Eina_List *entries)
 {
    Ephoto_Single_Browser *sb = evas_object_data_get(obj, "single_browser");
+   Ephoto_Viewer *v = NULL;
 
+   if (sb->viewer)
+     v = evas_object_data_get(sb->viewer, "viewer");
    if (entries)
-     sb->entries = entries;
+     {
+        sb->entries = entries;
+        if (sb->ephoto->state == EPHOTO_STATE_SINGLE)
+          {
+             if (v)
+               {
+                  const char *image;
+                  char *dir;
+
+                  elm_image_file_get(v->image, &image, NULL);
+                  printf("%s\n", image);
+                  dir = ecore_file_dir_get(image);
+                  if (strcmp(sb->ephoto->config->directory, dir))
+                    ephoto_single_browser_entry_set(sb->main,
+                        _first_entry_find(sb));
+                  free(dir);
+               }
+             else
+               ephoto_single_browser_entry_set(sb->main,
+                        _first_entry_find(sb));
+          }
+     }
+   else
+     ephoto_single_browser_entry_set(sb->main, NULL);
 }
 
 void

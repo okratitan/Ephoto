@@ -1,0 +1,641 @@
+# Slovenian translation for enlightenment
+# Copyright (c) 2016 Rosetta Contributors and Canonical Ltd 2016
+# This file is distributed under the same license as the enlightenment package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: enlightenment e-photo\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2016-08-30 20:00+0200\n"
+"PO-Revision-Date: 2016-09-21 17:16+0200\n"
+"Last-Translator: Renato Rener <renato.rener@gmail.com>\n"
+"Language-Team: Slovenian <sl@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n"
+"%100==4 ? 2 : 3);\n"
+"X-Launchpad-Export-Date: 2016-09-15 11:00+0000\n"
+"X-Generator: Poedit 1.8.9\n"
+"Language: sl\n"
+
+#: src/bin/ephoto_bcg.c:346 src/bin/ephoto_single_browser.c:1776
+msgid "Brightness/Contrast/Gamma"
+msgstr "Svetlost/Ostrina/Barva"
+
+#: src/bin/ephoto_bcg.c:352
+msgid "Gamma"
+msgstr "Barva"
+
+#: src/bin/ephoto_bcg.c:366
+msgid "Contrast"
+msgstr "Ostrina"
+
+#: src/bin/ephoto_bcg.c:380
+msgid "Brightness"
+msgstr "Svetlost"
+
+#: src/bin/ephoto_config.c:29 src/bin/ephoto_config.c:137
+msgid "Root Directory"
+msgstr "Korenska mapa"
+
+#: src/bin/ephoto_config.c:31 src/bin/ephoto_config.c:139
+msgid "Home Directory"
+msgstr "Domača mapa"
+
+#: src/bin/ephoto_config.c:33 src/bin/ephoto_config.c:141
+msgid "Last Open Directory"
+msgstr "Zadnja odprta mapa"
+
+#: src/bin/ephoto_config.c:73 src/bin/ephoto_config.c:143
+#: src/bin/ephoto_config.c:157
+msgid "Custom Directory"
+msgstr "Mapa po meri"
+
+#: src/bin/ephoto_config.c:85
+msgid "General"
+msgstr "Splošno"
+
+#: src/bin/ephoto_config.c:98
+msgid "Show Folders On Start"
+msgstr "Prikaži mape ob zagonu"
+
+#: src/bin/ephoto_config.c:106
+msgid "Prompt Before Changing The Filesystem"
+msgstr "Vprašaj pred spreminjanjem datotečnega sistema"
+
+#: src/bin/ephoto_config.c:114
+msgid "Move Files When Dropped"
+msgstr "Premakni datoteke ob spuščanju"
+
+#: src/bin/ephoto_config.c:122
+msgid "Smooth Scale Images"
+msgstr "Mehki prehodi slike"
+
+#: src/bin/ephoto_config.c:130
+msgid "Top Level Directory"
+msgstr "Mapa vrhnjega nivoja"
+
+#: src/bin/ephoto_config.c:182
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: src/bin/ephoto_config.c:221 src/bin/ephoto_main.c:611
+#: src/bin/ephoto_main.c:614
+msgid "Slideshow"
+msgstr "Predstavitev"
+
+#: src/bin/ephoto_config.c:234
+msgid "Moving Slideshow"
+msgstr "Premična predstavitev"
+
+#: src/bin/ephoto_config.c:244
+msgid "Show Each Slide For"
+msgstr "Prikazuj vsako sliko"
+
+#: src/bin/ephoto_config.c:253
+msgid "seconds"
+msgstr "sek."
+
+#: src/bin/ephoto_config.c:265
+msgid "Slide Transition"
+msgstr "Prehod predstavitve"
+
+#: src/bin/ephoto_config.c:328 src/bin/ephoto_single_browser.c:1819
+#: src/bin/ephoto_single_browser.c:1858
+msgid "Save"
+msgstr "Shrani"
+
+#: src/bin/ephoto_config.c:339 src/bin/ephoto_config.c:478
+#: src/bin/ephoto_config.c:595 src/bin/ephoto_single_browser.c:1827
+msgid "Close"
+msgstr "Zapri"
+
+#: src/bin/ephoto_config.c:383
+msgid "Open Link In Browser"
+msgstr "Odpri bližnjico v brskalniku"
+
+#: src/bin/ephoto_config.c:391
+msgid "Copy Link"
+msgstr "Kopiraj povezavo"
+
+#: src/bin/ephoto_config.c:423
+msgid ""
+"<b><hilight>General Bindings</hilight></b><br/><b>F1:</b> Settings Panel<br/"
+"><b>F5:</b> Start Slideshow<br/><b>F11:</b> Toggle Fullscreen<br/><b>Ctrl"
+"+Shift+f:</b> Toggle File Selector<br/><br/><b><hilight>Thumbnail Browser "
+"Bindings</hilight></b><br/><b>Ctrl++:</b> Zoom In<br/><b>Ctrl+-:</b> Zoom "
+"Out<br/><b>Ctrl+Tab:</b> View Image<br/><b>Ctrl+c:</b> Copy Image<br/><b>Ctrl"
+"+x:</b> Cut Image<br/><b>Ctrl+v:</b> Paste Image<br/><b>Ctrl+a:</b> Select "
+"All<br/><b>Ctrl+f:</b> Toggle Search<br/><b>Ctrl+Delete:</b> Delete Image<br/"
+"><b>F2:</b> Rename Image<br/><b>Escape:</b> Clear Selection<br/><br/"
+"><b><hilight>Single Browser Bindings</hilight></b><br/><b>Ctrl+Shift+0:</b> "
+"Zoom 1:1<br/><b>Ctrl++:</b> Zoom In<br/><b>Ctrl+-:</b> Zoom Out<br/><b>Ctrl"
+"+0:</b> Zoom Fit<br/><b>Ctrl+Shift+l:</b> Rotate Counter Clockwise<br/"
+"><b>Ctrl+l:</b> Flip Horizontal<br/><b>Ctrl+Shift+r:</b> Rotate Clockwise<br/"
+"><b>Ctrl+r:</b> Flip Vertical<br/><b>Ctrl+Shift+s:</b> Save Image As<br/"
+"><b>Ctrl+s:</b> Save Image<br/><b>Ctrl+u:</b> Reset Image<br/><b>Ctrl+y:</b> "
+"Redo<br/><b>Ctrl+Shift+z:</b> Redo<br/><b>Ctrl+z:</b> Undo<br/><b>Home:</b> "
+"Navigate First<br/><b>Left Arrow:</b> Navigate Previous<br/><b>Right Arrow:</"
+"b> Navigate Next<br/><b>End:</b> Navigate Last<br/><b>Ctrl+Delete:</b> "
+"Delete Image<br/><b>F2</b> Rename Image<br/><b>Escape:</b> Return to "
+"Thumbnail Browser<br/><br/><b><hilight>Slideshow Bindings</hilight></b><br/"
+"><b>Space:</b> Play/Pause Slideshow<br/><b>Home:</b> Navigate First<br/"
+"><b>Left Arrow:</b> Navigate Previous<br/><b>Right Arrow:</b> Navigate "
+"Next<br/><b>End:</b> Navigate Last<br/><b>Escape:</b> Quit Slideshow<br/>"
+msgstr ""
+"<b><hilight>Splošne naveze</hilight></b><br/><b>F1:</b> Nastavitvena "
+"ploščad<br/><b>F5:</b> Začni prestavitev<br/><b>F11:</b> Celozaslonsko<br/"
+"><b>Ctrl+Shift+f:</b> Izbirnik datotek<br/><br/><b><hilight>Naveze "
+"brskalnika datotek</hilight></b><br/><b>Ctrl++:</b> Približaj<br/><b>Ctrl+-:"
+"</b> Oddalji<br/><b>Ctrl+Tab:</b> Poglej sliko<br/><b>Ctrl+c:</b> Kopiraj "
+"sliko<br/><b>Ctrl+x:</b> Izreži sliko<br/><b>Ctrl+v:</b> Prilepi sliko<br/"
+"><b>Ctrl+a:</b> Izberi vse<br/><b>Ctrl+f:</b> Iskanje<br/><b>Ctrl+Delete:</"
+"b> Izbriši sliko<br/><b>F2:</b> Preimenuj sliko<br/><b>Esc:</b> Počisti "
+"izbiro<br/><br/><b><hilight>Naveze posameznega brskalnika</hilight></b><br/"
+"><b>Ctrl+Shift+0:</b> Približevalno razmerje 1:1<br/><b>Ctrl++:</b> "
+"Približaj<br/><b>Ctrl+-:</b> Oddalji<br/><b>Ctrl+0:</b> Približevalno "
+"razmerje uskladi<br/><b>Ctrl+Shift+l:</b> Obrni v smeri nasprotno od urinega "
+"kazalca<br/><b>Ctrl+l:</b> Obrni pokončno<br/><b>Ctrl+Shift+r:</b> Obrni v "
+"smeri urinega kazalca<br/><b>Ctrl+r:</b> Obrni pokončno<br/><b>Ctrl+Shift+s:"
+"</b> Shrani sliko kot<br/><b>Ctrl+s:</b> Shrani sliko<br/><b>Ctrl+u:</b> "
+"Resetiraj sliko<br/><b>Ctrl+y:</b> Ponovno uveljavi<br/><b>Ctrl+Shift+z:</b> "
+"Ponovno uveljavi<br/><b>Ctrl+z:</b> Razveljavi<br/><b>Dom:</b> Na prvo<br/"
+"><b>Leva puščica:</b> Na prejšnjo<br/><b>Desna puščica:</b> Na naslednjo<br/"
+"><b>End:</b> Na zadnjo<br/><b>Ctrl+Delete:</b> Izbriši sliko<br/><b>F2</b> "
+"Preimenuj sliko<br/><b>Escape:</b> Vrnitev v brskalnik predoglednih "
+"sličic<br/><br/><b><hilight>Naveze predstavitve</hilight></b><br/><b>Space:</"
+"b> Predvajanje/Premor predstavitve<br/><b>Home:</b> Na prvo<br/><b>Leva "
+"puščica:</b> Na prejšnjo<br/><b>Desna puščica:</b> Na naslednjo<br/><b>End:</"
+"b> Na zadnjo<br/><b>Escape:</b> Zapusti predstavitev<br/>"
+
+#: src/bin/ephoto_config.c:530
+msgid ""
+"Ephoto is a comprehensive image viewer based on the EFL. For more<br/"
+">information, please visit the Ephoto project page:<br/><a href=http://www."
+"smhouston.us/ephoto/>http://www.smhouston.us/ephoto/</a><br/><br/>Ephoto "
+"also has a page on the Enlightenment wiki:<br/><a href=https://phab."
+"enlightenment.org/w/projects/ephoto>https://phab.enlightenment.org/w/"
+"projects/ephoto</a><br/><br/>Ephoto's source can be found through "
+"Enlightenment's git:<br/><a href=http://git.enlightenment.org/apps/ephoto."
+"git>http://git.enlightenment.org/apps/ephoto.git</a><br/><br/><b>Authors:</"
+"b><br/>"
+msgstr ""
+"Ephoto je razumljiv pregledovalnik slik, ki bazira na knjižnicah EFL. za "
+"več<br/>informacij, prosimo obiščite stran projekta Ephoto:<br/><a "
+"href=http://www.smhouston.us/ephoto/>http://www.smhouston.us/ephoto/</a><br/"
+"><br/>Ephoto ima tudi stran na Enlightenment wiki:<br/><a href=https://phab."
+"enlightenment.org/w/projects/ephoto>https://phab.enlightenment.org/w/"
+"projects/ephoto</a><br/><br/>Ephoto izvorne datoteke se lahko dobi na "
+"Enlightenment git strani:<br/><a href=http://git.enlightenment.org/apps/"
+"ephoto.git>http://git.enlightenment.org/apps/ephoto.git</a><br/><br/"
+"><b>Avtorji:</b><br/>"
+
+#: src/bin/ephoto_config.c:694
+msgid "Settings Panel"
+msgstr "Nastavitvena ploščad"
+
+#: src/bin/ephoto_config.c:724 src/bin/ephoto_main.c:628
+#: src/bin/ephoto_main.c:631 src/bin/ephoto_slideshow.c:804
+msgid "Settings"
+msgstr "Nastavitve"
+
+#: src/bin/ephoto_config.c:730
+msgid "Bindings"
+msgstr "Naveze"
+
+#: src/bin/ephoto_config.c:736
+msgid "About"
+msgstr "O programu"
+
+#: src/bin/ephoto_color.c:331
+msgid "Adjust Color Levels"
+msgstr "Prilagodi ravni barv"
+
+#: src/bin/ephoto_color.c:337
+msgid "Blue"
+msgstr "Modra"
+
+#: src/bin/ephoto_color.c:351
+msgid "Green"
+msgstr "Zelena"
+
+#: src/bin/ephoto_color.c:365
+msgid "Red"
+msgstr "Rdeča"
+
+#: src/bin/ephoto_cropper.c:703
+msgid "Crop Image"
+msgstr "Obreži sliko"
+
+#: src/bin/ephoto_cropper.c:712
+msgid "Height"
+msgstr "Višina"
+
+#: src/bin/ephoto_cropper.c:725
+msgid "Width"
+msgstr "Širina"
+
+#: src/bin/ephoto_filters.c:134
+msgid "Applying Filter"
+msgstr "Uveljavljanje filtra"
+
+#: src/bin/ephoto_filters.c:145
+msgid "Please wait while this filter is applied to your image."
+msgstr "Prosimo počakajte, da se filter na vaši sliki izvede."
+
+#: src/bin/ephoto_hsv.c:353 src/bin/ephoto_single_browser.c:1778
+msgid "Hue/Saturation/Value"
+msgstr "Obarvanost/Nasičenost/Vrednost"
+
+#: src/bin/ephoto_hsv.c:359
+msgid "Value"
+msgstr "Vrednost"
+
+#: src/bin/ephoto_hsv.c:373
+msgid "Saturation"
+msgstr "Nasičenost"
+
+#: src/bin/ephoto_hsv.c:387
+msgid "Hue"
+msgstr "Obarvanost"
+
+#: src/bin/ephoto_main.c:347 src/bin/ephoto_main.c:348
+#: src/bin/ephoto_main.c:406
+msgid "Hide Folders"
+msgstr "Skrij mape"
+
+#: src/bin/ephoto_main.c:357 src/bin/ephoto_main.c:358
+#: src/bin/ephoto_main.c:414 src/bin/ephoto_main.c:562
+#: src/bin/ephoto_main.c:564 src/bin/ephoto_main.c:704
+msgid "Show Folders"
+msgstr "Prikaži mape"
+
+#: src/bin/ephoto_main.c:583
+msgid "Information"
+msgstr "Informacije"
+
+#: src/bin/ephoto_main.c:645 src/bin/ephoto_main.c:648
+msgid "Exit"
+msgstr "Izhod"
+
+#: src/bin/ephoto_thumb_browser.c:824 src/bin/ephoto_thumb_browser.c:1233
+msgid "Search"
+msgstr "Iskanje"
+
+#: src/bin/ephoto_thumb_browser.c:826
+msgid "Select All"
+msgstr "Izberi vse"
+
+#: src/bin/ephoto_thumb_browser.c:829
+msgid "Select None"
+msgstr "Odstrani izbor"
+
+#: src/bin/ephoto_thumb_browser.c:833 src/bin/ephoto_single_browser.c:1861
+msgid "Rename"
+msgstr "Preimenuj"
+
+#: src/bin/ephoto_thumb_browser.c:839
+msgid "Cut"
+msgstr "Izreži"
+
+#: src/bin/ephoto_thumb_browser.c:841
+msgid "Copy"
+msgstr "Kopiraj"
+
+#: src/bin/ephoto_thumb_browser.c:847
+msgid "Paste"
+msgstr "Prilepi"
+
+#: src/bin/ephoto_thumb_browser.c:854
+msgid "Empty Trash"
+msgstr "Izprazni smeti"
+
+#: src/bin/ephoto_thumb_browser.c:859 src/bin/ephoto_single_browser.c:1863
+msgid "Delete"
+msgstr "Izbriši"
+
+#: src/bin/ephoto_thumb_browser.c:965
+msgid "No images matched your search"
+msgstr "Nobena slika se ne ujema z iskanjem"
+
+#: src/bin/ephoto_thumb_browser.c:968 src/bin/ephoto_thumb_browser.c:1267
+msgid "There are no images in this directory"
+msgstr "V tej mapi ni slik"
+
+#: src/bin/ephoto_thumb_browser.c:970 src/bin/ephoto_thumb_browser.c:1010
+msgid "Total"
+msgstr "Skupaj"
+
+#: src/bin/ephoto_thumb_browser.c:970 src/bin/ephoto_thumb_browser.c:1010
+msgid "image"
+msgid_plural "images"
+msgstr[0] "slika"
+msgstr[1] "slik"
+msgstr[2] "slik"
+msgstr[3] "slik"
+
+#: src/bin/ephoto_thumb_browser.c:970 src/bin/ephoto_thumb_browser.c:1011
+msgid "Size"
+msgstr "Velikost"
+
+#: src/bin/ephoto_thumb_browser.c:971 src/bin/ephoto_thumb_browser.c:980
+#: src/bin/ephoto_single_browser.c:137
+msgid "B"
+msgid_plural "B"
+msgstr[0] "B"
+msgstr[1] "B"
+msgstr[2] "B"
+msgstr[3] "B"
+
+#: src/bin/ephoto_thumb_browser.c:987 src/bin/ephoto_single_browser.c:144
+msgid "KB"
+msgid_plural "KB"
+msgstr[0] "KB"
+msgstr[1] "KB"
+msgstr[2] "KB"
+msgstr[3] "KB"
+
+#: src/bin/ephoto_thumb_browser.c:993 src/bin/ephoto_single_browser.c:150
+msgid "MB"
+msgid_plural "MB"
+msgstr[0] "MB"
+msgstr[1] "MB"
+msgstr[2] "MB"
+msgstr[3] "MB"
+
+#: src/bin/ephoto_thumb_browser.c:999 src/bin/ephoto_single_browser.c:156
+msgid "GB"
+msgid_plural "GB"
+msgstr[0] "GB"
+msgstr[1] "GB"
+msgstr[2] "GB"
+msgstr[3] "GB"
+
+#: src/bin/ephoto_thumb_browser.c:1004 src/bin/ephoto_single_browser.c:161
+msgid "TB"
+msgid_plural "TB"
+msgstr[0] "TB"
+msgstr[1] "TB"
+msgstr[2] "TB"
+msgstr[3] "TB"
+
+#: src/bin/ephoto_thumb_browser.c:1949 src/bin/ephoto_thumb_browser.c:1951
+msgid "View Images"
+msgstr "Poglej slike"
+
+#: src/bin/ephoto_thumb_browser.c:1965 src/bin/ephoto_thumb_browser.c:1967
+#: src/bin/ephoto_single_browser.c:2351 src/bin/ephoto_single_browser.c:2353
+msgid "Zoom In"
+msgstr "Približaj"
+
+#: src/bin/ephoto_thumb_browser.c:1981 src/bin/ephoto_thumb_browser.c:1983
+#: src/bin/ephoto_single_browser.c:2367 src/bin/ephoto_single_browser.c:2369
+msgid "Zoom Out"
+msgstr "Oddalji"
+
+#: src/bin/ephoto_thumb_browser.c:1991
+msgid "Alphabetical Ascending"
+msgstr "Naraščajoče abecedno"
+
+#: src/bin/ephoto_thumb_browser.c:1993
+msgid "Alphabetical Descending"
+msgstr "Padajoče abecedno"
+
+#: src/bin/ephoto_thumb_browser.c:1995
+msgid "Modification Time Ascending"
+msgstr "Naraščajoče po času spreminjanja"
+
+#: src/bin/ephoto_thumb_browser.c:1997
+msgid "Modification Time Descending"
+msgstr "Padajoče po času spreminjanja"
+
+#: src/bin/ephoto_thumb_browser.c:1999
+msgid "Image Simalarity"
+msgstr "Podobnost slik"
+
+#: src/bin/ephoto_thumb_browser.c:2001 src/bin/ephoto_thumb_browser.c:2008
+msgid "Sort"
+msgstr "Razvrsti"
+
+#: src/bin/ephoto_single_browser.c:119
+msgid "Type"
+msgstr "Vrsta"
+
+#: src/bin/ephoto_single_browser.c:120
+msgid "Resolution"
+msgstr "Ločljivost"
+
+#: src/bin/ephoto_single_browser.c:120
+msgid "File Size"
+msgstr "Velikost datoteke"
+
+#: src/bin/ephoto_single_browser.c:514 src/bin/ephoto_single_browser.c:2284
+msgid "MODIFIED"
+msgstr "SPREMENJENO"
+
+#: src/bin/ephoto_single_browser.c:976
+msgid "Reset Image"
+msgstr "Ponastavi sliko"
+
+#: src/bin/ephoto_single_browser.c:987
+msgid "Are you sure you want to reset your changes?"
+msgstr "Ali res želite ponastaviti svoje spremembe"
+
+#: src/bin/ephoto_single_browser.c:998
+msgid "Yes"
+msgstr "Da"
+
+#: src/bin/ephoto_single_browser.c:1009
+msgid "No"
+msgstr "Ne"
+
+#: src/bin/ephoto_single_browser.c:1601
+msgid "This image does not exist or is corrupted!"
+msgstr "Ta slika ne obstaja ali je okvarjena!"
+
+#: src/bin/ephoto_single_browser.c:1608
+msgid "Bad Image"
+msgstr "Okvarjena slika"
+
+#: src/bin/ephoto_single_browser.c:1723 src/bin/ephoto_single_browser.c:1856
+#: src/bin/ephoto_single_browser.c:2415 src/bin/ephoto_single_browser.c:2417
+msgid "Edit"
+msgstr "Uredi"
+
+#: src/bin/ephoto_single_browser.c:1758
+msgid "Transform"
+msgstr "Preoblikuj"
+
+#: src/bin/ephoto_single_browser.c:1761
+msgid "Crop"
+msgstr "Obreži"
+
+#: src/bin/ephoto_single_browser.c:1762
+msgid "Scale"
+msgstr "Umeri"
+
+#: src/bin/ephoto_single_browser.c:1763 src/bin/ephoto_single_browser.c:1872
+msgid "Rotate Left"
+msgstr "Zavrti v levo"
+
+#: src/bin/ephoto_single_browser.c:1765 src/bin/ephoto_single_browser.c:1874
+msgid "Rotate Right"
+msgstr "Zavrti v desno"
+
+#: src/bin/ephoto_single_browser.c:1767
+msgid "Flip Horizontal"
+msgstr "Zrcali vodoravno"
+
+#: src/bin/ephoto_single_browser.c:1769
+msgid "Flip Vertical"
+msgstr "Zrcali navpično"
+
+#: src/bin/ephoto_single_browser.c:1771
+msgid "Color"
+msgstr "Barva"
+
+#: src/bin/ephoto_single_browser.c:1774
+msgid "Auto Equalize"
+msgstr "Samoizenači"
+
+#: src/bin/ephoto_single_browser.c:1780
+msgid "Color Levels"
+msgstr "Ravni barve"
+
+#: src/bin/ephoto_single_browser.c:1782
+msgid "Red Eye Removal"
+msgstr "Odstranjevanje rdečih oči"
+
+#: src/bin/ephoto_single_browser.c:1784
+msgid "Filters"
+msgstr "Filtri"
+
+#: src/bin/ephoto_single_browser.c:1787
+msgid "Black and White"
+msgstr "Črna in bela"
+
+#: src/bin/ephoto_single_browser.c:1789
+msgid "Blur"
+msgstr "Zameglitev"
+
+#: src/bin/ephoto_single_browser.c:1791
+msgid "Dither"
+msgstr "Razprševanje"
+
+#: src/bin/ephoto_single_browser.c:1793
+msgid "Edge Detect"
+msgstr "Zaznava robov"
+
+#: src/bin/ephoto_single_browser.c:1795
+msgid "Emboss"
+msgstr "Izboči"
+
+#: src/bin/ephoto_single_browser.c:1797
+msgid "Invert Colors"
+msgstr "Obrni barve"
+
+#: src/bin/ephoto_single_browser.c:1799
+msgid "Old Photo"
+msgstr "Stara fotografija"
+
+#: src/bin/ephoto_single_browser.c:1801
+msgid "Painting"
+msgstr "Risba"
+
+#: src/bin/ephoto_single_browser.c:1803
+msgid "Posterize"
+msgstr "Posteriziraj"
+
+#: src/bin/ephoto_single_browser.c:1805
+msgid "Sharpen"
+msgstr "Izostritev"
+
+#: src/bin/ephoto_single_browser.c:1807
+msgid "Sketch"
+msgstr "Skica"
+
+#: src/bin/ephoto_single_browser.c:1820 src/bin/ephoto_single_browser.c:1859
+#: src/bin/ephoto_single_browser.c:2431 src/bin/ephoto_single_browser.c:2433
+msgid "Save As"
+msgstr "Shrani kot"
+
+#: src/bin/ephoto_single_browser.c:1822 src/bin/ephoto_single_browser.c:1865
+msgid "Upload"
+msgstr "Oddaj"
+
+#: src/bin/ephoto_single_browser.c:1824
+msgid "Undo"
+msgstr "Razveljavi"
+
+#: src/bin/ephoto_single_browser.c:1825
+msgid "Redo"
+msgstr "Ponovno uveljavi"
+
+#: src/bin/ephoto_single_browser.c:1826 src/bin/ephoto_single_browser.c:1857
+msgid "Reset"
+msgstr "Ponastavi"
+
+#: src/bin/ephoto_single_browser.c:1855
+msgid "File"
+msgstr "Datoteka"
+
+#: src/bin/ephoto_single_browser.c:1868
+msgid "Zoom Fit"
+msgstr "Prilagodi oknu"
+
+#: src/bin/ephoto_single_browser.c:1870
+msgid "Zoom 1:1"
+msgstr "Povečava 1:1"
+
+#: src/bin/ephoto_single_browser.c:2335
+msgid "Thumbnails"
+msgstr "Predoglednice"
+
+#: src/bin/ephoto_single_browser.c:2337
+msgid "View Thumbnails"
+msgstr "Poglej predoglednice"
+
+#: src/bin/ephoto_single_browser.c:2383 src/bin/ephoto_single_browser.c:2385
+#: src/bin/ephoto_slideshow.c:789
+msgid "Previous"
+msgstr "Prejšnje"
+
+#: src/bin/ephoto_single_browser.c:2399 src/bin/ephoto_single_browser.c:2401
+#: src/bin/ephoto_slideshow.c:795
+msgid "Next"
+msgstr "Naslednje"
+
+#: src/bin/ephoto_slideshow.c:599 src/bin/ephoto_slideshow.c:792
+msgid "Play"
+msgstr "Predvajaj"
+
+#: src/bin/ephoto_slideshow.c:608 src/bin/ephoto_slideshow.c:885
+msgid "Pause"
+msgstr "Premor"
+
+#: src/bin/ephoto_slideshow.c:657 src/bin/ephoto_slideshow.c:801
+#: src/bin/ephoto_slideshow.c:904
+msgid "Fullscreen"
+msgstr "Celozaslonsko"
+
+#: src/bin/ephoto_slideshow.c:666 src/bin/ephoto_slideshow.c:896
+msgid "Normal"
+msgstr "Običajno"
+
+#: src/bin/ephoto_slideshow.c:783 src/bin/ephoto_slideshow.c:785
+msgid "Back"
+msgstr "Nazaj"
+
+#: src/bin/ephoto_slideshow.c:787
+msgid "First"
+msgstr "Prvo"
+
+#: src/bin/ephoto_slideshow.c:798
+msgid "Last"
+msgstr "Zadnja"

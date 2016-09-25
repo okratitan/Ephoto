@@ -962,6 +962,7 @@ _prompt_upload_apply(void *data, Evas_Object *obj EINA_UNUSED,
    FILE *f;
    unsigned char *fdata;
    int fsize;
+   int res;
 
    evas_object_del(ppopup);
    popup = _processing(ephoto, _("Upload Image"),
@@ -969,12 +970,17 @@ _prompt_upload_apply(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_show(popup);
 
    f = fopen(entry->path, "rb");
-   fseek(f, 0, SEEK_END);
+   if (!f) CRIT("unable to open '%s': %s", entry->path, strerror(errno));
+   res = fseek(f, 0, SEEK_END);
+   if (!res) CRIT("fseek() failed on file '%s': %s", entry->path, strerror(errno));
    fsize = ftell(f);
+   if (fsize == -1) CRIT("ftell() failed on file '%s': %s", entry->path, strerror(errno));
    rewind(f);
    fdata = malloc(fsize);
-   fread(fdata, fsize, 1, f);
-   fclose(f);
+   res = fread(fdata, fsize, 1, f);
+   if (res < 1) CRIT("fread() failed on file '%s': %s", entry->path, strerror(errno));
+   res = fclose(f);
+   if (!res) CRIT("fclose() failed on file '%s': %s", entry->path, strerror(errno));
 
    snprintf(buf, PATH_MAX, "image=%s", fdata);
 

@@ -398,6 +398,9 @@ _thumb_item_text_get(void *data, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto_Entry *e = data;
 
+   EINA_SAFETY_ON_NULL_RETURN_VAL(e, NULL);
+   if (!e->label)
+       return NULL;
    return strdup(e->label);
 }
 

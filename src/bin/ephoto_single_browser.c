@@ -1448,11 +1448,16 @@ _animate_cb(void *data)
 static Evas_Object *
 _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
 {
-   Ephoto_Viewer *v = calloc(1, sizeof(Ephoto_Viewer));
+   Ephoto_Viewer *v;
    int err;
    Evas_Coord w, h;
-   const char *group = _ephoto_get_edje_group(path);
+   const char *group;
 
+   EINA_SAFETY_ON_NULL_RETURN_VAL(path, NULL);
+
+   group = _ephoto_get_edje_group(path);
+
+   v = calloc(1, sizeof(Ephoto_Viewer));
    v->zoom_first = EINA_TRUE;
    v->cur_frame = 0;
    v->anim_timer = NULL;

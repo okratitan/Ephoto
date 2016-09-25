@@ -408,4 +408,11 @@ extern int EPHOTO_EVENT_EDITOR_APPLY;
 extern int EPHOTO_EVENT_EDITOR_CANCEL;
 extern int EPHOTO_EVENT_EDITOR_BACK;
 
+
+#define CRIT(...) EINA_LOG_CRIT(__VA_ARGS__)
+#define ERR(...)  EINA_LOG_ERR(__VA_ARGS__)
+#define WRN(...)  EINA_LOG_WARN(__VA_ARGS__)
+#define INF(...)  EINA_LOG_INFO(__VA_ARGS__)
+#define DBG(...)  EINA_LOG_DBG(__VA_ARGS__)
+
 #endif

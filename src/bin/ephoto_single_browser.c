@@ -2127,7 +2127,6 @@ ephoto_single_browser_entries_set(Evas_Object *obj, Eina_List *entries)
                   char *dir;
 
                   elm_image_file_get(v->image, &image, NULL);
-                  printf("%s\n", image);
                   dir = ecore_file_dir_get(image);
                   if (strcmp(sb->ephoto->config->directory, dir))
                     ephoto_single_browser_entry_set(sb->main,

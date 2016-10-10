@@ -861,6 +861,8 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    evas_pointer_canvas_xy_get(evas_object_evas_get(tb->grid), &x, &y);
    item = elm_gengrid_at_xy_item_get(tb->grid, x, y, 0, 0);
 
+   elm_drag_cancel(tb->grid);
+
    if (info->button == 1 && item)
      {
         if (ctrl)
@@ -1173,7 +1175,7 @@ _ephoto_thumb_search_go(void *data, Evas_Object *obj EINA_UNUSED,
 
    if (tb->original_grid)
      {
-        elm_gengrid_clear(tb->grid);
+        ephoto_thumb_browser_clear(tb->ephoto);
         elm_box_unpack(tb->gridbox, tb->grid);
         evas_object_del(tb->grid);
         tb->grid = tb->original_grid;
@@ -1307,7 +1309,7 @@ _ephoto_thumb_search_cancel(void *data, Evas_Object *obj EINA_UNUSED,
    tb->searchentries = NULL;
    if (tb->original_grid)
      {
-        elm_gengrid_clear(tb->grid);
+        ephoto_thumb_browser_clear(tb->ephoto);
         elm_box_unpack(tb->gridbox, tb->grid);
         evas_object_del(tb->grid);
         tb->grid = tb->original_grid;
@@ -1533,7 +1535,7 @@ _ephoto_thumb_populate_start(void *data, int type EINA_UNUSED,
    if (tb->searching)
      _ephoto_thumb_search_cancel(tb->search, NULL, NULL);
    _todo_items_free(tb);
-   elm_gengrid_clear(tb->grid);
+   ephoto_thumb_browser_clear(ephoto);
    tb->totimages = 0;
    tb->totsize = 0;
 

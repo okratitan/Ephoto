@@ -578,19 +578,29 @@ _processing(Ephoto *ephoto, const char *title, const char *text)
 static void
 _thread_end_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 {
-   Evas_Object *popup = data;
-   Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
+   Ephoto *ephoto = data;
+   char msg[PATH_MAX];
 
-   evas_object_del(popup);
+   if (ephoto->file_errors > 0)
+     {
+        snprintf(msg, PATH_MAX, "%s %d %s.",
+            _("There was an error completing your action on"), ephoto->file_errors,
+            ngettext("file", "files", ephoto->file_errors));
+        _complete(ephoto, _("Error"), msg);
+     }
+   ephoto->file_pos = NULL;
+   ephoto->file_errors = 0;
+   ephoto->destination = NULL;
+
+   evas_object_del(ephoto->file_popup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
 
 static void
 _move_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 {
-   Evas_Object *popup = data;
-   Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
-   const char *destination = evas_object_data_get(popup, "destination");
+   Ephoto *ephoto = data;
+   const char *destination = ephoto->destination;
    const char *file;
 
    if (!ephoto->file_pos)
@@ -630,17 +640,6 @@ _move_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
                ephoto->file_errors++;
 	  }
      }
-   if (ephoto->file_errors > 0)
-     {
-        char msg[PATH_MAX];
-
-        snprintf(msg, PATH_MAX, "%s %d %s.",
-            _("There was an error moving"), ephoto->file_errors,
-            ngettext("file", "files", ephoto->file_errors));
-        _complete(ephoto, _("Error"), msg);
-     }
-   ephoto->file_errors = 0;
-   ephoto->file_pos = NULL;
 }
 
 static void
@@ -650,23 +649,22 @@ _move_files(Ephoto *ephoto, Eina_List *files,
    Evas_Object *popup = _processing(ephoto, _("Moving Files"),
        _("Please wait while your files are moved."));
 
-   evas_object_data_set(popup, "ephoto", ephoto);
-   evas_object_data_set(popup, "destination", destination);
+   ephoto->file_popup = popup;
+   ephoto->destination = destination;
    evas_object_show(popup);
 
    ephoto->file_pos = eina_list_clone(files);
    if (eina_list_count(files))
      eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_move_thread_cb,
-       _thread_end_cb, _thread_end_cb, popup);
+       _thread_end_cb, _thread_end_cb, ephoto);
 }
 
 static void
 _copy_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 {
-   Evas_Object *popup = data;
-   Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
-   const char *destination = evas_object_data_get(popup, "destination");
+   Ephoto *ephoto = data;
+   const char *destination = ephoto->destination;
    const char *file;
 
    if (!ephoto->file_pos)
@@ -704,17 +702,6 @@ _copy_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 		ephoto->file_errors++;
 	  }
      }
-   if (ephoto->file_errors > 0)
-     {
-        char msg[PATH_MAX];
-
-        snprintf(msg, PATH_MAX, "%s %d %s.",
-            _("There was an error copying"), ephoto->file_errors,
-            ngettext("file", "files", ephoto->file_errors));
-        _complete(ephoto, _("Error"), msg);
-     }
-   ephoto->file_errors = 0;
-   ephoto->file_pos = NULL;
 }
 
 static void
@@ -723,22 +710,21 @@ _copy_files(Ephoto *ephoto, Eina_List *files,
 {
    Evas_Object *popup = _processing(ephoto, _("Copying Files"),
        _("Please wait while your files are copied."));
-   evas_object_data_set(popup, "ephoto", ephoto);
-   evas_object_data_set(popup, "destination", destination);
+   ephoto->file_popup = popup;
+   ephoto->destination = destination;
    evas_object_show(popup);
 
    ephoto->file_pos = eina_list_clone(files);
    if (eina_list_count(files))
      eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_copy_thread_cb,
-       _thread_end_cb, NULL, popup);
+       _thread_end_cb, NULL, ephoto);
 }
 
 static void
 _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 {
-   Evas_Object *popup = data;
-   Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
+   Ephoto *ephoto = data;
    const char *file;
    char destination[PATH_MAX];
 
@@ -791,17 +777,6 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 	       ephoto->file_errors++;
 	  }
      }
-   if (ephoto->file_errors > 0)
-     {
-        char msg[PATH_MAX];
-
-        snprintf(msg, PATH_MAX, "%s %d %s.",
-            _("There was an error deleting"), ephoto->file_errors,
-            ngettext("file", "files", ephoto->file_errors));
-        _complete(ephoto, _("Error"), msg);
-     }
-   ephoto->file_pos = NULL;
-   ephoto->file_errors = 0;
 }
 
 static void
@@ -810,24 +785,21 @@ _delete_files(Ephoto *ephoto, Eina_List *files)
    Evas_Object *popup = _processing(ephoto, _("Deleting Files"),
        _("Please wait while your files are deleted."));
 
-   evas_object_data_set(popup, "ephoto", ephoto);
-   evas_object_data_set(popup, "files", files);
+   ephoto->file_popup = popup;
    evas_object_show(popup);
 
    ephoto->file_pos = eina_list_clone(files);
    if (eina_list_count(files))
      eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_delete_thread_cb,
-       _thread_end_cb, NULL, popup);
+       _thread_end_cb, NULL, ephoto);
 }
 
 static void
 _delete_dir_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 {
-   Evas_Object *popup = data;
-   Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
-   Eina_List *files = evas_object_data_get(popup, "files");
-   const char *dir = eina_list_data_get(files);
+   Ephoto *ephoto = data;
+   const char *dir = eina_list_data_get(ephoto->file_pos);
    char destination[PATH_MAX];
 
    snprintf(destination, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
@@ -866,16 +838,8 @@ _delete_dir_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
                ephoto->file_errors++;
           }
      }
-   if (!dir || ephoto->file_errors > 0)
-     {
-        char msg[PATH_MAX];
-
-        snprintf(msg, PATH_MAX, "%s.",
-            _("There was an error deleting this directory"));
-        _complete(ephoto, _("Error"), msg);
-     }
-   ephoto->file_pos = NULL;
-   ephoto->file_errors = 0;
+   if (!dir)
+     ephoto->file_errors++;
 }
 
 static void
@@ -883,21 +847,18 @@ _delete_dir(Ephoto *ephoto, Eina_List *files)
 {
    Evas_Object *popup = _processing(ephoto, _("Deleting Directory"),
        _("Please wait while your directory is deleted."));
-
-   evas_object_data_set(popup, "ephoto", ephoto);
-   evas_object_data_set(popup, "files", files);
+   ephoto->file_popup = popup;
    evas_object_show(popup);
 
-   ephoto->file_pos = NULL;
+   ephoto->file_pos = eina_list_clone(files);
    ephoto->file_thread = ecore_thread_run(_delete_dir_thread_cb,
-       _thread_end_cb, NULL, popup);
+       _thread_end_cb, NULL, ephoto);
 }
 
 static void
 _empty_trash_thread_cb(void *data, Ecore_Thread *th EINA_UNUSED)
 {
-   Evas_Object *popup = data;
-   Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
+   Ephoto *ephoto = data;
    const char *file;
    char trash[PATH_MAX];
 
@@ -921,17 +882,6 @@ _empty_trash_thread_cb(void *data, Ecore_Thread *th EINA_UNUSED)
 		ephoto->file_errors++;
 	  }
      }
-   if (ephoto->file_errors > 0)
-     {
-        char msg[PATH_MAX];
-
-        snprintf(msg, PATH_MAX, "%s %d %s.",
-            _("There was an error deleting"), ephoto->file_errors,
-            ngettext("file", "files", ephoto->file_errors));
-        _complete(ephoto, _("Error"), msg);
-     }
-   ephoto->file_pos = NULL;
-   ephoto->file_errors = 0;
 }
 
 static void
@@ -939,15 +889,14 @@ _empty_trash(Ephoto *ephoto, Eina_List *files)
 {
    Evas_Object *popup = _processing(ephoto, _("Emptying Trash"),
        _("Please wait while your files are deleted."));
-
-   evas_object_data_set(popup, "ephoto", ephoto);
+   ephoto->file_popup = popup;
    evas_object_show(popup);
 
    ephoto->file_pos = eina_list_clone(files);
    if (eina_list_count(files))
      eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_empty_trash_thread_cb,
-       _thread_end_cb, NULL, popup);
+       _thread_end_cb, NULL, ephoto);
 }
 
 static void

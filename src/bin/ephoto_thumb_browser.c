@@ -1173,7 +1173,7 @@ _ephoto_thumb_search_go(void *data, Evas_Object *obj EINA_UNUSED,
 
    if (tb->original_grid)
      {
-        ephoto_thumb_browser_clear(tb->ephoto);
+        elm_gengrid_clear(tb->grid);
         elm_box_unpack(tb->gridbox, tb->grid);
         evas_object_del(tb->grid);
         tb->grid = tb->original_grid;
@@ -1307,7 +1307,7 @@ _ephoto_thumb_search_cancel(void *data, Evas_Object *obj EINA_UNUSED,
    tb->searchentries = NULL;
    if (tb->original_grid)
      {
-        ephoto_thumb_browser_clear(tb->ephoto);
+        elm_gengrid_clear(tb->grid);
         elm_box_unpack(tb->gridbox, tb->grid);
         evas_object_del(tb->grid);
         tb->grid = tb->original_grid;
@@ -1519,7 +1519,9 @@ static Eina_Bool
 _ephoto_thumb_populate_start(void *data, int type EINA_UNUSED,
     void *event EINA_UNUSED)
 {
-   Ephoto_Thumb_Browser *tb = data;
+   Ephoto *ephoto = data;
+   Ephoto_Thumb_Browser *tb =
+       evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
 
    if (tb->dirs_only)
      return ECORE_CALLBACK_PASS_ON;
@@ -1531,7 +1533,7 @@ _ephoto_thumb_populate_start(void *data, int type EINA_UNUSED,
    if (tb->searching)
      _ephoto_thumb_search_cancel(tb->search, NULL, NULL);
    _todo_items_free(tb);
-   ephoto_thumb_browser_clear(tb->ephoto);
+   elm_gengrid_clear(tb->grid);
    tb->totimages = 0;
    tb->totsize = 0;
 
@@ -1542,7 +1544,9 @@ static Eina_Bool
 _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
     void *event EINA_UNUSED)
 {
-   Ephoto_Thumb_Browser *tb = data;
+   Ephoto *ephoto = data;
+   Ephoto_Thumb_Browser *tb =
+       evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
 
    if (tb->dirs_only)
      return ECORE_CALLBACK_PASS_ON;
@@ -1580,7 +1584,9 @@ static Eina_Bool
 _ephoto_thumb_populate_error(void *data, int type EINA_UNUSED,
     void *event EINA_UNUSED)
 {
-   Ephoto_Thumb_Browser *tb = data;
+   Ephoto *ephoto = data;
+   Ephoto_Thumb_Browser *tb =
+       evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
 
    if (tb->dirs_only)
      return ECORE_CALLBACK_PASS_ON;
@@ -1594,7 +1600,9 @@ _ephoto_thumb_populate_error(void *data, int type EINA_UNUSED,
 static Eina_Bool
 _ephoto_thumb_entry_create(void *data, int type EINA_UNUSED, void *event)
 {
-   Ephoto_Thumb_Browser *tb = data;
+   Ephoto *ephoto = data;
+   Ephoto_Thumb_Browser *tb =
+       evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
    Ephoto_Event_Entry_Create *ev = event;
    Ephoto_Entry *e;
 
@@ -2177,22 +2185,22 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    tb->handlers =
        eina_list_append(tb->handlers,
        ecore_event_handler_add(EPHOTO_EVENT_POPULATE_START,
-	   _ephoto_thumb_populate_start, tb));
+	   _ephoto_thumb_populate_start, ephoto));
 
    tb->handlers =
        eina_list_append(tb->handlers,
        ecore_event_handler_add(EPHOTO_EVENT_POPULATE_END,
-	   _ephoto_thumb_populate_end, tb));
+	   _ephoto_thumb_populate_end, ephoto));
 
    tb->handlers =
        eina_list_append(tb->handlers,
        ecore_event_handler_add(EPHOTO_EVENT_POPULATE_ERROR,
-	   _ephoto_thumb_populate_error, tb));
+	   _ephoto_thumb_populate_error, ephoto));
 
    tb->handlers =
        eina_list_append(tb->handlers,
        ecore_event_handler_add(EPHOTO_EVENT_ENTRY_CREATE,
-	   _ephoto_thumb_entry_create, tb));
+	   _ephoto_thumb_entry_create, ephoto));
 
    return tb->main;
 

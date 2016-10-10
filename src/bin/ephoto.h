@@ -255,6 +255,7 @@ struct _Ephoto
    Evas_Object *slideshow;
    Evas_Object *dir_browser;
    Evas_Object *right_menu;
+   Evas_Object *file_popup;
    Elm_Object_Item *tb;
    Elm_Object_Item *sb;
    Elm_Object_Item *sl;
@@ -283,6 +284,7 @@ struct _Ephoto
    int file_errors; 
 
    const char *top_directory;
+   const char *destination;
 
    int thumb_gen_size;
 

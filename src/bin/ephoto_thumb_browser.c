@@ -861,8 +861,6 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    evas_pointer_canvas_xy_get(evas_object_evas_get(tb->grid), &x, &y);
    item = elm_gengrid_at_xy_item_get(tb->grid, x, y, 0, 0);
 
-   elm_drag_cancel(tb->grid);
-
    if (info->button == 1 && item)
      {
         if (ctrl)

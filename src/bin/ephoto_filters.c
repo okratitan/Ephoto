@@ -70,7 +70,7 @@ _initialize_filter(Ephoto_Image_Filter filter,
    ef->ephoto = ephoto;
    ef->image = image;
    ef->im_data = malloc(sizeof(unsigned int) * w * h);
-   ef->im_data = memcpy(ef->im_data, im_data, sizeof(unsigned int) * w * h);
+   memcpy(ef->im_data, im_data, sizeof(unsigned int) * w * h);
    ef->im_data_new = malloc(sizeof(unsigned int) * w * h);
    ef->im_data_two = NULL;
    ef->im_data_orig = NULL;
@@ -193,14 +193,14 @@ _thread_finished_cb(void *data, Ecore_Thread *th EINA_UNUSED)
                   ef->im_data_two = NULL;
                }
              ef->im_data_two = malloc(sizeof(unsigned int) * ef->w * ef->h);
-             ef->im_data_two = memcpy(ef->im_data_two, ef->im_data,
+             memcpy(ef->im_data_two, ef->im_data,
                  sizeof(unsigned int) * ef->w * ef->h);
              ef->save_data = EINA_FALSE;
           }
         free(ef->im_data);
         ef->im_data = NULL;
         ef->im_data = malloc(sizeof(unsigned int) * ef->w * ef->h);
-        ef->im_data = memcpy(ef->im_data, ef->im_data_new,
+        memcpy(ef->im_data, ef->im_data_new,
             sizeof(unsigned int) * ef->w * ef->h);
         if (ef->hist)
           free(ef->hist);
@@ -523,7 +523,7 @@ _blur(void *data, Ecore_Thread *th EINA_UNUSED)
 
         rad = (sizes[i] - 1) / 2;
 
-        ef->im_data_new = memcpy(ef->im_data_new, ef->im_data,
+        memcpy(ef->im_data_new, ef->im_data,
             sizeof(unsigned int) * w * h);
         _blur_vertical(ef, rad);
         _blur_horizontal(ef, rad);
@@ -1086,7 +1086,7 @@ ephoto_filter_sharpen(Ephoto *ephoto, Evas_Object *image)
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SHARPEN,
        ephoto, image);
    ef->im_data_orig = malloc(sizeof(unsigned int) * ef->w * ef->h);
-   ef->im_data_orig = memcpy(ef->im_data_orig, ef->im_data,
+   memcpy(ef->im_data_orig, ef->im_data,
        sizeof(unsigned int) * ef->w * ef->h);
 
    ef->rad = 9;
@@ -1103,7 +1103,7 @@ ephoto_filter_dither(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_DITHER,
        ephoto, image);
-   ef->im_data_new = memcpy(ef->im_data_new, ef->im_data,
+   memcpy(ef->im_data_new, ef->im_data,
        sizeof(unsigned int) * ef->w * ef->h);
 
    ef->popup = _processing(ephoto->win);

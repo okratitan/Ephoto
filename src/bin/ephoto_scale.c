@@ -105,6 +105,14 @@ _es_apply(void *data, int type EINA_UNUSED,
    Ecore_Evas *ee;
    Evas *eecanvas;
 
+   if (elm_spinner_value_get(es->scalew) == es->w &&
+       elm_spinner_value_get(es->scaleh) == es->h)
+     {
+        ephoto_single_browser_cancel_editing(es->main);
+        ephoto_editor_del(es->editor);
+        return ECORE_CALLBACK_PASS_ON;
+     }
+
    w = round(elm_spinner_value_get(es->scalew));
    h = round(elm_spinner_value_get(es->scaleh));
    evas_object_image_file_get(es->image,

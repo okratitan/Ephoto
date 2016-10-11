@@ -15,7 +15,7 @@ struct _Ephoto_BCG
    int brightness;
    double gamma;
    Evas_Coord w, h;
-   unsigned int *original_im_data;
+   unsigned int *original_im_data; 
 };
 
 static int
@@ -274,11 +274,19 @@ _bcg_apply(void *data, int type EINA_UNUSED,
    unsigned int *image_data;
    Evas_Coord w, h;
 
-   image_data =
-       evas_object_image_data_get(ebcg->image,
-       EINA_FALSE);
-   evas_object_image_size_get(ebcg->image, &w, &h);
-   ephoto_single_browser_image_data_done(ebcg->main, image_data, w, h);
+   if (elm_slider_value_get(ebcg->bslider) == 0 && 
+       elm_slider_value_get(ebcg->cslider) == 0 && 
+       elm_slider_value_get(ebcg->gslider) == 1)
+     {
+        ephoto_single_browser_cancel_editing(ebcg->main);
+     }
+   else
+     {
+        image_data =
+            evas_object_image_data_get(ebcg->image, EINA_FALSE);
+        evas_object_image_size_get(ebcg->image, &w, &h);
+        ephoto_single_browser_image_data_done(ebcg->main, image_data, w, h);
+     }
    ephoto_editor_del(ebcg->editor);
 
    return ECORE_CALLBACK_PASS_ON;

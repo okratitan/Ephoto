@@ -281,11 +281,19 @@ _hsv_apply(void *data, int type EINA_UNUSED,
    unsigned int *image_data;
    Evas_Coord w, h;
 
-   image_data =
-       evas_object_image_data_get(ehsv->image,
-       EINA_FALSE);
-   evas_object_image_size_get(ehsv->image, &w, &h);
-   ephoto_single_browser_image_data_done(ehsv->main, image_data, w, h);
+   if (elm_slider_value_get(ehsv->hslider) == 0 &&
+       elm_slider_value_get(ehsv->sslider) == 0 &&
+       elm_slider_value_get(ehsv->vslider) == 0)
+     {
+        ephoto_single_browser_cancel_editing(ehsv->main);
+     }
+   else
+     {
+        image_data =
+            evas_object_image_data_get(ehsv->image, EINA_FALSE);
+        evas_object_image_size_get(ehsv->image, &w, &h);
+        ephoto_single_browser_image_data_done(ehsv->main, image_data, w, h);
+     }
    ephoto_editor_del(ehsv->editor);
 
    return ECORE_CALLBACK_PASS_ON;

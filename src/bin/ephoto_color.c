@@ -258,12 +258,20 @@ _color_apply(void *data, int type EINA_UNUSED,
    Ephoto_Color *eco = data;
    unsigned int *image_data;
    Evas_Coord w, h;
-
-   image_data =
-       evas_object_image_data_get(eco->image,
-           EINA_FALSE);
-   evas_object_image_size_get(eco->image, &w, &h);
-   ephoto_single_browser_image_data_done(eco->main, image_data, w, h);
+ 
+   if (elm_slider_value_get(eco->rslider) == 0 &&
+       elm_slider_value_get(eco->gslider) == 0 &&
+       elm_slider_value_get(eco->bslider) == 0)
+     {
+        ephoto_single_browser_cancel_editing(eco->main);
+     }
+   else
+     {
+        image_data =
+            evas_object_image_data_get(eco->image, EINA_FALSE);
+        evas_object_image_size_get(eco->image, &w, &h);
+        ephoto_single_browser_image_data_done(eco->main, image_data, w, h);
+     }
    ephoto_editor_del(eco->editor);
 
    return ECORE_CALLBACK_PASS_ON;

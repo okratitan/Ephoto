@@ -28,9 +28,6 @@ struct _Ephoto_Single_Browser
    unsigned int history_pos;
    Eina_Bool editing:1;
    Eina_Bool cropping:1;
-   unsigned int *edited_image_data;
-   Evas_Coord ew;
-   Evas_Coord eh;
 };
 
 struct _Ephoto_Viewer
@@ -294,7 +291,7 @@ _monitor_cb(void *data, int type,
    Ephoto_Single_Browser *sb = data;
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-   if (sb->edited_image_data)
+   if (eina_list_count(sb->history))
      return ECORE_CALLBACK_PASS_ON;
    if (type == EIO_MONITOR_FILE_MODIFIED)
      {
@@ -482,10 +479,6 @@ _orient_apply(Ephoto_Single_Browser *sb)
    elm_table_unpack(v->table, v->image);
    elm_object_content_unset(v->scroller);
    evas_object_image_size_get(v->image, &w, &h);
-   sb->edited_image_data =
-       evas_object_image_data_get(v->image, EINA_FALSE);
-   sb->ew = w;
-   sb->eh = h;
    if (sb->history_pos < (eina_list_count(sb->history)-1))
      {
         int count;
@@ -503,11 +496,11 @@ _orient_apply(Ephoto_Single_Browser *sb)
           }
      }
    eh = calloc(1, sizeof(Ephoto_History));
-   eh->im_data = malloc(sizeof(unsigned int) * sb->ew * sb->eh);
-   eh->im_data = memcpy(eh->im_data, sb->edited_image_data,
-       sizeof(unsigned int) * sb->ew * sb->eh);
-   eh->w = sb->ew;
-   eh->h = sb->eh;
+   eh->im_data = malloc(sizeof(unsigned int) * w * h);
+   eh->im_data = memcpy(eh->im_data, evas_object_image_data_get(v->image, EINA_FALSE),
+       sizeof(unsigned int) * w * h);
+   eh->w = w;
+   eh->h = h;
    eh->orient = sb->orient;
    sb->history = eina_list_append(sb->history, eh);
    sb->history_pos = eina_list_count(sb->history) - 1;
@@ -2155,12 +2148,6 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
    else if (entry)
      sb->entry = entry;
    _ephoto_single_browser_recalc(sb);
-   if (sb->edited_image_data)
-     {
-	sb->edited_image_data = NULL;
-	sb->ew = 0;
-	sb->eh = 0;
-     }
    if (sb->history)
      {
         EINA_LIST_FREE(sb->history, eh)
@@ -2272,6 +2259,8 @@ ephoto_single_browser_image_data_done(Evas_Object *main,
    Eina_List *l;
    char buf[PATH_MAX];
 
+   if (!image_data)
+     return;
    if (sb->editing)
      {
         _ephoto_single_browser_recalc(sb);
@@ -2282,9 +2271,6 @@ ephoto_single_browser_image_data_done(Evas_Object *main,
         evas_object_image_data_set(v->image, image_data);
         evas_object_image_data_update_add(v->image, 0, 0, w,
             h);
-        sb->edited_image_data = image_data;
-        sb->ew = w;
-        sb->eh = h;
         if (sb->history_pos < (eina_list_count(sb->history)-1))
           {
              int count;
@@ -2302,11 +2288,11 @@ ephoto_single_browser_image_data_done(Evas_Object *main,
                }
           }
         eh = calloc(1, sizeof(Ephoto_History));
-        eh->im_data = malloc(sizeof(unsigned int) * sb->ew * sb->eh);
-        eh->im_data = memcpy(eh->im_data, sb->edited_image_data,
-            sizeof(unsigned int) * sb->ew * sb->eh);
-        eh->w = sb->ew;
-        eh->h = sb->eh;
+        eh->im_data = malloc(sizeof(unsigned int) * w * h);
+        memcpy(eh->im_data, image_data,
+            sizeof(unsigned int) * w * h);
+        eh->w = w;
+        eh->h = h;
         eh->orient = sb->orient;
         sb->history = eina_list_append(sb->history, eh);
         sb->history_pos = eina_list_count(sb->history) - 1;
@@ -2329,14 +2315,15 @@ ephoto_single_browser_cancel_editing(Evas_Object *main)
         Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 	if (sb->cropping)
 	   sb->cropping = EINA_FALSE;
-	if (sb->edited_image_data)
+	if (sb->history_pos)
 	  {
-	     evas_object_image_size_set(v->image, sb->ew,
-		 sb->eh);
+             Ephoto_History *eh = eina_list_nth(sb->history, sb->history_pos);
+	     evas_object_image_size_set(v->image, eh->w,
+		 eh->h);
 	     evas_object_image_data_set(v->image,
-		 sb->edited_image_data);
+		 eh->im_data);
 	     evas_object_image_data_update_add(v->image, 0,
-		 0, sb->ew, sb->eh);
+		 0, eh->w, eh->h);
 	  }
 	sb->editing = EINA_FALSE;
 	_zoom_fit(sb);

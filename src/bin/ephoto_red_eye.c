@@ -150,11 +150,17 @@ _reye_apply(void *data, int type EINA_UNUSED,
    unsigned int *image_data;
    Evas_Coord w, h;
 
-   image_data =
-       evas_object_image_data_get(er->image,
-           EINA_FALSE);
-   evas_object_image_size_get(er->image, &w, &h);
-   ephoto_single_browser_image_data_done(er->main, image_data, w, h);
+   if (!er->edited_im_data)
+     {
+        ephoto_single_browser_cancel_editing(er->main);
+     }
+   else
+     {
+        image_data =
+            evas_object_image_data_get(er->image, EINA_FALSE);
+        evas_object_image_size_get(er->image, &w, &h);
+        ephoto_single_browser_image_data_done(er->main, image_data, w, h);
+     }
    ephoto_editor_del(er->editor);
 
    return ECORE_CALLBACK_PASS_ON;

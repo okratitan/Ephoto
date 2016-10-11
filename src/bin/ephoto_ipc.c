@@ -38,7 +38,7 @@ e_ipc_init(void)
         else
           ERR("XDG_RUNTIME_DIR of '%s' cannot be accessed", tmp);
      }
-   
+
    tmp = getenv("SD_USER_SOCKETS_DIR");
    if (tmp)
      {
@@ -137,7 +137,7 @@ _e_ipc_cb_client_data(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
       case EPHOTO_IPC_DOMAIN_THUMB:
         e_thumb_client_data(e);
         break;
-      
+
       default:
         break;
      }

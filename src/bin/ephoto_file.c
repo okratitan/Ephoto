@@ -750,7 +750,7 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
                   ret = ecore_file_unlink(file);
                }
              else
-               { 
+               {
 	          snprintf(fp, PATH_MAX, "%s", file);
 	          snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
 	          if (ecore_file_exists(dest))
@@ -998,7 +998,7 @@ _prompt_save_image_as_apply(void *data, Evas_Object *obj, void *event_info)
 
 	char buf[PATH_MAX];
         const char *ex, *ext;
-        
+
         ex = strrchr(selected, '.');
         if (!ex)
           {
@@ -1478,7 +1478,7 @@ ephoto_file_paste(Ephoto *ephoto, Eina_List *files, Eina_Bool copy, const char *
              _copy_files(ephoto, files, path);
           }
      }
-}  
+}
 
 void
 ephoto_file_delete(Ephoto *ephoto, Eina_List *files, Eina_File_Type type)

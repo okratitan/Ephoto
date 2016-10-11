@@ -160,9 +160,9 @@ void ephoto_filter_emboss(Ephoto *ephoto, Evas_Object *image);
 void ephoto_filter_histogram_eq(Ephoto *ephoto, Evas_Object *image);
 
 /*file functions*/
-void ephoto_file_save_image(Ephoto *ephoto, Ephoto_Entry *entry, 
+void ephoto_file_save_image(Ephoto *ephoto, Ephoto_Entry *entry,
     Evas_Object *image);
-void ephoto_file_save_image_as(Ephoto *ephoto, Ephoto_Entry *entry, 
+void ephoto_file_save_image_as(Ephoto *ephoto, Ephoto_Entry *entry,
     Evas_Object *image);
 void ephoto_file_upload_image(Ephoto *ephoto, Ephoto_Entry *entry);
 void ephoto_file_new_dir(Ephoto *ephoto, const char *path);
@@ -281,7 +281,7 @@ struct _Ephoto
    Ecore_Con_Url *url_up;
    char *url_ret;
    char *upload_error;
-   int file_errors; 
+   int file_errors;
 
    const char *top_directory;
    const char *destination;

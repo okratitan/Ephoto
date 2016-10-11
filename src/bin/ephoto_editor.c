@@ -4,7 +4,7 @@ static void
 _editor_reset(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
-   ecore_event_add(EPHOTO_EVENT_EDITOR_RESET, NULL, NULL, NULL);   
+   ecore_event_add(EPHOTO_EVENT_EDITOR_RESET, NULL, NULL, NULL);
 }
 
 static void
@@ -27,7 +27,7 @@ _editor_cancel(void *data, Evas_Object *obj EINA_UNUSED,
 
    ecore_event_add(EPHOTO_EVENT_EDITOR_CANCEL, NULL, NULL, NULL);
    edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
-       "ephoto,editor,hide", "ephoto"); 
+       "ephoto,editor,hide", "ephoto");
    ephoto->editor_blocking = EINA_FALSE;
 }
 
@@ -61,7 +61,7 @@ ephoto_editor_add(Ephoto *ephoto, const char *title, const char *data_name,
    evas_object_show(box);
 
    ic = elm_icon_add(box);
-   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(), 
+   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "edit-undo");
@@ -78,7 +78,7 @@ ephoto_editor_add(Ephoto *ephoto, const char *title, const char *data_name,
    evas_object_show(button);
 
    ic = elm_icon_add(box);
-   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(), 
+   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "document-save");
@@ -95,7 +95,7 @@ ephoto_editor_add(Ephoto *ephoto, const char *title, const char *data_name,
    evas_object_show(button);
 
    ic = elm_icon_add(box);
-   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(), 
+   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "window-close");
@@ -106,10 +106,10 @@ ephoto_editor_add(Ephoto *ephoto, const char *title, const char *data_name,
    evas_object_smart_callback_add(button, "clicked", _editor_cancel, ephoto);
    evas_object_size_hint_weight_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_min_set(button, 220*elm_config_scale_get(), 
+   evas_object_size_hint_min_set(button, 220*elm_config_scale_get(),
        30*elm_config_scale_get());
    elm_box_pack_end(box, button);
-   evas_object_show(button);   
+   evas_object_show(button);
 
    edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
        "ephoto,editor,show", "ephoto");

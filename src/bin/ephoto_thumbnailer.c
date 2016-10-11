@@ -298,7 +298,7 @@ _e_thumb_generate(E_Thumb *eth)
         unsigned int *data1;
         Eina_Bool sortkey;
         Evas_Object *im2, *bg;
-        
+
         im = NULL;
         im2 = NULL;
         bg = NULL;
@@ -317,7 +317,7 @@ _e_thumb_generate(E_Thumb *eth)
         ext = strrchr(eth->file, '.');
 
         sortkey = EINA_FALSE;
-        
+
         if ((ext) && (eth->key) &&
             ((!strcasecmp(ext, ".edj")) ||
              (!strcasecmp(ext, ".eap"))))
@@ -374,7 +374,7 @@ _e_thumb_generate(E_Thumb *eth)
              evas_object_move(bg, 0, 0);
              evas_object_resize(bg, ww, hh);
              evas_object_show(bg);
-             
+
              im = evas_object_text_add(evas);
              evas_object_text_font_set(im, eth->file, hh / 4);
              evas_object_color_set(im, 192, 192, 192, 255);
@@ -387,7 +387,7 @@ _e_thumb_generate(E_Thumb *eth)
              evas_object_move(im, tx, ty);
              evas_object_resize(im, tw, th);
              evas_object_show(im);
-             
+
              im2 = evas_object_text_add(evas);
              evas_object_text_font_set(im2, eth->file, hh / 4);
              evas_object_color_set(im2, 255, 255, 255, 255);
@@ -427,7 +427,7 @@ _e_thumb_generate(E_Thumb *eth)
           }
         else
           goto end;
-        
+
         ecore_evas_alpha_set(ee, alpha);
         ecore_evas_resize(ee, ww, hh);
         evas_object_show(im);
@@ -463,7 +463,7 @@ _e_thumb_generate(E_Thumb *eth)
              if (data)
                {
                   unsigned int *data2;
-                  
+
                   data2 = malloc(ww * hh * sizeof(unsigned int));
                   memcpy(data2, data, ww * hh * sizeof(unsigned int));
                   ww = 1; hh = 1;
@@ -489,7 +489,7 @@ _e_thumb_generate(E_Thumb *eth)
                             1, 14, 7, 8,
                             4, 11, 2, 13
                          };
-                       
+
                        /* ww = hh = 1 here */
                        data3 = malloc(sizeof(unsigned int));
                        memcpy(data3, data, sizeof(unsigned int));

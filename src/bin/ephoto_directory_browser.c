@@ -70,7 +70,7 @@ _menu_empty_cb(void *data, Evas_Object *obj EINA_UNUSED,
    Eina_List *paths = NULL;
    Elm_Object_Item *item;
    Ephoto_Entry *file;
-   
+
    item = elm_genlist_first_item_get(db->fsel);
    while (item)
      {
@@ -442,7 +442,7 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
        20*elm_config_scale_get());
    elm_icon_standard_set(ic, "go-previous");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
-   
+
    but = elm_button_add(db->leftbox);
    elm_object_text_set(but, _("Back"));
    elm_object_part_content_set(but, "icon", ic);
@@ -759,7 +759,7 @@ _monitor_cb(void *data, int type,
           return ECORE_CALLBACK_PASS_ON;
         if (ephoto_entry_exists(entry->ephoto, ev->filename))
           return ECORE_CALLBACK_PASS_ON;
- 
+
         if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_TREE &&
             elm_genlist_item_expanded_get(entry->item) == EINA_TRUE)
           {
@@ -819,7 +819,7 @@ _monitor_cb(void *data, int type,
              parent =
                  elm_genlist_item_insert_before(entry->genlist, ic, entry,
                  entry->parent, entry->item, ELM_GENLIST_ITEM_NONE, NULL, NULL);
-              
+
              entry->no_delete = EINA_TRUE;
              elm_object_item_del(entry->item);
              if (entry->monitor)
@@ -831,7 +831,6 @@ _monitor_cb(void *data, int type,
              entry->item = parent;
              _monitor_add(entry);
              entry->no_delete = EINA_FALSE;
-             
           }
         if (!ecore_file_exists(entry->ephoto->config->directory))
           {
@@ -884,7 +883,7 @@ _top_monitor_cb(void *data, int type,
    if (type == EIO_MONITOR_DIRECTORY_CREATED || type == EIO_MONITOR_FILE_CREATED)
      {
         if (!ecore_file_is_dir(ecore_file_realpath(ev->filename)))
-          return ECORE_CALLBACK_PASS_ON; 
+          return ECORE_CALLBACK_PASS_ON;
         if (ephoto_entry_exists(db->ephoto, ev->filename))
           return ECORE_CALLBACK_PASS_ON;
         snprintf(buf, PATH_MAX, "%s", ev->filename);
@@ -1191,7 +1190,7 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
         const char *n = eina_list_data_get(eina_list_next(l));
 
         it = eina_file_stat_ls(dir);
-        cur = next; 
+        cur = next;
         EINA_ITERATOR_FOREACH(it, finfo)
           {
              if (finfo->type != EINA_FILE_DIR && finfo->type != EINA_FILE_LNK)

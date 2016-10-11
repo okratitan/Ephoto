@@ -15,7 +15,7 @@ struct _Ephoto_BCG
    int brightness;
    double gamma;
    Evas_Coord w, h;
-   unsigned int *original_im_data; 
+   unsigned int *original_im_data;
 };
 
 static int
@@ -274,8 +274,8 @@ _bcg_apply(void *data, int type EINA_UNUSED,
    unsigned int *image_data;
    Evas_Coord w, h;
 
-   if (elm_slider_value_get(ebcg->bslider) == 0 && 
-       elm_slider_value_get(ebcg->cslider) == 0 && 
+   if (elm_slider_value_get(ebcg->bslider) == 0 &&
+       elm_slider_value_get(ebcg->cslider) == 0 &&
        elm_slider_value_get(ebcg->gslider) == 1)
      {
         ephoto_single_browser_cancel_editing(ebcg->main);

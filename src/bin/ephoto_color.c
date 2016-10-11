@@ -258,7 +258,7 @@ _color_apply(void *data, int type EINA_UNUSED,
    Ephoto_Color *eco = data;
    unsigned int *image_data;
    Evas_Coord w, h;
- 
+
    if (elm_slider_value_get(eco->rslider) == 0 &&
        elm_slider_value_get(eco->gslider) == 0 &&
        elm_slider_value_get(eco->bslider) == 0)
@@ -336,7 +336,7 @@ ephoto_color_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Ob
    memcpy(eco->original_im_data, im_data,
        sizeof(unsigned int) * eco->w * eco->h);
 
-   eco->editor = ephoto_editor_add(ephoto, _("Adjust Color Levels"), 
+   eco->editor = ephoto_editor_add(ephoto, _("Adjust Color Levels"),
        "eco", eco);
    evas_object_event_callback_add(eco->editor, EVAS_CALLBACK_DEL, _editor_del,
        eco);

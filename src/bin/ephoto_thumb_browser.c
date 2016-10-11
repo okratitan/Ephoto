@@ -256,7 +256,7 @@ _dnd_drag_start(void *data EINA_UNUSED, Evas_Object *obj)
    elm_object_cursor_set(tb->main, ELM_CURSOR_HAND2);
 
    ephoto_show_folders(tb->ephoto, EINA_FALSE);
-   
+
    tb->dragging = 1;
 }
 
@@ -918,7 +918,7 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
      }
    if (clear_selection)
      {
-        Eina_List *sel = eina_list_clone(selected); 
+        Eina_List *sel = eina_list_clone(selected);
         Elm_Object_Item *it;
         if (eina_list_count(sel) > 0)
           {
@@ -1566,7 +1566,7 @@ _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
      }
    if (tb->ephoto->state == EPHOTO_STATE_THUMB)
      {
-        evas_object_smart_callback_call(tb->main, "changed,directory", NULL);        
+        evas_object_smart_callback_call(tb->main, "changed,directory", NULL);
         ephoto_thumb_browser_update_info_label(tb->ephoto);
      }
    tb->entries = tb->ephoto->entries;
@@ -1913,7 +1913,7 @@ _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 
 
 /*Ephoto Thumb Browser Public Functions*/
-void 
+void
 ephoto_thumb_browser_dirs_only_set(Ephoto *ephoto, Eina_Bool dirs_only)
 {
    Ephoto_Thumb_Browser *tb =
@@ -1929,7 +1929,7 @@ ephoto_thumb_browser_clear(Ephoto *ephoto)
        evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
 
    elm_gengrid_clear(tb->grid);
-}  
+}
 
 void
 ephoto_thumb_browser_paste(Ephoto *ephoto, Elm_Object_Item *item)
@@ -2089,7 +2089,7 @@ ephoto_thumb_browser_show_controls(Ephoto *ephoto)
        20*elm_config_scale_get());
    ret = elm_icon_standard_set(ic, "zoom-in");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
-   
+
    but = elm_button_add(ephoto->controls_left);
    if (!ret)
      elm_object_text_set(but, _("Zoom In"));
@@ -2105,7 +2105,7 @@ ephoto_thumb_browser_show_controls(Ephoto *ephoto)
        20*elm_config_scale_get());
    elm_icon_standard_set(ic, "zoom-out");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
-   
+
    but = elm_button_add(ephoto->controls_left);
    if (!ret)
      elm_object_text_set(but, _("Zoom Out"));

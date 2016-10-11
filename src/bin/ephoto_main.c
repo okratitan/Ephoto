@@ -314,7 +314,7 @@ _mouse_out_cb(void *data, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto *ephoto = data;
    ephoto->blocking = EINA_FALSE;
-   
+
    if (ephoto->overlay_timer)
      ecore_timer_del(ephoto->overlay_timer);
    ephoto->overlay_timer = ecore_timer_add(3.0, _timer_cb, ephoto);
@@ -507,7 +507,7 @@ ephoto_window_add(const char *path)
        _ephoto_thumb_browser_changed_directory, ephoto);
    evas_object_smart_callback_add(ephoto->thumb_browser, "slideshow",
        _ephoto_thumb_browser_slideshow, ephoto);
-   
+
    ephoto->single_browser = ephoto_single_browser_add(ephoto, ephoto->layout);
    if (!ephoto->single_browser)
      {
@@ -581,7 +581,7 @@ ephoto_window_add(const char *path)
    elm_object_style_set(ephoto->infolabel, "info");
    elm_label_line_wrap_set(ephoto->infolabel, ELM_WRAP_MIXED);
    elm_object_text_set(ephoto->infolabel, _("Information"));
-   evas_object_size_hint_weight_set(ephoto->infolabel, 
+   evas_object_size_hint_weight_set(ephoto->infolabel,
        EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(ephoto->infolabel, EVAS_HINT_FILL,
        EVAS_HINT_FILL);
@@ -604,7 +604,7 @@ ephoto_window_add(const char *path)
        20*elm_config_scale_get());
    ret = elm_icon_standard_set(ic, "media-playback-start");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
-   
+
    but = elm_button_add(ephoto->statusbar);
    elm_object_part_content_set(but, "icon", ic);
    if (!ret)
@@ -1211,7 +1211,7 @@ ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label,
    return entry;
 }
 
-Eina_Bool 
+Eina_Bool
 ephoto_entry_exists(Ephoto *ephoto, const char *path)
 {
    Ephoto_Entry *entry;
@@ -1231,7 +1231,7 @@ ephoto_entry_free(Ephoto *ephoto, Ephoto_Entry *entry)
    Ephoto_Entry_Free_Listener *fl;
    Ecore_Event_Handler *handler;
    Eina_List *node;
-   
+
    EINA_LIST_FREE(entry->free_listeners, fl)
      {
         fl->cb((void *) fl->data, entry);

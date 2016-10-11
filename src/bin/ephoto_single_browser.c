@@ -511,7 +511,7 @@ _orient_apply(Ephoto_Single_Browser *sb)
    evas_object_size_hint_max_set(v->image, w, h);
    elm_table_pack(v->table, v->image, 0, 0, 1, 1);
    elm_object_content_set(v->scroller, v->table);
-   
+
    if (v->fit)
       _viewer_zoom_fit_apply(v);
    else
@@ -1015,7 +1015,7 @@ _close_editor(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
-   
+
    edje_object_signal_emit(elm_layout_edje_get(sb->ephoto->layout),
        "ephoto,editor,hide", "ephoto");
    evas_object_del(sb->edit_main);
@@ -1048,7 +1048,7 @@ _upload_image(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
-   
+
    ephoto_file_upload_image(sb->ephoto, sb->entry);
 }
 
@@ -1068,7 +1068,7 @@ _rename_image(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Single_Browser *sb = data;
-   
+
    ephoto_file_rename(sb->ephoto, sb->entry->path);
 }
 
@@ -1177,7 +1177,7 @@ _go_hsv(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
    Ephoto_Single_Browser *sb = data;
 
    if (sb->viewer)
-     { 
+     {
 	sb->editing = EINA_TRUE;
 	Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
@@ -1425,7 +1425,7 @@ static Eina_Bool
 _animate_cb(void *data)
 {
    Ephoto_Viewer *v = data;
-   
+
    v->cur_frame++;
    if (v->cur_frame > v->frame_count)
      v->cur_frame = 1;
@@ -1839,7 +1839,7 @@ _show_edit_main(void *data, int type EINA_UNUSED,
         sb->edit_main = NULL;
      }
    _editor_menu(sb, NULL, NULL);
-   
+
    return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -1883,7 +1883,7 @@ _ephoto_main_edit_menu(Ephoto_Single_Browser *sb)
    elm_menu_move(menu, x, y);
 
    _add_edit_menu_items(sb, menu);
-   
+
    evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
        sb);
    evas_object_show(menu);
@@ -2087,7 +2087,7 @@ _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 void
 ephoto_single_browser_adjust_offsets(Ephoto *ephoto)
 {
-   Ephoto_Single_Browser *sb = evas_object_data_get(ephoto->single_browser, 
+   Ephoto_Single_Browser *sb = evas_object_data_get(ephoto->single_browser,
        "single_browser");
    Edje_Message_Int_Set *msg;
 
@@ -2097,7 +2097,7 @@ ephoto_single_browser_adjust_offsets(Ephoto *ephoto)
    msg->val[1] = 0;
    edje_object_message_send(elm_layout_edje_get(sb->ephoto->layout),
        EDJE_MESSAGE_INT_SET, 1, msg);
-   
+
    _image_changed(sb, NULL, NULL, NULL);
 }
 
@@ -2165,7 +2165,7 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
         evas_object_image_size_get(v->image, &w, &h);
         eh = calloc(1, sizeof(Ephoto_History));
         eh->im_data = malloc(sizeof(unsigned int) * w * h);
-        eh->im_data = memcpy(eh->im_data, evas_object_image_data_get(v->image, EINA_FALSE),
+        memcpy(eh->im_data, evas_object_image_data_get(v->image, EINA_FALSE),
             sizeof(unsigned int) * w * h);
         eh->w = w;
         eh->h = h;
@@ -2361,8 +2361,8 @@ ephoto_single_browser_show_controls(Ephoto *ephoto)
        20*elm_config_scale_get());
    ret = elm_icon_standard_set(ic, "zoom-in");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
-   
-   but = elm_button_add(ephoto->controls_left);   
+
+   but = elm_button_add(ephoto->controls_left);
    if (!ret)
      elm_object_text_set(but, _("Zoom In"));
    elm_object_part_content_set(but, "icon", ic);
@@ -2377,7 +2377,7 @@ ephoto_single_browser_show_controls(Ephoto *ephoto)
        20*elm_config_scale_get());
    elm_icon_standard_set(ic, "zoom-out");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
-   
+
    but = elm_button_add(ephoto->controls_left);
    if (!ret)
      elm_object_text_set(but, _("Zoom Out"));

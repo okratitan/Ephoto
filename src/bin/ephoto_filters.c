@@ -312,7 +312,7 @@ _blur_vertical(Ephoto_Filter *ef, double rad)
              gt = _normalize_color(gt);
              rt = _normalize_color(rt);
              at = _normalize_color(at);
-             ef->im_data_new[t++] = (at << 24) | (rt << 16) 
+             ef->im_data_new[t++] = (at << 24) | (rt << 16)
                  | (gt << 8) | bt;
           }
         for (i = rad + 1; i < w - rad; i++)
@@ -333,7 +333,7 @@ _blur_vertical(Ephoto_Filter *ef, double rad)
              gt = _normalize_color(gt);
              rt = _normalize_color(rt);
              at = _normalize_color(at);
-             ef->im_data_new[t++] = (at << 24) | (rt << 16) 
+             ef->im_data_new[t++] = (at << 24) | (rt << 16)
                  | (gt << 8) | bt;
           }
         for (i = w - rad; i < w; i++)
@@ -344,7 +344,7 @@ _blur_vertical(Ephoto_Filter *ef, double rad)
              valg += lvg - gs[ll];
              valr += lvr - rs[ll];
              vala += lva - as[ll];
-      
+
              bt = (int) round(valb * iarr);
              gt = (int) round(valg * iarr);
              rt = (int) round(valr * iarr);
@@ -353,7 +353,7 @@ _blur_vertical(Ephoto_Filter *ef, double rad)
              gt = _normalize_color(gt);
              rt = _normalize_color(rt);
              at = _normalize_color(at);
-             ef->im_data_new[t++] = (at << 24) | (rt << 16) 
+             ef->im_data_new[t++] = (at << 24) | (rt << 16)
                  | (gt << 8) | bt;
           }
      }
@@ -427,7 +427,7 @@ _blur_horizontal(Ephoto_Filter *ef, double rad)
              valg += gs[rr] - fg;
              valr += rs[rr] - fr;
              vala += as[rr] - fa;
-            
+
              bt = (int) round(valb * iarr);
              gt = (int) round(valg * iarr);
              rt = (int) round(valr * iarr);
@@ -436,7 +436,7 @@ _blur_horizontal(Ephoto_Filter *ef, double rad)
              gt = _normalize_color(gt);
              rt = _normalize_color(rt);
              at = _normalize_color(at);
-             ef->im_data[t] = (at << 24) | (rt << 16) 
+             ef->im_data[t] = (at << 24) | (rt << 16)
                  | (gt << 8) | bt;
 
              rr += w;
@@ -457,7 +457,7 @@ _blur_horizontal(Ephoto_Filter *ef, double rad)
              gt = _normalize_color(gt);
              rt = _normalize_color(rt);
              at = _normalize_color(at);
-             ef->im_data[t] = (at << 24) | (rt << 16) 
+             ef->im_data[t] = (at << 24) | (rt << 16)
                  | (gt << 8) | bt;
 
              l += w;
@@ -479,7 +479,7 @@ _blur_horizontal(Ephoto_Filter *ef, double rad)
              gt = _normalize_color(gt);
              rt = _normalize_color(rt);
              at = _normalize_color(at);
-             ef->im_data[t] = (at << 24) | (rt << 16) 
+             ef->im_data[t] = (at << 24) | (rt << 16)
                  | (gt << 8) | bt;
 
              l += w;
@@ -574,7 +574,7 @@ _sharpen(void *data, Ecore_Thread *th EINA_UNUSED)
              p2++;
              p1++;
           }
-     }  
+     }
 }
 
 static void
@@ -611,7 +611,7 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
              bb = _demul_color_alpha(bb, a);
              gg = _demul_color_alpha(gg, a);
              rr = _demul_color_alpha(rr, a);
-             ef->im_data_new[index] = (a << 24) | (rr << 16) | 
+             ef->im_data_new[index] = (a << 24) | (rr << 16) |
                  (gg << 8) | bb;
              errb = b - bb;
              errg = g - gg;
@@ -636,7 +636,7 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
                   bb = _demul_color_alpha(bb, a);
                   gg = _demul_color_alpha(gg, a);
                   rr = _demul_color_alpha(rr, a);
-                  ef->im_data_new[index] = (a << 24) | (rr << 16) | 
+                  ef->im_data_new[index] = (a << 24) | (rr << 16) |
                       (gg << 8) | bb;
                }
              if (x > 0 && (y+1) < h)
@@ -658,8 +658,8 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
                   bb = _demul_color_alpha(bb, a);
                   gg = _demul_color_alpha(gg, a);
                   rr = _demul_color_alpha(rr, a);
-                  ef->im_data_new[index] = (a << 24) | (rr << 16) | 
-                      (gg << 8) | bb;            
+                  ef->im_data_new[index] = (a << 24) | (rr << 16) |
+                      (gg << 8) | bb;
                }
              if ((y+1) < h)
                {
@@ -680,12 +680,12 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
                   bb = _demul_color_alpha(bb, a);
                   gg = _demul_color_alpha(gg, a);
                   rr = _demul_color_alpha(rr, a);
-                  ef->im_data_new[index] = (a << 24) | (rr << 16) | 
+                  ef->im_data_new[index] = (a << 24) | (rr << 16) |
                       (gg << 8) | bb;
                }
              if ((y+1) < h && (x+1) < w)
                {
-                  index = (y + 1) * w + (x + 1);  
+                  index = (y + 1) * w + (x + 1);
                   b = (ef->im_data_new[index] & 0xff);
                   g = ((ef->im_data_new[index] >> 8) & 0xff);
                   r = ((ef->im_data_new[index] >> 16) & 0xff);
@@ -702,7 +702,7 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
                   bb = _demul_color_alpha(bb, a);
                   gg = _demul_color_alpha(gg, a);
                   rr = _demul_color_alpha(rr, a);
-                  ef->im_data_new[index] = (a << 24) | (rr << 16) | 
+                  ef->im_data_new[index] = (a << 24) | (rr << 16) |
                       (gg << 8) | bb;
                }
           }
@@ -752,7 +752,7 @@ _sepia(void *data, Ecore_Thread *th EINA_UNUSED)
         for (x = 0; x < w; x++)
           {
              i = y * w + x;
- 
+
              b = ((ef->im_data[i]) & 0xff);
              g = ((ef->im_data[i] >> 8) & 0xff);
              r = ((ef->im_data[i] >> 16) & 0xff);
@@ -875,12 +875,12 @@ _dodge(void *data, Ecore_Thread *th EINA_UNUSED)
              gg = ((ef->im_data[i] >> 8) & 0xff);
              rr = ((ef->im_data[i] >> 16) & 0xff);
              aa = ((ef->im_data[i] >> 24) & 0xff);
-  
+
              b *= 255;
              g *= 255;
              r *= 255;
              a *= 255;
-  
+
              bbb = rint(b / (255 - bb));
              ggg = rint(g / (255 - gg));
              rrr = rint(r / (255 - rr));
@@ -926,7 +926,7 @@ _sobel(void *data, Ecore_Thread *th EINA_UNUSED)
                        for (j = -1; j <= 1; j++)
                          {
                             int index, pix;
- 
+
                             index = (y + i) * w + x + j;
                             pix = ef->im_data[index];
                             hpval += pix * sobx[i+1][j+1];
@@ -978,7 +978,7 @@ _emboss(void *data, Ecore_Thread *th EINA_UNUSED)
                             int index, pix;
                             index = (y + i) * w + x + j;
                             pix = ef->im_data[index];
-                            bb += (int) ((pix) & 0xff) * 
+                            bb += (int) ((pix) & 0xff) *
                                 emboss[i+1][j+1];
                             gg += (int) ((pix >> 8) & 0xff) *
                                 emboss[i+1][j+1];
@@ -1031,10 +1031,10 @@ _histogram_eq(void *data, Ecore_Thread *th EINA_UNUSED)
              p1++;
           }
      }
-   sum = 0; 
+   sum = 0;
    for (i = 0; i < 256; i++)
      {
-        sum += ((double) ef->hist[i] / 
+        sum += ((double) ef->hist[i] /
             (double) total);
              ef->cdf[i] = (int) round(sum * 255);
      }
@@ -1184,7 +1184,7 @@ void ephoto_filter_sketch(Ephoto *ephoto, Evas_Object *image)
    ef->queue = eina_list_append(ef->queue, _dodge);
    ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_grayscale, _thread_finished_cb,
-       NULL, ef);  
+       NULL, ef);
 }
 
 void ephoto_filter_edge(Ephoto *ephoto, Evas_Object *image)

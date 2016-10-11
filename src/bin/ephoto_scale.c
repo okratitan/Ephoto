@@ -123,7 +123,7 @@ _es_apply(void *data, int type EINA_UNUSED,
    evas_image_cache_set(eecanvas, 0);
    evas_font_cache_set(eecanvas, 0);
    alpha = 1;
-   
+
    im = evas_object_image_add(eecanvas);
    evas_object_image_load_size_set(im, w, h);
    evas_object_image_load_orientation_set(im, EINA_TRUE);
@@ -132,10 +132,10 @@ _es_apply(void *data, int type EINA_UNUSED,
    evas_object_image_fill_set(im, 0, 0, w, h);
    evas_object_move(im, 0, 0);
    evas_object_resize(im, w, h);
-   
+
    ecore_evas_alpha_set(ee, alpha);
    ecore_evas_resize(ee, w, h);
-   
+
    evas_object_show(im);
 
    image_data = ecore_evas_buffer_pixels_get(ee);

@@ -387,12 +387,12 @@ _slideshow_transition(void *data)
    if (!eina_list_nth(ss->entries, ss->current))
      ss->current = 0;
    if (ss->old_item)
-     evas_object_del(ss->old_item);  
+     evas_object_del(ss->old_item);
 
    ss->old_item = ss->current_item;
    ss->current_item = _slideshow_item_get(ss, eina_list_nth(ss->entries, ss->current),
        ss->slideshow);
-   elm_layout_content_set(ss->slideshow, "ephoto.swallow.slideshow.item2", 
+   elm_layout_content_set(ss->slideshow, "ephoto.swallow.slideshow.item2",
        ss->current_item);
    evas_object_show(ss->current_item);
 
@@ -803,7 +803,6 @@ ephoto_slideshow_show_controls(Ephoto *ephoto)
    ss->fullscreen_after =
        _add_icon(ss->notify, "preferences-other", _("Settings"), NULL);
    evas_object_smart_callback_add(ss->fullscreen_after, "clicked", _settings, ss);
-   
 
    elm_layout_content_set(ephoto->layout, "ephoto.swallow.controls", ss->notify);
 }

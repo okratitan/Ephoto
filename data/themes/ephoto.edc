@@ -175,7 +175,7 @@ collections {
             clip_to: "ephoto,editor";
             scale: 1;
             description { state: "default" 0.0;
-               color: 15 15 15 150;
+               color: 30 30 30 150;
                rel1.to: "ephoto,editor";
                rel2.to: "ephoto,editor";
             }
@@ -243,7 +243,7 @@ collections {
             clip_to: "ephoto,folders";
             scale: 1;
             description { state: "default" 0.0;
-               color: 15 15 15 150;
+               color: 30 30 30 150;
                rel1.to: "ephoto,folders";
                rel2.to: "ephoto,folders";
             }
@@ -291,7 +291,7 @@ collections {
             clip_to: "ephoto,controls";
             scale: 1;
             description { state: "default" 0.0;
-               color: 15 15 15 150;
+               color: 30 30 30 150;
                rel1.to: "ephoto,controls";
                rel2.to: "ephoto,controls";
             }

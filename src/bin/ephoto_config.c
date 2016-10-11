@@ -8,16 +8,6 @@ static Eina_Bool _ephoto_on_config_save(void *data);
 static Eet_Data_Descriptor *edd = NULL;
 
 static void
-_config_close_cb(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
-{
-   Evas_Object *popup = data;
-   Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
-
-   evas_object_del(popup);
-   elm_object_focus_set(ephoto->pager, EINA_TRUE);
-}
-
-static void
 _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
@@ -79,26 +69,19 @@ _open_hv_select(void *data, Evas_Object *obj, void *event_info)
 static void
 _config_general(Ephoto *ephoto, Evas_Object *parent)
 {
-   Evas_Object *frame, *table, *check, *hoversel, *entry, *label;
+   Evas_Object *table, *check, *hoversel, *entry, *label;
 
-   frame = elm_frame_add(parent);
-   elm_object_text_set(frame, _("General"));
-   evas_object_size_hint_weight_set(frame, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(parent, frame);
-   evas_object_show(frame);
-
-   table = elm_table_add(frame);
+   table = elm_table_add(parent);
    evas_object_size_hint_weight_set(table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_object_content_set(frame, table);
+   elm_box_pack_end(parent, table);
    evas_object_show(table);
 
    check = elm_check_add(table);
    elm_object_text_set(check, _("Show Folders On Start"));
-   evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
+   evas_object_size_hint_align_set(check, 0.0, 0.5);
    elm_check_state_set(check, ephoto->config->folders);
-   elm_table_pack(table, check, 0, 1, 1, 1);
+   elm_table_pack(table, check, 0, 0, 1, 1);
    evas_object_show(check);
    ephoto->config->show_folders = check;
 
@@ -106,7 +89,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    elm_object_text_set(check, _("Prompt Before Changing The Filesystem"));
    evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
    elm_check_state_set(check, ephoto->config->prompts);
-   elm_table_pack(table, check, 0, 2, 1, 1);
+   elm_table_pack(table, check, 0, 1, 1, 1);
    evas_object_show(check);
    ephoto->config->show_prompts = check;
 
@@ -114,7 +97,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    elm_object_text_set(check, _("Move Files When Dropped"));
    evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
    elm_check_state_set(check, ephoto->config->drop);
-   elm_table_pack(table, check, 0, 3, 1, 1);
+   elm_table_pack(table, check, 0, 2, 1, 1);
    evas_object_show(check);
    ephoto->config->move_drop = check;
 
@@ -122,14 +105,14 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    elm_object_text_set(check, _("Smooth Scale Images"));
    evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
    elm_check_state_set(check, ephoto->config->smooth);
-   elm_table_pack(table, check, 0, 4, 1, 1);
+   elm_table_pack(table, check, 0, 3, 1, 1);
    evas_object_show(check);
    ephoto->config->smooth_scale = check;
 
    label = elm_label_add(table);
    elm_object_text_set(label, _("Top Level Directory"));
    evas_object_size_hint_align_set(label, 0.5, 0.5);
-   elm_table_pack(table, label, 0, 5, 1, 1);
+   elm_table_pack(table, label, 0, 4, 1, 1);
    evas_object_show(label);
 
    hoversel = elm_hoversel_add(table);
@@ -147,7 +130,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    evas_object_size_hint_weight_set(hoversel, EVAS_HINT_EXPAND,
        EVAS_HINT_FILL);
    evas_object_size_hint_align_set(hoversel, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_table_pack(table, hoversel, 0, 6, 1, 1);
+   elm_table_pack(table, hoversel, 0, 5, 1, 1);
    evas_object_show(hoversel);
    ephoto->config->open_dir = hoversel;
 
@@ -160,7 +143,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
        ELM_SCROLLER_POLICY_OFF);
    evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_table_pack(table, entry, 0, 7, 1, 1);
+   elm_table_pack(table, entry, 0, 6, 1, 1);
    evas_object_show(entry);
    ephoto->config->open_dir_custom = entry;
 }
@@ -212,27 +195,19 @@ static void
 _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
 {
    Eina_List *transitions;
-   Evas_Object *frame, *table, *check, *label, *spinner, *hoversel;
+   Evas_Object *table, *check, *label, *spinner, *hoversel;
    const Eina_List *l;
    const char *transition;
    char buf[PATH_MAX];
 
-   frame = elm_frame_add(parent);
-   elm_object_text_set(frame, _("Slideshow"));
-   evas_object_size_hint_weight_set(frame, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(parent, frame);
-   evas_object_show(frame);
-
-   table = elm_table_add(frame);
+   table = elm_table_add(parent);
    evas_object_size_hint_weight_set(table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_object_content_set(frame, table);
+   elm_box_pack_end(parent, table);
    evas_object_show(table);
 
    check = elm_check_add(table);
    elm_object_text_set(check, _("Moving Slideshow"));
-   evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
    evas_object_size_hint_align_set(check, 0.5, 0.5);
    elm_check_state_set(check, ephoto->config->movess);
    elm_table_pack(table, check, 0, 0, 2, 1);
@@ -286,63 +261,35 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    ephoto->config->slide_trans = hoversel;
 }
 
+
+
 static Evas_Object *
-_config_settings(Ephoto *ephoto, Evas_Object *parent, Evas_Object *popup)
+_config_settings(Ephoto *ephoto, Evas_Object *parent, Eina_Bool slideshow)
 {
-   Evas_Object *box, *scroller, *vbox, *hbox, *ic, *button;
+   Evas_Object *frame, *vbox;
 
-   box = elm_box_add(parent);
-   elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_show(box);
+   frame = elm_frame_add(parent);
+   if (!slideshow)
+     elm_object_text_set(frame, _("General"));
+   else
+     elm_object_text_set(frame, _("Slideshow"));
+   evas_object_size_hint_weight_set(frame, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(frame);
 
-   scroller = elm_scroller_add(box);
-   evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(scroller, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, scroller);
-   evas_object_show(scroller);
-
-   vbox = elm_box_add(scroller);
+   vbox = elm_box_add(frame);
    elm_box_horizontal_set(vbox, EINA_FALSE);
    evas_object_size_hint_weight_set(vbox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(vbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_object_content_set(scroller, vbox);
+   elm_object_content_set(frame, vbox);
    evas_object_show(vbox);
 
-   _config_general(ephoto, vbox);
-   _config_slideshow(ephoto, vbox);
+   if (!slideshow)
+     _config_general(ephoto, vbox);
+   else
+     _config_slideshow(ephoto, vbox);
 
-   hbox = elm_box_add(box);
-   elm_box_horizontal_set(hbox, EINA_TRUE);
-   evas_object_size_hint_weight_set(hbox, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   elm_box_pack_end(box, hbox);
-   evas_object_show(hbox);
-
-   ic = elm_icon_add(hbox);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "document-save");
-
-   button = elm_button_add(hbox);
-   elm_object_text_set(button, _("Save"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _config_save_cb, popup);
-   elm_box_pack_end(hbox, button);
-   evas_object_show(button);
-
-   ic = elm_icon_add(hbox);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "window-close");
-
-   button = elm_button_add(hbox);
-   elm_object_text_set(button, _("Close"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _config_close_cb, popup);
-   elm_box_pack_end(hbox, button);
-   evas_object_show(button);
-
-   return box;
+   return frame;
 }
 
 static void
@@ -397,15 +344,22 @@ _link_anchor(void *data, Evas_Object *obj, void *event_info)
 }
 
 static Evas_Object *
-_config_bindings(Evas_Object *parent, Evas_Object *popup)
+_config_bindings(Evas_Object *parent)
 {
-   Evas_Object *box, *scroller, *entry, *ic, *button;
+   Evas_Object *frame, *box, *scroller, *entry;
    Eina_Strbuf *sbuf = eina_strbuf_new();
+
+   frame = elm_frame_add(parent);
+   elm_object_text_set(frame, _("Bindings"));
+   evas_object_size_hint_weight_set(frame, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(frame);
 
    box = elm_box_add(parent);
    elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_object_content_set(frame, box);
    evas_object_show(box);
 
    scroller = elm_scroller_add(box);
@@ -470,34 +424,28 @@ _config_bindings(Evas_Object *parent, Evas_Object *popup)
    elm_object_content_set(scroller, entry);
    evas_object_show(entry);
 
-   ic = elm_icon_add(box);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "window-close");
-
-   button = elm_button_add(box);
-   elm_object_text_set(button, _("Close"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _config_close_cb, popup);
-   elm_box_pack_end(box, button);
-   evas_object_show(button);
-
-   evas_object_show(box);
-
-   return box;
+   return frame;
 }
 
 static Evas_Object *
-_config_about(Evas_Object *parent, Evas_Object *popup)
+_config_about(Evas_Object *parent)
 {
-   Evas_Object *box, *entry, *img, *lbl, *ic, *button;
+   Evas_Object *frame, *box, *entry, *img, *lbl;
    Eina_Strbuf *sbuf = eina_strbuf_new();
    char ver[PATH_MAX];
    FILE *f;
 
-   box = elm_box_add(parent);
+   frame = elm_frame_add(parent);
+   elm_object_text_set(frame, _("About"));
+   evas_object_size_hint_weight_set(frame, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(frame);
+
+   box = elm_box_add(frame);
    elm_box_horizontal_set(box, EINA_FALSE);
    evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_object_content_set(frame, box);
    evas_object_show(box);
 
    img = elm_image_add(box);
@@ -587,31 +535,21 @@ _config_about(Evas_Object *parent, Evas_Object *popup)
    elm_box_pack_end(box, entry);
    evas_object_show(entry);
 
-   ic = elm_icon_add(box);
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, "window-close");
-
-   button = elm_button_add(box);
-   elm_object_text_set(button, _("Close"));
-   elm_object_part_content_set(button, "icon", ic);
-   evas_object_smart_callback_add(button, "clicked", _config_close_cb, popup);
-   elm_box_pack_end(box, button);
-   evas_object_show(button);
-
-   evas_object_show(box);
-
-   return box;
+   return frame;
 }
 
 static void
-_segment_changed(void *data EINA_UNUSED, Evas_Object *o, void *event)
+_list_clicked(void *data, Evas_Object *o, void *event EINA_UNUSED)
 {
-   Elm_Object_Item *it = event;
-   Evas_Object *page = elm_object_item_data_get(it);
+   Evas_Object *page = data;
+
    Evas_Object *settings = evas_object_data_get(o, "settings");
+   Evas_Object *slideshow = evas_object_data_get(o, "slideshow");
    Evas_Object *kb = evas_object_data_get(o, "bindings");
    Evas_Object *about = evas_object_data_get(o, "about");
+
    evas_object_hide(settings);
+   evas_object_hide(slideshow);
    evas_object_hide(kb);
    evas_object_hide(about);
    evas_object_show(page);
@@ -685,72 +623,82 @@ _ephoto_on_config_save(void *data)
 void
 ephoto_config_main(Ephoto *ephoto)
 {
-   Evas_Object *popup, *table, *segment, *ic;
-   Evas_Object *settings, *kb, *about, *sep;
-   Elm_Object_Item *settingsi, *kbi, *abouti;
+   Evas_Object *popup, *table, *list, *ic;
+   Evas_Object *slideshow, *settings, *kb, *about;
+   Elm_Object_Item *slideshowi, *settingsi, *kbi, *abouti;
 
    popup = elm_popup_add(ephoto->win);
    elm_popup_scrollable_set(popup, EINA_TRUE);
    elm_object_part_text_set(popup, "title,text", _("Settings Panel"));
    elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
+   evas_object_smart_callback_add(popup, "block,clicked", _config_save_cb, popup);
 
    table = elm_table_add(popup);
    elm_table_homogeneous_set(table, EINA_FALSE);
    evas_object_size_hint_weight_set(table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-   settings = _config_settings(ephoto, table, popup);
-   elm_table_pack(table, settings, 0, 2, 1, 1);
-   kb = _config_bindings(table, popup);
-   elm_table_pack(table, kb, 0, 2, 1, 1);
-   about = _config_about(table, popup);
-   elm_table_pack(table, about, 0, 2, 1, 1);
+   settings = _config_settings(ephoto, table, EINA_FALSE);
+   elm_table_pack(table, settings, 1, 0, 1, 1);
+   kb = _config_bindings(table);
+   elm_table_pack(table, kb, 1, 0, 1, 1);
+   about = _config_about(table);
+   elm_table_pack(table, about, 1, 0, 1, 1);
+   slideshow = _config_settings(ephoto, table, EINA_TRUE);
+   elm_table_pack(table, slideshow, 1, 0, 1, 1);
 
-   segment = elm_segment_control_add(table);
-   evas_object_size_hint_weight_set(segment, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(segment, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_smart_callback_add(segment, "changed", _segment_changed, table);
-   elm_table_pack(table, segment, 0, 0, 1, 1);
-   evas_object_show(segment);
+   list = elm_list_add(table);
+   elm_list_select_mode_set(list, ELM_OBJECT_SELECT_MODE_ALWAYS);
+   elm_scroller_content_min_limit(list, 1, 1);
+   evas_object_size_hint_weight_set(list, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(list, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   elm_table_pack(table, list, 0, 0, 1, 1);
+   evas_object_show(list);
 
-   evas_object_data_set(segment, "settings", settings);
-   evas_object_data_set(segment, "bindings", kb);
-   evas_object_data_set(segment, "about", about);
+   evas_object_data_set(list, "settings", settings);
+   evas_object_data_set(list, "slideshow", slideshow);
+   evas_object_data_set(list, "bindings", kb);
+   evas_object_data_set(list, "about", about);
 
-   ic = elm_icon_add(segment);
+   ic = elm_icon_add(list);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "preferences-system");
    evas_object_show(ic);
-   settingsi = elm_segment_control_item_add(segment, ic, _("Settings"));
+   settingsi = elm_list_item_append(list, _("General"), ic, NULL,
+       _list_clicked, settings);
 
-   ic = elm_icon_add(segment);
+   ic = elm_icon_add(list);
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+   elm_icon_standard_set(ic, "media-playback-start");
+   evas_object_show(ic);
+   slideshowi = elm_list_item_append(list, _("Slideshow"), ic, NULL,
+       _list_clicked, slideshow);
+
+   ic = elm_icon_add(list);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "input-keyboard");
    evas_object_show(ic);
-   kbi = elm_segment_control_item_add(segment, ic, _("Bindings"));
+   kbi = elm_list_item_append(list, _("Bindings"), ic, NULL,
+       _list_clicked, kb);
 
-   ic = elm_icon_add(segment);
+   ic = elm_icon_add(list);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "help-about");
    evas_object_show(ic);
-   abouti = elm_segment_control_item_add(segment, ic, _("About"));
+   abouti = elm_list_item_append(list, _("About"), ic, NULL,
+       _list_clicked, about);
 
-   sep = elm_separator_add(table);
-   elm_separator_horizontal_set(sep, EINA_TRUE);
-   elm_table_pack(table, sep, 0, 1, 1, 1);
-   evas_object_show(sep);
-
-   sep = elm_separator_add(table);
-   elm_separator_horizontal_set(sep, EINA_TRUE);
-   elm_table_pack(table, sep, 0, 3, 1, 1);
-   evas_object_show(sep);
+   elm_list_go(list);
 
    elm_object_item_data_set(settingsi, settings);
+   elm_object_item_data_set(slideshowi, slideshow);
    elm_object_item_data_set(kbi, kb);
    elm_object_item_data_set(abouti, about);
+   evas_object_hide(slideshow);
    evas_object_hide(kb);
    evas_object_hide(about);
-   elm_segment_control_item_selected_set(settingsi, EINA_TRUE);
+
+   elm_list_item_selected_set(settingsi, EINA_TRUE);
 
    evas_object_show(table);
    elm_object_content_set(popup, table);
@@ -758,7 +706,7 @@ ephoto_config_main(Ephoto *ephoto)
    evas_object_show(popup);
 
    if (ephoto->config->firstrun)
-     elm_segment_control_item_selected_set(abouti, EINA_TRUE);
+     elm_list_item_selected_set(abouti, EINA_TRUE);
 }
 
 void

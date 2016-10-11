@@ -71,6 +71,7 @@ static void _ephoto_main_back(void *data, Evas_Object *obj EINA_UNUSED,
 static void _ephoto_main_del(void *data, Evas *e EINA_UNUSED,
     Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED);
 static void _next_entry(Ephoto_Single_Browser *sb);
+static void _orient_apply(Ephoto_Single_Browser *sb);
 
 /*Common*/
 static const char *
@@ -431,6 +432,50 @@ _viewer_zoom_fit(Evas_Object *obj)
 }
 
 static void
+_orient_set(Ephoto_Single_Browser *sb, Ephoto_Orient orient)
+{
+   Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
+
+   switch (orient)
+     {
+       case EPHOTO_ORIENT_0:
+          evas_object_image_orient_set(v->image, EVAS_IMAGE_ORIENT_NONE);
+          break;
+
+       case EPHOTO_ORIENT_90:
+          evas_object_image_orient_set(v->image, EVAS_IMAGE_ORIENT_90);
+          break;
+
+       case EPHOTO_ORIENT_180:
+          evas_object_image_orient_set(v->image, EVAS_IMAGE_ORIENT_180);
+          break;
+
+       case EPHOTO_ORIENT_270:
+          evas_object_image_orient_set(v->image, EVAS_IMAGE_ORIENT_270);
+          break;
+
+       case EPHOTO_ORIENT_FLIP_HORIZ:
+          evas_object_image_orient_set(v->image, EVAS_IMAGE_FLIP_HORIZONTAL);
+          break;
+
+       case EPHOTO_ORIENT_FLIP_VERT:
+          evas_object_image_orient_set(v->image, EVAS_IMAGE_FLIP_VERTICAL);
+          break;
+
+       case EPHOTO_ORIENT_FLIP_HORIZ_90:
+          evas_object_image_orient_set(v->image, EVAS_IMAGE_FLIP_TRANSPOSE);
+          break;
+
+       case EPHOTO_ORIENT_FLIP_VERT_90:
+          evas_object_image_orient_set(v->image, EVAS_IMAGE_FLIP_TRANSVERSE);
+          break;
+
+       default:
+          return;
+     }
+}
+
+static void
 _orient_apply(Ephoto_Single_Browser *sb)
 {
    Ephoto_History *eh = NULL;
@@ -439,46 +484,11 @@ _orient_apply(Ephoto_Single_Browser *sb)
    Eina_List *l;
    char buf[PATH_MAX];
 
-   switch (sb->orient)
-     {
-       case EPHOTO_ORIENT_0:
-	  evas_object_image_orient_set(v->image, EVAS_IMAGE_ORIENT_NONE);
-	  break;
-
-       case EPHOTO_ORIENT_90:
-	  evas_object_image_orient_set(v->image, EVAS_IMAGE_ORIENT_90);
-	  break;
-
-       case EPHOTO_ORIENT_180:
-	  evas_object_image_orient_set(v->image, EVAS_IMAGE_ORIENT_180);
-	  break;
-
-       case EPHOTO_ORIENT_270:
-	  evas_object_image_orient_set(v->image, EVAS_IMAGE_ORIENT_270);
-	  break;
-
-       case EPHOTO_ORIENT_FLIP_HORIZ:
-	  evas_object_image_orient_set(v->image, EVAS_IMAGE_FLIP_HORIZONTAL);
-	  break;
-
-       case EPHOTO_ORIENT_FLIP_VERT:
-	  evas_object_image_orient_set(v->image, EVAS_IMAGE_FLIP_VERTICAL);
-	  break;
-
-       case EPHOTO_ORIENT_FLIP_HORIZ_90:
-	  evas_object_image_orient_set(v->image, EVAS_IMAGE_FLIP_TRANSPOSE);
-	  break;
-
-       case EPHOTO_ORIENT_FLIP_VERT_90:
-	  evas_object_image_orient_set(v->image, EVAS_IMAGE_FLIP_TRANSVERSE);
-	  break;
-
-       default:
-	  return;
-     }
+   _orient_set(sb, sb->orient);
    elm_table_unpack(v->table, v->image);
    elm_object_content_unset(v->scroller);
    evas_object_image_size_get(v->image, &w, &h);
+   evas_object_image_data_update_add(v->image, 0, 0, w, h);
    if (sb->history_pos < (eina_list_count(sb->history)-1))
      {
         int count;
@@ -878,8 +888,9 @@ _undo_image(void *data, Evas_Object *obj EINA_UNUSED,
      {
         sb->history_pos--;
         eh = eina_list_nth(sb->history, sb->history_pos);
-        evas_object_image_orient_set(v->image, eh->orient);
         elm_table_unpack(v->table, v->image);
+        elm_object_content_unset(v->scroller);
+        _orient_set(sb, eh->orient);
         evas_object_image_size_set(v->image, eh->w, eh->h);
         evas_object_image_data_set(v->image, eh->im_data);
         evas_object_image_data_update_add(v->image, 0, 0, eh->w, eh->h);
@@ -910,9 +921,9 @@ _redo_image(void *data, Evas_Object *obj EINA_UNUSED,
      {
         sb->history_pos++;
         eh = eina_list_nth(sb->history, sb->history_pos);
-        evas_object_image_orient_set(v->image, eh->orient);
         elm_table_unpack(v->table, v->image);
         elm_object_content_unset(v->scroller);
+        _orient_set(sb, eh->orient);
         evas_object_image_size_set(v->image, eh->w, eh->h);
         evas_object_image_data_set(v->image, eh->im_data);
         evas_object_image_data_update_add(v->image, 0, 0, eh->w, eh->h);

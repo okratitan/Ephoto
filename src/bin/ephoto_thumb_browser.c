@@ -251,6 +251,11 @@ _dnd_drag_start(void *data EINA_UNUSED, Evas_Object *obj)
 {
    Ephoto_Thumb_Browser *tb = evas_object_data_get(obj, "thumb_browser");
 
+   if (tb->ephoto->state != EPHOTO_STATE_THUMB)
+     {
+        elm_drag_cancel(tb->grid);
+        return;
+     }
    if (_5s_cancel)
       _5s_timeout = ecore_timer_add(5.0, _5s_timeout_gone, obj);
    elm_object_cursor_set(tb->main, ELM_CURSOR_HAND2);
@@ -261,7 +266,7 @@ _dnd_drag_start(void *data EINA_UNUSED, Evas_Object *obj)
 }
 
 static void
-_dnd_drag_done(void *data EINA_UNUSED, Evas_Object *obj,
+_dnd_drag_done(void *data, Evas_Object *obj,
     Eina_Bool doaccept EINA_UNUSED)
 {
    Ephoto_Thumb_Browser *tb = evas_object_data_get(obj, "thumb_browser");
@@ -377,6 +382,12 @@ static Eina_Bool
 _dnd_item_data_get(Evas_Object *obj, Elm_Object_Item *it,
     Elm_Drag_User_Info *info)
 {
+   Ephoto_Thumb_Browser *tb = evas_object_data_get(obj, "thumb_browser");
+   if (tb->ephoto->state != EPHOTO_STATE_THUMB)
+     {
+        elm_drag_cancel(tb->grid);
+        return EINA_FALSE;
+     }
    info->format = ELM_SEL_FORMAT_TARGETS;
    info->createicon = _dnd_create_icon;
    info->createdata = it;

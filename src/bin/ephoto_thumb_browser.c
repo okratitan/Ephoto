@@ -820,13 +820,13 @@ static void
 _grid_menu_rename_cb(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
-   Elm_Object_Item *item = data;
-   Ephoto_Thumb_Browser *tb = evas_object_data_get(item, "thumb_browser");
+   Ephoto_Thumb_Browser *tb = data;
+   Elm_Object_Item *item = evas_object_data_get(tb->main, "rename_item");
    Ephoto_Entry *file;
 
    file = elm_object_item_data_get(item);
    ephoto_file_rename(tb->ephoto, file->path);
-   evas_object_data_del(item, "thumb_browser");
+   evas_object_data_del(item, "rename_item");
 }
 
 static void
@@ -971,8 +971,9 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
         if (item)
           {
              elm_menu_item_add(menu, NULL, "edit", _("Rename"),
-                  _grid_menu_rename_cb, item);
-             evas_object_data_set(item, "thumb_browser", tb);
+                  _grid_menu_rename_cb, tb);
+             evas_object_data_del(tb->main, "rename_item");
+             evas_object_data_set(tb->main, "rename_item", item);
           }
         if (eina_list_count(selected))
           {
@@ -1787,8 +1788,9 @@ _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNU
             eina_list_last(selected));
         if (it)
           {
-             evas_object_data_set(it, "thumb_browser", tb);
-             _grid_menu_rename_cb(it, NULL, NULL);
+             evas_object_data_del(tb->main, "rename_item");
+             evas_object_data_set(tb->main, "rename_item", tb);
+             _grid_menu_rename_cb(tb, NULL, NULL);
           }
      }
    else if (!strcasecmp(k, "F5"))

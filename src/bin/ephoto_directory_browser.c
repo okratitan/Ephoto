@@ -27,7 +27,6 @@ struct _Ephoto_Directory_Browser
    Eina_List *todo_items;
    Ecore_Job *change_dir_job;
    Ecore_Timer *click_timer;
-   Eina_Bool dragging;
    Eina_Bool processing;
    Eina_Bool initializing;
    struct
@@ -150,11 +149,8 @@ _drop_leave(void *data, Evas_Object *obj EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
 
-   if (db->dragging)
-     {
-        if (db->dir_current)
-          elm_genlist_item_selected_set(db->dir_current, EINA_TRUE);
-     }
+   if (db->dir_current)
+     elm_genlist_item_selected_set(db->dir_current, EINA_TRUE);
 }
 
 static void
@@ -312,8 +308,8 @@ _on_list_contracted(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 static void
 _dir_job(void *data)
 {
-   Elm_Object_Item *it = data;
-   Ephoto_Directory_Browser *db = evas_object_data_get(it, "directory_browser");
+   Ephoto_Directory_Browser *db = data;
+   Elm_Object_Item *it = evas_object_data_get(db->fsel, "current_item");
    Ephoto_Entry *entry;
    const char *path;
 
@@ -330,12 +326,11 @@ _dir_job(void *data)
 static void
 _wait_job(void *data)
 {
-   Elm_Object_Item *it = data;
-   Ephoto_Directory_Browser *db = evas_object_data_get(it, "directory_browser");
+   Ephoto_Directory_Browser *db = data;
 
    if (db->change_dir_job)
      ecore_job_del(db->change_dir_job);
-   db->change_dir_job = ecore_job_add(_dir_job, it);
+   db->change_dir_job = ecore_job_add(_dir_job, db);
 }
 
 static void
@@ -345,13 +340,12 @@ _on_list_selected(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto_Directory_Browser *db = data;
    Elm_Object_Item *it = event_info;
 
-   evas_object_data_set(it, "directory_browser", db);
-   if (!db->dragging)
-     {
-        db->dir_current = it;
+   if (!it)
+     return;
 
-        ecore_job_add(_wait_job, it);
-     }
+   evas_object_data_set(db->fsel, "current_item", it);
+   db->dir_current = it;
+   ecore_job_add(_wait_job, db);
 }
 
 static char *
@@ -488,8 +482,8 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
 static Eina_Bool
 _click_timer_cb(void *data)
 {
-   Elm_Object_Item *item = data;
-   Ephoto_Directory_Browser *db = evas_object_data_get(item, "directory_browser");
+   Ephoto_Directory_Browser *db = data;
+   Elm_Object_Item *item = evas_object_data_get(db->fsel, "current_item");
 
    _on_list_selected(db, NULL, item);
    db->click_timer = NULL;
@@ -597,9 +591,10 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
           }
         else
           {
-             evas_object_data_set(item, "directory_browser", db);
+             evas_object_data_del(db->fsel, "current_item");
+             evas_object_data_set(db->fsel, "current_item", item);
              if (elm_genlist_item_type_get(item) == ELM_GENLIST_ITEM_TREE)
-               db->click_timer = ecore_timer_add(.3, _click_timer_cb, item);
+               db->click_timer = ecore_timer_add(.3, _click_timer_cb, db);
              else
                _on_list_selected(db, NULL, item);
           }
@@ -624,7 +619,6 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
      }
    if (item)
      {
-        evas_object_data_set(item, "directory_browser", db);
         elm_menu_item_add(menu, NULL, "edit", _("Rename"),
             _fsel_menu_rename_cb, db);
 	elm_menu_item_add(menu, NULL, "edit-paste", _("Paste"),

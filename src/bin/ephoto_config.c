@@ -767,8 +767,8 @@ ephoto_config_init(Ephoto *ephoto)
 	  ephoto->config->config_version = CONFIG_VERSION;
 	  ephoto->config->slideshow_timeout = 4.0;
 	  ephoto->config->slideshow_transition = eina_stringshare_add("fade");
-	  ephoto->config->window_width = 900;
-	  ephoto->config->window_height = 500;
+	  ephoto->config->window_width = 900*elm_config_scale_get();
+	  ephoto->config->window_height = 500*elm_config_scale_get();
 	  ephoto->config->fsel_hide = 0;
           ephoto->config->lpane_size = .15;
 	  ephoto->config->open = eina_stringshare_add(getenv("HOME"));

@@ -1984,6 +1984,8 @@ _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNU
       _prev_entry(sb);
    else if (!strcmp(k, "Right") && !sb->editing)
       _next_entry(sb);
+   else if (!strcmp(k, "space") && !sb->editing)
+      _next_entry(sb);
    else if (!strcmp(k, "Home") && !sb->editing)
       _first_entry(sb);
    else if (!strcmp(k, "End") && !sb->editing)

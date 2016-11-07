@@ -409,6 +409,7 @@ _config_bindings(Evas_Object *parent)
            "<b>Home:</b> Navigate First<br/>"
            "<b>Left Arrow:</b> Navigate Previous<br/>"
            "<b>Right Arrow:</b> Navigate Next<br/>"
+           "<b>Space:</b> Navigate Next<br />"
            "<b>End:</b> Navigate Last<br/>"
            "<b>Ctrl+Delete:</b> Delete Image<br/>"
            "<b>F2</b> Rename Image<br/>"

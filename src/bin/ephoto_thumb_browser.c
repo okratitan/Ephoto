@@ -1531,9 +1531,7 @@ static Eina_Bool
 _ephoto_thumb_populate_start(void *data, int type EINA_UNUSED,
     void *event EINA_UNUSED)
 {
-   Ephoto *ephoto = data;
-   Ephoto_Thumb_Browser *tb =
-       evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
+   Ephoto_Thumb_Browser *tb = data;
 
    if (tb->dirs_only)
      return ECORE_CALLBACK_PASS_ON;
@@ -1545,7 +1543,7 @@ _ephoto_thumb_populate_start(void *data, int type EINA_UNUSED,
    if (tb->searching)
      _ephoto_thumb_search_cancel(tb->search, NULL, NULL);
    _todo_items_free(tb);
-   ephoto_thumb_browser_clear(ephoto);
+   ephoto_thumb_browser_clear(tb->ephoto);
    tb->totimages = 0;
    tb->totsize = 0;
 
@@ -1556,9 +1554,7 @@ static Eina_Bool
 _ephoto_thumb_populate_end(void *data, int type EINA_UNUSED,
     void *event EINA_UNUSED)
 {
-   Ephoto *ephoto = data;
-   Ephoto_Thumb_Browser *tb =
-       evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
+   Ephoto_Thumb_Browser *tb = data;
 
    if (tb->dirs_only)
      return ECORE_CALLBACK_PASS_ON;
@@ -1596,9 +1592,7 @@ static Eina_Bool
 _ephoto_thumb_populate_error(void *data, int type EINA_UNUSED,
     void *event EINA_UNUSED)
 {
-   Ephoto *ephoto = data;
-   Ephoto_Thumb_Browser *tb =
-       evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
+   Ephoto_Thumb_Browser *tb = data;
 
    if (tb->dirs_only)
      return ECORE_CALLBACK_PASS_ON;
@@ -1612,9 +1606,7 @@ _ephoto_thumb_populate_error(void *data, int type EINA_UNUSED,
 static Eina_Bool
 _ephoto_thumb_entry_create(void *data, int type EINA_UNUSED, void *event)
 {
-   Ephoto *ephoto = data;
-   Ephoto_Thumb_Browser *tb =
-       evas_object_data_get(ephoto->thumb_browser, "thumb_browser");
+   Ephoto_Thumb_Browser *tb = data;
    Ephoto_Event_Entry_Create *ev = event;
    Ephoto_Entry *e;
 
@@ -2198,22 +2190,22 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    tb->handlers =
        eina_list_append(tb->handlers,
        ecore_event_handler_add(EPHOTO_EVENT_POPULATE_START,
-	   _ephoto_thumb_populate_start, ephoto));
+	   _ephoto_thumb_populate_start, tb));
 
    tb->handlers =
        eina_list_append(tb->handlers,
        ecore_event_handler_add(EPHOTO_EVENT_POPULATE_END,
-	   _ephoto_thumb_populate_end, ephoto));
+	   _ephoto_thumb_populate_end, tb));
 
    tb->handlers =
        eina_list_append(tb->handlers,
        ecore_event_handler_add(EPHOTO_EVENT_POPULATE_ERROR,
-	   _ephoto_thumb_populate_error, ephoto));
+	   _ephoto_thumb_populate_error, tb));
 
    tb->handlers =
        eina_list_append(tb->handlers,
        ecore_event_handler_add(EPHOTO_EVENT_ENTRY_CREATE,
-	   _ephoto_thumb_entry_create, ephoto));
+	   _ephoto_thumb_entry_create, tb));
 
    return tb->main;
 

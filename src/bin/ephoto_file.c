@@ -933,6 +933,7 @@ _prompt_upload_apply(void *data, Evas_Object *obj EINA_UNUSED,
    if (fsize == -1)
      {
         CRIT("ftell() failed on file '%s': %s", entry->path, strerror(errno));
+        fclose(f);
         evas_object_del(popup);
         return;
      }

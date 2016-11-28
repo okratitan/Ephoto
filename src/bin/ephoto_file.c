@@ -744,38 +744,40 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 	     int ret;
              struct stat s;
 
-             lstat(file, &s);
-             if (S_ISLNK(s.st_mode))
+             if (lstat(file, &s))
                {
-                  ret = ecore_file_unlink(file);
-               }
-             else
-               {
-	          snprintf(fp, PATH_MAX, "%s", file);
-	          snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
-	          if (ecore_file_exists(dest))
-	            {
-		       snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
-		           basename(fp));
-		       if (ecore_file_exists(extra))
-		         {
-		            int count;
-
-		            for (count = 2; ecore_file_exists(extra); count++)
-			      {
-			         memset(extra, 0, sizeof(extra));
-			         snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
-				     destination, count, basename(fp));
-			      }
-		         }
-		       ret = ecore_file_mv(file, extra);
-	            }
+                  if (S_ISLNK(s.st_mode))
+                    {
+                       ret = ecore_file_unlink(file);
+                    }
                   else
-	            ret = ecore_file_mv(file, dest);
-               }
-	     if (!ret)
-	       ephoto->file_errors++;
-	  }
+                    {
+	               snprintf(fp, PATH_MAX, "%s", file);
+	               snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
+	               if (ecore_file_exists(dest))
+	                 {
+		            snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
+		                basename(fp));
+		            if (ecore_file_exists(extra))
+		              {
+		                 int count;
+
+		                 for (count = 2; ecore_file_exists(extra); count++)
+			           {
+			              memset(extra, 0, sizeof(extra));
+			              snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
+				          destination, count, basename(fp));
+			           }
+		              }
+                            ret = ecore_file_mv(file, extra);
+	                 }
+                       else
+	                 ret = ecore_file_mv(file, dest);
+                    }
+	          if (!ret)
+	            ephoto->file_errors++;
+	       }
+          }
      }
 }
 
@@ -919,11 +921,21 @@ _prompt_upload_apply(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_show(popup);
 
    f = fopen(entry->path, "rb");
-   if (!f) CRIT("unable to open '%s': %s", entry->path, strerror(errno));
+   if (!f)
+     {
+        CRIT("unable to open '%s': %s", entry->path, strerror(errno));
+        evas_object_del(popup);
+        return;
+     }
    res = fseek(f, 0, SEEK_END);
    if (!res) CRIT("fseek() failed on file '%s': %s", entry->path, strerror(errno));
    fsize = ftell(f);
-   if (fsize == -1) CRIT("ftell() failed on file '%s': %s", entry->path, strerror(errno));
+   if (fsize == -1)
+     {
+        CRIT("ftell() failed on file '%s': %s", entry->path, strerror(errno));
+        evas_object_del(popup);
+        return;
+     }
    rewind(f);
    fdata = malloc(fsize);
    res = fread(fdata, fsize, 1, f);
@@ -1007,16 +1019,22 @@ _prompt_save_image_as_apply(void *data, Evas_Object *obj, void *event_info)
         else
           {
              ext = eina_stringshare_add((strrchr(selected, '.')+1));
-             if (!_ephoto_file_image_can_save(ext))
+             if (ext)
                {
-                  if (ext)
-                    eina_stringshare_del(ext);
-                  snprintf(buf, PATH_MAX, "%s.jpg", selected);
+                  if (!_ephoto_file_image_can_save(ext))
+                    {
+                       eina_stringshare_del(ext);
+                       snprintf(buf, PATH_MAX, "%s.jpg", selected);
+                    }
+                  else
+                    {
+                       eina_stringshare_del(ext);
+                       snprintf(buf, PATH_MAX, "%s", selected);
+                    }
                }
              else
                {
-                  if (ext)
-                    eina_stringshare_del(ext);
+                  eina_stringshare_del(ext);
                   snprintf(buf, PATH_MAX, "%s", selected);
                }
           }

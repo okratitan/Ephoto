@@ -1168,13 +1168,10 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
                   dir = ecore_file_dir_get(path);
                   dirs = eina_list_prepend(dirs, strdup(dir));
                   memset(path, 0x00, sizeof(path));
-                  snprintf(path, PATH_MAX, "%s", dir);
+                  snprintf(path, PATH_MAX, "%s", dir); 
                }
-             if (dir)
-               {
-                  free(dir);
-                  dir = NULL;
-               }
+             free(dir);
+             dir = NULL;
           }
      }
    EINA_LIST_FOREACH(dirs, l, dir)
@@ -1224,13 +1221,13 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
                          {
                             _monitor_add(entry);
                             entry->genlist = db->fsel;
-                         }
-                       if (n)
-                         {
-                            if (!strcmp(n, entry->path))
+                            if (n)
                               {
-                                 next = entry->item;
-                                 elm_genlist_item_expanded_set(next, EINA_TRUE);
+                                 if (!strcmp(n, entry->path))
+                                   {
+                                      next = entry->item;
+                                      elm_genlist_item_expanded_set(next, EINA_TRUE);
+                                   }
                               }
                          }
                     }
@@ -1253,6 +1250,7 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
      }
    ephoto_title_set(ephoto, ephoto->config->directory);
    db->initializing = EINA_FALSE;
+   free(end_dir);
 }
 
 Evas_Object *

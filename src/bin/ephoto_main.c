@@ -995,7 +995,10 @@ ephoto_directory_set(Ephoto *ephoto, const char *path, Evas_Object *expanded,
    ed->thumbs_only = thumbs_only;
 
    if (!ecore_file_can_read(path))
-     return;
+     {
+        free(ed);
+        return;
+     }
 
    EINA_LIST_FREE(ed->ephoto->thumbs, o)
      evas_object_del(o);

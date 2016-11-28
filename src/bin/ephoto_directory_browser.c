@@ -1160,11 +1160,8 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
              dir = strdup(path);
              while (strcmp(dir, ephoto->config->open))
                {
-                  if (dir)
-                    {
-                       free(dir);
-                       dir = NULL;
-                    }
+                  free(dir);
+                  dir = NULL;
                   dir = ecore_file_dir_get(path);
                   dirs = eina_list_prepend(dirs, strdup(dir));
                   memset(path, 0x00, sizeof(path));

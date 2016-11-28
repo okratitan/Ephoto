@@ -938,9 +938,10 @@ _prompt_upload_apply(void *data, Evas_Object *obj EINA_UNUSED,
         return;
      }
    rewind(f);
-   fdata = malloc(fsize);
+   fdata = malloc(fsize+1);
    res = fread(fdata, fsize, 1, f);
    if (res < 1) CRIT("fread() failed on file '%s': %s", entry->path, strerror(errno)); 
+   fdata[fsize] = '\0';
    res = fclose(f);
    if (!res) CRIT("fclose() failed on file '%s': %s", entry->path, strerror(errno));
 

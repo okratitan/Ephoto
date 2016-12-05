@@ -1,3 +1,4 @@
+*.gmo
 *.o
 *.swp
 *.swo
@@ -29,6 +30,7 @@ data/themes/default/Makefile.in
 data/themes/default/ephoto.edj
 data/themes/default/images/Makefile
 data/themes/default/images/Makefile.in
+data/themes/ephoto.edj
 depcomp
 ephoto.spec
 install-sh
@@ -71,6 +73,8 @@ m4/xsize.m4
 m4/ulonglong.m4
 m4/inttypes.m4
 m4/isc-posix.m4
+m4/fcntl-o.m4
+m4/threadlib.m4
 missing
 mkinstalldirs
 po/Makefile
@@ -105,5 +109,6 @@ src/bin/ephoto_ql_la-ephoto_main.lo
 src/bin/ephoto_ql_la-ephoto_single_browser.lo
 src/bin/ephoto_ql_la-ephoto_slideshow.lo
 src/bin/ephoto_ql_la-ephoto_thumb_browser.lo
+src/bin/ephoto_thumbnail
 src/bin/stamp-h1
 

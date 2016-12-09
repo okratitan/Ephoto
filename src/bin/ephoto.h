@@ -249,6 +249,7 @@ struct _Ephoto
    Evas_Object *controls_left;
    Evas_Object *controls_right;
    Evas_Object *infolabel;
+   Evas_Object *exit;
 
    Evas_Object *thumb_browser;
    Evas_Object *single_browser;

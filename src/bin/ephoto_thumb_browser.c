@@ -1826,9 +1826,18 @@ _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNU
      }
    else if (!strcasecmp(k, "F11"))
      {
-	Evas_Object *win = tb->ephoto->win;
-
-	elm_win_fullscreen_set(win, !elm_win_fullscreen_get(win));
+        if (!elm_win_fullscreen_get(tb->ephoto->win))
+          {
+	     elm_win_fullscreen_set(tb->ephoto->win, EINA_TRUE);
+             elm_box_pack_end(tb->ephoto->statusbar, tb->ephoto->exit);
+             evas_object_show(tb->ephoto->exit);
+          }
+        else
+          {
+             elm_win_fullscreen_set(tb->ephoto->win, EINA_FALSE);
+             elm_box_unpack(tb->ephoto->statusbar, tb->ephoto->exit);
+             evas_object_hide(tb->ephoto->exit);
+          }
      }
    else if (!strcasecmp(k, "Escape"))
      {

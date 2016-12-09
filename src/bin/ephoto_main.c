@@ -639,16 +639,15 @@ ephoto_window_add(const char *path)
    ret = elm_icon_standard_set(ic, "application-exit");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
 
-   but = elm_button_add(ephoto->statusbar);
-   elm_object_part_content_set(but, "icon", ic);
+   ephoto->exit = elm_button_add(ephoto->statusbar);
+   elm_object_part_content_set(ephoto->exit, "icon", ic);
    if (!ret)
-     elm_object_text_set(but, _("Exit"));
-   evas_object_smart_callback_add(but, "clicked",
+     elm_object_text_set(ephoto->exit, _("Exit"));
+   evas_object_smart_callback_add(ephoto->exit, "clicked",
        _exit_icon_clicked, ephoto);
-   elm_object_tooltip_text_set(but, _("Exit"));
-   elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
-   elm_box_pack_end(ephoto->statusbar, but);
-   evas_object_show(but);
+   elm_object_tooltip_text_set(ephoto->exit, _("Exit"));
+   elm_object_tooltip_orient_set(ephoto->exit, ELM_TOOLTIP_ORIENT_TOP);
+   evas_object_hide(ephoto->exit);
 
    if ((!path) || (!ecore_file_exists(path)))
      {

@@ -245,8 +245,18 @@ _image_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 
    if ((ev->button == 1) && (ev->flags == EVAS_BUTTON_DOUBLE_CLICK))
      {
-        elm_win_fullscreen_set(sb->ephoto->win,
-            !elm_win_fullscreen_get(sb->ephoto->win));
+        if (!elm_win_fullscreen_get(sb->ephoto->win))
+          {
+             elm_win_fullscreen_set(sb->ephoto->win, EINA_TRUE);
+             elm_box_pack_end(sb->ephoto->statusbar, sb->ephoto->exit);
+             evas_object_show(sb->ephoto->exit);
+          }
+        else
+          {
+             elm_win_fullscreen_set(sb->ephoto->win, EINA_FALSE);
+             elm_box_unpack(sb->ephoto->statusbar, sb->ephoto->exit);
+             evas_object_hide(sb->ephoto->exit);
+          }
      }
    ecore_timer_del(_1s_hold);
    _1s_hold = NULL;
@@ -2012,9 +2022,18 @@ _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNU
      }
    else if (!strcmp(k, "F11"))
      {
-	Evas_Object *win = sb->ephoto->win;
-
-	elm_win_fullscreen_set(win, !elm_win_fullscreen_get(win));
+	if (!elm_win_fullscreen_get(sb->ephoto->win))
+          {
+             elm_win_fullscreen_set(sb->ephoto->win, EINA_TRUE);
+             elm_box_pack_end(sb->ephoto->statusbar, sb->ephoto->exit);
+             evas_object_show(sb->ephoto->exit);
+          }
+        else
+          {
+             elm_win_fullscreen_set(sb->ephoto->win, EINA_FALSE);
+             elm_box_unpack(sb->ephoto->statusbar, sb->ephoto->exit);
+             evas_object_hide(sb->ephoto->exit);
+          }
      }
 }
 

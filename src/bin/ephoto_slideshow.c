@@ -44,6 +44,7 @@ struct _Ephoto_Slideshow
    Evas_Object *pause_after;
    Evas_Object *fullscreen;
    Evas_Object *fullscreen_after;
+   Evas_Object *exit;
    Ephoto_Entry *entry;
    Eina_Bool playing;
    Eina_Bool timer_end;
@@ -466,7 +467,16 @@ _mouse_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    evas_object_del(ss->notify);
    elm_layout_content_set(ss->ephoto->layout, "ephoto.swallow.controls",
        ss->ephoto->statusbar);
-
+   if (elm_win_fullscreen_get(ss->ephoto->win))
+     {
+        elm_box_pack_end(ss->ephoto->statusbar, ss->ephoto->exit);
+        evas_object_show(ss->ephoto->exit);
+     }
+   else
+     {
+        elm_box_unpack(ss->ephoto->statusbar, ss->ephoto->exit);
+        evas_object_hide(ss->ephoto->exit);
+     }
    if (ss->current_item)
       entry = evas_object_data_get(ss->current_item, "entry");
    else
@@ -525,7 +535,16 @@ _back(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
    evas_object_del(ss->notify);
    elm_layout_content_set(ss->ephoto->layout, "ephoto.swallow.controls",
        ss->ephoto->statusbar);
-
+   if (elm_win_fullscreen_get(ss->ephoto->win))
+     {
+        elm_box_pack_end(ss->ephoto->statusbar, ss->ephoto->exit);
+        evas_object_show(ss->ephoto->exit);
+     }
+   else
+     {
+        elm_box_unpack(ss->ephoto->statusbar, ss->ephoto->exit);
+        evas_object_hide(ss->ephoto->exit);
+     }
    if (ss->current_item)
       entry = evas_object_data_get(ss->current_item, "entry");
    else
@@ -658,7 +677,9 @@ _fullscreen(void *data, Evas_Object *obj EINA_UNUSED,
             ss->fullscreen_after);
         evas_object_smart_callback_add(ss->fullscreen, "clicked",
             _fullscreen, ss);
-	elm_win_fullscreen_set(ss->ephoto->win, EINA_FALSE);
+        elm_win_fullscreen_set(ss->ephoto->win, EINA_FALSE);
+        elm_box_unpack(ss->notify, ss->exit);
+        evas_object_hide(ss->exit);
      }
    else
      {
@@ -667,7 +688,9 @@ _fullscreen(void *data, Evas_Object *obj EINA_UNUSED,
             ss->fullscreen_after);
         evas_object_smart_callback_add(ss->fullscreen, "clicked",
             _fullscreen, ss);
-	elm_win_fullscreen_set(ss->ephoto->win, EINA_TRUE);
+        elm_win_fullscreen_set(ss->ephoto->win, EINA_TRUE);
+        elm_box_pack_end(ss->notify, ss->exit);
+        evas_object_show(ss->exit);
      }
 }
 
@@ -698,9 +721,7 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      }
    else if (!strcmp(k, "F11"))
      {
-	Evas_Object *win = ss->ephoto->win;
-
-	elm_win_fullscreen_set(win, !elm_win_fullscreen_get(win));
+	_fullscreen(ss, NULL, NULL);
      }
    else if (!strcmp(k, "space"))
      {
@@ -803,6 +824,11 @@ ephoto_slideshow_show_controls(Ephoto *ephoto)
    ss->fullscreen_after =
        _add_icon(ss->notify, "preferences-other", _("Settings"), NULL);
    evas_object_smart_callback_add(ss->fullscreen_after, "clicked", _settings, ss);
+   ss->exit =
+       _add_icon(ss->notify, "application-exit", _("Exit"), NULL);
+   evas_object_smart_callback_add(ss->exit, "clicked", _fullscreen, ss);
+   elm_box_unpack(ss->notify, ss->exit);
+   evas_object_hide(ss->exit);
 
    elm_layout_content_set(ephoto->layout, "ephoto.swallow.controls", ss->notify);
 }
@@ -888,23 +914,27 @@ ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
      }
    if (ss->fullscreen)
      {
-	evas_object_del(ss->fullscreen);
-	if (elm_win_fullscreen_get(ss->ephoto->win))
-	  {
-             ss->fullscreen =
-                 _add_icon(ss->notify, "view-restore", _("Normal"),
-                 ss->fullscreen_after);
-             evas_object_smart_callback_add(ss->fullscreen, "clicked",
-                 _fullscreen, ss);
-	  }
-        else
-	  {
+        evas_object_del(ss->fullscreen);
+        if (!elm_win_fullscreen_get(ss->ephoto->win))
+          {
              ss->fullscreen =
                  _add_icon(ss->notify, "view-fullscreen", _("Fullscreen"),
                  ss->fullscreen_after);
              evas_object_smart_callback_add(ss->fullscreen, "clicked",
                  _fullscreen, ss);
-	  }
+             elm_box_unpack(ss->notify, ss->exit);
+             evas_object_hide(ss->exit);
+          }
+        else
+          {
+             ss->fullscreen =
+                 _add_icon(ss->notify, "view-restore", _("Normal"),
+                 ss->fullscreen_after);
+             evas_object_smart_callback_add(ss->fullscreen, "clicked",
+                 _fullscreen, ss);
+             elm_box_pack_end(ss->notify, ss->exit);
+             evas_object_show(ss->exit);
+          }
      }
    if (ss->event)
      {

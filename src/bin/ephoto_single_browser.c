@@ -1887,9 +1887,9 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
        sb);
    elm_menu_item_add(menu, NULL, "zoom-original", _("Zoom 1:1"), _zoom_1_cb,
        sb);
-   elm_menu_item_add(menu, NULL, "object-rotate-left", _("Rotate Left"), _go_rotate_counterclock,
+   elm_menu_item_add(menu, NULL, "object-flip-horizontal", _("Flip Horizontal"), _go_flip_horiz,
        sb);
-   elm_menu_item_add(menu, NULL, "object-rotate-right", _("Rotate Right"), _go_rotate_clock,
+   elm_menu_item_add(menu, NULL, "object-flip-vertical", _("Flip Vertical"), _go_flip_vert,
        sb);
 }
 
@@ -2450,6 +2450,38 @@ ephoto_single_browser_show_controls(Ephoto *ephoto)
    elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
    evas_object_smart_callback_add(but, "clicked", _go_next, sb);
    elm_box_pack_end(ephoto->controls_left, but);
+   evas_object_show(but);
+
+   ic = elm_icon_add(ephoto->controls_right);
+   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
+       20*elm_config_scale_get());
+   ret = elm_icon_standard_set(ic, "object-rotate-left");
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+
+   but = elm_button_add(ephoto->controls_right);
+   if (!ret)
+     elm_object_text_set(but, _("Rotate Left"));
+   elm_object_part_content_set(but, "icon", ic);
+   elm_object_tooltip_text_set(but, _("Rotate Left"));
+   elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
+   evas_object_smart_callback_add(but, "clicked", _go_rotate_counterclock, sb);
+   elm_box_pack_end(ephoto->controls_right, but);
+   evas_object_show(but);
+
+   ic = elm_icon_add(ephoto->controls_right);
+   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
+       20*elm_config_scale_get());
+   ret = elm_icon_standard_set(ic, "object-rotate-right");
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+
+   but = elm_button_add(ephoto->controls_right);
+   if (!ret)
+     elm_object_text_set(but, _("Rotate Right"));
+   elm_object_part_content_set(but, "icon", ic);
+   elm_object_tooltip_text_set(but, _("Rotate Right"));
+   elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
+   evas_object_smart_callback_add(but, "clicked", _go_rotate_clock, sb);
+   elm_box_pack_end(ephoto->controls_right, but);
    evas_object_show(but);
 
    ic = elm_icon_add(ephoto->controls_right);

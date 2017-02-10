@@ -1609,12 +1609,14 @@ _ephoto_thumb_entry_create(void *data, int type EINA_UNUSED, void *event)
    Ephoto_Thumb_Browser *tb = data;
    Ephoto_Event_Entry_Create *ev = event;
    Ephoto_Entry *e;
+   char *realpath;
 
    if (tb->dirs_only)
      return ECORE_CALLBACK_PASS_ON;
 
    e = ev->entry;
-   if (!e->is_dir && !ecore_file_is_dir(ecore_file_realpath(e->path)))
+   realpath = ecore_file_realpath(e->path);
+   if (!e->is_dir && !ecore_file_is_dir(realpath))
      {
 	Eina_File *f;
 
@@ -1629,6 +1631,7 @@ _ephoto_thumb_entry_create(void *data, int type EINA_UNUSED, void *event)
    if (!tb->animator.todo_items)
       tb->animator.todo_items = ecore_animator_add(_todo_items_process, tb);
 
+   free(realpath);
    return ECORE_CALLBACK_PASS_ON;
 }
 

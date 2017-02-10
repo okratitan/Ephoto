@@ -30,12 +30,13 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
    if (strcmp(path, ephoto->config->directory) && strcmp(path, "Last") &&
           ecore_file_exists(path))
      {
+        char *realpath = ecore_file_realpath(path);
         ephoto_directory_browser_clear(ephoto);
         ephoto_thumb_browser_clear(ephoto);
-        eina_stringshare_replace(&ephoto->config->directory,
-            ecore_file_realpath(path));
+        eina_stringshare_replace(&ephoto->config->directory, realpath);
         ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
         ephoto_directory_browser_initialize_structure(ephoto);
+        free(realpath);
      }
    ephoto->config->prompts = elm_check_state_get(ephoto->config->show_prompts);
    ephoto->config->drop = elm_check_state_get(ephoto->config->move_drop);

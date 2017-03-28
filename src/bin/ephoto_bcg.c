@@ -362,8 +362,9 @@ ephoto_bcg_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Obje
    elm_slider_step_set(slider, .1);
    elm_slider_value_set(slider, 1);
    elm_slider_unit_format_set(slider, "%1.2f");
-   evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
+   elm_slider_indicator_format_set(slider, "%1.2f");
+   EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_ALIGN(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
        _gamma_slider_changed, ebcg);
    elm_box_pack_start(ebcg->editor, slider);
@@ -376,8 +377,9 @@ ephoto_bcg_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Obje
    elm_slider_step_set(slider, 1);
    elm_slider_value_set(slider, 0);
    elm_slider_unit_format_set(slider, "%1.0f");
-   evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
+   elm_slider_indicator_format_set(slider, "%1.0f");
+   EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_ALIGN(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
        _contrast_slider_changed, ebcg);
    elm_box_pack_start(ebcg->editor, slider);
@@ -390,8 +392,9 @@ ephoto_bcg_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Obje
    elm_slider_step_set(slider, 1);
    elm_slider_value_set(slider, 0);
    elm_slider_unit_format_set(slider, "%1.0f");
-   evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
+   elm_slider_indicator_format_set(slider, "%1.0f");
+   EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_ALIGN(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
        _brightness_slider_changed, ebcg);
    elm_box_pack_start(ebcg->editor, slider);

@@ -13,8 +13,6 @@ EXTRA_DIST = ephoto.edc \
              images/sel_corner3.png \
              images/sel_corner5.png \
              images/sel_corner7.png \
-             images/shadow_circle_horiz.png \
-             images/shadow_circle_vert.png \
              images/tile.png
 
 ephoto.edj: Makefile $(EXTRA_DIST)

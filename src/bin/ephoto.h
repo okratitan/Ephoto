@@ -82,7 +82,6 @@ void ephoto_single_browser_image_data_done(Evas_Object *main,
     unsigned int *image_data, Evas_Coord w, Evas_Coord h);
 void ephoto_single_browser_cancel_editing(Evas_Object *main);
 void ephoto_single_browser_slideshow(Evas_Object *obj);
-void ephoto_single_browser_adjust_offsets(Ephoto *ephoto);
 /* smart callbacks called: "back" - the user wants to go back to the previous
  * screen. */
 
@@ -91,7 +90,6 @@ Evas_Object *ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent);
 void ephoto_slideshow_entries_set(Evas_Object *obj, Eina_List *entries);
 void ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry);
 void ephoto_slideshow_show_controls(Ephoto *ephoto);
-void ephoto_slideshow_adjust_offsets(Ephoto *ephoto);
 /* smart callbacks called: "back" - the user wants to go back to the previous
  * screen. */
 
@@ -243,9 +241,12 @@ struct _Ephoto_Config
 struct _Ephoto
 {
    Evas_Object *win;
+   Evas_Object *main;
    Evas_Object *layout;
    Evas_Object *pager;
    Evas_Object *statusbar;
+   Evas_Object *folders_button;
+   Evas_Object *view_button;
    Evas_Object *controls_left;
    Evas_Object *controls_right;
    Evas_Object *infolabel;
@@ -261,24 +262,17 @@ struct _Ephoto
    Elm_Object_Item *sb;
    Elm_Object_Item *sl;
 
+   Eina_Bool folders_toggle;
    Eina_List *entries;
    Eina_List *selentries;
    Eina_List *searchentries;
    Eina_List *thumbs;
 
-   Eina_Bool blocking;
-   Eina_Bool menu_blocking;
-   Eina_Bool hover_blocking;
-   Eina_Bool right_blocking;
-   Eina_Bool folders_toggle;
-   Eina_Bool editor_blocking;
-
    Eio_Monitor *monitor;
    Eina_List *monitor_handlers;
-   Ecore_Thread *file_thread;
    Eina_List *file_pos;
    Eina_List *upload_handlers;
-   Ecore_Timer *overlay_timer;
+   Ecore_Thread *file_thread;
    Ecore_Con_Url *url_up;
    char *url_ret;
    char *upload_error;
@@ -417,5 +411,9 @@ extern int EPHOTO_EVENT_EDITOR_BACK;
 #define WRN(...)  EINA_LOG_WARN(__VA_ARGS__)
 #define INF(...)  EINA_LOG_INFO(__VA_ARGS__)
 #define DBG(...)  EINA_LOG_DBG(__VA_ARGS__)
+#define EPHOTO_WEIGHT evas_object_size_hint_weight_set
+#define EPHOTO_ALIGN evas_object_size_hint_align_set
+#define EPHOTO_EXPAND(X) EPHOTO_WEIGHT((X), EVAS_HINT_EXPAND, EVAS_HINT_EXPAND)
+#define EPHOTO_FILL(X) EPHOTO_ALIGN((X), EVAS_HINT_FILL, EVAS_HINT_FILL)
 
 #endif

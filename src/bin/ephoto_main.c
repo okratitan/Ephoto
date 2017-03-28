@@ -40,14 +40,9 @@ _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    _ephoto_state_set(ephoto, EPHOTO_STATE_THUMB);
    ephoto_title_set(ephoto, ephoto->config->directory);
    ephoto_thumb_browser_update_info_label(ephoto);
+   evas_object_show(ephoto->statusbar);
    elm_box_clear(ephoto->controls_left);
    elm_box_clear(ephoto->controls_right);
-   ephoto->blocking = EINA_FALSE;
-   ephoto->menu_blocking = EINA_FALSE;
-   ephoto->hover_blocking = EINA_FALSE;
-   ephoto->editor_blocking = EINA_FALSE;
-   ephoto->folders_toggle = EINA_TRUE;
-   ephoto_show_folders(ephoto, EINA_TRUE);
    ephoto_thumb_browser_show_controls(ephoto);
    evas_object_freeze_events_set(ephoto->single_browser, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->slideshow, EINA_TRUE);
@@ -87,17 +82,10 @@ _ephoto_single_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    elm_naviframe_item_simple_promote(ephoto->pager, ephoto->single_browser);
    elm_object_focus_set(ephoto->single_browser, EINA_TRUE);
    _ephoto_state_set(ephoto, EPHOTO_STATE_SINGLE);
-
+   evas_object_show(ephoto->statusbar);
    elm_box_clear(ephoto->controls_left);
    elm_box_clear(ephoto->controls_right);
-   ephoto->blocking = EINA_FALSE;
-   ephoto->menu_blocking = EINA_FALSE;
-   ephoto->hover_blocking = EINA_FALSE;
-   ephoto->editor_blocking = EINA_FALSE;
-   ephoto->folders_toggle = EINA_TRUE;
-   ephoto_show_folders(ephoto, EINA_TRUE);
    ephoto_single_browser_show_controls(ephoto);
-   ephoto_single_browser_adjust_offsets(ephoto);
    evas_object_freeze_events_set(ephoto->thumb_browser, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->slideshow, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->single_browser, EINA_FALSE);
@@ -118,15 +106,10 @@ _ephoto_slideshow_show(Ephoto *ephoto, Ephoto_Entry *entry)
    elm_naviframe_item_simple_promote(ephoto->pager, ephoto->slideshow);
    elm_object_focus_set(ephoto->slideshow, EINA_TRUE);
    _ephoto_state_set(ephoto, EPHOTO_STATE_SLIDESHOW);
-   edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
-       "ephoto,controls,hide", "ephoto");
-   ephoto->blocking = EINA_FALSE;
-   ephoto->menu_blocking = EINA_FALSE;
-   ephoto->hover_blocking = EINA_FALSE;
-   ephoto->editor_blocking = EINA_FALSE;
-   ephoto->folders_toggle = EINA_TRUE;
-   ephoto_show_folders(ephoto, EINA_TRUE);
-   ephoto_slideshow_adjust_offsets(ephoto);
+   elm_layout_signal_emit(ephoto->layout, "ephoto,folders,hide", "ephoto");
+   elm_layout_signal_emit(ephoto->layout, "ephoto,statusbar,hide", "ephoto");
+   evas_object_hide(ephoto->dir_browser);
+   evas_object_hide(ephoto->statusbar);
    evas_object_freeze_events_set(ephoto->single_browser, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->thumb_browser, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->slideshow, EINA_FALSE);
@@ -140,8 +123,6 @@ _ephoto_single_browser_back(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto_Entry *entry = event_info;
 
    ephoto->selentries = NULL;
-   ephoto->folders_toggle = EINA_TRUE;
-   ephoto_show_folders(ephoto, EINA_TRUE);
    _ephoto_thumb_browser_show(ephoto, entry);
 }
 
@@ -167,6 +148,13 @@ _ephoto_slideshow_back(void *data, Evas_Object *obj EINA_UNUSED,
           ephoto->selentries = NULL;
 	  _ephoto_thumb_browser_show(ephoto, entry);
      }
+   if (ephoto->folders_toggle)
+     {
+        elm_layout_signal_emit(ephoto->layout, "ephoto,folders,show", "ephoto");
+        evas_object_show(ephoto->dir_browser);
+     }
+   elm_layout_signal_emit(ephoto->layout, "ephoto,statusbar,show", "ephoto");
+   evas_object_show(ephoto->statusbar);
 }
 
 static void
@@ -240,8 +228,6 @@ _win_free(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
         EINA_LIST_FREE(ephoto->monitor_handlers, handler)
           ecore_event_handler_del(handler);
      }
-   if (ephoto->overlay_timer)
-     ecore_timer_del(ephoto->overlay_timer);
    ephoto_config_save(ephoto);
    free(ephoto);
 }
@@ -261,76 +247,6 @@ _resize_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      }
 }
 
-static Eina_Bool
-_timer_cb(void *data)
-{
-   Ephoto *ephoto = data;
-   Edje_Object *edje = elm_layout_edje_get(ephoto->layout);
-
-   if (ephoto->blocking || ephoto->menu_blocking ||
-       ephoto->right_blocking || ephoto->hover_blocking ||
-       ephoto->editor_blocking)
-     return ECORE_CALLBACK_PASS_ON;
-
-   edje_object_signal_emit(edje, "ephoto,controls,hide", "ephoto");
-   if (ephoto->folders_toggle)
-     {
-        edje_object_signal_emit(edje, "ephoto,folders,hide", "ephoto");
-        evas_object_hide(ephoto->dir_browser);
-     }
-   ecore_timer_del(ephoto->overlay_timer);
-   ephoto->overlay_timer = NULL;
-
-   return ECORE_CALLBACK_CANCEL;
-}
-
-static void
-_mouse_move_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Ephoto *ephoto = data;
-   Edje_Object *edje = elm_layout_edje_get(ephoto->layout);
-
-   if (ephoto->blocking || ephoto->menu_blocking ||
-       ephoto->right_blocking || ephoto->hover_blocking ||
-       ephoto->editor_blocking)
-     return;
-
-   if (ephoto->overlay_timer)
-     ecore_timer_del(ephoto->overlay_timer);
-   ephoto->overlay_timer = NULL;
-   edje_object_signal_emit(edje, "ephoto,controls,show", "ephoto");
-   if (ephoto->folders_toggle)
-     {
-        edje_object_signal_emit(edje, "ephoto,folders,show", "ephoto");
-        evas_object_show(ephoto->dir_browser);
-     }
-   ephoto->overlay_timer = ecore_timer_add(3.0, _timer_cb, ephoto);
-}
-
-static void
-_mouse_out_cb(void *data, Evas_Object *obj EINA_UNUSED,
-    const char *emission EINA_UNUSED, const char *source EINA_UNUSED)
-{
-   Ephoto *ephoto = data;
-   ephoto->blocking = EINA_FALSE;
-
-   if (ephoto->overlay_timer)
-     ecore_timer_del(ephoto->overlay_timer);
-   ephoto->overlay_timer = ecore_timer_add(3.0, _timer_cb, ephoto);
-}
-
-static void
-_mouse_in_cb(void *data, Evas_Object *obj EINA_UNUSED,
-    const char *emission EINA_UNUSED, const char *source EINA_UNUSED)
-{
-   Ephoto *ephoto = data;
-   ephoto->blocking = EINA_TRUE;
-
-   ecore_timer_del(ephoto->overlay_timer);
-   ephoto->overlay_timer = NULL;
-}
-
 static void
 _folder_icon_clicked(void *data, Evas_Object *obj,
     void *event_info EINA_UNUSED)
@@ -341,7 +257,6 @@ _folder_icon_clicked(void *data, Evas_Object *obj,
      {
         edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
             "ephoto,folders,show", "ephoto");
-        evas_object_show(ephoto->dir_browser);
         ephoto->folders_toggle = EINA_TRUE;
         if (elm_object_text_get(obj))
           elm_object_text_set(obj, _("Hide Folders"));
@@ -351,7 +266,6 @@ _folder_icon_clicked(void *data, Evas_Object *obj,
      {
         edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
             "ephoto,folders,hide", "ephoto");
-        evas_object_hide(ephoto->dir_browser);
         ephoto->folders_toggle = EINA_FALSE;
         if (elm_object_text_get(obj))
           elm_object_text_set(obj, _("Show Folders"));
@@ -395,23 +309,21 @@ _exit_icon_clicked(void *data, Evas_Object *obj EINA_UNUSED,
 void
 ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle)
 {
-   Evas_Object *but = evas_object_data_get(ephoto->layout, "folder_button");
    if (!ephoto->folders_toggle || !toggle)
      {
-        _mouse_move_cb(ephoto, NULL, NULL, NULL);
         edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
             "ephoto,folders,show", "ephoto");
         evas_object_show(ephoto->dir_browser);
         ephoto->folders_toggle = EINA_TRUE;
-        elm_object_tooltip_text_set(but, _("Hide Folders"));
+        elm_object_tooltip_text_set(ephoto->folders_button, _("Hide Folders"));
      }
-   else if (ephoto->folders_toggle && toggle)
+   else if (ephoto->folders_toggle)
      {
         edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
             "ephoto,folders,hide", "ephoto");
         evas_object_hide(ephoto->dir_browser);
         ephoto->folders_toggle = EINA_FALSE;
-        elm_object_tooltip_text_set(but, _("Show Folders"));
+        elm_object_tooltip_text_set(ephoto->folders_button, _("Show Folders"));
      }
 }
 
@@ -419,7 +331,7 @@ Evas_Object *
 ephoto_window_add(const char *path)
 {
    Ephoto *ephoto = calloc(1, sizeof(Ephoto));
-   Evas_Object *ic, *but, *fold;
+   Evas_Object *ic, *but;
    char buf[PATH_MAX];
    int ret;
 
@@ -435,11 +347,7 @@ ephoto_window_add(const char *path)
    EPHOTO_EVENT_EDITOR_BACK = ecore_event_type_new();
 
    ephoto->selentries = NULL;
-   ephoto->blocking = EINA_FALSE;
-   ephoto->menu_blocking = EINA_FALSE;
-   ephoto->hover_blocking = EINA_FALSE;
-   ephoto->folders_toggle = EINA_TRUE;
-   ephoto->editor_blocking = EINA_FALSE;
+   ephoto->folders_toggle = EINA_FALSE;
    ephoto->entries = NULL;
    ephoto->sort = EPHOTO_SORT_ALPHABETICAL_ASCENDING;
    ephoto->win = elm_win_util_standard_add("ephoto", "Ephoto");
@@ -466,28 +374,25 @@ ephoto_window_add(const char *path)
        (ephoto->config->thumb_gen_size != 512))
       ephoto_thumb_size_set(ephoto, ephoto->config->thumb_size);
 
-   ephoto->layout = elm_layout_add(ephoto->win);
+   ephoto->main = elm_table_add(ephoto->win);
+   elm_table_homogeneous_set(ephoto->main, EINA_FALSE);
+   EPHOTO_EXPAND(ephoto->main);
+   EPHOTO_FILL(ephoto->main);
+   elm_win_resize_object_add(ephoto->win, ephoto->main);
+   evas_object_show(ephoto->main);
+
+   ephoto->layout = elm_layout_add(ephoto->main);
    elm_layout_file_set(ephoto->layout, PACKAGE_DATA_DIR "/themes/ephoto.edj",
        "ephoto,main,layout");
-   evas_object_size_hint_weight_set(ephoto->layout, EVAS_HINT_EXPAND,
-       EVAS_HINT_EXPAND);
-   evas_object_size_hint_fill_set(ephoto->layout, EVAS_HINT_FILL,
-       EVAS_HINT_FILL);
-   evas_object_event_callback_add(ephoto->layout, EVAS_CALLBACK_MOUSE_MOVE,
-       _mouse_move_cb, ephoto);
-   edje_object_signal_callback_add(elm_layout_edje_get(ephoto->layout),
-       "ephoto,block", "ephoto", _mouse_in_cb, ephoto);
-   edje_object_signal_callback_add(elm_layout_edje_get(ephoto->layout),
-       "ephoto,unblock", "ephoto", _mouse_out_cb, ephoto);
-   elm_win_resize_object_add(ephoto->win, ephoto->layout);
+   EPHOTO_EXPAND(ephoto->layout);
+   EPHOTO_FILL(ephoto->layout);
+   elm_table_pack(ephoto->main, ephoto->layout, 0, 1, 1, 2);
    evas_object_show(ephoto->layout);
 
-   ephoto->pager = elm_naviframe_add(ephoto->win);
+   ephoto->pager = elm_naviframe_add(ephoto->layout);
    elm_naviframe_prev_btn_auto_pushed_set(ephoto->pager, EINA_FALSE);
-   evas_object_size_hint_weight_set(ephoto->pager, EVAS_HINT_EXPAND,
-       EVAS_HINT_EXPAND);
-   evas_object_size_hint_fill_set(ephoto->pager, EVAS_HINT_FILL,
-       EVAS_HINT_FILL);
+   EPHOTO_EXPAND(ephoto->pager);
+   EPHOTO_FILL(ephoto->pager);
    elm_layout_content_set(ephoto->layout, "ephoto.swallow.main", ephoto->pager);
    evas_object_show(ephoto->pager);
 
@@ -536,18 +441,18 @@ ephoto_window_add(const char *path)
        _ephoto_slideshow_back, ephoto);
 
    ephoto->dir_browser = ephoto_directory_browser_add(ephoto, ephoto->layout);
-   elm_layout_content_set(ephoto->layout, "ephoto.swallow.folders",
-       ephoto->dir_browser);
+   EPHOTO_WEIGHT(ephoto->dir_browser, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   EPHOTO_FILL(ephoto->dir_browser);
+   elm_layout_content_set(ephoto->layout, "ephoto.swallow.folders", ephoto->dir_browser);
    evas_object_show(ephoto->dir_browser);
 
    ephoto->statusbar = elm_box_add(ephoto->layout);
+   evas_object_size_hint_min_set(ephoto->statusbar, 20*elm_config_scale_get(),
+       20*elm_config_scale_get());
    elm_box_horizontal_set(ephoto->statusbar, EINA_TRUE);
-   evas_object_size_hint_weight_set(ephoto->statusbar,
-       EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_align_set(ephoto->statusbar, EVAS_HINT_FILL,
-       EVAS_HINT_FILL);
-   elm_layout_content_set(ephoto->layout, "ephoto.swallow.controls",
-       ephoto->statusbar);
+   EPHOTO_WEIGHT(ephoto->statusbar, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_FILL(ephoto->statusbar);
+   elm_layout_content_set(ephoto->layout, "ephoto.swallow.statusbar", ephoto->statusbar);
    evas_object_show(ephoto->statusbar);
 
    ic = elm_icon_add(ephoto->statusbar);
@@ -565,15 +470,12 @@ ephoto_window_add(const char *path)
    elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_RIGHT);
    elm_box_pack_end(ephoto->statusbar, but);
    evas_object_show(but);
-   fold = but;
-   evas_object_data_set(ephoto->layout, "folder_button", but);
+   ephoto->folders_button = but;
 
    ephoto->controls_left = elm_box_add(ephoto->statusbar);
    elm_box_horizontal_set(ephoto->controls_left, EINA_TRUE);
-   evas_object_size_hint_weight_set(ephoto->controls_left,
-       0.0, 0.0);
-   evas_object_size_hint_align_set(ephoto->controls_left, EVAS_HINT_FILL,
-       EVAS_HINT_FILL);
+   EPHOTO_WEIGHT(ephoto->controls_left, 0.0, 0.0);
+   EPHOTO_FILL(ephoto->controls_left);
    elm_box_pack_end(ephoto->statusbar, ephoto->controls_left);
    evas_object_show(ephoto->controls_left);
 
@@ -581,10 +483,8 @@ ephoto_window_add(const char *path)
    elm_object_style_set(ephoto->infolabel, "info");
    elm_label_line_wrap_set(ephoto->infolabel, ELM_WRAP_MIXED);
    elm_object_text_set(ephoto->infolabel, _("Information"));
-   evas_object_size_hint_weight_set(ephoto->infolabel,
-       EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(ephoto->infolabel, EVAS_HINT_FILL,
-       EVAS_HINT_FILL);
+   EPHOTO_EXPAND(ephoto->infolabel);
+   EPHOTO_FILL(ephoto->infolabel);
    evas_object_size_hint_aspect_set(ephoto->infolabel, EVAS_ASPECT_CONTROL_HORIZONTAL,
        1, 1);
    elm_box_pack_end(ephoto->statusbar, ephoto->infolabel);
@@ -592,10 +492,8 @@ ephoto_window_add(const char *path)
 
    ephoto->controls_right = elm_box_add(ephoto->statusbar);
    elm_box_horizontal_set(ephoto->controls_right, EINA_TRUE);
-   evas_object_size_hint_weight_set(ephoto->controls_right,
-       0.0, 0.0);
-   evas_object_size_hint_align_set(ephoto->controls_right, EVAS_HINT_FILL,
-       EVAS_HINT_FILL);
+   EPHOTO_WEIGHT(ephoto->controls_right, 0.0, 0.0);
+   EPHOTO_FILL(ephoto->controls_right);
    elm_box_pack_end(ephoto->statusbar, ephoto->controls_right);
    evas_object_show(ephoto->controls_right);
 
@@ -679,7 +577,7 @@ ephoto_window_add(const char *path)
    else
      {
 	char *dir = ecore_file_dir_get(path);
-        char *realpath = ecore_file_realpath(path);
+        char *realpath = ecore_file_realpath(dir);
 
         eina_stringshare_replace(&ephoto->config->directory, realpath);
         free(realpath);
@@ -698,17 +596,17 @@ ephoto_window_add(const char *path)
 
    if (!ephoto->config->folders)
      {
-        edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
-            "ephoto,folders,hide,start", "ephoto");
         evas_object_hide(ephoto->dir_browser);
         ephoto->folders_toggle = EINA_FALSE;
-        elm_object_tooltip_text_set(fold, _("Show Folders"));
+        elm_object_tooltip_text_set(ephoto->folders_button, _("Show Folders"));
      }
    else
-     elm_layout_signal_emit(ephoto->layout, "ephoto,folders,show", "ephoto");
-   elm_layout_signal_emit(ephoto->layout, "ephoto,controls,show", "ephoto");
-   ephoto->overlay_timer = ecore_timer_add(5.0, _timer_cb, ephoto);
-
+     {
+        ephoto->folders_toggle = EINA_TRUE;
+        edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
+            "ephoto,folders,show,start", "ephoto");
+        elm_object_tooltip_text_set(ephoto->folders_button, _("Hide Folders"));
+     }
    if (ephoto->config->firstrun)
      {
         _settings_icon_clicked(ephoto, NULL, NULL);
@@ -861,8 +759,9 @@ _ephoto_populate_end(void *data, Eio_File *handler EINA_UNUSED)
 
    ed->ephoto->ls = NULL;
 
-   ephoto_single_browser_entries_set(ed->ephoto->single_browser,
-       ed->ephoto->entries);
+   if (eina_list_count(ed->ephoto->entries))
+     ephoto_single_browser_entries_set(ed->ephoto->single_browser,
+         ed->ephoto->entries);
    ecore_event_add(EPHOTO_EVENT_POPULATE_END, NULL, NULL, NULL);
    free(ed);
 }
@@ -873,7 +772,7 @@ _ephoto_populate_error(void *data, Eio_File *handler, int error EINA_UNUSED)
    Ephoto_Dir_Data *ed = data;
 
    ecore_event_add(EPHOTO_EVENT_POPULATE_ERROR, NULL, NULL, NULL);
-   _ephoto_populate_end(ed->ephoto, handler);
+   _ephoto_populate_end(ed, handler);
 }
 
 static void

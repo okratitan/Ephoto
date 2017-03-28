@@ -136,21 +136,21 @@ _processing(Evas_Object *main)
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_WEIGHT(box, 0.0, 0.0);
+   EPHOTO_FILL(box);
    evas_object_show(box);
 
    label = elm_label_add(box);
    elm_object_text_set(label,
        _("Please wait while this filter is applied to your image."));
-   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(label);
+   EPHOTO_FILL(label);
    elm_box_pack_end(box, label);
    evas_object_show(label);
 
    pb = elm_progressbar_add(box);
-   evas_object_size_hint_weight_set(pb, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_align_set(pb, EVAS_HINT_FILL, 0.5);
+   EPHOTO_WEIGHT(pb, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_ALIGN(pb, 0.0, 0.5);
    elm_object_style_set(pb, "wheel");
    elm_progressbar_pulse_set(pb, EINA_TRUE);
    elm_box_pack_end(box, pb);

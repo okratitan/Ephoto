@@ -239,8 +239,9 @@ ephoto_red_eye_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_
    elm_slider_step_set(slider, 1);
    elm_slider_value_set(slider, 15);
    elm_slider_unit_format_set(slider, "%1.0f");
-   evas_object_size_hint_weight_set(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(slider, EVAS_HINT_FILL, 0.5);
+   elm_slider_indicator_format_set(slider, "%1.0f");
+   EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_ALIGN(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
        _radius_slider_changed, er);
    elm_box_pack_start(er->editor, slider);
@@ -249,8 +250,8 @@ ephoto_red_eye_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_
 
    label = elm_label_add(er->editor);
    elm_object_text_set(label, _("<b>Click on an eye</b>"));
-   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, 0.5);
+   EPHOTO_WEIGHT(label, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_ALIGN(label, 0.5, 0.5);
    elm_box_pack_start(er->editor, label);
    evas_object_show(label);
 

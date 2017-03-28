@@ -73,14 +73,14 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    Evas_Object *table, *check, *hoversel, *entry, *label;
 
    table = elm_table_add(parent);
-   evas_object_size_hint_weight_set(table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(table);
+   EPHOTO_FILL(table);
    elm_box_pack_end(parent, table);
    evas_object_show(table);
 
    check = elm_check_add(table);
    elm_object_text_set(check, _("Show Folders On Start"));
-   evas_object_size_hint_align_set(check, 0.0, 0.5);
+   EPHOTO_ALIGN(check, 0.0, 0.5); 
    elm_check_state_set(check, ephoto->config->folders);
    elm_table_pack(table, check, 0, 0, 1, 1);
    evas_object_show(check);
@@ -88,7 +88,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
 
    check = elm_check_add(table);
    elm_object_text_set(check, _("Prompt Before Changing The Filesystem"));
-   evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
+   EPHOTO_FILL(check);
    elm_check_state_set(check, ephoto->config->prompts);
    elm_table_pack(table, check, 0, 1, 1, 1);
    evas_object_show(check);
@@ -96,7 +96,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
 
    check = elm_check_add(table);
    elm_object_text_set(check, _("Move Files When Dropped"));
-   evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
+   EPHOTO_FILL(check);
    elm_check_state_set(check, ephoto->config->drop);
    elm_table_pack(table, check, 0, 2, 1, 1);
    evas_object_show(check);
@@ -104,7 +104,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
 
    check = elm_check_add(table);
    elm_object_text_set(check, _("Smooth Scale Images"));
-   evas_object_size_hint_align_set(check, 0.0, EVAS_HINT_FILL);
+   EPHOTO_FILL(check);
    elm_check_state_set(check, ephoto->config->smooth);
    elm_table_pack(table, check, 0, 3, 1, 1);
    evas_object_show(check);
@@ -112,7 +112,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
 
    label = elm_label_add(table);
    elm_object_text_set(label, _("Top Level Directory"));
-   evas_object_size_hint_align_set(label, 0.5, 0.5);
+   EPHOTO_ALIGN(label, 0.5, 0.5);
    elm_table_pack(table, label, 0, 4, 1, 1);
    evas_object_show(label);
 
@@ -128,9 +128,8 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
        _open_hv_select, ephoto);
    elm_object_text_set(hoversel, ephoto->config->open);
    evas_object_data_set(hoversel, "ephoto", ephoto);
-   evas_object_size_hint_weight_set(hoversel, EVAS_HINT_EXPAND,
-       EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(hoversel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_WEIGHT(hoversel, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_FILL(hoversel);
    elm_table_pack(table, hoversel, 0, 5, 1, 1);
    evas_object_show(hoversel);
    ephoto->config->open_dir = hoversel;
@@ -142,8 +141,8 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    elm_object_disabled_set(entry, EINA_TRUE);
    elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF,
        ELM_SCROLLER_POLICY_OFF);
-   evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(entry);
+   EPHOTO_FILL(entry);
    elm_table_pack(table, entry, 0, 6, 1, 1);
    evas_object_show(entry);
    ephoto->config->open_dir_custom = entry;
@@ -202,14 +201,14 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    char buf[PATH_MAX];
 
    table = elm_table_add(parent);
-   evas_object_size_hint_weight_set(table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(table);
+   EPHOTO_FILL(table);
    elm_box_pack_end(parent, table);
    evas_object_show(table);
 
    check = elm_check_add(table);
    elm_object_text_set(check, _("Moving Slideshow"));
-   evas_object_size_hint_align_set(check, 0.5, 0.5);
+   EPHOTO_ALIGN(check, 0.5, 0.5);
    elm_check_state_set(check, ephoto->config->movess);
    elm_table_pack(table, check, 0, 0, 2, 1);
    evas_object_show(check);
@@ -219,7 +218,7 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    memset(buf, 0, PATH_MAX);
    snprintf(buf, PATH_MAX, "%s:", _("Show Each Slide For"));
    elm_object_text_set(label, buf);
-   evas_object_size_hint_align_set(label, 0.0, EVAS_HINT_FILL);
+   EPHOTO_FILL(label);
    elm_table_pack(table, label, 0, 1, 1, 1);
    evas_object_show(label);
 
@@ -240,7 +239,7 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    memset(buf, 0, PATH_MAX);
    snprintf(buf, PATH_MAX, "%s:", _("Slide Transition"));
    elm_object_text_set(label, buf);
-   evas_object_size_hint_align_set(label, 0.0, EVAS_HINT_FILL);
+   EPHOTO_FILL(label);
    elm_table_pack(table, label, 0, 2, 1, 1);
    evas_object_show(label);
 
@@ -254,9 +253,8 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
        _hv_select, transition);
    elm_hoversel_item_add(hoversel, "none", NULL, 0, _hv_select, NULL);
    elm_object_text_set(hoversel, ephoto->config->slideshow_transition);
-   evas_object_size_hint_weight_set(hoversel, EVAS_HINT_EXPAND,
-       EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(hoversel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(hoversel);
+   EPHOTO_FILL(hoversel);
    elm_table_pack(table, hoversel, 1, 2, 1, 1);
    evas_object_show(hoversel);
    ephoto->config->slide_trans = hoversel;
@@ -274,14 +272,14 @@ _config_settings(Ephoto *ephoto, Evas_Object *parent, Eina_Bool slideshow)
      elm_object_text_set(frame, _("General"));
    else
      elm_object_text_set(frame, _("Slideshow"));
-   evas_object_size_hint_weight_set(frame, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(frame);
+   EPHOTO_FILL(frame);
    evas_object_show(frame);
 
    vbox = elm_box_add(frame);
    elm_box_horizontal_set(vbox, EINA_FALSE);
-   evas_object_size_hint_weight_set(vbox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(vbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(vbox);
+   EPHOTO_FILL(vbox);
    elm_object_content_set(frame, vbox);
    evas_object_show(vbox);
 
@@ -352,28 +350,28 @@ _config_bindings(Evas_Object *parent)
 
    frame = elm_frame_add(parent);
    elm_object_text_set(frame, _("Bindings"));
-   evas_object_size_hint_weight_set(frame, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(frame);
+   EPHOTO_FILL(frame);
    evas_object_show(frame);
 
    box = elm_box_add(parent);
    elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(box);
+   EPHOTO_FILL(box);
    elm_object_content_set(frame, box);
    evas_object_show(box);
 
    scroller = elm_scroller_add(box);
-   evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(scroller, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(scroller);
+   EPHOTO_FILL(scroller);
    elm_box_pack_end(box, scroller);
    evas_object_show(scroller);
 
    entry = elm_entry_add(scroller);
    elm_entry_editable_set(entry, EINA_FALSE);
    elm_entry_line_wrap_set(entry, ELM_WRAP_NONE);
-   evas_object_size_hint_weight_set(entry, 0.0, 0.0);
-   evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_WEIGHT(entry, 0.0, 0.0);
+   EPHOTO_FILL(entry);
    eina_strbuf_append_printf(sbuf,
        _("<b><hilight>General Bindings</hilight></b><br/>"
            "<b>F1:</b> Settings Panel<br/>"
@@ -439,14 +437,14 @@ _config_about(Evas_Object *parent)
 
    frame = elm_frame_add(parent);
    elm_object_text_set(frame, _("About"));
-   evas_object_size_hint_weight_set(frame, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(frame, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(frame);
+   EPHOTO_FILL(frame);
    evas_object_show(frame);
 
    box = elm_box_add(frame);
    elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(box);
+   EPHOTO_FILL(box);
    elm_object_content_set(frame, box);
    evas_object_show(box);
 
@@ -463,8 +461,8 @@ _config_about(Evas_Object *parent)
 
    lbl = elm_label_add(box);
    elm_object_text_set(lbl, ver);
-   evas_object_size_hint_weight_set(lbl, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(lbl, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(lbl);
+   EPHOTO_FILL(lbl);
    elm_box_pack_end(box, lbl);
    evas_object_show(lbl);
 
@@ -474,8 +472,8 @@ _config_about(Evas_Object *parent)
    elm_entry_editable_set(entry, EINA_FALSE);
    elm_entry_context_menu_disabled_set(entry, EINA_TRUE);
    elm_entry_line_wrap_set(entry, ELM_WRAP_NONE);
-   evas_object_size_hint_weight_set(entry, 0.0, 0.0);
-   evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_WEIGHT(entry, 0.0, 0.0);
+   EPHOTO_FILL(entry);
    eina_strbuf_append_printf(sbuf,
        _("Ephoto is a comprehensive image viewer based on the EFL. For more<br/>"
 	   "information, please visit the Ephoto project page:<br/>"
@@ -637,8 +635,8 @@ ephoto_config_main(Ephoto *ephoto)
 
    table = elm_table_add(popup);
    elm_table_homogeneous_set(table, EINA_FALSE);
-   evas_object_size_hint_weight_set(table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(table);
+   EPHOTO_FILL(table);
 
    settings = _config_settings(ephoto, table, EINA_FALSE);
    elm_table_pack(table, settings, 1, 0, 1, 1);
@@ -652,8 +650,8 @@ ephoto_config_main(Ephoto *ephoto)
    list = elm_list_add(table);
    elm_list_select_mode_set(list, ELM_OBJECT_SELECT_MODE_ALWAYS);
    elm_scroller_content_min_limit(list, 1, 1);
-   evas_object_size_hint_weight_set(list, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(list, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(list);
+   EPHOTO_FILL(list);
    elm_table_pack(table, list, 0, 0, 1, 1);
    evas_object_show(list);
 

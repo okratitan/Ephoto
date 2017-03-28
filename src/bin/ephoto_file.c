@@ -23,14 +23,14 @@ _complete(Ephoto *ephoto, const char *title, const char *text)
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(box);
+   EPHOTO_FILL(box);
    evas_object_show(box);
 
    label = elm_label_add(box);
    elm_object_text_set(label, text);
-   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(label);
+   EPHOTO_FILL(label);
    elm_box_pack_end(box, label);
    evas_object_show(label);
 
@@ -72,14 +72,14 @@ _prompt(Ephoto *ephoto, const char *title, const char *text)
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_WEIGHT(box, 0.0, 0.0);
+   EPHOTO_FILL(box);
    evas_object_show(box);
 
    label = elm_label_add(box);
    elm_object_text_set(label, text);
-   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(label);
+   EPHOTO_FILL(label);
    elm_box_pack_end(box, label);
    evas_object_show(label);
 
@@ -188,20 +188,20 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_WEIGHT(box, 0.0, 0.0);
+   EPHOTO_FILL(box);
    evas_object_show(box);
 
    label = elm_label_add(box);
-   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(label);
+   EPHOTO_FILL(label);
    elm_box_pack_end(box, label);
    evas_object_show(label);
 
    hbox = elm_box_add(box);
    elm_box_horizontal_set(hbox, EINA_TRUE);
-   evas_object_size_hint_weight_set(hbox, EVAS_HINT_FILL, 0.0);
-   evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_WEIGHT(hbox, 0.0, 0.0);
+   EPHOTO_FILL(hbox);
    elm_box_pack_end(box, hbox);
    evas_object_show(hbox);
 
@@ -213,8 +213,8 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
    elm_entry_context_menu_disabled_set(entry, EINA_TRUE);
    elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF,
        ELM_SCROLLER_POLICY_OFF);
-   evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(entry);
+   EPHOTO_FILL(entry);
    evas_object_smart_callback_add(entry, "anchor,hover,opened",
        _upload_entry_anchor, entry);
    elm_box_pack_end(hbox, entry);
@@ -370,8 +370,8 @@ _new_dir(Ephoto *ephoto, const char *file)
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_WEIGHT(box, 0.0, 0.0);
+   EPHOTO_FILL(box);
    evas_object_show(box);
 
    entry = elm_entry_add(box);
@@ -382,8 +382,8 @@ _new_dir(Ephoto *ephoto, const char *file)
    elm_entry_select_all(entry);
    elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF,
        ELM_SCROLLER_POLICY_OFF);
-   evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(entry);
+   EPHOTO_FILL(entry);
    elm_box_pack_end(box, entry);
    evas_object_show(entry);
    evas_object_data_set(popup, "entry", entry);
@@ -489,8 +489,8 @@ _rename_file(Ephoto *ephoto, const char *file)
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_WEIGHT(box, 0.0, 0.0);
+   EPHOTO_FILL(box);
    evas_object_show(box);
 
    snprintf(buf, PATH_MAX, "%s", file);
@@ -505,8 +505,8 @@ _rename_file(Ephoto *ephoto, const char *file)
    elm_entry_select_all(entry);
    elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF,
        ELM_SCROLLER_POLICY_OFF);
-   evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(entry);
+   EPHOTO_FILL(entry);
    elm_box_pack_end(box, entry);
    evas_object_show(entry);
    evas_object_data_set(popup, "entry", entry);
@@ -550,20 +550,20 @@ _processing(Ephoto *ephoto, const char *title, const char *text)
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
-   evas_object_size_hint_weight_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_WEIGHT(box, 0.0, 0.0);
+   EPHOTO_FILL(box);
    evas_object_show(box);
 
    label = elm_label_add(box);
    elm_object_text_set(label, text);
-   evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(label, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(label);
+   EPHOTO_FILL(label);
    elm_box_pack_end(box, label);
    evas_object_show(label);
 
    pb = elm_progressbar_add(box);
-   evas_object_size_hint_weight_set(pb, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_align_set(pb, EVAS_HINT_FILL, 0.5);
+   EPHOTO_WEIGHT(pb, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_ALIGN(pb, 0.0, 0.5);
    elm_object_style_set(pb, "wheel");
    elm_progressbar_pulse_set(pb, EINA_TRUE);
    elm_box_pack_end(box, pb);
@@ -1217,13 +1217,13 @@ ephoto_file_save_image_as(Ephoto *ephoto, Ephoto_Entry *entry, Evas_Object *imag
    elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
 
    table = elm_table_add(popup);
-   evas_object_size_hint_weight_set(table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(table);
+   EPHOTO_FILL(table);
 
    rect = elm_box_add(popup);
    evas_object_size_hint_min_set(rect, 0, h / 1.5);
-   evas_object_size_hint_weight_set(rect, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_fill_set(rect, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(rect);
+   EPHOTO_FILL(rect);
    elm_table_pack(table, rect, 0, 0, 1, 1);
    evas_object_show(rect);
 
@@ -1234,8 +1234,8 @@ ephoto_file_save_image_as(Ephoto *ephoto, Ephoto_Entry *entry, Evas_Object *imag
    elm_fileselector_current_name_set(fsel, entry->basename);
    elm_fileselector_mime_types_filter_append(fsel, "image/*",
        _("Image Files"));
-   evas_object_size_hint_weight_set(fsel, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(fsel);
+   EPHOTO_FILL(fsel);
    evas_object_smart_callback_add(fsel, "done", _prompt_save_image_as_apply, popup);
    elm_table_pack(table, fsel, 0, 0, 1, 1);
    evas_object_show(fsel);

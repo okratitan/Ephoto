@@ -56,7 +56,6 @@ _menu_dismissed_cb(void *data, Evas_Object *obj,
 {
    Ephoto_Directory_Browser *db = data;
 
-   db->ephoto->menu_blocking = EINA_FALSE;
    evas_object_del(obj);
    elm_object_focus_set(db->main, EINA_TRUE);
 }
@@ -447,8 +446,8 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
    but = elm_button_add(db->leftbox);
    elm_object_text_set(but, _("Back"));
    elm_object_part_content_set(but, "icon", ic);
-   evas_object_size_hint_weight_set(but, EVAS_HINT_EXPAND, 0.0);
-   evas_object_size_hint_fill_set(but, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_WEIGHT(but, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_FILL(but);
    evas_object_smart_callback_add(but, "clicked", _trash_back, db);
    elm_box_pack_end(db->leftbox, but);
    evas_object_show(but);
@@ -456,9 +455,8 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
    db->fsel = elm_genlist_add(db->leftbox);
    elm_genlist_select_mode_set(db->fsel, ELM_OBJECT_SELECT_MODE_ALWAYS);
    elm_genlist_highlight_mode_set(db->fsel, EINA_TRUE);
-   evas_object_size_hint_weight_set(db->fsel, EVAS_HINT_EXPAND,
-       EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(db->fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(db->fsel);
+   EPHOTO_FILL(db->fsel);
    evas_object_smart_callback_add(db->fsel, "expand,request",
        _on_list_expand_req, db);
    evas_object_smart_callback_add(db->fsel, "contract,request",
@@ -614,8 +612,6 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    if (item)
      elm_genlist_item_selected_set(item, EINA_TRUE);
 
-   db->ephoto->menu_blocking = EINA_TRUE;
-
    menu = elm_menu_add(db->ephoto->win);
    elm_menu_move(menu, x, y);
 
@@ -658,24 +654,22 @@ _ephoto_directory_view_add(Ephoto_Directory_Browser *db)
    msg->count = 1;
    msg->val[0] = (int)round(220 * elm_config_scale_get());
    edje_object_message_send(elm_layout_edje_get(db->ephoto->layout),
-       EDJE_MESSAGE_INT_SET, 2, msg);
+       EDJE_MESSAGE_INT_SET, 1, msg);
 
    db->leftbox = elm_box_add(db->main);
    elm_box_horizontal_set(db->leftbox, EINA_FALSE);
    elm_box_homogeneous_set(db->leftbox, EINA_FALSE);
    elm_box_padding_set(db->leftbox, 0, -5);
-   evas_object_size_hint_weight_set(db->leftbox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(db->leftbox,
-       EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(db->leftbox);
+   EPHOTO_FILL(db->leftbox);
    elm_box_pack_end(db->main, db->leftbox);
    evas_object_show(db->leftbox);
 
    db->fsel = elm_genlist_add(db->leftbox);
    elm_genlist_select_mode_set(db->fsel, ELM_OBJECT_SELECT_MODE_ALWAYS);
    elm_genlist_highlight_mode_set(db->fsel, EINA_TRUE);
-   evas_object_size_hint_weight_set(db->fsel, EVAS_HINT_EXPAND,
-       EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(db->fsel, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   EPHOTO_EXPAND(db->fsel);
+   EPHOTO_FILL(db->fsel);
    evas_object_smart_callback_add(db->fsel, "expand,request",
        _on_list_expand_req, db);
    evas_object_smart_callback_add(db->fsel, "contract,request",
@@ -1330,12 +1324,10 @@ ephoto_directory_browser_add(Ephoto *ephoto, Evas_Object *parent)
    db->main = box;
 
    elm_box_horizontal_set(db->main, EINA_FALSE);
-   evas_object_size_hint_weight_set(db->main, EVAS_HINT_EXPAND,
-       EVAS_HINT_EXPAND);
-   evas_object_size_hint_align_set(db->main, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_event_callback_add(db->main, EVAS_CALLBACK_DEL,
        _ephoto_main_del, db);
    evas_object_size_hint_min_set(db->main, (int)round(195 * elm_config_scale_get()), 0);
+   evas_object_size_hint_max_set(db->main, (int)round(195 * elm_config_scale_get()), 99999);
    evas_object_data_set(db->main, "directory_browser", db);
 
    _ephoto_directory_view_add(db);
@@ -1361,7 +1353,7 @@ ephoto_directory_browser_add(Ephoto *ephoto, Evas_Object *parent)
 	   _ephoto_dir_entry_create, db));
 
    return db->main;
-
+ 
   error:
    evas_object_del(db->main);
    return NULL;

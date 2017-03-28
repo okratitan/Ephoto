@@ -2049,6 +2049,7 @@ _ephoto_main_back(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EIN
         evas_object_del(sb->event);
         sb->event = NULL;
      }
+   _close_editor(sb, NULL, NULL);
    evas_object_smart_callback_call(sb->main, "back", sb->entry);
 }
 

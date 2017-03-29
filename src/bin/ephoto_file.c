@@ -744,7 +744,11 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 	     int ret;
              struct stat s;
 
+#ifdef _WIN32
+             if (stat(file, &s))
+#else
              if (lstat(file, &s))
+#endif
                {
                   if (S_ISLNK(s.st_mode))
                     {

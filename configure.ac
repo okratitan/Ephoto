@@ -3,7 +3,7 @@ dnl Process this file with autoconf to produce a configure script.
 # get rid of that stupid cache mechanism
 rm -f config.cache
 
-AC_INIT([ephoto], [1.0-beta2], [enlightenment-devel@lists.sourceforge.net])
+AC_INIT([ephoto], [1.0-beta3], [enlightenment-devel@lists.sourceforge.net])
 
 AC_PREREQ([2.60])
 AC_CONFIG_SRCDIR([configure.ac])
@@ -53,18 +53,15 @@ fi
 
 AM_CONDITIONAL([HAVE_PO], [test "x${have_po}" = "xyes"])
 
-PKG_CHECK_MODULES([EFL], [
- eina >= 1.18.0
- evas >= 1.18.0
- ecore >= 1.18.0
- ecore-file >= 1.18.0
- ecore-ipc >= 1.18.0
- edje >= 1.18.0
- eo >= 1.18.0
- eio >= 1.18.0
- elementary >= 1.18.0
- efreet-mime >= 1.18.0
-])
+requirements="eina >= 1.18.0 evas >= 1.18.0 ecore >= 1.18.0 ecore-file >=
+1.18.0 ecore-ipc >= 1.18.0 edje >= 1.18.0 eo >= 1.18.0 eio >= 1.18.0
+elementary >= 1.18.0 efreet-mime >= 1.18.0"
+
+if test "x${have_win32}" = "xyes" ; then
+ requirements="${requirements} evil"
+fi
+
+PKG_CHECK_MODULES([EFL], [${requirements}])
 
 AC_CHECK_FUNCS([nice])
 

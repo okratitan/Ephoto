@@ -759,6 +759,10 @@ _add_icon(Evas_Object *parent, const char *icon, const char *label, Evas_Object 
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
    ret = elm_icon_standard_set(ic, icon);
+   if (!ret && !strcmp(icon, "view-list-details"))
+     ret = elm_image_file_set(ic, PACKAGE_DATA_DIR "/images/single.png", NULL);
+   else if (!ret && !strcmp(icon, "view-list-icons"))
+     ret = elm_image_file_set(ic, PACKAGE_DATA_DIR "/images/grid.png", NULL);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
 
    but = elm_button_add(parent);
@@ -824,7 +828,7 @@ ephoto_slideshow_show_controls(Ephoto *ephoto)
 
    ss->notify_box = elm_box_add(ss->notify);
    elm_box_horizontal_set(ss->notify_box, EINA_TRUE);
-   EPHOTO_WEIGHT(ss->notify, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(ss->notify, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    evas_object_event_callback_add(ss->notify_box, EVAS_CALLBACK_MOUSE_IN, _mouse_in,
        ss);
    evas_object_event_callback_add(ss->notify_box, EVAS_CALLBACK_MOUSE_OUT, _mouse_out,
@@ -833,9 +837,9 @@ ephoto_slideshow_show_controls(Ephoto *ephoto)
    evas_object_show(ss->notify_box);
 
    if (ephoto->prev_state == EPHOTO_STATE_SINGLE)
-     but = _add_icon(ss->notify_box, "view-list-icons", _("Back"), NULL);
-   else
      but = _add_icon(ss->notify_box, "view-list-details", _("Back"), NULL);
+   else
+     but = _add_icon(ss->notify_box, "view-list-icons", _("Back"), NULL);
    evas_object_smart_callback_add(but, "clicked", _back, ss);
    but = _add_icon(ss->notify_box, "go-first", _("First"), NULL);
    evas_object_smart_callback_add(but, "clicked", _first, ss);

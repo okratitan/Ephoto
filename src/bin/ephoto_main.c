@@ -98,8 +98,8 @@ _ephoto_single_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
 static void
 _ephoto_slideshow_show(Ephoto *ephoto, Ephoto_Entry *entry)
 {
+   _ephoto_state_set(ephoto, EPHOTO_STATE_SLIDESHOW);
    ephoto_slideshow_show_controls(ephoto);
-
    if (ephoto->selentries)
      ephoto_slideshow_entries_set(ephoto->slideshow, ephoto->selentries);
    else if (ephoto->searchentries)
@@ -111,7 +111,6 @@ _ephoto_slideshow_show(Ephoto *ephoto, Ephoto_Entry *entry)
    evas_object_hide(ephoto->single_browser);
    evas_object_hide(ephoto->thumb_browser);
    elm_object_focus_set(ephoto->slideshow, EINA_TRUE);
-   _ephoto_state_set(ephoto, EPHOTO_STATE_SLIDESHOW);
    elm_layout_signal_emit(ephoto->layout, "ephoto,folders,hide", "ephoto");
    elm_layout_signal_emit(ephoto->layout, "ephoto,statusbar,hide", "ephoto");
    evas_object_hide(ephoto->dir_browser);
@@ -244,6 +243,9 @@ _resize_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto *ephoto = data;
    Evas_Coord w, h;
+
+   if (elm_win_fullscreen_get(ephoto->win))
+     return;
 
    evas_object_geometry_get(ephoto->win, 0, 0, &w, &h);
    if (w && h)
@@ -446,7 +448,7 @@ ephoto_window_add(const char *path)
    evas_object_size_hint_min_set(ephoto->statusbar, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
    elm_box_horizontal_set(ephoto->statusbar, EINA_TRUE);
-   EPHOTO_WEIGHT(ephoto->statusbar, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(ephoto->statusbar, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_FILL(ephoto->statusbar);
    elm_layout_content_set(ephoto->layout, "ephoto.swallow.statusbar", ephoto->statusbar);
    evas_object_show(ephoto->statusbar);
@@ -470,7 +472,7 @@ ephoto_window_add(const char *path)
 
    ephoto->controls_left = elm_box_add(ephoto->statusbar);
    elm_box_horizontal_set(ephoto->controls_left, EINA_TRUE);
-   EPHOTO_WEIGHT(ephoto->controls_left, 0.0, 0.0);
+   EPHOTO_WEIGHT(ephoto->controls_left, EVAS_HINT_FILL, EVAS_HINT_FILL);
    EPHOTO_FILL(ephoto->controls_left);
    elm_box_pack_end(ephoto->statusbar, ephoto->controls_left);
    evas_object_show(ephoto->controls_left);
@@ -488,7 +490,7 @@ ephoto_window_add(const char *path)
 
    ephoto->controls_right = elm_box_add(ephoto->statusbar);
    elm_box_horizontal_set(ephoto->controls_right, EINA_TRUE);
-   EPHOTO_WEIGHT(ephoto->controls_right, 0.0, 0.0);
+   EPHOTO_WEIGHT(ephoto->controls_right, EVAS_HINT_FILL, EVAS_HINT_FILL);
    EPHOTO_FILL(ephoto->controls_right);
    elm_box_pack_end(ephoto->statusbar, ephoto->controls_right);
    evas_object_show(ephoto->controls_right);

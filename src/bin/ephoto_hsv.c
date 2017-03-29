@@ -370,7 +370,7 @@ ephoto_hsv_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Obje
    elm_slider_value_set(slider, 0);
    elm_slider_unit_format_set(slider, "%1.2f");
    elm_slider_indicator_format_set(slider, "%1.2f");
-   EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_ALIGN(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed", _value_slider_changed,
        ehsv);
@@ -385,7 +385,7 @@ ephoto_hsv_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Obje
    elm_slider_value_set(slider, 0);
    elm_slider_unit_format_set(slider, "%1.2f");
    elm_slider_indicator_format_set(slider, "%1.2f");
-   EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_ALIGN(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
        _saturation_slider_changed, ehsv);
@@ -400,7 +400,7 @@ ephoto_hsv_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Obje
    elm_slider_value_set(slider, 0);
    elm_slider_unit_format_set(slider, "%1.0f");
    elm_slider_indicator_format_set(slider, "%1.0f");
-   EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_ALIGN(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
        _hue_slider_changed, ehsv);

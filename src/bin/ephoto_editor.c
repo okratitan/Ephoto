@@ -58,7 +58,7 @@ ephoto_editor_add(Ephoto *ephoto, const char *title, const char *data_name,
    elm_object_text_set(button, _("Reset"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _editor_reset, box);
-   EPHOTO_WEIGHT(button, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(button, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_FILL(button);
    elm_box_pack_end(box, button);
    evas_object_show(button);
@@ -73,7 +73,7 @@ ephoto_editor_add(Ephoto *ephoto, const char *title, const char *data_name,
    elm_object_text_set(button, _("Apply"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _editor_apply, ephoto);
-   EPHOTO_WEIGHT(button, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(button, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_FILL(button);
    elm_box_pack_end(box, button);
    evas_object_show(button);
@@ -88,7 +88,7 @@ ephoto_editor_add(Ephoto *ephoto, const char *title, const char *data_name,
    elm_object_text_set(button, _("Cancel"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _editor_cancel, ephoto);
-   EPHOTO_WEIGHT(button, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(button, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_FILL(button);
    elm_box_pack_end(box, button);
    evas_object_show(button);

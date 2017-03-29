@@ -136,7 +136,7 @@ _processing(Evas_Object *main)
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
-   EPHOTO_WEIGHT(box, 0.0, 0.0);
+   EPHOTO_WEIGHT(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
    EPHOTO_FILL(box);
    evas_object_show(box);
 
@@ -149,8 +149,8 @@ _processing(Evas_Object *main)
    evas_object_show(label);
 
    pb = elm_progressbar_add(box);
-   EPHOTO_WEIGHT(pb, EVAS_HINT_EXPAND, 0.0);
-   EPHOTO_ALIGN(pb, 0.0, 0.5);
+   EPHOTO_WEIGHT(pb, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
+   EPHOTO_ALIGN(pb, EVAS_HINT_FILL, 0.5);
    elm_object_style_set(pb, "wheel");
    elm_progressbar_pulse_set(pb, EINA_TRUE);
    elm_box_pack_end(box, pb);

@@ -446,7 +446,7 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
    but = elm_button_add(db->leftbox);
    elm_object_text_set(but, _("Back"));
    elm_object_part_content_set(but, "icon", ic);
-   EPHOTO_WEIGHT(but, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(but, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_FILL(but);
    evas_object_smart_callback_add(but, "clicked", _trash_back, db);
    elm_box_pack_end(db->leftbox, but);

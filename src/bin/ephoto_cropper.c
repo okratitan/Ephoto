@@ -708,7 +708,7 @@ ephoto_cropper_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
    elm_slider_unit_format_set(ec->croph, "%1.0f");
    elm_slider_indicator_format_set(ec->croph, "%1.0f");
    elm_object_text_set(ec->croph, _("Height"));
-   EPHOTO_WEIGHT(ec->croph, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(ec->croph, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_ALIGN(ec->croph, EVAS_HINT_FILL, 0.5);
    elm_box_pack_start(ec->editor, ec->croph);
    evas_object_smart_callback_add(ec->croph, "slider,drag,stop",
@@ -721,7 +721,7 @@ ephoto_cropper_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
    elm_slider_unit_format_set(ec->cropw, "%1.0f");
    elm_slider_indicator_format_set(ec->cropw, "%1.0f");
    elm_object_text_set(ec->cropw, _("Width"));
-   EPHOTO_WEIGHT(ec->cropw, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(ec->cropw, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_ALIGN(ec->cropw, EVAS_HINT_FILL, 0.5);
    elm_box_pack_start(ec->editor, ec->cropw);
    evas_object_smart_callback_add(ec->cropw, "slider,drag,stop",

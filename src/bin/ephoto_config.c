@@ -80,7 +80,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
 
    check = elm_check_add(table);
    elm_object_text_set(check, _("Show Folders On Start"));
-   EPHOTO_ALIGN(check, 0.0, 0.5); 
+   EPHOTO_ALIGN(check, EVAS_HINT_FILL, 0.5); 
    elm_check_state_set(check, ephoto->config->folders);
    elm_table_pack(table, check, 0, 0, 1, 1);
    evas_object_show(check);
@@ -128,7 +128,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
        _open_hv_select, ephoto);
    elm_object_text_set(hoversel, ephoto->config->open);
    evas_object_data_set(hoversel, "ephoto", ephoto);
-   EPHOTO_WEIGHT(hoversel, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(hoversel, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_FILL(hoversel);
    elm_table_pack(table, hoversel, 0, 5, 1, 1);
    evas_object_show(hoversel);
@@ -370,7 +370,7 @@ _config_bindings(Evas_Object *parent)
    entry = elm_entry_add(scroller);
    elm_entry_editable_set(entry, EINA_FALSE);
    elm_entry_line_wrap_set(entry, ELM_WRAP_NONE);
-   EPHOTO_WEIGHT(entry, 0.0, 0.0);
+   EPHOTO_WEIGHT(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
    EPHOTO_FILL(entry);
    eina_strbuf_append_printf(sbuf,
        _("<b><hilight>General Bindings</hilight></b><br/>"
@@ -431,6 +431,7 @@ static Evas_Object *
 _config_about(Evas_Object *parent)
 {
    Evas_Object *frame, *box, *entry, *img, *lbl;
+   Evas_Object *scroller;
    Eina_Strbuf *sbuf = eina_strbuf_new();
    char ver[PATH_MAX];
    FILE *f;
@@ -441,11 +442,17 @@ _config_about(Evas_Object *parent)
    EPHOTO_FILL(frame);
    evas_object_show(frame);
 
+   scroller = elm_scroller_add(frame);
+   EPHOTO_EXPAND(scroller);
+   EPHOTO_FILL(scroller);
+   elm_object_content_set(frame, scroller);
+   evas_object_show(scroller);
+
    box = elm_box_add(frame);
    elm_box_horizontal_set(box, EINA_FALSE);
    EPHOTO_EXPAND(box);
    EPHOTO_FILL(box);
-   elm_object_content_set(frame, box);
+   elm_object_content_set(scroller, box);
    evas_object_show(box);
 
    img = elm_image_add(box);
@@ -471,11 +478,11 @@ _config_about(Evas_Object *parent)
    elm_entry_anchor_hover_parent_set(entry, parent);
    elm_entry_editable_set(entry, EINA_FALSE);
    elm_entry_context_menu_disabled_set(entry, EINA_TRUE);
-   elm_entry_line_wrap_set(entry, ELM_WRAP_NONE);
-   EPHOTO_WEIGHT(entry, 0.0, 0.0);
+   elm_entry_line_wrap_set(entry, ELM_WRAP_WORD);
+   EPHOTO_WEIGHT(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
    EPHOTO_FILL(entry);
    eina_strbuf_append_printf(sbuf,
-       _("Ephoto is a comprehensive image viewer based on the EFL. For more<br/>"
+       _("Ephoto is a comprehensive image viewer based on the EFL. For more"
 	   "information, please visit the Ephoto project page:<br/>"
            "<a href=http://www.smhouston.us/ephoto/>"
            "http://www.smhouston.us/ephoto/</a><br/><br/>"

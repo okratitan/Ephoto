@@ -72,7 +72,7 @@ _prompt(Ephoto *ephoto, const char *title, const char *text)
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
-   EPHOTO_WEIGHT(box, 0.0, 0.0);
+   EPHOTO_WEIGHT(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
    EPHOTO_FILL(box);
    evas_object_show(box);
 
@@ -188,7 +188,7 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
-   EPHOTO_WEIGHT(box, 0.0, 0.0);
+   EPHOTO_WEIGHT(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
    EPHOTO_FILL(box);
    evas_object_show(box);
 
@@ -200,7 +200,7 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
 
    hbox = elm_box_add(box);
    elm_box_horizontal_set(hbox, EINA_TRUE);
-   EPHOTO_WEIGHT(hbox, 0.0, 0.0);
+   EPHOTO_WEIGHT(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
    EPHOTO_FILL(hbox);
    elm_box_pack_end(box, hbox);
    evas_object_show(hbox);
@@ -370,7 +370,7 @@ _new_dir(Ephoto *ephoto, const char *file)
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
-   EPHOTO_WEIGHT(box, 0.0, 0.0);
+   EPHOTO_WEIGHT(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
    EPHOTO_FILL(box);
    evas_object_show(box);
 
@@ -489,7 +489,7 @@ _rename_file(Ephoto *ephoto, const char *file)
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
-   EPHOTO_WEIGHT(box, 0.0, 0.0);
+   EPHOTO_WEIGHT(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
    EPHOTO_FILL(box);
    evas_object_show(box);
 
@@ -550,7 +550,7 @@ _processing(Ephoto *ephoto, const char *title, const char *text)
 
    box = elm_box_add(popup);
    elm_box_horizontal_set(box, EINA_FALSE);
-   EPHOTO_WEIGHT(box, 0.0, 0.0);
+   EPHOTO_WEIGHT(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
    EPHOTO_FILL(box);
    evas_object_show(box);
 
@@ -562,8 +562,8 @@ _processing(Ephoto *ephoto, const char *title, const char *text)
    evas_object_show(label);
 
    pb = elm_progressbar_add(box);
-   EPHOTO_WEIGHT(pb, EVAS_HINT_EXPAND, 0.0);
-   EPHOTO_ALIGN(pb, 0.0, 0.5);
+   EPHOTO_WEIGHT(pb, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
+   EPHOTO_ALIGN(pb, EVAS_HINT_FILL, 0.5);
    elm_object_style_set(pb, "wheel");
    elm_progressbar_pulse_set(pb, EINA_TRUE);
    elm_box_pack_end(box, pb);

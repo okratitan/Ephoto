@@ -221,7 +221,7 @@ ephoto_scale_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
 
    es->aspect = elm_check_add(es->editor);
    elm_object_text_set(es->aspect, _("Keep Aspect"));
-   EPHOTO_ALIGN(es->aspect, 0.5, 0.0);
+   EPHOTO_ALIGN(es->aspect, 0.5, EVAS_HINT_FILL);
    elm_check_state_set(es->aspect, EINA_TRUE);
    elm_box_pack_start(es->editor, es->aspect);
    evas_object_show(es->aspect);
@@ -233,7 +233,7 @@ ephoto_scale_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
    elm_spinner_wrap_set(es->scaleh, EINA_FALSE);
    elm_spinner_min_max_set(es->scaleh, 1, 99999);
    elm_spinner_value_set(es->scaleh, es->h);
-   EPHOTO_WEIGHT(es->scaleh, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(es->scaleh, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_ALIGN(es->scaleh, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(es->scaleh, "changed",
                                   _scale_height_changed, es);
@@ -247,7 +247,7 @@ ephoto_scale_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
    elm_spinner_wrap_set(es->scalew, EINA_FALSE);
    elm_spinner_min_max_set(es->scalew, 1, 99999);
    elm_spinner_value_set(es->scalew, es->w);
-   EPHOTO_WEIGHT(es->scalew, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(es->scalew, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_ALIGN(es->scalew, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(es->scalew, "changed",
                                   _scale_width_changed, es);

@@ -1192,7 +1192,7 @@ _ephoto_thumb_search_go(void *data, Evas_Object *obj EINA_UNUSED,
    tb->grid = elm_gengrid_add(tb->gridbox);
    EPHOTO_EXPAND(tb->grid);
    EPHOTO_FILL(tb->grid);
-   elm_gengrid_align_set(tb->grid, 0.5, 0.0);
+   elm_gengrid_align_set(tb->grid, 0.5, EVAS_HINT_FILL);
    elm_gengrid_multi_select_set(tb->grid, EINA_TRUE);
    elm_gengrid_multi_select_mode_set(tb->grid,
        ELM_OBJECT_MULTI_SELECT_MODE_DEFAULT);
@@ -1338,7 +1338,7 @@ _ephoto_thumb_search_start(void *data, Evas_Object *obj EINA_UNUSED,
      }
    hbox = elm_box_add(tb->gridbox);
    elm_box_horizontal_set(hbox, EINA_TRUE);
-   EPHOTO_WEIGHT(hbox, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(hbox, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_FILL(hbox);
    elm_box_pack_start(tb->gridbox, hbox);
    evas_object_show(hbox);
@@ -1349,7 +1349,7 @@ _ephoto_thumb_search_start(void *data, Evas_Object *obj EINA_UNUSED,
    elm_object_part_text_set(search, "guide", _("Search"));
    elm_scroller_policy_set(search, ELM_SCROLLER_POLICY_OFF,
        ELM_SCROLLER_POLICY_OFF);
-   EPHOTO_WEIGHT(hbox, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_WEIGHT(hbox, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_FILL(hbox);
    evas_object_data_set(search, "thumb_browser", tb);
    evas_object_data_set(search, "parent", hbox);
@@ -1394,7 +1394,7 @@ _ephoto_thumb_view_add(Ephoto_Thumb_Browser *tb)
    tb->grid = elm_gengrid_add(tb->gridbox);
    EPHOTO_EXPAND(tb->grid);
    EPHOTO_FILL(tb->grid);
-   elm_gengrid_align_set(tb->grid, 0.5, 0.0);
+   elm_gengrid_align_set(tb->grid, 0.5, EVAS_HINT_FILL);
    elm_gengrid_multi_select_set(tb->grid, EINA_TRUE);
    elm_gengrid_multi_select_mode_set(tb->grid,
        ELM_OBJECT_MULTI_SELECT_MODE_DEFAULT);

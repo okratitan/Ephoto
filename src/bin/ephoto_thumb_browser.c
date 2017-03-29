@@ -1349,8 +1349,8 @@ _ephoto_thumb_search_start(void *data, Evas_Object *obj EINA_UNUSED,
    elm_object_part_text_set(search, "guide", _("Search"));
    elm_scroller_policy_set(search, ELM_SCROLLER_POLICY_OFF,
        ELM_SCROLLER_POLICY_OFF);
-   EPHOTO_WEIGHT(hbox, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
-   EPHOTO_FILL(hbox);
+   EPHOTO_WEIGHT(search, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
+   EPHOTO_FILL(search);
    evas_object_data_set(search, "thumb_browser", tb);
    evas_object_data_set(search, "parent", hbox);
    evas_object_smart_callback_add(search, "activated",

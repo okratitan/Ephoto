@@ -712,6 +712,9 @@ _key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    Evas_Event_Key_Down *ev = event_info;
    const char *k = ev->keyname;
 
+   if (ss->ephoto->state != EPHOTO_STATE_SLIDESHOW)
+     return;
+
    if (!strcmp(k, "Escape") || !strcmp(k, "F5"))
      {
 	_back(ss, NULL, NULL);

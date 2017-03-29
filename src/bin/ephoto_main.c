@@ -35,7 +35,9 @@ _ephoto_state_set(Ephoto *ephoto, Ephoto_State state)
 static void
 _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
 {
-   elm_naviframe_item_promote(ephoto->tb);
+   evas_object_hide(ephoto->slideshow);
+   evas_object_hide(ephoto->single_browser);
+   evas_object_show(ephoto->thumb_browser);
    elm_object_focus_set(ephoto->thumb_browser, EINA_TRUE);
    _ephoto_state_set(ephoto, EPHOTO_STATE_THUMB);
    ephoto_title_set(ephoto, ephoto->config->directory);
@@ -79,7 +81,9 @@ _ephoto_single_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
          ephoto->entries);
 
    ephoto_single_browser_entry_set(ephoto->single_browser, entry);
-   elm_naviframe_item_simple_promote(ephoto->pager, ephoto->single_browser);
+   evas_object_hide(ephoto->slideshow);
+   evas_object_show(ephoto->single_browser);
+   evas_object_hide(ephoto->thumb_browser);
    elm_object_focus_set(ephoto->single_browser, EINA_TRUE);
    _ephoto_state_set(ephoto, EPHOTO_STATE_SINGLE);
    evas_object_show(ephoto->statusbar);
@@ -103,7 +107,9 @@ _ephoto_slideshow_show(Ephoto *ephoto, Ephoto_Entry *entry)
    else
      ephoto_slideshow_entries_set(ephoto->slideshow, ephoto->entries);
    ephoto_slideshow_entry_set(ephoto->slideshow, entry);
-   elm_naviframe_item_simple_promote(ephoto->pager, ephoto->slideshow);
+   evas_object_show(ephoto->slideshow);
+   evas_object_hide(ephoto->single_browser);
+   evas_object_hide(ephoto->thumb_browser);
    elm_object_focus_set(ephoto->slideshow, EINA_TRUE);
    _ephoto_state_set(ephoto, EPHOTO_STATE_SLIDESHOW);
    elm_layout_signal_emit(ephoto->layout, "ephoto,folders,hide", "ephoto");
@@ -389,8 +395,7 @@ ephoto_window_add(const char *path)
    elm_table_pack(ephoto->main, ephoto->layout, 0, 1, 1, 2);
    evas_object_show(ephoto->layout);
 
-   ephoto->pager = elm_naviframe_add(ephoto->layout);
-   elm_naviframe_prev_btn_auto_pushed_set(ephoto->pager, EINA_FALSE);
+   ephoto->pager = elm_table_add(ephoto->layout);
    EPHOTO_EXPAND(ephoto->pager);
    EPHOTO_FILL(ephoto->pager);
    elm_layout_content_set(ephoto->layout, "ephoto.swallow.main", ephoto->pager);
@@ -402,10 +407,7 @@ ephoto_window_add(const char *path)
 	evas_object_del(ephoto->win);
 	return NULL;
      }
-   ephoto->tb =
-       elm_naviframe_item_push(ephoto->pager, NULL, NULL, NULL,
-       ephoto->thumb_browser, "overlap");
-   elm_naviframe_item_title_enabled_set(ephoto->tb, EINA_FALSE, EINA_FALSE);
+   elm_table_pack(ephoto->pager, ephoto->thumb_browser, 0, 0, 1, 1);
    evas_object_smart_callback_add(ephoto->thumb_browser, "view",
        _ephoto_thumb_browser_view, ephoto);
    evas_object_smart_callback_add(ephoto->thumb_browser, "changed,directory",
@@ -419,10 +421,7 @@ ephoto_window_add(const char *path)
 	evas_object_del(ephoto->win);
 	return NULL;
      }
-   ephoto->sb =
-       elm_naviframe_item_insert_after(ephoto->pager, ephoto->tb, NULL, NULL,
-       NULL, ephoto->single_browser, "overlap");
-   elm_naviframe_item_title_enabled_set(ephoto->sb, EINA_FALSE, EINA_FALSE);
+   elm_table_pack(ephoto->pager, ephoto->single_browser, 0, 0, 1, 1);
    evas_object_smart_callback_add(ephoto->single_browser, "back",
        _ephoto_single_browser_back, ephoto);
    evas_object_smart_callback_add(ephoto->single_browser, "slideshow",
@@ -433,10 +432,7 @@ ephoto_window_add(const char *path)
 	evas_object_del(ephoto->win);
 	return NULL;
      }
-   ephoto->sl =
-       elm_naviframe_item_insert_after(ephoto->pager, ephoto->sb, NULL, NULL,
-       NULL, ephoto->slideshow, "overlap");
-   elm_naviframe_item_title_enabled_set(ephoto->sl, EINA_FALSE, EINA_FALSE);
+   elm_table_pack(ephoto->pager, ephoto->slideshow, 0, 0, 1, 1);
    evas_object_smart_callback_add(ephoto->slideshow, "back",
        _ephoto_slideshow_back, ephoto);
 
@@ -583,8 +579,9 @@ ephoto_window_add(const char *path)
         free(realpath);
 	free(dir);
         ephoto_single_browser_path_pending_set(ephoto->single_browser, path);
-	elm_naviframe_item_simple_promote(ephoto->pager,
-	    ephoto->single_browser);
+        evas_object_hide(ephoto->thumb_browser);
+        evas_object_hide(ephoto->slideshow);
+        evas_object_show(ephoto->single_browser);
         ephoto_single_browser_show_controls(ephoto);
 	ephoto->state = EPHOTO_STATE_SINGLE;
      }

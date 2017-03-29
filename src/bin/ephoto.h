@@ -258,9 +258,6 @@ struct _Ephoto
    Evas_Object *dir_browser;
    Evas_Object *right_menu;
    Evas_Object *file_popup;
-   Elm_Object_Item *tb;
-   Elm_Object_Item *sb;
-   Elm_Object_Item *sl;
 
    Eina_Bool folders_toggle;
    Eina_List *entries;

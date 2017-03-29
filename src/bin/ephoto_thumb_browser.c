@@ -1669,6 +1669,9 @@ _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNU
        eina_list_clone(elm_gengrid_selected_items_get(tb->grid));
    const char *k = ev->keyname;
 
+   if (tb->ephoto->state != EPHOTO_STATE_THUMB)
+     return;
+
    if (ctrl)
      {
         if ((!strcasecmp(k, "plus")) || (!strcasecmp(k, "equal")))

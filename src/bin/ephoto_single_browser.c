@@ -1897,6 +1897,9 @@ _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNU
    Eina_Bool shift = evas_key_modifier_is_set(ev->modifiers, "Shift");
    const char *k = ev->keyname;
 
+   if (sb->ephoto->state != EPHOTO_STATE_SINGLE)
+     return;
+
    if (ctrl)
      {
 	if ((!strcmp(k, "plus")) || (!strcmp(k, "equal")))

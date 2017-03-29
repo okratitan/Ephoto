@@ -19,7 +19,7 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
    if (!strcmp(text, _("Root Directory")))
       path = "/";
    else if (!strcmp(text, _("Home Directory")))
-      path = getenv("HOME");
+      path = eina_environment_home_get();
    else if (!strcmp(text, _("Last Open Directory")))
       path = "Last";
    else
@@ -778,7 +778,7 @@ ephoto_config_init(Ephoto *ephoto)
 	  ephoto->config->window_height = 500*elm_config_scale_get();
 	  ephoto->config->fsel_hide = 0;
           ephoto->config->lpane_size = .15;
-	  ephoto->config->open = eina_stringshare_add(getenv("HOME"));
+	  ephoto->config->open = eina_stringshare_add(eina_environment_home_get());
 	  ephoto->config->prompts = 1;
 	  ephoto->config->drop = 0;
           ephoto->config->movess = 1;

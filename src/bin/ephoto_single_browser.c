@@ -2084,7 +2084,7 @@ _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    if (sb->edit_main)
      evas_object_del(sb->edit_main);
    sb->edit_main = NULL;
-   snprintf(tmp_path, PATH_MAX, "%s/.config/ephoto/", getenv("HOME"));
+   snprintf(tmp_path, PATH_MAX, "%s/.config/ephoto/", eina_environment_home_get());
    tmps = eina_file_stat_ls(tmp_path);
    EINA_ITERATOR_FOREACH(tmps, info)
    {

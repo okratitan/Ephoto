@@ -561,7 +561,7 @@ ephoto_window_add(const char *path)
 	     if (getcwd(buf, sizeof(buf)))
 		path = buf;
 	     else
-		path = getenv("HOME");
+		path = eina_environment_home_get();
 	  }
      }
 

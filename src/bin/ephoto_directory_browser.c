@@ -473,7 +473,7 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
 
    eina_stringshare_replace(&db->back_directory,
        db->ephoto->config->directory);
-   snprintf(path, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
+   snprintf(path, PATH_MAX, "%s/.config/ephoto/trash", eina_environment_home_get());
    if (!ecore_file_exists(path))
       ecore_file_mkpath(path);
    db->thumbs_only = 0;
@@ -607,7 +607,7 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    if (info->button != 3)
       return;
 
-   snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
+   snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", eina_environment_home_get());
 
    if (item)
      elm_genlist_item_selected_set(item, EINA_TRUE);

@@ -728,7 +728,7 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
    const char *file;
    char destination[PATH_MAX];
 
-   snprintf(destination, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
+   snprintf(destination, PATH_MAX, "%s/.config/ephoto/trash", eina_environment_home_get());
    if (!ecore_file_exists(destination))
       ecore_file_mkpath(destination);
 
@@ -743,11 +743,10 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 	     char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
 	     int ret;
              struct stat s;
-
 #ifdef _WIN32
-             if (stat(file, &s))
+             if (stat(file, &s) == 0)
 #else
-             if (lstat(file, &s))
+             if (lstat(file, &s) == 0)
 #endif
                {
                   if (S_ISLNK(s.st_mode))
@@ -808,7 +807,7 @@ _delete_dir_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
    const char *dir = eina_list_data_get(ephoto->file_pos);
    char destination[PATH_MAX];
 
-   snprintf(destination, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
+   snprintf(destination, PATH_MAX, "%s/.config/ephoto/trash", eina_environment_home_get());
 
    if (!ecore_file_exists(destination))
       ecore_file_mkpath(destination);
@@ -868,7 +867,7 @@ _empty_trash_thread_cb(void *data, Ecore_Thread *th EINA_UNUSED)
    const char *file;
    char trash[PATH_MAX];
 
-   snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
+   snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", eina_environment_home_get());
 
    if (!ephoto->file_pos)
       ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);

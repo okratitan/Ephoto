@@ -945,7 +945,7 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
           return;
      }
 
-   snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", getenv("HOME"));
+   snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", eina_environment_home_get());
 
    if (item)
      {
@@ -1724,7 +1724,7 @@ _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNU
              char *trash;
 
              snprintf(path, PATH_MAX, "%s/.config/ephoto/trash",
-                 getenv("HOME"));
+                 eina_environment_home_get());
              trash = strdup(path);
              if ((strlen(trash)) == (strlen(tb->ephoto->config->directory)))
                {

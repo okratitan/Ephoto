@@ -18,42 +18,20 @@ int
 e_ipc_init(void)
 {
    char buf[4096], buf3[4096];
-   const char *tmp, *user, *base;
+   const char *tmp, *user, *base = NULL;
    int pid, trynum = 0, id1 = 0;
 
    tmp = eina_environment_tmp_get();
-   if (!tmp) tmp = "/tmp";
-   base = tmp;
+   if (ecore_file_is_dir(tmp) && ecore_file_can_write(tmp))
+     base = tmp;
+   else
+     ERR("Temp dir could not be accessed");
 
-   tmp = getenv("XDG_RUNTIME_DIR");
-   if (tmp)
-     {
-        if (ecore_file_exists(tmp))
-          {
-             if (ecore_file_is_dir(tmp) && ecore_file_can_write(tmp))
-               base = tmp;
-             else
-               ERR("XDG_RUNTIME_DIR of '%s' failed permissions check", tmp);
-          }
-        else
-          ERR("XDG_RUNTIME_DIR of '%s' cannot be accessed", tmp);
-     }
-
-   tmp = getenv("SD_USER_SOCKETS_DIR");
-   if (tmp)
-     {
-        if (ecore_file_exists(tmp))
-          {
-             if (ecore_file_is_dir(tmp) && ecore_file_can_write(tmp))
-               base = tmp;
-             else
-               ERR("SD_USER_SOCKETS_DIR of '%s' failed permissions check", tmp);
-          }
-        else
-          ERR("SD_USER_SOCKETS_DIR of '%s' cannot be accessed", tmp);
-     }
-
+#ifdef _WIN32
+   user = getenv("USERNAME");
+#else
    user = getenv("USER");
+#endif
 
    setenv("EPHOTO_IPC_SOCKET", "", 1);
 

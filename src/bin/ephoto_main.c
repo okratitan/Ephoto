@@ -237,7 +237,9 @@ _win_free(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
         EINA_LIST_FREE(ephoto->monitor_handlers, handler)
           ecore_event_handler_del(handler);
      }
+   ephoto_entries_free(ephoto);
    ephoto_config_save(ephoto);
+   free(ephoto->config);
    free(ephoto);
 }
 
@@ -744,13 +746,14 @@ _ephoto_populate_filter(void *data, Eio_File *handler EINA_UNUSED,
      }
    else if (info->type == EINA_FILE_LNK && ecore_file_is_dir((const char *)realpath))
      {
+        Eina_Bool _is_dir = ecore_file_is_dir(realpath);
         if (ed->thumbs_only)
           {
              free(realpath);
              return EINA_FALSE;
           }
         free(realpath);
-        return ecore_file_is_dir(ecore_file_realpath(info->path));
+        return _is_dir;
      }
    else if (!ed->dirs_only)
      {
@@ -820,9 +823,12 @@ _monitor_cb(void *data, int type,
    Ephoto *ephoto = data;
    Eio_Monitor_Event *ev = event;
    char file[PATH_MAX], dir[PATH_MAX];
+   char *freedir;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
+   freedir = ecore_file_dir_get(file);
+   snprintf(dir, PATH_MAX, "%s", freedir);
+   if (freedir) free(freedir);
 
    if (!type)
      return ECORE_CALLBACK_PASS_ON;

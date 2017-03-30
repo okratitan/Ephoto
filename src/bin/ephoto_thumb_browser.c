@@ -1282,6 +1282,7 @@ _ephoto_thumb_search_cancel(void *data, Evas_Object *obj EINA_UNUSED,
    Evas_Object *hbox = evas_object_data_get(search, "parent");
    Ephoto_Thumb_Browser *tb = evas_object_data_get(search, "thumb_browser");
 
+   elm_drag_item_container_del(tb->grid);
    tb->entries = tb->ephoto->entries;
    if (eina_list_count(tb->ephoto->searchentries))
       eina_list_free(tb->ephoto->searchentries);
@@ -1841,6 +1842,8 @@ _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    Ecore_Event_Handler *handler;
 
    _todo_items_free(tb);
+   elm_drop_item_container_del(tb->grid);
+   elm_drag_item_container_del(tb->grid);
    EINA_LIST_FREE(tb->handlers, handler) ecore_event_handler_del(handler);
    if (tb->animator.todo_items)
      {

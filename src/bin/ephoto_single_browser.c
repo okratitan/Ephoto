@@ -74,6 +74,11 @@ static void _ephoto_main_del(void *data, Evas *e EINA_UNUSED,
 static void _next_entry(Ephoto_Single_Browser *sb);
 static void _orient_apply(Ephoto_Single_Browser *sb);
 
+/*Vewer Callbacks*/
+static double _viewer_zoom_get(Evas_Object *obj);
+static void _viewer_zoom_set(Evas_Object *obj, double zoom);
+static void _viewer_zoom_fit(Evas_Object *obj);
+
 /*Common*/
 static const char *
 _ephoto_get_edje_group(const char  *path)
@@ -303,19 +308,11 @@ _monitor_cb(void *data, int type,
    Ephoto_Single_Browser *sb = data;
    Ephoto_Viewer *v = evas_object_data_get(sb->viewer, "viewer");
 
-   if (eina_list_count(sb->history))
+   if (eina_list_count(sb->history) > 1)
      return ECORE_CALLBACK_PASS_ON;
    if (type == EIO_MONITOR_FILE_MODIFIED)
      {
-        if (!ecore_file_exists(sb->entry->path))
-          {
-             if (eina_list_count(sb->entries) > 1)
-               _next_entry(sb);
-             else
-               _ephoto_main_back(sb, NULL, NULL);
-             ephoto_entry_free(sb->ephoto, sb->entry);
-          }
-        else
+        if (ecore_file_exists(sb->entry->path))
           {
              Evas_Object *tmp;
              Evas_Coord w, h;
@@ -328,12 +325,21 @@ _monitor_cb(void *data, int type,
 
              if (w > 0 && h > 0)
                {
-                  evas_object_hide(v->image);
-                  evas_object_image_file_set(v->image, sb->entry->path, group);
-                  evas_object_show(v->image);
+                  Eina_Bool fit = v->fit;
+                  double zoom = _viewer_zoom_get(sb->viewer);
+
+                  _ephoto_single_browser_recalc(sb);
+                  if (fit)
+                    _viewer_zoom_fit(sb->viewer);
+                  else
+                    _viewer_zoom_set(sb->viewer, zoom);
                }
           }
      }
+   else if (type == EIO_MONITOR_FILE_DELETED)
+     {
+        _ephoto_main_back(sb, NULL, NULL);
+     }      
    return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -2091,6 +2097,7 @@ _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
       if (!strncmp(bname, "tmp", 3))
 	 ecore_file_unlink(info->path);
    }
+   eina_iterator_free(tmps);
    if (sb->history)
      {
         EINA_LIST_FREE(sb->history, eh)

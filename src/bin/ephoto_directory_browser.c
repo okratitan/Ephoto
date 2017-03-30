@@ -740,12 +740,16 @@ _monitor_cb(void *data, int type,
    char file[PATH_MAX], dir[PATH_MAX];
    const Elm_Genlist_Item_Class *ic;
    char buf[PATH_MAX];
+   char *freedir;
 
    if (!entry)
      return ECORE_CALLBACK_PASS_ON;
 
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
+   freedir = ecore_file_dir_get(file);
+   snprintf(dir, PATH_MAX, "%s", freedir);
+   if (freedir) free(freedir);
+
    if (strcmp(entry->path, dir))
      return ECORE_CALLBACK_PASS_ON;
    if (type == EIO_MONITOR_DIRECTORY_CREATED || type == EIO_MONITOR_FILE_CREATED)
@@ -879,11 +883,14 @@ _top_monitor_cb(void *data, int type,
    Eio_Monitor_Event *ev = event;
    const Elm_Genlist_Item_Class *ic;
    char buf[PATH_MAX], file[PATH_MAX], dir[PATH_MAX];
+   char *freedir;
 
    if (!db)
      return ECORE_CALLBACK_PASS_ON;
    snprintf(file, PATH_MAX, "%s", ev->filename);
-   snprintf(dir, PATH_MAX, "%s", ecore_file_dir_get(file));
+   freedir = ecore_file_dir_get(file);
+   snprintf(dir, PATH_MAX, "%s", freedir);
+   if (freedir) free(freedir);
 
    if (strcmp(db->ephoto->top_directory, dir))
      return ECORE_CALLBACK_PASS_ON;
@@ -1095,6 +1102,7 @@ _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    Ecore_Event_Handler *handler;
 
    _todo_items_free(db);
+   elm_drop_item_container_del(db->fsel);
    EINA_LIST_FREE(db->handlers, handler) ecore_event_handler_del(handler);
    if (db->animator.todo_items)
      {

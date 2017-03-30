@@ -114,19 +114,20 @@ main(int argc,
 static int
 _e_ipc_init(void)
 {
-   char *sdir;
-
-   sdir = getenv("EPHOTO_IPC_SOCKET");
-   if (!sdir)
+   const char *port_str = getenv("EPHOTO_IPC_PORT");
+   int port;
+   if ((!port_str) || ((port = atoi(port_str)) == 0))
      {
-        printf("The EPHOTO_IPC_SOCKET environment variable is not set. This is\n"
-               "exported by Enlightenment to all processes it launches.\n"
-               "This environment variable must be set and must point to\n"
-               "Enlightenment's IPC socket file (minus port number).\n");
+        printf("Error: could not query Ephoto IPC port=%s\n", port_str);
         return 0;
      }
-   _e_ipc_server = ecore_ipc_server_connect(ECORE_IPC_LOCAL_SYSTEM, sdir, 0, NULL);
-   if (!_e_ipc_server) return 0;
+   _e_ipc_server = ecore_ipc_server_connect
+     (ECORE_IPC_LOCAL_SYSTEM, "ephoto", port, NULL);
+   if (!_e_ipc_server)
+     {
+        printf("Error: could not connect to Ephoto IPC port=%d\n", port);
+        return 0;
+     }
 
    ecore_event_handler_add(ECORE_IPC_EVENT_SERVER_ADD, _e_ipc_cb_server_add, NULL);
    ecore_event_handler_add(ECORE_IPC_EVENT_SERVER_DEL, _e_ipc_cb_server_del, NULL);

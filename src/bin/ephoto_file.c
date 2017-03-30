@@ -726,11 +726,9 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 {
    Ephoto *ephoto = data;
    const char *file;
-   char destination[PATH_MAX];
 
-   snprintf(destination, PATH_MAX, "%s/.config/ephoto/trash", eina_environment_home_get());
-   if (!ecore_file_exists(destination))
-      ecore_file_mkpath(destination);
+   if (!ecore_file_exists(ephoto->trash_path))
+      ecore_file_mkpath(ephoto->trash_path);
 
    if (!ephoto->file_pos)
       ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);
@@ -738,7 +736,7 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
      {
 	if (!file)
 	   break;
-	if (ecore_file_exists(file) && ecore_file_is_dir(destination))
+	if (ecore_file_exists(file) && ecore_file_is_dir(ephoto->trash_path))
 	  {
 	     char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
 	     int ret;
@@ -756,10 +754,10 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
                   else
                     {
 	               snprintf(fp, PATH_MAX, "%s", file);
-	               snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
+	               snprintf(dest, PATH_MAX, "%s/%s", ephoto->trash_path, basename(fp));
 	               if (ecore_file_exists(dest))
 	                 {
-		            snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
+		            snprintf(extra, PATH_MAX, "%s/CopyOf%s", ephoto->trash_path,
 		                basename(fp));
 		            if (ecore_file_exists(extra))
 		              {
@@ -769,7 +767,7 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 			           {
 			              memset(extra, 0, sizeof(extra));
 			              snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
-				          destination, count, basename(fp));
+				          ephoto->trash_path, count, basename(fp));
 			           }
 		              }
                             ret = ecore_file_mv(file, extra);
@@ -805,12 +803,9 @@ _delete_dir_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
 {
    Ephoto *ephoto = data;
    const char *dir = eina_list_data_get(ephoto->file_pos);
-   char destination[PATH_MAX];
 
-   snprintf(destination, PATH_MAX, "%s/.config/ephoto/trash", eina_environment_home_get());
-
-   if (!ecore_file_exists(destination))
-      ecore_file_mkpath(destination);
+   if (!ecore_file_exists(ephoto->trash_path))
+      ecore_file_mkpath(ephoto->trash_path);
 
    if (dir)
      {
@@ -818,12 +813,12 @@ _delete_dir_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
         int ret;
 
         snprintf(fp, PATH_MAX, "%s", dir);
-        snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
-        if (ecore_file_exists(dir) && ecore_file_is_dir(destination))
+        snprintf(dest, PATH_MAX, "%s/%s", ephoto->trash_path, basename(fp));
+        if (ecore_file_exists(dir) && ecore_file_is_dir(ephoto->trash_path))
           {
              if (ecore_file_exists(dest))
                {
-                  snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
+                  snprintf(extra, PATH_MAX, "%s/CopyOf%s", ephoto->trash_path,
                       basename(fp));
                   if (ecore_file_exists(extra))
                     {
@@ -832,7 +827,7 @@ _delete_dir_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
                          {
                             memset(extra, 0, sizeof(extra));
                             snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
-                                destination, count, basename(fp));
+                                ephoto->trash_path, count, basename(fp));
                          }
                      }
                   ret = ecore_file_mv(dir, extra);
@@ -865,9 +860,6 @@ _empty_trash_thread_cb(void *data, Ecore_Thread *th EINA_UNUSED)
 {
    Ephoto *ephoto = data;
    const char *file;
-   char trash[PATH_MAX];
-
-   snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", eina_environment_home_get());
 
    if (!ephoto->file_pos)
       ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);

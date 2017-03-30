@@ -2070,7 +2070,6 @@ static void
 _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
-   char tmp_path[PATH_MAX];
    Ephoto_Single_Browser *sb = data;
    Ecore_Event_Handler *handler;
    Eina_Iterator *tmps;
@@ -2084,8 +2083,7 @@ _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    if (sb->edit_main)
      evas_object_del(sb->edit_main);
    sb->edit_main = NULL;
-   snprintf(tmp_path, PATH_MAX, "%s/.config/ephoto/", eina_environment_home_get());
-   tmps = eina_file_stat_ls(tmp_path);
+   tmps = eina_file_stat_ls(sb->ephoto->config_path);
    EINA_ITERATOR_FOREACH(tmps, info)
    {
       const char *bname = info->path + info->name_start;

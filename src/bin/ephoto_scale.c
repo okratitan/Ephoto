@@ -195,7 +195,7 @@ ephoto_scale_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
    es->parent = parent;
    es->image = image;
 
-   snprintf(buf, PATH_MAX, "%s/.config/ephoto/temp.%s", eina_environment_home_get(),
+   snprintf(buf, PATH_MAX, "%s/temp.%s", ephoto->config_path,
        strrchr(file, '.')+1);
    es->tmp_file = eina_stringshare_add(buf);
    if (ecore_file_exists(es->tmp_file))

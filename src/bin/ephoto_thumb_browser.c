@@ -864,7 +864,6 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    Eina_Bool ctrl = evas_key_modifier_is_set(info->modifiers, "Control");
    Eina_Bool shift = evas_key_modifier_is_set(info->modifiers, "Shift");
    Eina_Bool clear_selection = EINA_FALSE;
-   char trash[PATH_MAX];
    const Eina_List *selected = elm_gengrid_selected_items_get(tb->grid);
    int x, y;
 
@@ -945,8 +944,6 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
           return;
      }
 
-   snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", eina_environment_home_get());
-
    if (item)
      {
         elm_gengrid_item_selected_set(item, EINA_TRUE);
@@ -989,7 +986,7 @@ _grid_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
      }
    if (elm_gengrid_first_item_get(tb->grid))
      {
-        if (!strcmp(tb->ephoto->config->directory, trash))
+        if (!strcmp(tb->ephoto->config->directory, tb->ephoto->trash_path))
           {
 	     elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
                  _menu_empty_cb, tb);
@@ -1720,24 +1717,16 @@ _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNU
           }
         else if (!strcasecmp(k, "Delete"))
           {
-             char path[PATH_MAX];
-             char *trash;
-
-             snprintf(path, PATH_MAX, "%s/.config/ephoto/trash",
-                 eina_environment_home_get());
-             trash = strdup(path);
-             if ((strlen(trash)) == (strlen(tb->ephoto->config->directory)))
+             if ((strlen(tb->ephoto->trash_path)) == (strlen(tb->ephoto->config->directory)))
                {
-                  if (!strcmp(trash, tb->ephoto->config->directory))
+                  if (!strcmp(tb->ephoto->trash_path, tb->ephoto->config->directory))
                     {
                        _menu_empty_cb(tb, NULL, NULL);
-                       free(trash);
                        return;
                     }
                }
              else
                _grid_menu_delete_cb(tb, NULL, NULL);
-             free(trash);
           }
      }
    else if (!strcasecmp(k, "F1"))

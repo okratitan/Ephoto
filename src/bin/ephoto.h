@@ -276,6 +276,8 @@ struct _Ephoto
    int file_errors;
 
    const char *top_directory;
+   const char *config_path;
+   const char *trash_path;
    const char *destination;
 
    int thumb_gen_size;

@@ -225,6 +225,10 @@ _win_free(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
      free(ephoto->upload_error);
    if (ephoto->top_directory)
      eina_stringshare_del(ephoto->top_directory);
+   if (ephoto->config_path)
+     eina_stringshare_del(ephoto->config_path);
+   if (ephoto->trash_path)
+     eina_stringshare_del(ephoto->trash_path);
    if (ephoto->timer.thumb_regen)
      ecore_timer_del(ephoto->timer.thumb_regen);
    if (ephoto->monitor)
@@ -340,7 +344,7 @@ ephoto_window_add(const char *path)
 {
    Ephoto *ephoto = calloc(1, sizeof(Ephoto));
    Evas_Object *ic, *but;
-   char buf[PATH_MAX];
+   char buf[PATH_MAX], config[PATH_MAX], trash[PATH_MAX];
    int ret;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(ephoto, NULL);
@@ -587,6 +591,12 @@ ephoto_window_add(const char *path)
         ephoto_single_browser_show_controls(ephoto);
 	ephoto->state = EPHOTO_STATE_SINGLE;
      }
+
+   snprintf(config, PATH_MAX, "%s/.config/ephoto", eina_environment_home_get());
+   ephoto->config_path = eina_stringshare_add(config);
+   snprintf(trash, PATH_MAX, "%s/trash", ephoto->config_path);
+   ephoto->trash_path = eina_stringshare_add(trash);
+
    ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
    ephoto_directory_browser_initialize_structure(ephoto);
    evas_object_resize(ephoto->win, ephoto->config->window_width,

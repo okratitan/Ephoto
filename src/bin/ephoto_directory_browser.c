@@ -430,7 +430,6 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
-   char path[PATH_MAX];
    Evas_Object *ic, *but;
 
    db->fsel_back = db->fsel;
@@ -473,12 +472,11 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
 
    eina_stringshare_replace(&db->back_directory,
        db->ephoto->config->directory);
-   snprintf(path, PATH_MAX, "%s/.config/ephoto/trash", eina_environment_home_get());
-   if (!ecore_file_exists(path))
-      ecore_file_mkpath(path);
+   if (!ecore_file_exists(db->ephoto->trash_path))
+      ecore_file_mkpath(db->ephoto->trash_path);
    db->thumbs_only = 0;
    db->dirs_only = 0;
-   ephoto_directory_set(db->ephoto, path, NULL,
+   ephoto_directory_set(db->ephoto, db->ephoto->trash_path, NULL,
        db->dirs_only, db->thumbs_only);
    ephoto_title_set(db->ephoto, _("Trash"));
    ephoto_directory_browser_top_dir_set(db->ephoto, db->ephoto->config->directory);
@@ -573,7 +571,6 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    Evas_Object *menu;
    Elm_Object_Item *item;
    Evas_Event_Mouse_Up *info = event_info;
-   char trash[PATH_MAX];
    Evas_Coord x, y;
 
    evas_pointer_canvas_xy_get(evas_object_evas_get(db->fsel), &x, &y);
@@ -607,7 +604,6 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    if (info->button != 3)
       return;
 
-   snprintf(trash, PATH_MAX, "%s/.config/ephoto/trash", eina_environment_home_get());
 
    if (item)
      elm_genlist_item_selected_set(item, EINA_TRUE);
@@ -615,7 +611,7 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    menu = elm_menu_add(db->ephoto->win);
    elm_menu_move(menu, x, y);
 
-   if (strcmp(db->ephoto->config->directory, trash))
+   if (strcmp(db->ephoto->config->directory, db->ephoto->trash_path))
      {
         elm_menu_item_add(menu, NULL, "folder-new", _("New Folder"),
               _fsel_menu_new_dir_cb, db);
@@ -627,13 +623,13 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 	elm_menu_item_add(menu, NULL, "edit-paste", _("Paste"),
 	    _fsel_menu_paste_cb, db);
      }
-   else if (!strcmp(db->ephoto->config->directory, trash) &&
+   else if (!strcmp(db->ephoto->config->directory, db->ephoto->trash_path) &&
      elm_genlist_first_item_get(db->fsel))
      {
         elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
             _menu_empty_cb, db);
      }
-   if (strcmp(db->ephoto->config->directory, trash) && item)
+   if (strcmp(db->ephoto->config->directory, db->ephoto->trash_path) && item)
      {
         elm_menu_item_add(menu, NULL, "edit-delete", _("Delete"),
              _fsel_menu_delete_cb, db);

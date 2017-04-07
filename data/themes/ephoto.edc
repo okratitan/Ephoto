@@ -172,7 +172,7 @@ collections {
             description { state: "default" 0.0;
                fixed: 1 1;
                min: 0 0;
-               align: 1.0 0.0;
+               align: 0.0 0.0;
                rel1.relative: 0.0 0.0;
                rel2.to_y: "ephoto,statusbar";
                rel2.relative: 0.0 0.0;

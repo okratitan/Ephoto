@@ -127,7 +127,6 @@ collections {
                rel1.to: "ephoto.swallow.main";
                rel2.to: "ephoto.swallow.main";
                image.normal: "images/tile.png";
-               color: 210 210 210 255;
                fill {
                   size.relative: 0.0 0.0;
                   size.offset: 32 32;

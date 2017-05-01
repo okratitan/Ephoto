@@ -257,7 +257,7 @@ _dnd_drag_start(void *data EINA_UNUSED, Evas_Object *obj)
         return;
      }
    if (_5s_cancel)
-      _5s_timeout = ecore_timer_add(5.0, _5s_timeout_gone, obj);
+      _5s_timeout = ecore_timer_loop_add(5.0, _5s_timeout_gone, obj);
    elm_object_cursor_set(tb->main, ELM_CURSOR_HAND2);
 
    ephoto_show_folders(tb->ephoto, EINA_FALSE);

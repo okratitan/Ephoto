@@ -31,7 +31,6 @@ ephoto_editor_add(Ephoto *ephoto, Evas_Object *parent, const char *title, const 
    elm_object_text_set(frame, title);
    EPHOTO_WEIGHT(frame, 0.3, EVAS_HINT_EXPAND);
    EPHOTO_FILL(frame);
-   evas_object_size_hint_min_set(frame, (int)round(195 * elm_config_scale_get()), 0);
    evas_object_data_set(frame, data_name, data);
    elm_object_part_content_set(parent, "right", frame);
    elm_panes_content_right_size_set(parent, ephoto->config->right_size);

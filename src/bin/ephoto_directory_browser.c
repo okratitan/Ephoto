@@ -16,7 +16,6 @@ struct _Ephoto_Directory_Browser
    Evas_Object *fsel;
    Evas_Object *fsel_back;
    Evas_Object *leftbox;
-   Evas_Object *butbox;
    Elm_Object_Item *dir_current;
    Elm_Object_Item *last_sel;
    Eio_File *ls;
@@ -415,9 +414,7 @@ _trash_back(void *data, Evas_Object *obj EINA_UNUSED,
 
    elm_box_clear(db->leftbox);
    db->fsel = db->fsel_back;
-   elm_box_pack_end(db->leftbox, db->butbox);
    elm_box_pack_end(db->leftbox, db->fsel);\
-   evas_object_show(db->butbox);
    evas_object_show(db->fsel);
    db->fsel_back = NULL;
 
@@ -436,14 +433,10 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
    Evas_Object *ic, *but;
 
    db->fsel_back = db->fsel;
-   evas_object_hide(db->butbox);
    evas_object_hide(db->fsel_back);
-   elm_box_unpack(db->leftbox, db->butbox);
    elm_box_unpack(db->leftbox, db->fsel_back);
 
    ic = elm_icon_add(db->leftbox);
-   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
-       20*elm_config_scale_get());
    elm_icon_standard_set(ic, "go-previous");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
 
@@ -471,7 +464,6 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_event_callback_add(db->fsel, EVAS_CALLBACK_MOUSE_UP,
        _fsel_mouse_up_cb, db);
    evas_object_data_set(db->fsel, "directory_browser", db);
-   evas_object_size_hint_min_set(db->fsel, (int)round(195 * elm_config_scale_get()), 0);
    elm_box_pack_end(db->leftbox, db->fsel);
    evas_object_show(db->fsel);
 
@@ -497,6 +489,36 @@ _click_timer_cb(void *data)
    db->click_timer = NULL;
 
    return ECORE_CALLBACK_CANCEL;
+}
+
+static void
+_fsel_menu_go_root(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNUSED)
+{
+   Ephoto *ephoto = data;
+   const char *path = "/";
+   char *realpath = ecore_file_realpath(path);
+
+   ephoto_directory_browser_clear(ephoto);
+   ephoto_thumb_browser_clear(ephoto);
+   eina_stringshare_replace(&ephoto->config->directory, realpath);
+   ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
+   ephoto_directory_browser_initialize_structure(ephoto);
+   free(realpath);
+}
+
+static void
+_fsel_menu_go_home(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNUSED)
+{
+   Ephoto *ephoto = data;
+   const char *path = eina_environment_home_get();
+   char *realpath = ecore_file_realpath(path);
+
+   ephoto_directory_browser_clear(ephoto);
+   ephoto_thumb_browser_clear(ephoto);
+   eina_stringshare_replace(&ephoto->config->directory, realpath);
+   ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
+   ephoto_directory_browser_initialize_structure(ephoto);
+   free(realpath);
 }
 
 static void
@@ -601,7 +623,7 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
              evas_object_data_del(db->fsel, "current_item");
              evas_object_data_set(db->fsel, "current_item", item);
              if (elm_genlist_item_type_get(item) == ELM_GENLIST_ITEM_TREE)
-               db->click_timer = ecore_timer_add(.3, _click_timer_cb, db);
+               db->click_timer = ecore_timer_loop_add(.3, _click_timer_cb, db);
              else
                _on_list_selected(db, NULL, item);
           }
@@ -615,7 +637,10 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 
    menu = elm_menu_add(db->ephoto->win);
    elm_menu_move(menu, x, y);
-
+   elm_menu_item_add(menu, NULL, "computer", _("Root"),
+       _fsel_menu_go_root, db->ephoto);
+   elm_menu_item_add(menu, NULL, "user-home", _("Home"),
+       _fsel_menu_go_home, db->ephoto);
    if (strcmp(db->ephoto->config->directory, db->ephoto->trash_path))
      {
         elm_menu_item_add(menu, NULL, "folder-new", _("New Folder"),
@@ -647,40 +672,8 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 }
 
 static void
-_go_root(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNUSED)
-{
-   Ephoto *ephoto = data;
-   const char *path = "/";
-   char *realpath = ecore_file_realpath(path);
-
-   ephoto_directory_browser_clear(ephoto);
-   ephoto_thumb_browser_clear(ephoto);
-   eina_stringshare_replace(&ephoto->config->directory, realpath);
-   ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
-   ephoto_directory_browser_initialize_structure(ephoto);
-   free(realpath);
-}
-
-static void
-_go_home(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNUSED)
-{
-   Ephoto *ephoto = data;
-   const char *path = eina_environment_home_get();
-   char *realpath = ecore_file_realpath(path);
-
-   ephoto_directory_browser_clear(ephoto);
-   ephoto_thumb_browser_clear(ephoto);
-   eina_stringshare_replace(&ephoto->config->directory, realpath);
-   ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
-   ephoto_directory_browser_initialize_structure(ephoto);
-   free(realpath);
-}
-
-static void
 _ephoto_directory_view_add(Ephoto_Directory_Browser *db)
 {
-   Evas_Object *ic, *but;
-
    db->leftbox = elm_box_add(db->main);
    elm_box_horizontal_set(db->leftbox, EINA_FALSE);
    elm_box_homogeneous_set(db->leftbox, EINA_FALSE);
@@ -688,44 +681,6 @@ _ephoto_directory_view_add(Ephoto_Directory_Browser *db)
    EPHOTO_FILL(db->leftbox);
    elm_box_pack_end(db->main, db->leftbox);
    evas_object_show(db->leftbox);
-
-   db->butbox = elm_box_add(db->leftbox);
-   elm_box_horizontal_set(db->butbox, EINA_TRUE);
-   elm_box_homogeneous_set(db->butbox, EINA_TRUE);
-   EPHOTO_WEIGHT(db->butbox, EVAS_HINT_EXPAND, 0.0);
-   EPHOTO_FILL(db->butbox);
-   elm_box_pack_end(db->leftbox, db->butbox);
-   evas_object_show(db->butbox);
-
-   ic = elm_icon_add(db->butbox);
-   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
-       20*elm_config_scale_get());
-   elm_icon_standard_set(ic, "computer");
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
-
-   but = elm_button_add(db->butbox);
-   elm_object_text_set(but, _("Root"));
-   elm_object_part_content_set(but, "icon", ic);
-   EPHOTO_WEIGHT(but, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
-   EPHOTO_FILL(but);
-   evas_object_smart_callback_add(but, "clicked", _go_root, db->ephoto);
-   elm_box_pack_end(db->butbox, but);
-   evas_object_show(but);
-
-   ic = elm_icon_add(db->butbox);
-   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
-       20*elm_config_scale_get());
-   elm_icon_standard_set(ic, "user-home");
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
-
-   but = elm_button_add(db->butbox);
-   elm_object_text_set(but, _("Home"));
-   elm_object_part_content_set(but, "icon", ic);
-   EPHOTO_WEIGHT(but, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
-   EPHOTO_FILL(but);
-   evas_object_smart_callback_add(but, "clicked", _go_home, db->ephoto);
-   elm_box_pack_end(db->butbox, but);
-   evas_object_show(but);
 
    db->fsel = elm_genlist_add(db->leftbox);
    elm_genlist_select_mode_set(db->fsel, ELM_OBJECT_SELECT_MODE_ALWAYS);
@@ -742,7 +697,6 @@ _ephoto_directory_view_add(Ephoto_Directory_Browser *db)
    evas_object_event_callback_add(db->fsel, EVAS_CALLBACK_MOUSE_UP,
        _fsel_mouse_up_cb, db);
    evas_object_data_set(db->fsel, "directory_browser", db);
-   evas_object_size_hint_min_set(db->fsel, (int)round(195 * elm_config_scale_get()), 0);
    elm_box_pack_end(db->leftbox, db->fsel);
    evas_object_show(db->fsel);
 
@@ -1396,8 +1350,6 @@ ephoto_directory_browser_add(Ephoto *ephoto, Evas_Object *parent)
    elm_box_horizontal_set(db->main, EINA_FALSE);
    evas_object_event_callback_add(db->main, EVAS_CALLBACK_DEL,
        _ephoto_main_del, db);
-   evas_object_size_hint_min_set(db->main, (int)round(195 * elm_config_scale_get()), 0);
-   evas_object_size_hint_max_set(db->main, (int)round(195 * elm_config_scale_get()), 99999);
    evas_object_data_set(db->main, "directory_browser", db);
 
    _ephoto_directory_view_add(db);

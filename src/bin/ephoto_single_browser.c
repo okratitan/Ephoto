@@ -238,7 +238,7 @@ _image_mouse_down_cb(void *data EINA_UNUSED, Evas *e EINA_UNUSED,
      }
    else if (ev->button == 1)
      {
-        _1s_hold = ecore_timer_add(0.5, _1s_hold_time, io);
+        _1s_hold = ecore_timer_loop_add(0.5, _1s_hold_time, io);
      }
 }
 
@@ -1528,7 +1528,7 @@ _viewer_add(Evas_Object *parent, const char *path, Ephoto_Single_Browser *sb)
         evas_object_image_animated_frame_set(v->image, v->cur_frame);
         v->duration = evas_object_image_animated_frame_duration_get(v->image,
             v->cur_frame, 0);
-        v->anim_timer = ecore_timer_add(v->duration, _animate_cb, v);
+        v->anim_timer = ecore_timer_loop_add(v->duration, _animate_cb, v);
      }
 
    v->monitor = eio_monitor_add(path);

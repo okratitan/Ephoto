@@ -314,7 +314,7 @@ _on_transition_end(void *data, Evas_Object *obj EINA_UNUSED,
      ecore_timer_del(ss->timer);
    ss->timer = NULL;
    if (ss->playing)
-     ss->timer = ecore_timer_add(ss->timeout, _slideshow_transition, ss);
+     ss->timer = ecore_timer_loop_add(ss->timeout, _slideshow_transition, ss);
 }
 
 static Evas_Object *
@@ -446,7 +446,7 @@ _slideshow_play(Ephoto_Slideshow *ss)
 
    if (ss->timer)
      ecore_timer_del(ss->timer);
-   ss->timer = ecore_timer_add(ss->timeout, _slideshow_transition, ss);
+   ss->timer = ecore_timer_loop_add(ss->timeout, _slideshow_transition, ss);
 }
 
 static void

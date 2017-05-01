@@ -196,7 +196,7 @@ _e_ipc_cb_server_data(void *data EINA_UNUSED,
                   eth->file = strdup(file);
                   if (key) eth->key = strdup(key);
                   _thumblist = eina_list_append(_thumblist, eth);
-                  if (!_timer) _timer = ecore_timer_add(0.001, _e_cb_timer, NULL);
+                  if (!_timer) _timer = ecore_timer_loop_add(0.001, _e_cb_timer, NULL);
                }
           }
         break;
@@ -245,7 +245,7 @@ _e_cb_timer(void *data EINA_UNUSED)
         free(eth->key);
         free(eth);
 
-        if (_thumblist) _timer = ecore_timer_add(0.01, _e_cb_timer, NULL);
+        if (_thumblist) _timer = ecore_timer_loop_add(0.01, _e_cb_timer, NULL);
         else _timer = NULL;
      }
    else

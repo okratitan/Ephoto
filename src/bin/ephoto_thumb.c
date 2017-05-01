@@ -384,7 +384,7 @@ static void
 _e_thumb_thumbnailers_kill(void)
 {
    if (_kill_timer) ecore_timer_del(_kill_timer);
-   _kill_timer = ecore_timer_add(1.0, _e_thumb_cb_kill, NULL);
+   _kill_timer = ecore_timer_loop_add(1.0, _e_thumb_cb_kill, NULL);
 }
 
 static void

@@ -1843,8 +1843,6 @@ _editor_menu(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNU
    _edit_function_item_add(vbox, "edit-clear", _("Reset"), _reset_image, sb);
    _edit_function_item_add(vbox, "window-close", _("Close"), _close_editor, sb);
 
-   edje_object_signal_emit(elm_layout_edje_get(sb->ephoto->layout),
-       "ephoto,editor,show", "ephoto");
    sb->edit_main = frame;
 }
 

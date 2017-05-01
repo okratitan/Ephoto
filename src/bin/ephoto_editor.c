@@ -27,9 +27,6 @@ ephoto_editor_add(Ephoto *ephoto, Evas_Object *parent, const char *title, const 
 {
    Evas_Object *frame, *box, *ic, *button;
 
-   edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
-       "ephoto,folders,hide", "ephoto");
-
    frame = elm_frame_add(parent);
    elm_object_text_set(frame, title);
    EPHOTO_WEIGHT(frame, 0.3, EVAS_HINT_EXPAND);
@@ -93,9 +90,6 @@ ephoto_editor_add(Ephoto *ephoto, Evas_Object *parent, const char *title, const 
    EPHOTO_FILL(button);
    elm_box_pack_end(box, button);
    evas_object_show(button);
-
-   edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
-       "ephoto,editor,show", "ephoto"); 
 
    return box;
 }

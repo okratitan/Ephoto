@@ -679,14 +679,7 @@ _go_home(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNUSED)
 static void
 _ephoto_directory_view_add(Ephoto_Directory_Browser *db)
 {
-   Edje_Message_Int_Set *msg;
    Evas_Object *ic, *but;
-
-   msg = alloca(sizeof(Edje_Message_Int_Set) + (1 * sizeof(int)));
-   msg->count = 1;
-   msg->val[0] = (int)round(220 * elm_config_scale_get());
-   edje_object_message_send(elm_layout_edje_get(db->ephoto->layout),
-       EDJE_MESSAGE_INT_SET, 1, msg);
 
    db->leftbox = elm_box_add(db->main);
    elm_box_horizontal_set(db->leftbox, EINA_FALSE);

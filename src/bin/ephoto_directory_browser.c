@@ -684,7 +684,6 @@ _ephoto_directory_view_add(Ephoto_Directory_Browser *db)
    db->leftbox = elm_box_add(db->main);
    elm_box_horizontal_set(db->leftbox, EINA_FALSE);
    elm_box_homogeneous_set(db->leftbox, EINA_FALSE);
-   elm_box_padding_set(db->leftbox, 0, -5);
    EPHOTO_EXPAND(db->leftbox);
    EPHOTO_FILL(db->leftbox);
    elm_box_pack_end(db->main, db->leftbox);

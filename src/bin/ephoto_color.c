@@ -272,7 +272,7 @@ _color_apply(void *data, int type EINA_UNUSED,
         evas_object_image_size_get(eco->image, &w, &h);
         ephoto_single_browser_image_data_done(eco->main, image_data, w, h);
      }
-   ephoto_editor_del(eco->editor);
+   ephoto_editor_del(eco->editor, eco->parent);
 
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -291,7 +291,7 @@ _color_cancel(void *data, int type EINA_UNUSED,
    eco->blue = 0;
    _red_slider_changed(eco, eco->rslider, NULL);
    ephoto_single_browser_cancel_editing(eco->main);
-   ephoto_editor_del(eco->editor);
+   ephoto_editor_del(eco->editor, eco->parent);
 
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -336,7 +336,7 @@ ephoto_color_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Ob
    memcpy(eco->original_im_data, im_data,
        sizeof(unsigned int) * eco->w * eco->h);
 
-   eco->editor = ephoto_editor_add(ephoto, _("Adjust Color Levels"),
+   eco->editor = ephoto_editor_add(ephoto, parent, _("Adjust Color Levels"),
        "eco", eco);
    evas_object_event_callback_add(eco->editor, EVAS_CALLBACK_DEL, _editor_del,
        eco);

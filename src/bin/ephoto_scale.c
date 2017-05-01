@@ -109,7 +109,7 @@ _es_apply(void *data, int type EINA_UNUSED,
        elm_spinner_value_get(es->scaleh) == es->h)
      {
         ephoto_single_browser_cancel_editing(es->main);
-        ephoto_editor_del(es->editor);
+        ephoto_editor_del(es->editor, es->parent);
         return ECORE_CALLBACK_PASS_ON;
      }
 
@@ -143,7 +143,7 @@ _es_apply(void *data, int type EINA_UNUSED,
    memcpy(im_data, image_data, sizeof(unsigned int) * w * h);
 
    ephoto_single_browser_image_data_done(es->main, im_data, w, h);
-   ephoto_editor_del(es->editor);
+   ephoto_editor_del(es->editor, es->parent);
 
    evas_object_del(im);
    ecore_evas_free(ee);
@@ -158,7 +158,7 @@ _es_cancel(void *data, int type EINA_UNUSED,
    Ephoto_Scale *es = data;
 
    ephoto_single_browser_cancel_editing(es->main);
-   ephoto_editor_del(es->editor);
+   ephoto_editor_del(es->editor, es->parent);
 
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -214,7 +214,7 @@ ephoto_scale_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
    es->aspectw = (double)es->w / (double)es->h;
    es->aspecth = (double)es->h / (double)es->w;
 
-   es->editor = ephoto_editor_add(ephoto, _("Scale Image"),
+   es->editor = ephoto_editor_add(ephoto, parent, _("Scale Image"),
        "es", es);
    evas_object_event_callback_add(es->editor, EVAS_CALLBACK_DEL, _editor_del,
        es);

@@ -129,9 +129,9 @@ int e_ipc_init(void);
 int e_ipc_shutdown(void);
 
 /*editing functions*/
-Evas_Object *ephoto_editor_add(Ephoto *ephoto, const char *title,
+Evas_Object *ephoto_editor_add(Ephoto *ephoto, Evas_Object *parent, const char *title,
     const char *data_name, void *data);
-void ephoto_editor_del(Evas_Object *obj);
+void ephoto_editor_del(Evas_Object *obj, Evas_Object *parent);
 void ephoto_cropper_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
     Evas_Object *image_parent, Evas_Object *image);
 void ephoto_bcg_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
@@ -213,14 +213,15 @@ struct _Ephoto_Config
    int config_version;
    int thumb_size;
    int thumb_gen_size;
-   const char *directory;
-   double slideshow_timeout;
-   const char *slideshow_transition;
    int window_width;
    int window_height;
-   Eina_Bool fsel_hide;
-   double lpane_size;
+   double slideshow_timeout;
+   double left_size;
+   double right_size;
+   const char *directory;
+   const char *slideshow_transition;
    const char *open;
+   Eina_Bool fsel_hide;
    Eina_Bool prompts;
    Eina_Bool drop;
    Eina_Bool movess;

@@ -1048,13 +1048,15 @@ _close_editor(void *data, Evas_Object *obj EINA_UNUSED,
 {
    Ephoto_Single_Browser *sb = data;
 
-   edje_object_signal_emit(elm_layout_edje_get(sb->ephoto->layout),
-       "ephoto,editor,hide", "ephoto");
+   elm_object_part_content_unset(sb->mhbox, "right");
+   elm_panes_content_right_size_set(sb->mhbox, 0.0);
+
    if (sb->ephoto->folders_toggle)
      {
-        elm_layout_signal_emit(sb->ephoto->layout, "ephoto,folders,show", "ephoto");
+       
+        elm_panes_content_left_size_set(sb->ephoto->layout, sb->ephoto->config->left_size);
         evas_object_show(sb->ephoto->dir_browser);
-        elm_layout_signal_emit(sb->ephoto->layout, "ephoto,statusbar,show", "ephoto");
+        elm_table_pack(sb->ephoto->main, sb->ephoto->statusbar, 0, 2, 1, 1);
         evas_object_show(sb->ephoto->statusbar);
      }
    evas_object_del(sb->edit_main);
@@ -1600,7 +1602,7 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
 	sb->viewer = _viewer_add(sb->main, sb->entry->path, sb);
 	if (sb->viewer)
 	  {
-	     elm_box_pack_start(sb->mhbox, sb->viewer);
+	     elm_object_part_content_set(sb->mhbox, "left", sb->viewer);
 	     evas_object_show(sb->viewer);
 	     evas_object_event_callback_add(sb->viewer,
 		 EVAS_CALLBACK_MOUSE_WHEEL, _mouse_wheel, sb);
@@ -1620,7 +1622,7 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
 		 _("This image does not exist or is corrupted!"));
              EPHOTO_EXPAND(sb->nolabel);
              EPHOTO_FILL(sb->nolabel);
-	     elm_box_pack_start(sb->mhbox, sb->nolabel);
+             elm_object_part_content_set(sb->mhbox, "left", sb->nolabel);
 	     evas_object_show(sb->nolabel);
 	     ephoto_title_set(sb->ephoto, _("Bad Image"));
 	  }
@@ -1727,18 +1729,18 @@ _editor_menu(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNU
    itc->func.state_get = NULL;
    itc->func.del = NULL;
 
-   edje_object_signal_emit(elm_layout_edje_get(sb->ephoto->layout),
-       "ephoto,folders,hide", "ephoto");
+   elm_panes_content_left_size_set(sb->ephoto->layout, 0.0);
+   if (evas_object_visible_get(sb->ephoto->statusbar))
+     elm_table_unpack(sb->ephoto->main, sb->ephoto->statusbar);
    evas_object_hide(sb->ephoto->dir_browser);
-   edje_object_signal_emit(elm_layout_edje_get(sb->ephoto->layout),
-       "ephoto,statusbar,hide", "ephoto");
    evas_object_hide(sb->ephoto->statusbar);
 
-   frame = elm_frame_add(sb->ephoto->layout);
+   frame = elm_frame_add(sb->mhbox);
    elm_object_text_set(frame, _("Edit"));
    EPHOTO_EXPAND(frame);
    EPHOTO_FILL(frame);
-   elm_layout_content_set(sb->ephoto->layout, "ephoto.swallow.editor", frame);
+   elm_object_part_content_set(sb->mhbox, "right", frame);
+   elm_panes_content_right_size_set(sb->mhbox, sb->ephoto->config->right_size);
    evas_object_show(frame);
 
    box = elm_box_add(frame);
@@ -2070,6 +2072,15 @@ _ephoto_main_back(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EIN
      }
    _close_editor(sb, NULL, NULL);
    evas_object_smart_callback_call(sb->main, "back", sb->entry);
+}
+
+static void
+_ephoto_right_pane_resized(void *data, Evas_Object *obj EINA_UNUSED,
+    void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+
+   sb->ephoto->config->right_size = elm_panes_content_right_size_get(sb->mhbox);
 }
 
 static void
@@ -2528,13 +2539,13 @@ ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent)
    EPHOTO_FILL(sb->main);
    evas_object_data_set(sb->main, "single_browser", sb);
 
-   sb->mhbox = elm_box_add(sb->main);
-   elm_box_horizontal_set(sb->mhbox, EINA_TRUE);
+   sb->mhbox = elm_panes_add(sb->main);
    EPHOTO_EXPAND(sb->mhbox);
    EPHOTO_FILL(sb->mhbox);
+   elm_panes_content_right_size_set(sb->mhbox, 0.0);
+   evas_object_smart_callback_add(sb->mhbox, "unpress", _ephoto_right_pane_resized, sb);
    elm_box_pack_end(sb->main, sb->mhbox);
    evas_object_show(sb->mhbox);
-
 
    sb->handlers =
        eina_list_append(sb->handlers,

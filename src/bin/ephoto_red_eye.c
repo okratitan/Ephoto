@@ -161,7 +161,7 @@ _reye_apply(void *data, int type EINA_UNUSED,
         evas_object_image_size_get(er->image, &w, &h);
         ephoto_single_browser_image_data_done(er->main, image_data, w, h);
      }
-   ephoto_editor_del(er->editor);
+   ephoto_editor_del(er->editor, er->parent);
 
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -181,7 +181,7 @@ _reye_cancel(void *data, int type EINA_UNUSED,
         free(er->edited_im_data);
         er->edited_im_data = NULL;
      }
-   ephoto_editor_del(er->editor);
+   ephoto_editor_del(er->editor, er->parent);
 
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -228,7 +228,7 @@ ephoto_red_eye_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_
    evas_object_event_callback_add(er->image, EVAS_CALLBACK_MOUSE_UP,
        _reye_clicked, er);
 
-   er->editor = ephoto_editor_add(ephoto, _("Red Eye Removal"),
+   er->editor = ephoto_editor_add(ephoto, parent, _("Red Eye Removal"),
        "ereye", er);
    evas_object_event_callback_add(er->editor, EVAS_CALLBACK_DEL, _editor_del,
        er);

@@ -16,6 +16,7 @@ struct _Ephoto_Directory_Browser
    Evas_Object *fsel;
    Evas_Object *fsel_back;
    Evas_Object *leftbox;
+   Evas_Object *butbox;
    Elm_Object_Item *dir_current;
    Elm_Object_Item *last_sel;
    Eio_File *ls;
@@ -414,7 +415,9 @@ _trash_back(void *data, Evas_Object *obj EINA_UNUSED,
 
    elm_box_clear(db->leftbox);
    db->fsel = db->fsel_back;
-   elm_box_pack_end(db->leftbox, db->fsel);
+   elm_box_pack_end(db->leftbox, db->butbox);
+   elm_box_pack_end(db->leftbox, db->fsel);\
+   evas_object_show(db->butbox);
    evas_object_show(db->fsel);
    db->fsel_back = NULL;
 
@@ -433,7 +436,9 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
    Evas_Object *ic, *but;
 
    db->fsel_back = db->fsel;
+   evas_object_hide(db->butbox);
    evas_object_hide(db->fsel_back);
+   elm_box_unpack(db->leftbox, db->butbox);
    elm_box_unpack(db->leftbox, db->fsel_back);
 
    ic = elm_icon_add(db->leftbox);
@@ -642,9 +647,40 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
 }
 
 static void
+_go_root(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNUSED)
+{
+   Ephoto *ephoto = data;
+   const char *path = "/";
+   char *realpath = ecore_file_realpath(path);
+
+   ephoto_directory_browser_clear(ephoto);
+   ephoto_thumb_browser_clear(ephoto);
+   eina_stringshare_replace(&ephoto->config->directory, realpath);
+   ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
+   ephoto_directory_browser_initialize_structure(ephoto);
+   free(realpath);
+}
+
+static void
+_go_home(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNUSED)
+{
+   Ephoto *ephoto = data;
+   const char *path = eina_environment_home_get();
+   char *realpath = ecore_file_realpath(path);
+
+   ephoto_directory_browser_clear(ephoto);
+   ephoto_thumb_browser_clear(ephoto);
+   eina_stringshare_replace(&ephoto->config->directory, realpath);
+   ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
+   ephoto_directory_browser_initialize_structure(ephoto);
+   free(realpath);
+}
+
+static void
 _ephoto_directory_view_add(Ephoto_Directory_Browser *db)
 {
    Edje_Message_Int_Set *msg;
+   Evas_Object *ic, *but;
 
    msg = alloca(sizeof(Edje_Message_Int_Set) + (1 * sizeof(int)));
    msg->count = 1;
@@ -660,6 +696,44 @@ _ephoto_directory_view_add(Ephoto_Directory_Browser *db)
    EPHOTO_FILL(db->leftbox);
    elm_box_pack_end(db->main, db->leftbox);
    evas_object_show(db->leftbox);
+
+   db->butbox = elm_box_add(db->leftbox);
+   elm_box_horizontal_set(db->butbox, EINA_TRUE);
+   elm_box_homogeneous_set(db->butbox, EINA_TRUE);
+   EPHOTO_WEIGHT(db->butbox, EVAS_HINT_EXPAND, 0.0);
+   EPHOTO_FILL(db->butbox);
+   elm_box_pack_end(db->leftbox, db->butbox);
+   evas_object_show(db->butbox);
+
+   ic = elm_icon_add(db->butbox);
+   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
+       20*elm_config_scale_get());
+   elm_icon_standard_set(ic, "computer");
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+
+   but = elm_button_add(db->butbox);
+   elm_object_text_set(but, _("Root"));
+   elm_object_part_content_set(but, "icon", ic);
+   EPHOTO_WEIGHT(but, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
+   EPHOTO_FILL(but);
+   evas_object_smart_callback_add(but, "clicked", _go_root, db->ephoto);
+   elm_box_pack_end(db->butbox, but);
+   evas_object_show(but);
+
+   ic = elm_icon_add(db->butbox);
+   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
+       20*elm_config_scale_get());
+   elm_icon_standard_set(ic, "user-home");
+   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+
+   but = elm_button_add(db->butbox);
+   elm_object_text_set(but, _("Home"));
+   elm_object_part_content_set(but, "icon", ic);
+   EPHOTO_WEIGHT(but, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
+   EPHOTO_FILL(but);
+   evas_object_smart_callback_add(but, "clicked", _go_home, db->ephoto);
+   elm_box_pack_end(db->butbox, but);
+   evas_object_show(but);
 
    db->fsel = elm_genlist_add(db->leftbox);
    elm_genlist_select_mode_set(db->fsel, ELM_OBJECT_SELECT_MODE_ALWAYS);

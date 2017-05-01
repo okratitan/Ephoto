@@ -224,7 +224,7 @@ _apply_crop(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_del(ec->cropper);
    evas_object_del(ec->layout);
    evas_object_del(ec->box);
-   ephoto_editor_del(ec->editor);
+   ephoto_editor_del(ec->editor, ec->parent);
 }
 
 static void
@@ -240,7 +240,7 @@ _cancel_crop(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_del(ec->cropper);
    evas_object_del(ec->layout);
    evas_object_del(ec->box);
-   ephoto_editor_del(ec->editor);
+   ephoto_editor_del(ec->editor, ec->parent);
 }
 
 static void
@@ -697,7 +697,7 @@ ephoto_cropper_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
    evas_object_event_callback_add(ec->layout, EVAS_CALLBACK_RESIZE,
        _image_resize, ec);
 
-   ec->editor = ephoto_editor_add(ephoto, _("Crop Image"),
+   ec->editor = ephoto_editor_add(ephoto, parent, _("Crop Image"),
        "ec", ec);
    evas_object_event_callback_add(ec->editor, EVAS_CALLBACK_DEL,
        _editor_del, ec);

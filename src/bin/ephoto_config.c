@@ -1,6 +1,6 @@
 #include "ephoto.h"
 
-#define CONFIG_VERSION 20
+#define CONFIG_VERSION 21
 
 static int _ephoto_config_load(Ephoto *ephoto);
 static Eina_Bool _ephoto_on_config_save(void *data);
@@ -759,7 +759,8 @@ ephoto_config_init(Ephoto *ephoto)
    C_VAL(D, T, window_width, EET_T_INT);
    C_VAL(D, T, window_height, EET_T_INT);
    C_VAL(D, T, fsel_hide, EET_T_INT);
-   C_VAL(D, T, lpane_size, EET_T_DOUBLE);
+   C_VAL(D, T, left_size, EET_T_DOUBLE);
+   C_VAL(D, T, right_size, EET_T_DOUBLE);
    C_VAL(D, T, open, EET_T_STRING);
    C_VAL(D, T, prompts, EET_T_INT);
    C_VAL(D, T, drop, EET_T_INT);
@@ -777,7 +778,8 @@ ephoto_config_init(Ephoto *ephoto)
 	  ephoto->config->window_width = 900*elm_config_scale_get();
 	  ephoto->config->window_height = 500*elm_config_scale_get();
 	  ephoto->config->fsel_hide = 0;
-          ephoto->config->lpane_size = .15;
+          ephoto->config->left_size = .2;
+          ephoto->config->right_size = .2;
 	  ephoto->config->open = eina_stringshare_add(eina_environment_home_get());
 	  ephoto->config->prompts = 1;
 	  ephoto->config->drop = 0;

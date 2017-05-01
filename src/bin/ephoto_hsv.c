@@ -294,7 +294,7 @@ _hsv_apply(void *data, int type EINA_UNUSED,
         evas_object_image_size_get(ehsv->image, &w, &h);
         ephoto_single_browser_image_data_done(ehsv->main, image_data, w, h);
      }
-   ephoto_editor_del(ehsv->editor);
+   ephoto_editor_del(ehsv->editor, ehsv->parent);
 
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -313,7 +313,7 @@ _hsv_cancel(void *data, int type EINA_UNUSED,
    ehsv->value = 0;
    _hue_slider_changed(ehsv, ehsv->hslider, NULL);
    ephoto_single_browser_cancel_editing(ehsv->main);
-   ephoto_editor_del(ehsv->editor);
+   ephoto_editor_del(ehsv->editor, ehsv->parent);
 
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -358,7 +358,7 @@ ephoto_hsv_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Obje
    memcpy(ehsv->original_im_data, im_data,
        sizeof(unsigned int) * ehsv->w * ehsv->h);
 
-   ehsv->editor = ephoto_editor_add(ephoto, _("Hue/Saturation/Value"),
+   ehsv->editor = ephoto_editor_add(ephoto, parent, _("Hue/Saturation/Value"),
        "ehsv", ehsv);
    evas_object_event_callback_add(ehsv->editor, EVAS_CALLBACK_DEL, _editor_del,
        ehsv);

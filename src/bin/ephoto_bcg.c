@@ -287,7 +287,7 @@ _bcg_apply(void *data, int type EINA_UNUSED,
         evas_object_image_size_get(ebcg->image, &w, &h);
         ephoto_single_browser_image_data_done(ebcg->main, image_data, w, h);
      }
-   ephoto_editor_del(ebcg->editor);
+   ephoto_editor_del(ebcg->editor, ebcg->parent);
 
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -306,7 +306,7 @@ _bcg_cancel(void *data, int type EINA_UNUSED,
    ebcg->gamma = 1;
    _brightness_slider_changed(ebcg, ebcg->bslider, NULL);
    ephoto_single_browser_cancel_editing(ebcg->main);
-   ephoto_editor_del(ebcg->editor);
+   ephoto_editor_del(ebcg->editor, ebcg->parent);
 
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -351,7 +351,7 @@ ephoto_bcg_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Obje
    memcpy(ebcg->original_im_data, im_data,
        sizeof(unsigned int) * ebcg->w * ebcg->h);
 
-   ebcg->editor = ephoto_editor_add(ephoto, _("Brightness/Contrast/Gamma"),
+   ebcg->editor = ephoto_editor_add(ephoto, parent, _("Brightness/Contrast/Gamma"),
        "ebcg", ebcg);
    evas_object_event_callback_add(ebcg->editor, EVAS_CALLBACK_DEL, _editor_del,
        ebcg);

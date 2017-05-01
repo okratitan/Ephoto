@@ -12,8 +12,7 @@ EXTRA_DIST = ephoto.edc \
              images/sel_corner1.png \
              images/sel_corner3.png \
              images/sel_corner5.png \
-             images/sel_corner7.png \
-             images/tile.png
+             images/sel_corner7.png 
 
 ephoto.edj: Makefile $(EXTRA_DIST)
 	$(EDJE_CC) $(EDJE_FLAGS) \

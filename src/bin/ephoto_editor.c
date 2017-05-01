@@ -22,7 +22,7 @@ _editor_cancel(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 }
 
 Evas_Object *
-ephoto_editor_add(Ephoto *ephoto, const char *title, const char *data_name,
+ephoto_editor_add(Ephoto *ephoto, Evas_Object *parent, const char *title, const char *data_name,
     void *data)
 {
    Evas_Object *frame, *box, *ic, *button;
@@ -30,13 +30,14 @@ ephoto_editor_add(Ephoto *ephoto, const char *title, const char *data_name,
    edje_object_signal_emit(elm_layout_edje_get(ephoto->layout),
        "ephoto,folders,hide", "ephoto");
 
-   frame = elm_frame_add(ephoto->main);
+   frame = elm_frame_add(parent);
    elm_object_text_set(frame, title);
    EPHOTO_WEIGHT(frame, 0.3, EVAS_HINT_EXPAND);
    EPHOTO_FILL(frame);
    evas_object_size_hint_min_set(frame, (int)round(195 * elm_config_scale_get()), 0);
    evas_object_data_set(frame, data_name, data);
-   elm_layout_content_set(ephoto->layout, "ephoto.swallow.editor", frame);
+   elm_object_part_content_set(parent, "right", frame);
+   elm_panes_content_right_size_set(parent, ephoto->config->right_size);
    evas_object_show(frame);
 
    box = elm_box_add(frame);
@@ -100,12 +101,14 @@ ephoto_editor_add(Ephoto *ephoto, const char *title, const char *data_name,
 }
 
 void
-ephoto_editor_del(Evas_Object *obj)
+ephoto_editor_del(Evas_Object *obj, Evas_Object *parent)
 {
    Evas_Object *frame = evas_object_data_get(obj, "frame");
 
+   elm_object_part_content_unset(parent, "right");
    if (frame)
      evas_object_del(frame);
+   elm_panes_content_right_size_set(parent, 0.0);
 
    ecore_event_add(EPHOTO_EVENT_EDITOR_BACK, NULL, NULL, NULL);
 }

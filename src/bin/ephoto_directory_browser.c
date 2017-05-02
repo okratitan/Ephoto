@@ -414,7 +414,7 @@ _trash_back(void *data, Evas_Object *obj EINA_UNUSED,
 
    elm_box_clear(db->leftbox);
    db->fsel = db->fsel_back;
-   elm_box_pack_end(db->leftbox, db->fsel);\
+   elm_box_pack_end(db->leftbox, db->fsel);
    evas_object_show(db->fsel);
    db->fsel_back = NULL;
 

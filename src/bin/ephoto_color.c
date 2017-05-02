@@ -18,174 +18,73 @@ struct _Ephoto_Color
    unsigned int *original_im_data;
 };
 
-static int
-_normalize_color(int color)
+typedef enum _Ephoto_Color_Adjust Ephoto_Color_Adjust;
+enum _Ephoto_Color_Adjust
 {
-   if (color < 0)
-      return 0;
-   else if (color > 255)
-      return 255;
-   else
-      return color;
-}
-
-static int
-_mul_color_alpha(int color, int alpha)
-{
-   if (alpha > 0 && alpha < 255)
-      return color * (255 / alpha);
-   else
-      return color;
-}
-
-static int
-_demul_color_alpha(int color, int alpha)
-{
-   if (alpha > 0 && alpha < 255)
-      return (color * alpha) / 255;
-   else
-      return color;
-}
+   EPHOTO_COLOR_ADJUST_RED,
+   EPHOTO_COLOR_ADJUST_GREEN,
+   EPHOTO_COLOR_ADJUST_BLUE
+};
 
 unsigned int *
-_ephoto_color_adjust_red(Ephoto_Color *eco, int red, unsigned int *image_data)
+_ephoto_apply_color_adjustment(Ephoto_Color *eco, unsigned int *image_data, int adjust, Ephoto_Color_Adjust color)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
    Evas_Coord x, y;
-   int a, r, g, b, rr;
+   int a, r, g, b, cc;
 
    im_data = malloc(sizeof(unsigned int) * eco->w * eco->h);
    if (image_data)
       memcpy(im_data, image_data, sizeof(unsigned int) * eco->w * eco->h);
    else
       memcpy(im_data, eco->original_im_data,
-	  sizeof(unsigned int) * eco->w * eco->h);
+          sizeof(unsigned int) * eco->w * eco->h);
 
-   eco->red = red;
    im_data_new = malloc(sizeof(unsigned int) * eco->w * eco->h);
 
    for (y = 0; y < eco->h; y++)
      {
-	p1 = im_data + (y * eco->w);
-	p2 = im_data_new + (y * eco->w);
-	for (x = 0; x < eco->w; x++)
-	  {
-	     b = (int) ((*p1) & 0xff);
-	     g = (int) ((*p1 >> 8) & 0xff);
-	     r = (int) ((*p1 >> 16) & 0xff);
-	     a = (int) ((*p1 >> 24) & 0xff);
-	     b = _mul_color_alpha(b, a);
-	     g = _mul_color_alpha(g, a);
-	     r = _mul_color_alpha(r, a);
-	     rr = (int) r + eco->red;
-	     b = _normalize_color(b);
-	     g = _normalize_color(g);
-	     rr = _normalize_color(rr);
-	     b = _demul_color_alpha(b, a);
-	     g = _demul_color_alpha(g, a);
-	     rr = _demul_color_alpha(rr, a);
-	     *p2 = (a << 24) | (rr << 16) | (g << 8) | b;
-	     p2++;
-	     p1++;
-	  }
-     }
-   ephoto_single_browser_image_data_update(eco->main, eco->image,
-       im_data_new, eco->w, eco->h);
-   free(im_data);
-   return im_data_new;
-}
-
-unsigned int *
-_ephoto_color_adjust_green(Ephoto_Color *eco, int green,
-    unsigned int *image_data)
-{
-   unsigned int *im_data, *im_data_new, *p1, *p2;
-   Evas_Coord x, y;
-   int a, r, g, b, gg;
-
-   im_data = malloc(sizeof(unsigned int) * eco->w * eco->h);
-   if (image_data)
-      memcpy(im_data, image_data, sizeof(unsigned int) * eco->w * eco->h);
-   else
-      memcpy(im_data, eco->original_im_data,
-	  sizeof(unsigned int) * eco->w * eco->h);
-
-   eco->green = green;
-   im_data_new = malloc(sizeof(unsigned int) * eco->w * eco->h);
-
-   for (y = 0; y < eco->h; y++)
-     {
-	p1 = im_data + (y * eco->w);
-	p2 = im_data_new + (y * eco->w);
-	for (x = 0; x < eco->w; x++)
-	  {
-	     b = (int) ((*p1) & 0xff);
-	     g = (int) ((*p1 >> 8) & 0xff);
-	     r = (int) ((*p1 >> 16) & 0xff);
-	     a = (int) ((*p1 >> 24) & 0xff);
-	     b = _mul_color_alpha(b, a);
-	     g = _mul_color_alpha(g, a);
-	     r = _mul_color_alpha(r, a);
-	     gg = (int) g + eco->green;
-	     b = _normalize_color(b);
-	     gg = _normalize_color(gg);
-	     r = _normalize_color(r);
-	     b = _demul_color_alpha(b, a);
-	     gg = _demul_color_alpha(gg, a);
-	     r = _demul_color_alpha(r, a);
-	     *p2 = (a << 24) | (r << 16) | (gg << 8) | b;
-	     p2++;
-	     p1++;
-	  }
-     }
-   ephoto_single_browser_image_data_update(eco->main, eco->image,
-       im_data_new, eco->w, eco->h);
-   free(im_data);
-   return im_data_new;
-}
-
-unsigned int *
-_ephoto_color_adjust_blue(Ephoto_Color *eco, int blue,
-    unsigned int *image_data)
-{
-   unsigned int *im_data, *im_data_new, *p1, *p2;
-   Evas_Coord x, y;
-   int a, r, g, b, bb;
-
-   im_data = malloc(sizeof(unsigned int) * eco->w * eco->h);
-   if (image_data)
-      memcpy(im_data, image_data, sizeof(unsigned int) * eco->w * eco->h);
-   else
-      memcpy(im_data, eco->original_im_data,
-	  sizeof(unsigned int) * eco->w * eco->h);
-
-   eco->blue = blue;
-   im_data_new = malloc(sizeof(unsigned int) * eco->w * eco->h);
-
-   for (y = 0; y < eco->h; y++)
-     {
-	p1 = im_data + (y * eco->w);
-	p2 = im_data_new + (y * eco->w);
-	for (x = 0; x < eco->w; x++)
-	  {
-	     b = (int) ((*p1) & 0xff);
-	     g = (int) ((*p1 >> 8) & 0xff);
-	     r = (int) ((*p1 >> 16) & 0xff);
-	     a = (int) ((*p1 >> 24) & 0xff);
-	     b = _mul_color_alpha(b, a);
-	     g = _mul_color_alpha(g, a);
-	     r = _mul_color_alpha(r, a);
-	     bb = (int) b + eco->blue;
-	     bb = _normalize_color(bb);
-	     g = _normalize_color(g);
-	     r = _normalize_color(r);
-	     bb = _demul_color_alpha(bb, a);
-	     g = _demul_color_alpha(g, a);
-	     r = _demul_color_alpha(r, a);
-	     *p2 = (a << 24) | (r << 16) | (g << 8) | bb;
-	     p2++;
-	     p1++;
-	  }
+        p1 = im_data + (y * eco->w);
+        p2 = im_data_new + (y * eco->w);
+        for (x = 0; x < eco->w; x++)
+          {
+             b = (int) ((*p1) & 0xff);
+             g = (int) ((*p1 >> 8) & 0xff);
+             r = (int) ((*p1 >> 16) & 0xff);
+             a = (int) ((*p1 >> 24) & 0xff);
+             b = ephoto_mul_color_alpha(b, a);
+             g = ephoto_mul_color_alpha(g, a);
+             r = ephoto_mul_color_alpha(r, a);
+             switch (color)
+               {
+                  case EPHOTO_COLOR_ADJUST_RED:
+                     eco->red = adjust;
+                     cc = (int) r + eco->red;
+                     r = cc;
+                     break;
+                  case EPHOTO_COLOR_ADJUST_BLUE:
+                     eco->blue = adjust;
+                     cc = (int) b + eco->blue;
+                     b = cc;
+                     break;
+                  case EPHOTO_COLOR_ADJUST_GREEN:
+                     eco->green = adjust;
+                     cc = (int) g + eco->green;
+                     g = cc;
+                     break;
+                  default:
+                     break;
+               }
+             b = ephoto_normalize_color(b);
+             g = ephoto_normalize_color(g);
+             r = ephoto_normalize_color(r);
+             b = ephoto_demul_color_alpha(b, a);
+             g = ephoto_demul_color_alpha(g, a);
+             r = ephoto_demul_color_alpha(r, a);
+             *p2 = (a << 24) | (r << 16) | (g << 8) | b;
+             p2++;
+             p1++;
+          }
      }
    ephoto_single_browser_image_data_update(eco->main, eco->image,
        im_data_new, eco->w, eco->h);
@@ -201,9 +100,9 @@ _red_slider_changed(void *data, Evas_Object *obj, void *event_info EINA_UNUSED)
    unsigned int *image_data, *image_data_two;
 
    red = elm_slider_value_get(obj);
-   image_data = _ephoto_color_adjust_red(eco, red, NULL);
-   image_data_two = _ephoto_color_adjust_green(eco, eco->green, image_data);
-   _ephoto_color_adjust_blue(eco, eco->blue, image_data_two);
+   image_data = _ephoto_apply_color_adjustment(eco, NULL, red, EPHOTO_COLOR_ADJUST_RED);
+   image_data_two = _ephoto_apply_color_adjustment(eco, image_data, eco->green, EPHOTO_COLOR_ADJUST_GREEN);
+   _ephoto_apply_color_adjustment(eco, image_data_two, eco->blue, EPHOTO_COLOR_ADJUST_BLUE);
 }
 
 static void
@@ -215,9 +114,9 @@ _green_slider_changed(void *data, Evas_Object *obj,
    unsigned int *image_data, *image_data_two;
 
    green = elm_slider_value_get(obj);
-   image_data = _ephoto_color_adjust_green(eco, green, NULL);
-   image_data_two = _ephoto_color_adjust_red(eco, eco->red, image_data);
-   _ephoto_color_adjust_blue(eco, eco->blue, image_data_two);
+   image_data = _ephoto_apply_color_adjustment(eco, NULL, green, EPHOTO_COLOR_ADJUST_GREEN);
+   image_data_two = _ephoto_apply_color_adjustment(eco, image_data, eco->red, EPHOTO_COLOR_ADJUST_RED);
+   _ephoto_apply_color_adjustment(eco, image_data_two, eco->blue, EPHOTO_COLOR_ADJUST_BLUE);
 }
 
 static void
@@ -229,9 +128,9 @@ _blue_slider_changed(void *data, Evas_Object *obj,
    unsigned int *image_data, *image_data_two;
 
    blue = elm_slider_value_get(obj);
-   image_data = _ephoto_color_adjust_blue(eco, blue, NULL);
-   image_data_two = _ephoto_color_adjust_red(eco, eco->red, image_data);
-   _ephoto_color_adjust_green(eco, eco->green, image_data_two);
+   image_data = _ephoto_apply_color_adjustment(eco, NULL, blue, EPHOTO_COLOR_ADJUST_BLUE);
+   image_data_two = _ephoto_apply_color_adjustment(eco, image_data, eco->red, EPHOTO_COLOR_ADJUST_RED);
+   _ephoto_apply_color_adjustment(eco, image_data_two, eco->green, EPHOTO_COLOR_ADJUST_GREEN);
 }
 
 static Eina_Bool

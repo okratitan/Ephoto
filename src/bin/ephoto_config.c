@@ -30,13 +30,13 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
    if (strcmp(path, ephoto->config->directory) && strcmp(path, "Last") &&
           ecore_file_exists(path))
      {
-        char *realpath = ecore_file_realpath(path);
+        char *rp = ecore_file_realpath(path);
         ephoto_directory_browser_clear(ephoto);
         ephoto_thumb_browser_clear(ephoto);
-        eina_stringshare_replace(&ephoto->config->directory, realpath);
+        eina_stringshare_replace(&ephoto->config->directory, rp);
         ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
         ephoto_directory_browser_initialize_structure(ephoto);
-        free(realpath);
+        free(rp);
      }
    ephoto->config->prompts = elm_check_state_get(ephoto->config->show_prompts);
    ephoto->config->drop = elm_check_state_get(ephoto->config->move_drop);
@@ -300,7 +300,11 @@ _link_anchor_bt(void *data, Evas_Object *obj,
    const char *link = evas_object_data_get(obj, "link");
 
    elm_entry_anchor_hover_end(av);
+#ifdef _WIN32
+   snprintf(buf, PATH_MAX, "start %s", link);
+#else
    snprintf(buf, PATH_MAX, "xdg-open %s", link);
+#endif
    ecore_exe_run(buf, NULL);
 }
 

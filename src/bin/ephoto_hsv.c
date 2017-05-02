@@ -18,35 +18,6 @@ struct _Ephoto_HSV
    unsigned int *original_im_data;
 };
 
-static int
-_normalize_color(int color)
-{
-   if (color < 0)
-      return 0;
-   else if (color > 255)
-      return 255;
-   else
-      return color;
-}
-
-static int
-_mul_color_alpha(int color, int alpha)
-{
-   if (alpha > 0 && alpha < 255)
-      return color * (255 / alpha);
-   else
-      return color;
-}
-
-static int
-_demul_color_alpha(int color, int alpha)
-{
-   if (alpha > 0 && alpha < 255)
-      return (color * alpha) / 255;
-   else
-      return color;
-}
-
 unsigned int *
 _ephoto_hsv_adjust_hue(Ephoto_HSV *ehsv, double hue, unsigned int *image_data)
 {
@@ -74,9 +45,9 @@ _ephoto_hsv_adjust_hue(Ephoto_HSV *ehsv, double hue, unsigned int *image_data)
 	     g = (int) ((*p1 >> 8) & 0xff);
 	     r = (int) ((*p1 >> 16) & 0xff);
 	     a = (int) ((*p1 >> 24) & 0xff);
-	     b = _mul_color_alpha(b, a);
-	     g = _mul_color_alpha(g, a);
-	     r = _mul_color_alpha(r, a);
+	     b = ephoto_mul_color_alpha(b, a);
+	     g = ephoto_mul_color_alpha(g, a);
+	     r = ephoto_mul_color_alpha(r, a);
 	     evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
 	     hh += hue;
 	     if (hh < 0)
@@ -84,12 +55,12 @@ _ephoto_hsv_adjust_hue(Ephoto_HSV *ehsv, double hue, unsigned int *image_data)
 	     if (hh > 360)
 		hh -= 360;
 	     evas_color_hsv_to_rgb(hh, s, v, &rr, &gg, &bb);
-	     bb = _normalize_color(bb);
-	     gg = _normalize_color(gg);
-	     rr = _normalize_color(rr);
-	     bb = _demul_color_alpha(bb, a);
-	     gg = _demul_color_alpha(gg, a);
-	     rr = _demul_color_alpha(rr, a);
+	     bb = ephoto_normalize_color(bb);
+	     gg = ephoto_normalize_color(gg);
+	     rr = ephoto_normalize_color(rr);
+	     bb = ephoto_demul_color_alpha(bb, a);
+	     gg = ephoto_demul_color_alpha(gg, a);
+	     rr = ephoto_demul_color_alpha(rr, a);
 	     *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
 	     p2++;
 	     p1++;
@@ -130,9 +101,9 @@ _ephoto_hsv_adjust_saturation(Ephoto_HSV *ehsv, double saturation,
 	     g = (int) ((*p1 >> 8) & 0xff);
 	     r = (int) ((*p1 >> 16) & 0xff);
 	     a = (int) ((*p1 >> 24) & 0xff);
-	     b = _mul_color_alpha(b, a);
-	     g = _mul_color_alpha(g, a);
-	     r = _mul_color_alpha(r, a);
+	     b = ephoto_mul_color_alpha(b, a);
+	     g = ephoto_mul_color_alpha(g, a);
+	     r = ephoto_mul_color_alpha(r, a);
 	     evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
 	     s += s * ((float) saturation / 100);
 	     if (s < 0)
@@ -140,12 +111,12 @@ _ephoto_hsv_adjust_saturation(Ephoto_HSV *ehsv, double saturation,
 	     if (s > 1)
 		s = 1;
 	     evas_color_hsv_to_rgb(hh, s, v, &rr, &gg, &bb);
-	     bb = _normalize_color(bb);
-	     gg = _normalize_color(gg);
-	     rr = _normalize_color(rr);
-	     bb = _demul_color_alpha(bb, a);
-	     gg = _demul_color_alpha(gg, a);
-	     rr = _demul_color_alpha(rr, a);
+	     bb = ephoto_normalize_color(bb);
+	     gg = ephoto_normalize_color(gg);
+	     rr = ephoto_normalize_color(rr);
+	     bb = ephoto_demul_color_alpha(bb, a);
+	     gg = ephoto_demul_color_alpha(gg, a);
+	     rr = ephoto_demul_color_alpha(rr, a);
 	     *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
 	     p2++;
 	     p1++;
@@ -186,9 +157,9 @@ _ephoto_hsv_adjust_value(Ephoto_HSV *ehsv, double value,
 	     g = (int) ((*p1 >> 8) & 0xff);
 	     r = (int) ((*p1 >> 16) & 0xff);
 	     a = (int) ((*p1 >> 24) & 0xff);
-	     b = _mul_color_alpha(b, a);
-	     g = _mul_color_alpha(g, a);
-	     r = _mul_color_alpha(r, a);
+	     b = ephoto_mul_color_alpha(b, a);
+	     g = ephoto_mul_color_alpha(g, a);
+	     r = ephoto_mul_color_alpha(r, a);
 	     evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
 	     v += (v * ((float) value / 100));
 	     if (v < 0)
@@ -196,12 +167,12 @@ _ephoto_hsv_adjust_value(Ephoto_HSV *ehsv, double value,
 	     if (v > 1)
 		v = 1;
 	     evas_color_hsv_to_rgb(hh, s, v, &rr, &gg, &bb);
-	     bb = _normalize_color(bb);
-	     gg = _normalize_color(gg);
-	     rr = _normalize_color(rr);
-	     bb = _demul_color_alpha(bb, a);
-	     gg = _demul_color_alpha(gg, a);
-	     rr = _demul_color_alpha(rr, a);
+	     bb = ephoto_normalize_color(bb);
+	     gg = ephoto_normalize_color(gg);
+	     rr = ephoto_normalize_color(rr);
+	     bb = ephoto_demul_color_alpha(bb, a);
+	     gg = ephoto_demul_color_alpha(gg, a);
+	     rr = ephoto_demul_color_alpha(rr, a);
 	     *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
 	     p2++;
 	     p1++;

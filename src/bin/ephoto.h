@@ -344,7 +344,7 @@ static inline Eina_Bool
 _ephoto_eina_file_direct_info_image_useful(const Eina_File_Direct_Info *info)
 {
    const char *type, *bname;
-   int i = 0;
+   int i = 0, count = 0;
 
    const char *filters[] = {
       "png", "jpeg", "jpg", "eet", "xpm", "tiff", "gif", "svg", "webp",
@@ -365,7 +365,7 @@ _ephoto_eina_file_direct_info_image_useful(const Eina_File_Direct_Info *info)
    type = strrchr(bname, '.');
    if (!type)
       return EINA_FALSE;
-   int count = sizeof(filters) / sizeof(filters[0]);
+   count = sizeof(filters) / sizeof(filters[0]);
 
    for (i = 0; i < count; i++)
      {
@@ -379,20 +379,38 @@ _ephoto_eina_file_direct_info_image_useful(const Eina_File_Direct_Info *info)
 static inline Eina_Bool
 _ephoto_file_image_can_save(const char *ext)
 {
-   int i = 0;
+   int i = 0, count = 0;
 
    const char *filters[] = {
       "png", "jpeg", "jpg", "eet", "xpm", "tiff", "tif", "gif", "svg", "webp",
       "pmaps", "bmp", "wbmp", "ico", "generic"
    };
-
-   int count = sizeof(filters) / sizeof(filters[0]);
+   count = sizeof(filters) / sizeof(filters[0]);
    for (i = 0; i < count; i++)
      {
         if (!strcasecmp(ext, filters[i]))
            return EINA_TRUE;
      }
    return EINA_FALSE;
+}
+
+/*RGBA Functions*/
+static inline int
+ephoto_normalize_color(int color)
+{
+   return (color >= 0 && color <= 255) ? color : (color < 0) ? 0 : 255;
+}
+
+static inline int
+ephoto_mul_color_alpha(int color, int alpha)
+{
+   return (alpha > 0 && alpha <= 255) ? (color * (255 /alpha)) : color;
+}
+
+static inline int
+ephoto_demul_color_alpha(int color, int alpha)
+{
+   return (alpha > 0 && alpha <= 255) ? ((color * alpha) / 255) : color;
 }
 
 /*event types*/

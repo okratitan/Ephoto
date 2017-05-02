@@ -585,18 +585,18 @@ ephoto_window_add(const char *path)
 
    if (ecore_file_is_dir(path))
      {
-        char *realpath = ecore_file_realpath(path);
-        eina_stringshare_replace(&ephoto->config->directory, realpath);
-        free(realpath);
+        char *rp = ecore_file_realpath(path);
+        eina_stringshare_replace(&ephoto->config->directory, rp);
+        free(rp);
 	_ephoto_thumb_browser_show(ephoto, NULL);
      }
    else
      {
 	char *dir = ecore_file_dir_get(path);
-        char *realpath = ecore_file_realpath(dir);
+        char *rp = ecore_file_realpath(dir);
 
-        eina_stringshare_replace(&ephoto->config->directory, realpath);
-        free(realpath);
+        eina_stringshare_replace(&ephoto->config->directory, rp);
+        free(rp);
 	free(dir);
         ephoto_single_browser_path_pending_set(ephoto->single_browser, path);
         evas_object_hide(ephoto->thumb_browser);
@@ -748,33 +748,33 @@ _ephoto_populate_filter(void *data, Eio_File *handler EINA_UNUSED,
 {
    Ephoto_Dir_Data *ed = data;
    const char *bname = info->path + info->name_start;
-   char *realpath;
+   char *rp;
 
    if (bname[0] == '.')
       return EINA_FALSE;
-   realpath = ecore_file_realpath(info->path);
+   rp = ecore_file_realpath(info->path);
    if (info->type == EINA_FILE_DIR && !ed->thumbs_only)
      {
-        free(realpath);
+        free(rp);
         return EINA_TRUE;
      }
-   else if (info->type == EINA_FILE_LNK && ecore_file_is_dir((const char *)realpath))
+   else if (info->type == EINA_FILE_LNK && ecore_file_is_dir((const char *)rp))
      {
-        Eina_Bool _is_dir = ecore_file_is_dir(realpath);
+        Eina_Bool _is_dir = ecore_file_is_dir(rp);
         if (ed->thumbs_only)
           {
-             free(realpath);
+             free(rp);
              return EINA_FALSE;
           }
-        free(realpath);
+        free(rp);
         return _is_dir;
      }
    else if (!ed->dirs_only)
      {
-        free(realpath);
+        free(rp);
         return _ephoto_eina_file_direct_info_image_useful(info);
      }
-   free(realpath);
+   free(rp);
    return EINA_FALSE;
 }
 
@@ -925,7 +925,7 @@ ephoto_directory_set(Ephoto *ephoto, const char *path, Evas_Object *expanded,
    Ephoto_Dir_Data *ed;
    Ecore_Event_Handler *handler;
    Evas_Object *o;
-   char *realpath;
+   char *rp;
 
    ed = malloc(sizeof(Ephoto_Dir_Data));
    ed->ephoto = ephoto;
@@ -943,8 +943,8 @@ ephoto_directory_set(Ephoto *ephoto, const char *path, Evas_Object *expanded,
      evas_object_del(o);
 
    ephoto_title_set(ephoto, NULL);
-   realpath = ecore_file_realpath(path);
-   eina_stringshare_replace(&ephoto->config->directory, realpath);
+   rp = ecore_file_realpath(path);
+   eina_stringshare_replace(&ephoto->config->directory, rp);
 
    if (ed->ephoto->job.change_dir)
       ecore_job_del(ed->ephoto->job.change_dir);
@@ -968,7 +968,7 @@ ephoto_directory_set(Ephoto *ephoto, const char *path, Evas_Object *expanded,
        eina_list_append(ephoto->monitor_handlers,
            ecore_event_handler_add(EIO_MONITOR_FILE_DELETED,
                _monitor_cb, ephoto));
-   free(realpath);
+   free(rp);
 }
 
 static Eina_Bool
@@ -1132,7 +1132,7 @@ ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label,
     Eina_File_Type type)
 {
    Ephoto_Entry *entry;
-   char *realpath;
+   char *rp;
 
    entry = calloc(1, sizeof(Ephoto_Entry));
    entry->ephoto = ephoto;
@@ -1140,10 +1140,10 @@ ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label,
    entry->basename = ecore_file_file_get(entry->path);
    entry->label = eina_stringshare_add(label);
    entry->sort_id = NULL;
-   realpath = ecore_file_realpath(entry->path);
+   rp = ecore_file_realpath(entry->path);
    if (type == EINA_FILE_DIR)
      entry->is_dir = EINA_TRUE;
-   else if (type == EINA_FILE_LNK && ecore_file_is_dir((const char *)realpath))
+   else if (type == EINA_FILE_LNK && ecore_file_is_dir((const char *)rp))
      entry->is_dir = EINA_TRUE;
    else
      entry->is_dir = EINA_FALSE;
@@ -1152,7 +1152,7 @@ ephoto_entry_new(Ephoto *ephoto, const char *path, const char *label,
    else
      entry->is_link = EINA_FALSE;
 
-   free(realpath);
+   free(rp);
    return entry;
 }
 

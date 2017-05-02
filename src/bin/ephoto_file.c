@@ -136,7 +136,11 @@ _upload_entry_anchor_bt(void *data, Evas_Object *obj EINA_UNUSED,
    const char *link = evas_object_data_get(av, "link");
 
    elm_entry_anchor_hover_end(av);
+#ifdef _WIN32
+   snprintf(buf, PATH_MAX, "start %s", link);
+#else
    snprintf(buf, PATH_MAX, "xdg-open %s", link);
+#endif
    ecore_exe_run(buf, NULL);
 }
 

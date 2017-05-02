@@ -88,35 +88,6 @@ _initialize_filter(Ephoto_Image_Filter filter,
    return ef;
 }
 
-static int
-_normalize_color(int color)
-{
-   if (color < 0)
-      return 0;
-   else if (color > 255)
-      return 255;
-   else
-      return color;
-}
-
-static int
-_mul_color_alpha(int color, int alpha)
-{
-   if (alpha > 0 && alpha < 255)
-      return color * (255 / alpha);
-   else
-      return color;
-}
-
-static int
-_demul_color_alpha(int color, int alpha)
-{
-   if (alpha > 0 && alpha < 255)
-      return (color * alpha) / 255;
-   else
-      return color;
-}
-
 static void
 _create_hist(Ephoto_Filter *ef)
 {
@@ -308,10 +279,10 @@ _blur_vertical(Ephoto_Filter *ef, double rad)
              rt = (int) round(valr * iarr);
              at = (int) round(vala * iarr);
 
-             bt = _normalize_color(bt);
-             gt = _normalize_color(gt);
-             rt = _normalize_color(rt);
-             at = _normalize_color(at);
+             bt = ephoto_normalize_color(bt);
+             gt = ephoto_normalize_color(gt);
+             rt = ephoto_normalize_color(rt);
+             at = ephoto_normalize_color(at);
              ef->im_data_new[t++] = (at << 24) | (rt << 16)
                  | (gt << 8) | bt;
           }
@@ -329,10 +300,10 @@ _blur_vertical(Ephoto_Filter *ef, double rad)
              gt = (int) round(valg * iarr);
              rt = (int) round(valr * iarr);
              at = (int) round(vala * iarr);
-             bt = _normalize_color(bt);
-             gt = _normalize_color(gt);
-             rt = _normalize_color(rt);
-             at = _normalize_color(at);
+             bt = ephoto_normalize_color(bt);
+             gt = ephoto_normalize_color(gt);
+             rt = ephoto_normalize_color(rt);
+             at = ephoto_normalize_color(at);
              ef->im_data_new[t++] = (at << 24) | (rt << 16)
                  | (gt << 8) | bt;
           }
@@ -349,10 +320,10 @@ _blur_vertical(Ephoto_Filter *ef, double rad)
              gt = (int) round(valg * iarr);
              rt = (int) round(valr * iarr);
              at = (int) round(vala * iarr);
-             bt = _normalize_color(bt);
-             gt = _normalize_color(gt);
-             rt = _normalize_color(rt);
-             at = _normalize_color(at);
+             bt = ephoto_normalize_color(bt);
+             gt = ephoto_normalize_color(gt);
+             rt = ephoto_normalize_color(rt);
+             at = ephoto_normalize_color(at);
              ef->im_data_new[t++] = (at << 24) | (rt << 16)
                  | (gt << 8) | bt;
           }
@@ -432,10 +403,10 @@ _blur_horizontal(Ephoto_Filter *ef, double rad)
              gt = (int) round(valg * iarr);
              rt = (int) round(valr * iarr);
              at = (int) round(vala * iarr);
-             bt = _normalize_color(bt);
-             gt = _normalize_color(gt);
-             rt = _normalize_color(rt);
-             at = _normalize_color(at);
+             bt = ephoto_normalize_color(bt);
+             gt = ephoto_normalize_color(gt);
+             rt = ephoto_normalize_color(rt);
+             at = ephoto_normalize_color(at);
              ef->im_data[t] = (at << 24) | (rt << 16)
                  | (gt << 8) | bt;
 
@@ -453,10 +424,10 @@ _blur_horizontal(Ephoto_Filter *ef, double rad)
              gt = (int) round(valg * iarr);
              rt = (int) round(valr * iarr);
              at = (int) round(vala * iarr);
-             bt = _normalize_color(bt);
-             gt = _normalize_color(gt);
-             rt = _normalize_color(rt);
-             at = _normalize_color(at);
+             bt = ephoto_normalize_color(bt);
+             gt = ephoto_normalize_color(gt);
+             rt = ephoto_normalize_color(rt);
+             at = ephoto_normalize_color(at);
              ef->im_data[t] = (at << 24) | (rt << 16)
                  | (gt << 8) | bt;
 
@@ -475,10 +446,10 @@ _blur_horizontal(Ephoto_Filter *ef, double rad)
              gt = (int) round(valg * iarr);
              rt = (int) round(valr * iarr);
              at = (int) round(vala * iarr);
-             bt = _normalize_color(bt);
-             gt = _normalize_color(gt);
-             rt = _normalize_color(rt);
-             at = _normalize_color(at);
+             bt = ephoto_normalize_color(bt);
+             gt = ephoto_normalize_color(gt);
+             rt = ephoto_normalize_color(rt);
+             at = ephoto_normalize_color(at);
              ef->im_data[t] = (at << 24) | (rt << 16)
                  | (gt << 8) | bt;
 
@@ -564,10 +535,10 @@ _sharpen(void *data, Ecore_Thread *th EINA_UNUSED)
              rrr = (int) ((2 * rr) - r);
              aaa = (int) ((2 * aa) - a);
 
-             bbb = _normalize_color(bbb);
-             ggg = _normalize_color(ggg);
-             rrr = _normalize_color(rrr);
-             aaa = _normalize_color(aaa);
+             bbb = ephoto_normalize_color(bbb);
+             ggg = ephoto_normalize_color(ggg);
+             rrr = ephoto_normalize_color(rrr);
+             aaa = ephoto_normalize_color(aaa);
 
              *p3 = (aaa << 24) | (rrr << 16) | (ggg << 8) | bbb;
              p3++;
@@ -599,18 +570,18 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
              g = ((ef->im_data_new[index] >> 8) & 0xff);
              r = ((ef->im_data_new[index] >> 16) & 0xff);
              a = ((ef->im_data_new[index] >> 24) & 0xff);
-             b = _mul_color_alpha(b, a);
-             g = _mul_color_alpha(g, a);
-             r = _mul_color_alpha(r, a);
+             b = ephoto_mul_color_alpha(b, a);
+             g = ephoto_mul_color_alpha(g, a);
+             r = ephoto_mul_color_alpha(r, a);
              bb = (b > 127) ? 255 : 0;
              gg = (g > 127) ? 255 : 0;
              rr = (r > 127) ? 255 : 0;
-             rr = _normalize_color(rr);
-             gg = _normalize_color(gg);
-             bb = _normalize_color(bb);
-             bb = _demul_color_alpha(bb, a);
-             gg = _demul_color_alpha(gg, a);
-             rr = _demul_color_alpha(rr, a);
+             rr = ephoto_normalize_color(rr);
+             gg = ephoto_normalize_color(gg);
+             bb = ephoto_normalize_color(bb);
+             bb = ephoto_demul_color_alpha(bb, a);
+             gg = ephoto_demul_color_alpha(gg, a);
+             rr = ephoto_demul_color_alpha(rr, a);
              ef->im_data_new[index] = (a << 24) | (rr << 16) |
                  (gg << 8) | bb;
              errb = b - bb;
@@ -624,18 +595,18 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
                   g = ((ef->im_data_new[index] >> 8) & 0xff);
                   r = ((ef->im_data_new[index] >> 16) & 0xff);
                   a = ((ef->im_data_new[index] >> 24) & 0xff);
-                  b = _mul_color_alpha(b, a);
-                  g = _mul_color_alpha(g, a);
-                  r = _mul_color_alpha(r, a);
+                  b = ephoto_mul_color_alpha(b, a);
+                  g = ephoto_mul_color_alpha(g, a);
+                  r = ephoto_mul_color_alpha(r, a);
                   bb = b + ((7 * errb) >> 4);
                   gg = g + ((7 * errg) >> 4);
                   rr = r + ((7 * errr) >> 4);
-                  bb = _normalize_color(bb);
-                  gg = _normalize_color(gg);
-                  rr = _normalize_color(rr);
-                  bb = _demul_color_alpha(bb, a);
-                  gg = _demul_color_alpha(gg, a);
-                  rr = _demul_color_alpha(rr, a);
+                  bb = ephoto_normalize_color(bb);
+                  gg = ephoto_normalize_color(gg);
+                  rr = ephoto_normalize_color(rr);
+                  bb = ephoto_demul_color_alpha(bb, a);
+                  gg = ephoto_demul_color_alpha(gg, a);
+                  rr = ephoto_demul_color_alpha(rr, a);
                   ef->im_data_new[index] = (a << 24) | (rr << 16) |
                       (gg << 8) | bb;
                }
@@ -646,18 +617,18 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
                   g = ((ef->im_data_new[index] >> 8) & 0xff);
                   r = ((ef->im_data_new[index] >> 16) & 0xff);
                   a = ((ef->im_data_new[index] >> 24) & 0xff);
-                  b = _mul_color_alpha(b, a);
-                  g = _mul_color_alpha(g, a);
-                  r = _mul_color_alpha(r, a);
+                  b = ephoto_mul_color_alpha(b, a);
+                  g = ephoto_mul_color_alpha(g, a);
+                  r = ephoto_mul_color_alpha(r, a);
                   bb = b + ((3 * errb) >> 4);
                   gg = g + ((3 * errg) >> 4);
                   rr = r + ((3 * errr) >> 4);
-                  bb = _normalize_color(bb);
-                  gg = _normalize_color(gg);
-                  rr = _normalize_color(rr);
-                  bb = _demul_color_alpha(bb, a);
-                  gg = _demul_color_alpha(gg, a);
-                  rr = _demul_color_alpha(rr, a);
+                  bb = ephoto_normalize_color(bb);
+                  gg = ephoto_normalize_color(gg);
+                  rr = ephoto_normalize_color(rr);
+                  bb = ephoto_demul_color_alpha(bb, a);
+                  gg = ephoto_demul_color_alpha(gg, a);
+                  rr = ephoto_demul_color_alpha(rr, a);
                   ef->im_data_new[index] = (a << 24) | (rr << 16) |
                       (gg << 8) | bb;
                }
@@ -668,18 +639,18 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
                   g = ((ef->im_data_new[index] >> 8) & 0xff);
                   r = ((ef->im_data_new[index] >> 16) & 0xff);
                   a = ((ef->im_data_new[index] >> 24) & 0xff);
-                  b = _mul_color_alpha(b, a);
-                  g = _mul_color_alpha(g, a);
-                  r = _mul_color_alpha(r, a);
+                  b = ephoto_mul_color_alpha(b, a);
+                  g = ephoto_mul_color_alpha(g, a);
+                  r = ephoto_mul_color_alpha(r, a);
                   bb = b + ((5 * errb) >> 4);
                   gg = g + ((5 * errg) >> 4);
                   rr = r + ((5 * errr) >> 4);
-                  bb = _normalize_color(bb);
-                  gg = _normalize_color(gg);
-                  rr = _normalize_color(rr);
-                  bb = _demul_color_alpha(bb, a);
-                  gg = _demul_color_alpha(gg, a);
-                  rr = _demul_color_alpha(rr, a);
+                  bb = ephoto_normalize_color(bb);
+                  gg = ephoto_normalize_color(gg);
+                  rr = ephoto_normalize_color(rr);
+                  bb = ephoto_demul_color_alpha(bb, a);
+                  gg = ephoto_demul_color_alpha(gg, a);
+                  rr = ephoto_demul_color_alpha(rr, a);
                   ef->im_data_new[index] = (a << 24) | (rr << 16) |
                       (gg << 8) | bb;
                }
@@ -690,18 +661,18 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
                   g = ((ef->im_data_new[index] >> 8) & 0xff);
                   r = ((ef->im_data_new[index] >> 16) & 0xff);
                   a = ((ef->im_data_new[index] >> 24) & 0xff);
-                  b = _mul_color_alpha(b, a);
-                  g = _mul_color_alpha(g, a);
-                  r = _mul_color_alpha(r, a);
+                  b = ephoto_mul_color_alpha(b, a);
+                  g = ephoto_mul_color_alpha(g, a);
+                  r = ephoto_mul_color_alpha(r, a);
                   bb = b + ((1 * errb) >> 4);
                   gg = g + ((1 * errg) >> 4);
                   rr = r + ((1 * errr) >> 4);
-                  bb = _normalize_color(bb);
-                  gg = _normalize_color(gg);
-                  rr = _normalize_color(rr);
-                  bb = _demul_color_alpha(bb, a);
-                  gg = _demul_color_alpha(gg, a);
-                  rr = _demul_color_alpha(rr, a);
+                  bb = ephoto_normalize_color(bb);
+                  gg = ephoto_normalize_color(gg);
+                  rr = ephoto_normalize_color(rr);
+                  bb = ephoto_demul_color_alpha(bb, a);
+                  gg = ephoto_demul_color_alpha(gg, a);
+                  rr = ephoto_demul_color_alpha(rr, a);
                   ef->im_data_new[index] = (a << 24) | (rr << 16) |
                       (gg << 8) | bb;
                }
@@ -727,9 +698,9 @@ _grayscale(void *data, Ecore_Thread *th EINA_UNUSED)
              g = (int) ((ef->im_data[i] >> 8) & 0xff);
              r = (int) ((ef->im_data[i] >> 16) & 0xff);
              a = (int) ((ef->im_data[i] >> 24) & 0xff);
-             b = _mul_color_alpha(b, a);
-             g = _mul_color_alpha(g, a);
-             r = _mul_color_alpha(r, a);
+             b = ephoto_mul_color_alpha(b, a);
+             g = ephoto_mul_color_alpha(g, a);
+             r = ephoto_mul_color_alpha(r, a);
              gray = (int) ((0.3 * r) + (0.59 * g) + (0.11 * b));
              if (a >= 0 && a < 255)
                gray = (gray * a) / 255;
@@ -757,18 +728,18 @@ _sepia(void *data, Ecore_Thread *th EINA_UNUSED)
              g = ((ef->im_data[i] >> 8) & 0xff);
              r = ((ef->im_data[i] >> 16) & 0xff);
              a = ((ef->im_data[i] >> 24) & 0xff);
-             b = _mul_color_alpha(b, a);
-             g = _mul_color_alpha(g, a);
-             r = _mul_color_alpha(r, a);
+             b = ephoto_mul_color_alpha(b, a);
+             g = ephoto_mul_color_alpha(g, a);
+             r = ephoto_mul_color_alpha(r, a);
              rr = (int) ((r * .393) + (g * .769) + (b * .189));
-             rr = _normalize_color(rr);
+             rr = ephoto_normalize_color(rr);
              gg = ((r * .349) + (g * .686) + (b * .168));
-             gg = _normalize_color(gg);
+             gg = ephoto_normalize_color(gg);
              bb = (int) ((r * .272) + (g * .534) + (b * .131));
-             bb = _normalize_color(bb);
-             bb = _demul_color_alpha(bb, a);
-             gg = _demul_color_alpha(gg, a);
-             rr = _demul_color_alpha(rr, a);
+             bb = ephoto_normalize_color(bb);
+             bb = ephoto_demul_color_alpha(bb, a);
+             gg = ephoto_demul_color_alpha(gg, a);
+             rr = ephoto_demul_color_alpha(rr, a);
              ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
           }
      }
@@ -794,21 +765,21 @@ _posterize(void *data, Ecore_Thread *th EINA_UNUSED)
              fg = ((ef->im_data[i] >> 8) & 0xff);
              fr = ((ef->im_data[i] >> 16) & 0xff);
              a = ((ef->im_data[i] >> 24) & 0xff);
-             fb = _mul_color_alpha(fb, a);
-             fg = _mul_color_alpha(fg, a);
-             fr = _mul_color_alpha(fr, a);
+             fb = ephoto_mul_color_alpha(fb, a);
+             fg = ephoto_mul_color_alpha(fg, a);
+             fr = ephoto_mul_color_alpha(fr, a);
              fr /= 255;
              fg /= 255;
              fb /= 255;
              rr = 255 * rint((fr * rad)) / rad;
-             rr = _normalize_color(rr);
+             rr = ephoto_normalize_color(rr);
              gg = 255 * rint((fg * rad)) / rad;
-             gg = _normalize_color(gg);
+             gg = ephoto_normalize_color(gg);
              bb = 255 * rint((fb * rad)) / rad;
-             bb = _normalize_color(bb);
-             bb = _demul_color_alpha(bb, a);
-             gg = _demul_color_alpha(gg, a);
-             rr = _demul_color_alpha(rr, a);
+             bb = ephoto_normalize_color(bb);
+             bb = ephoto_demul_color_alpha(bb, a);
+             gg = ephoto_demul_color_alpha(gg, a);
+             rr = ephoto_demul_color_alpha(rr, a);
              ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
           }
      }
@@ -832,18 +803,18 @@ _negative(void *data, Ecore_Thread *th EINA_UNUSED)
              g = ((ef->im_data[i] >> 8) & 0xff);
              r = ((ef->im_data[i] >> 16) & 0xff);
              a = ((ef->im_data[i] >> 24) & 0xff);
-             b = _mul_color_alpha(b, a);
-             g = _mul_color_alpha(g, a);
-             r = _mul_color_alpha(r, a);
+             b = ephoto_mul_color_alpha(b, a);
+             g = ephoto_mul_color_alpha(g, a);
+             r = ephoto_mul_color_alpha(r, a);
              rr = 255 - r;
              gg = 255 - g;
              bb = 255 - b;
-             rr = _normalize_color(rr);
-             gg = _normalize_color(gg);
-             bb = _normalize_color(bb);
-             bb = _demul_color_alpha(bb, a);
-             gg = _demul_color_alpha(gg, a);
-             rr = _demul_color_alpha(rr, a);
+             rr = ephoto_normalize_color(rr);
+             gg = ephoto_normalize_color(gg);
+             bb = ephoto_normalize_color(bb);
+             bb = ephoto_demul_color_alpha(bb, a);
+             gg = ephoto_demul_color_alpha(gg, a);
+             rr = ephoto_demul_color_alpha(rr, a);
              ef->im_data_new[i] = (a << 24) | (rr << 16) | (gg << 8) | bb;
           }
      }
@@ -886,10 +857,10 @@ _dodge(void *data, Ecore_Thread *th EINA_UNUSED)
              rrr = rint(r / (255 - rr));
              aaa = rint(a / (255 - aa));
 
-             rrr = _normalize_color(rrr);
-             ggg = _normalize_color(ggg);
-             bbb = _normalize_color(bbb);
-             aaa = _normalize_color(aaa);
+             rrr = ephoto_normalize_color(rrr);
+             ggg = ephoto_normalize_color(ggg);
+             bbb = ephoto_normalize_color(bbb);
+             aaa = ephoto_normalize_color(aaa);
 
              ef->im_data_new[i] = (aaa << 24) | (rrr << 16) | (ggg << 8) | bbb;
           }
@@ -940,10 +911,10 @@ _sobel(void *data, Ecore_Thread *th EINA_UNUSED)
              g = ((*p >> 8) & 0xff);
              r = ((*p >> 16) & 0xff);
              a = ((*p >> 24) & 0xff);
-             b = _normalize_color(b);
-             g = _normalize_color(g);
-             r = _normalize_color(r);
-             a = _normalize_color(a);
+             b = ephoto_normalize_color(b);
+             g = ephoto_normalize_color(g);
+             r = ephoto_normalize_color(r);
+             a = ephoto_normalize_color(a);
              *p = (a << 24) | (r << 16) | (g << 8) | b;
              p++;
           }
@@ -989,10 +960,10 @@ _emboss(void *data, Ecore_Thread *th EINA_UNUSED)
                          }
                     }
                }
-             aa = _normalize_color(aa);
-             bb = _normalize_color(bb);
-             gg = _normalize_color(gg);
-             rr = _normalize_color(rr);
+             aa = ephoto_normalize_color(aa);
+             bb = ephoto_normalize_color(bb);
+             gg = ephoto_normalize_color(gg);
+             rr = ephoto_normalize_color(rr);
              *p = (aa << 24) | (rr << 16) | (gg << 8) | bb;
              p++;
           }
@@ -1022,9 +993,9 @@ _histogram_eq(void *data, Ecore_Thread *th EINA_UNUSED)
              g = ((*p1 >> 8) & 0xff);
              r = ((*p1 >> 16) & 0xff);
              a = ((*p1 >> 24) & 0xff);
-             b = _mul_color_alpha(b, a);
-             g = _mul_color_alpha(g, a);
-             r = _mul_color_alpha(r, a);
+             b = ephoto_mul_color_alpha(b, a);
+             g = ephoto_mul_color_alpha(g, a);
+             r = ephoto_mul_color_alpha(r, a);
              evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
              norm = (int) round((double) v * (double) 255);
              ef->hist[norm] += 1;
@@ -1048,19 +1019,19 @@ _histogram_eq(void *data, Ecore_Thread *th EINA_UNUSED)
              g = ((*p1 >> 8) & 0xff);
              r = ((*p1 >> 16) & 0xff);
              a = ((*p1 >> 24) & 0xff);
-             b = _mul_color_alpha(b, a);
-             g = _mul_color_alpha(g, a);
-             r = _mul_color_alpha(r, a);
+             b = ephoto_mul_color_alpha(b, a);
+             g = ephoto_mul_color_alpha(g, a);
+             r = ephoto_mul_color_alpha(r, a);
              evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
              norm = (int) round((double) v * (double) 255);
              nv = (float) ef->cdf[norm] / (float) 255;
              evas_color_hsv_to_rgb(hh, s, nv, &rr, &gg, &bb);
-             bb = _normalize_color(bb);
-             gg = _normalize_color(gg);
-             rr = _normalize_color(rr);
-             bb = _demul_color_alpha(bb, a);
-             gg = _demul_color_alpha(gg, a);
-             rr = _demul_color_alpha(rr, a);
+             bb = ephoto_normalize_color(bb);
+             gg = ephoto_normalize_color(gg);
+             rr = ephoto_normalize_color(rr);
+             bb = ephoto_demul_color_alpha(bb, a);
+             gg = ephoto_demul_color_alpha(gg, a);
+             rr = ephoto_demul_color_alpha(rr, a);
              *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
              p2++;
              p1++;

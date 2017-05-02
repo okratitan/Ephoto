@@ -50,6 +50,14 @@ ephoto_thumbnail_CPPFLAGS = \
         -Wall \
         -Wextra \
         -Wshadow \
+        -Wdeclaration-after-statement \
+        -Wmissing-prototypes \
+        -Wstrict-prototypes \
+        -Wpointer-arith \
+        -Wno-missing-field-initializers \
+        -fvisibility=hidden \
+        -fdata-sections \
+        -ffunction-sections \
         @EFL_CFLAGS@
 
 ephoto_thumbnail_LDADD = @EFL_LIBS@

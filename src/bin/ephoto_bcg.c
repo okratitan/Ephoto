@@ -18,35 +18,6 @@ struct _Ephoto_BCG
    unsigned int *original_im_data;
 };
 
-static int
-_normalize_color(int color)
-{
-   if (color < 0)
-      return 0;
-   else if (color > 255)
-      return 255;
-   else
-      return color;
-}
-
-static int
-_mul_color_alpha(int color, int alpha)
-{
-   if (alpha > 0 && alpha < 255)
-      return color * (255 / alpha);
-   else
-      return color;
-}
-
-static int
-_demul_color_alpha(int color, int alpha)
-{
-   if (alpha > 0 && alpha < 255)
-      return (color * alpha) / 255;
-   else
-      return color;
-}
-
 unsigned int *
 _ephoto_bcg_adjust_brightness(Ephoto_BCG *ebcg, int brightness,
     unsigned int *image_data)
@@ -75,18 +46,18 @@ _ephoto_bcg_adjust_brightness(Ephoto_BCG *ebcg, int brightness,
 	     g = (int) ((*p1 >> 8) & 0xff);
 	     r = (int) ((*p1 >> 16) & 0xff);
 	     a = (int) ((*p1 >> 24) & 0xff);
-	     b = _mul_color_alpha(b, a);
-	     g = _mul_color_alpha(g, a);
-	     r = _mul_color_alpha(r, a);
+	     b = ephoto_mul_color_alpha(b, a);
+	     g = ephoto_mul_color_alpha(g, a);
+	     r = ephoto_mul_color_alpha(r, a);
 	     bb = (int) b + ebcg->brightness;
 	     gg = (int) g + ebcg->brightness;
 	     rr = (int) r + ebcg->brightness;
-	     bb = _normalize_color(bb);
-	     gg = _normalize_color(gg);
-	     rr = _normalize_color(rr);
-	     bb = _demul_color_alpha(bb, a);
-	     gg = _demul_color_alpha(gg, a);
-	     rr = _demul_color_alpha(rr, a);
+	     bb = ephoto_normalize_color(bb);
+	     gg = ephoto_normalize_color(gg);
+	     rr = ephoto_normalize_color(rr);
+	     bb = ephoto_demul_color_alpha(bb, a);
+	     gg = ephoto_demul_color_alpha(gg, a);
+	     rr = ephoto_demul_color_alpha(rr, a);
 	     *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
 	     p2++;
 	     p1++;
@@ -130,18 +101,18 @@ _ephoto_bcg_adjust_contrast(Ephoto_BCG *ebcg, int contrast,
 	     g = (int) ((*p1 >> 8) & 0xff);
 	     r = (int) ((*p1 >> 16) & 0xff);
 	     a = (int) ((*p1 >> 24) & 0xff);
-	     b = _mul_color_alpha(b, a);
-	     g = _mul_color_alpha(g, a);
-	     r = _mul_color_alpha(r, a);
+	     b = ephoto_mul_color_alpha(b, a);
+	     g = ephoto_mul_color_alpha(g, a);
+	     r = ephoto_mul_color_alpha(r, a);
 	     bb = (int) ((factor * (b - 128)) + 128);
 	     gg = (int) ((factor * (g - 128)) + 128);
 	     rr = (int) ((factor * (r - 128)) + 128);
-	     bb = _normalize_color(bb);
-	     gg = _normalize_color(gg);
-	     rr = _normalize_color(rr);
-	     bb = _demul_color_alpha(bb, a);
-	     gg = _demul_color_alpha(gg, a);
-	     rr = _demul_color_alpha(rr, a);
+	     bb = ephoto_normalize_color(bb);
+	     gg = ephoto_normalize_color(gg);
+	     rr = ephoto_normalize_color(rr);
+	     bb = ephoto_demul_color_alpha(bb, a);
+	     gg = ephoto_demul_color_alpha(gg, a);
+	     rr = ephoto_demul_color_alpha(rr, a);
 	     *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
 	     p2++;
 	     p1++;
@@ -181,18 +152,18 @@ _ephoto_bcg_adjust_gamma(Ephoto_BCG *ebcg, double gamma,
 	     g = (int) ((*p1 >> 8) & 0xff);
 	     r = (int) ((*p1 >> 16) & 0xff);
 	     a = (int) ((*p1 >> 24) & 0xff);
-	     b = _mul_color_alpha(b, a);
-	     g = _mul_color_alpha(g, a);
-	     r = _mul_color_alpha(r, a);
+	     b = ephoto_mul_color_alpha(b, a);
+	     g = ephoto_mul_color_alpha(g, a);
+	     r = ephoto_mul_color_alpha(r, a);
 	     bb = (int) (pow(((double) b / 255), ebcg->gamma) * 255);
 	     gg = (int) (pow(((double) g / 255), ebcg->gamma) * 255);
 	     rr = (int) (pow(((double) r / 255), ebcg->gamma) * 255);
-	     bb = _normalize_color(bb);
-	     gg = _normalize_color(gg);
-	     rr = _normalize_color(rr);
-	     bb = _demul_color_alpha(bb, a);
-	     gg = _demul_color_alpha(gg, a);
-	     rr = _demul_color_alpha(rr, a);
+	     bb = ephoto_normalize_color(bb);
+	     gg = ephoto_normalize_color(gg);
+	     rr = ephoto_normalize_color(rr);
+	     bb = ephoto_demul_color_alpha(bb, a);
+	     gg = ephoto_demul_color_alpha(gg, a);
+	     rr = ephoto_demul_color_alpha(rr, a);
 	     *p2 = (a << 24) | (rr << 16) | (gg << 8) | bb;
 	     p2++;
 	     p1++;

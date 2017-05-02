@@ -387,19 +387,19 @@ _check_for_subdirs(Ephoto_Entry *entry)
      return EINA_FALSE;
    EINA_ITERATOR_FOREACH(ls, info)
      {
-        char *realpath = ecore_file_realpath(info->path);
+        char *rp = ecore_file_realpath(info->path);
         if (info->type != EINA_FILE_DIR && info->type != EINA_FILE_LNK)
           {
-             free(realpath);
+             free(rp);
              continue;
           }
-        if (info->type == EINA_FILE_LNK && !ecore_file_is_dir((const char *)realpath))
+        if (info->type == EINA_FILE_LNK && !ecore_file_is_dir((const char *)rp))
           {
-             free(realpath);
+             free(rp);
              continue;
           }
         eina_iterator_free(ls);
-        free(realpath);
+        free(rp);
         return EINA_TRUE;
      }
    eina_iterator_free(ls);
@@ -496,14 +496,14 @@ _fsel_menu_go_root(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EI
 {
    Ephoto *ephoto = data;
    const char *path = "/";
-   char *realpath = ecore_file_realpath(path);
+   char *rp = ecore_file_realpath(path);
 
    ephoto_directory_browser_clear(ephoto);
    ephoto_thumb_browser_clear(ephoto);
-   eina_stringshare_replace(&ephoto->config->directory, realpath);
+   eina_stringshare_replace(&ephoto->config->directory, rp);
    ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
    ephoto_directory_browser_initialize_structure(ephoto);
-   free(realpath);
+   free(rp);
 }
 
 static void
@@ -511,14 +511,14 @@ _fsel_menu_go_home(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EI
 {
    Ephoto *ephoto = data;
    const char *path = eina_environment_home_get();
-   char *realpath = ecore_file_realpath(path);
+   char *rp = ecore_file_realpath(path);
 
    ephoto_directory_browser_clear(ephoto);
    ephoto_thumb_browser_clear(ephoto);
-   eina_stringshare_replace(&ephoto->config->directory, realpath);
+   eina_stringshare_replace(&ephoto->config->directory, rp);
    ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
    ephoto_directory_browser_initialize_structure(ephoto);
-   free(realpath);
+   free(rp);
 }
 
 static void
@@ -717,9 +717,9 @@ _todo_items_free(Ephoto_Directory_Browser *db)
 static void
 _monitor_add(Ephoto_Entry *e)
 {
-   char *realpath = ecore_file_realpath(e->path);
+   char *rp = ecore_file_realpath(e->path);
 
-   e->monitor = eio_monitor_add(realpath);
+   e->monitor = eio_monitor_add(rp);
    e->monitor_handlers =
        eina_list_append(e->monitor_handlers,
            ecore_event_handler_add(EIO_MONITOR_FILE_CREATED,
@@ -745,7 +745,7 @@ _monitor_add(Ephoto_Entry *e)
            ecore_event_handler_add(EIO_MONITOR_DIRECTORY_DELETED,
                _monitor_cb, e));
 
-   free(realpath);
+   free(rp);
 }
 
 static Eina_Bool
@@ -774,15 +774,15 @@ _monitor_cb(void *data, int type,
      return ECORE_CALLBACK_PASS_ON;
    if (type == EIO_MONITOR_DIRECTORY_CREATED || type == EIO_MONITOR_FILE_CREATED)
      {
-        char *realpath = ecore_file_realpath(ev->filename);
-        if (!ecore_file_is_dir((const char *)realpath))
+        char *rp = ecore_file_realpath(ev->filename);
+        if (!ecore_file_is_dir((const char *)rp))
           {
-             free(realpath);
+             free(rp);
              return ECORE_CALLBACK_PASS_ON;
           }
         if (ephoto_entry_exists(entry->ephoto, ev->filename))
           {
-             free(realpath);
+             free(rp);
              return ECORE_CALLBACK_PASS_ON;
           }
         if (elm_genlist_item_type_get(entry->item) == ELM_GENLIST_ITEM_TREE &&
@@ -818,7 +818,7 @@ _monitor_cb(void *data, int type,
              entry->item = parent;
              entry->no_delete = EINA_FALSE;
           }
-        free(realpath);
+        free(rp);
         return ECORE_CALLBACK_PASS_ON;
      }
    else if (type == EIO_MONITOR_DIRECTORY_DELETED || type == EIO_MONITOR_FILE_DELETED)
@@ -867,10 +867,10 @@ _monitor_cb(void *data, int type,
      }
    else if (type == EIO_MONITOR_DIRECTORY_MODIFIED || type == EIO_MONITOR_FILE_MODIFIED)
      {
-        char *realpath = ecore_file_realpath(ev->filename);
-        if (!ecore_file_is_dir((const char *)realpath))
+        char *rp = ecore_file_realpath(ev->filename);
+        if (!ecore_file_is_dir((const char *)rp))
           {
-             free(realpath);
+             free(rp);
              return ECORE_CALLBACK_PASS_ON;
           }
         if ((elm_genlist_item_expanded_get(entry->item) == EINA_TRUE))
@@ -887,7 +887,7 @@ _monitor_cb(void *data, int type,
                   item = elm_genlist_item_next_get(item);
                }
           }
-        free(realpath);
+        free(rp);
         return ECORE_CALLBACK_PASS_ON;
      }
    return ECORE_CALLBACK_PASS_ON;
@@ -916,15 +916,15 @@ _top_monitor_cb(void *data, int type,
      return ECORE_CALLBACK_PASS_ON;
    if (type == EIO_MONITOR_DIRECTORY_CREATED || type == EIO_MONITOR_FILE_CREATED)
      {
-        char *realpath = ecore_file_realpath(ev->filename);
-        if (!ecore_file_is_dir((const char *)realpath))
+        char *rp = ecore_file_realpath(ev->filename);
+        if (!ecore_file_is_dir((const char *)rp))
           {
-             free(realpath);
+             free(rp);
              return ECORE_CALLBACK_PASS_ON;
           }
         if (ephoto_entry_exists(db->ephoto, ev->filename))
           {
-             free(realpath);
+             free(rp);
              return ECORE_CALLBACK_PASS_ON;
           }
         snprintf(buf, PATH_MAX, "%s", ev->filename);
@@ -937,7 +937,7 @@ _top_monitor_cb(void *data, int type,
             NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
         if (e->item)
           _monitor_add(e);
-        free(realpath);
+        free(rp);
         return ECORE_CALLBACK_PASS_ON;
      }
    else if (type == EIO_MONITOR_DIRECTORY_DELETED || type == EIO_MONITOR_FILE_DELETED)
@@ -960,10 +960,10 @@ _top_monitor_cb(void *data, int type,
      }
    else if (type == EIO_MONITOR_DIRECTORY_MODIFIED || type == EIO_MONITOR_FILE_MODIFIED)
      {
-        char *realpath = ecore_file_realpath(ev->filename);
-        if (!ecore_file_is_dir((const char *)realpath))
+        char *rp = ecore_file_realpath(ev->filename);
+        if (!ecore_file_is_dir((const char *)rp))
           {
-             free(realpath);
+             free(rp);
              return ECORE_CALLBACK_PASS_ON;
           }
         item = elm_genlist_first_item_get(db->fsel);
@@ -977,7 +977,7 @@ _top_monitor_cb(void *data, int type,
                }
              item = elm_genlist_item_next_get(item);
           }
-        free(realpath);
+        free(rp);
         return ECORE_CALLBACK_PASS_ON;
      }
    return ECORE_CALLBACK_PASS_ON;
@@ -1092,16 +1092,16 @@ _ephoto_dir_entry_create(void *data, int type EINA_UNUSED, void *event)
    Ephoto_Directory_Browser *db = data;
    Ephoto_Event_Entry_Create *ev = event;
    Ephoto_Entry *e;
-   char *realpath;
+   char *rp;
 
    e = ev->entry;
-   realpath = ecore_file_realpath(e->path);
+   rp = ecore_file_realpath(e->path);
    if (e->is_dir)
      {
 	db->todo_items = eina_list_append(db->todo_items, e);
 	db->animator.count++;
      }
-   else if (ecore_file_is_dir((const char *)realpath))
+   else if (ecore_file_is_dir((const char *)rp))
      {
         db->todo_items = eina_list_append(db->todo_items, e);
         db->animator.count++;
@@ -1109,7 +1109,7 @@ _ephoto_dir_entry_create(void *data, int type EINA_UNUSED, void *event)
    if (!db->animator.todo_items)
       db->animator.todo_items = ecore_animator_add(_todo_items_process, db);
 
-   free(realpath);
+   free(rp);
    return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -1159,7 +1159,7 @@ ephoto_directory_browser_top_dir_set(Ephoto *ephoto, const char *dir)
    Ephoto_Directory_Browser *db =
        evas_object_data_get(ephoto->dir_browser, "directory_browser");
    Ecore_Event_Handler *handler;
-   char *realpath = ecore_file_realpath(dir);
+   char *rp = ecore_file_realpath(dir);
 
    if (db->monitor)
      {
@@ -1171,7 +1171,7 @@ ephoto_directory_browser_top_dir_set(Ephoto *ephoto, const char *dir)
      eina_stringshare_replace(&ephoto->top_directory, dir);
    else
      ephoto->top_directory = eina_stringshare_add(dir);
-   db->monitor = eio_monitor_add(realpath);
+   db->monitor = eio_monitor_add(rp);
    db->monitor_handlers =
        eina_list_append(db->monitor_handlers,
            ecore_event_handler_add(EIO_MONITOR_FILE_CREATED,
@@ -1196,7 +1196,7 @@ ephoto_directory_browser_top_dir_set(Ephoto *ephoto, const char *dir)
        eina_list_append(db->monitor_handlers,
            ecore_event_handler_add(EIO_MONITOR_DIRECTORY_DELETED,
                _top_monitor_cb, db));
-   free(realpath);
+   free(rp);
 }
 
 void
@@ -1240,15 +1240,15 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
         cur = next;
         EINA_ITERATOR_FOREACH(it, finfo)
           {
-             char *realpath = ecore_file_realpath(finfo->path);
+             char *rp = ecore_file_realpath(finfo->path);
              if (finfo->type != EINA_FILE_DIR && finfo->type != EINA_FILE_LNK)
                {
-                  free(realpath);
+                  free(rp);
                   continue;
                }
-             if (finfo->type == EINA_FILE_LNK && !ecore_file_is_dir((const char *)realpath))
+             if (finfo->type == EINA_FILE_LNK && !ecore_file_is_dir((const char *)rp))
                {
-                  free(realpath);
+                  free(rp);
                   continue;
                }
              if (strncmp(finfo->path + finfo->name_start, ".", 1))
@@ -1294,7 +1294,7 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
                          }
                     }
                }
-             free(realpath);
+             free(rp);
           }
         count++;
         free(dir);

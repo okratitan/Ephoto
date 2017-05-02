@@ -15,35 +15,6 @@ struct _Ephoto_Reye
    unsigned int *edited_im_data;
 };
 
-static int
-_normalize_color(int color)
-{
-   if (color < 0)
-      return 0;
-   else if (color > 255)
-      return 255;
-   else
-      return color;
-}
-
-static int
-_mul_color_alpha(int color, int alpha)
-{
-   if (alpha > 0 && alpha < 255)
-      return color * (255 / alpha);
-   else
-      return color;
-}
-
-static int
-_demul_color_alpha(int color, int alpha)
-{
-   if (alpha > 0 && alpha < 255)
-      return (color * alpha) / 255;
-   else
-      return color;
-}
-
 static void
 _reye_clicked(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
     void *event_data EINA_UNUSED)
@@ -96,16 +67,16 @@ _reye_clicked(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
                    g = (int) ((*p1 >> 8) & 0xff);
                    r = (int) ((*p1 >> 16) & 0xff);
                    a = (int) ((*p1 >> 24) & 0xff);
-                   b = _mul_color_alpha(b, a);
-                   g = _mul_color_alpha(g, a);
-                   r = _mul_color_alpha(r, a);
+                   b = ephoto_mul_color_alpha(b, a);
+                   g = ephoto_mul_color_alpha(g, a);
+                   r = ephoto_mul_color_alpha(r, a);
                    r = (int) ((g+b)/2);
-                   b = _normalize_color(b);
-                   g = _normalize_color(g);
-                   r = _normalize_color(r);
-                   b = _demul_color_alpha(b, a);
-                   g = _demul_color_alpha(g, a);
-                   r = _demul_color_alpha(r, a);
+                   b = ephoto_normalize_color(b);
+                   g = ephoto_normalize_color(g);
+                   r = ephoto_normalize_color(r);
+                   b = ephoto_demul_color_alpha(b, a);
+                   g = ephoto_demul_color_alpha(g, a);
+                   r = ephoto_demul_color_alpha(r, a);
                    *p1 = (a << 24) | (r << 16) | (g << 8) | b;
                }
           }

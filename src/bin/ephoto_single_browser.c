@@ -338,7 +338,8 @@ _monitor_cb(void *data, int type,
      }
    else if (type == EIO_MONITOR_FILE_DELETED)
      {
-        _ephoto_main_back(sb, NULL, NULL);
+        if (!ecore_file_exists(sb->entry->path))
+          _ephoto_main_back(sb, NULL, NULL);
      }      
    return ECORE_CALLBACK_PASS_ON;
 }

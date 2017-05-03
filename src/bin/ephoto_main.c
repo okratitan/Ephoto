@@ -498,6 +498,7 @@ ephoto_window_add(const char *path)
    ephoto->infolabel = elm_label_add(ephoto->statusbar);
    elm_object_style_set(ephoto->infolabel, "info");
    elm_label_line_wrap_set(ephoto->infolabel, ELM_WRAP_MIXED);
+   elm_label_ellipsis_set(ephoto->infolabel, EINA_TRUE);
    elm_object_text_set(ephoto->infolabel, _("Information"));
    EPHOTO_EXPAND(ephoto->infolabel);
    EPHOTO_FILL(ephoto->infolabel);

@@ -2142,10 +2142,18 @@ ephoto_single_browser_entries_set(Evas_Object *obj, Eina_List *entries)
 
                   elm_image_file_get(v->image, &image, NULL);
                   dir = ecore_file_dir_get(image);
-                  if (strcmp(sb->ephoto->config->directory, dir))
-                    ephoto_single_browser_entry_set(sb->main,
+		  if (!dir)
+                    {
+                       ephoto_single_browser_entry_set(sb->main,
                         _first_entry_find(sb));
-                  free(dir);
+                    }
+                  else
+                    {
+                       if (strcmp(sb->ephoto->config->directory, dir))
+                         ephoto_single_browser_entry_set(sb->main,
+                             _first_entry_find(sb));
+                       free(dir);
+		    }
                }
              else
                ephoto_single_browser_entry_set(sb->main,

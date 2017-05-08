@@ -1657,6 +1657,17 @@ _edit_function_item_add(Evas_Object *parent, const char *icon, const char *label
 }
 
 char *
+_item2_text_get(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA_UNUSED)
+{
+   char *txt = data;
+
+   if (txt)
+     return strdup(txt);
+   else
+     return NULL;
+}
+
+char *
 _item_text_get(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA_UNUSED)
 {
    Evas_Object *ic = data;
@@ -1696,6 +1707,7 @@ _edit_item_add(Evas_Object *parent, Elm_Object_Item *par, const char *icon, cons
 {
    Evas_Object *ic;
    Elm_Genlist_Item_Class *itc = elm_genlist_item_class_new();
+   Elm_Genlist_Item_Class *itc2 = elm_genlist_item_class_new();
 
    itc = elm_genlist_item_class_new();
    itc->item_style = "default";
@@ -1704,15 +1716,30 @@ _edit_item_add(Evas_Object *parent, Elm_Object_Item *par, const char *icon, cons
    itc->func.state_get = NULL;
    itc->func.del = NULL;
 
-   ic = elm_icon_add(parent);
-   evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
-       20*elm_config_scale_get());
-   evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
-   elm_icon_standard_set(ic, icon);
-   evas_object_data_set(ic, "label", label);
+   itc2 = elm_genlist_item_class_new();
+   itc2->item_style = "no_icon";
+   itc2->func.text_get = _item2_text_get;
+   itc2->func.content_get = NULL;
+   itc2->func.state_get = NULL;
+   itc2->func.del = NULL;
 
-   elm_genlist_item_append(parent, itc, ic, par,
-       ELM_GENLIST_ITEM_NONE, callback, data);
+   if (icon)
+     {
+        ic = elm_icon_add(parent);
+        evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
+            20*elm_config_scale_get());
+        evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+        elm_icon_standard_set(ic, icon);
+        evas_object_data_set(ic, "label", label);
+
+        elm_genlist_item_append(parent, itc, ic, par,
+            ELM_GENLIST_ITEM_NONE, callback, data);
+     }
+   else
+     {
+        elm_genlist_item_append(parent, itc2, label, par,
+            ELM_GENLIST_ITEM_NONE, callback, data);
+     }
 }
 
 static void
@@ -1786,43 +1813,43 @@ _editor_menu(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNU
        _go_flip_horiz, sb);
    _edit_item_add(list, par, "object-flip-vertical", _("Flip Vertical"),
        _go_flip_vert, sb);
-   par = elm_genlist_item_append(list, itc, _("Color"), NULL, ELM_GENLIST_ITEM_GROUP,
+   par = elm_genlist_item_append(list, itc, _("Adjustable Filters"), NULL, ELM_GENLIST_ITEM_GROUP,
        NULL, NULL);
    elm_genlist_item_select_mode_set(par, ELM_OBJECT_SELECT_MODE_DISPLAY_ONLY);
-   _edit_item_add(list, par, "insert-image", _("Auto Equalize"),
-       _go_auto_eq, sb);
-   _edit_item_add(list, par, "insert-image", _("Brightness/Contrast/Gamma"),
+   _edit_item_add(list, par, NULL, _("Brightness/Contrast/Gamma"),
        _go_bcg, sb);
-   _edit_item_add(list, par, "insert-image", _("Hue/Saturation/Value"),
+   _edit_item_add(list, par, NULL, _("Hue/Saturation/Value"),
        _go_hsv, sb);
-   _edit_item_add(list, par, "insert-image", _("Color Levels"),
+   _edit_item_add(list, par, NULL, _("Color Levels"),
        _go_color, sb);
-   _edit_item_add(list, par, "insert-image", _("Red Eye Removal"),
+   _edit_item_add(list, par, NULL, _("Red Eye Removal"),
        _go_reye, sb);
-   par = elm_genlist_item_append(list, itc, _("Filters"), NULL, ELM_GENLIST_ITEM_GROUP,
+   par = elm_genlist_item_append(list, itc, _("Quick Filters"), NULL, ELM_GENLIST_ITEM_GROUP,
        NULL, NULL);
    elm_genlist_item_select_mode_set(par, ELM_OBJECT_SELECT_MODE_DISPLAY_ONLY);
-   _edit_item_add(list, par, "insert-image", _("Black and White"),
+   _edit_item_add(list, par, NULL, _("Auto Equalize"),
+       _go_auto_eq, sb);
+   _edit_item_add(list, par, NULL, _("Black and White"),
        _go_black_and_white, sb);
-   _edit_item_add(list, par, "insert-image", _("Blur"),
+   _edit_item_add(list, par, NULL, _("Blur"),
        _go_blur, sb);
-   _edit_item_add(list, par, "insert-image", _("Dither"),
+   _edit_item_add(list, par, NULL, _("Dither"),
        _go_dither, sb);
-   _edit_item_add(list, par, "insert-image", _("Edge Detect"),
+   _edit_item_add(list, par, NULL, _("Edge Detect"),
        _go_edge, sb);
-   _edit_item_add(list, par, "insert-image", _("Emboss"),
+   _edit_item_add(list, par, NULL, _("Emboss"),
        _go_emboss, sb);
-   _edit_item_add(list, par, "insert-image", _("Invert Colors"),
+   _edit_item_add(list, par, NULL, _("Invert Colors"),
        _go_invert, sb);
-   _edit_item_add(list, par, "insert-image", _("Old Photo"),
+   _edit_item_add(list, par, NULL, _("Old Photo"),
        _go_old_photo, sb);
-   _edit_item_add(list, par, "insert-image", _("Painting"),
+   _edit_item_add(list, par, NULL, _("Painting"),
        _go_painting, sb);
-   _edit_item_add(list, par, "insert-image", _("Posterize"),
+   _edit_item_add(list, par, NULL, _("Posterize"),
        _go_posterize, sb);
-   _edit_item_add(list, par, "insert-image", _("Sharpen"),
+   _edit_item_add(list, par, NULL, _("Sharpen"),
        _go_sharpen, sb);
-   _edit_item_add(list, par, "insert-image", _("Sketch"),
+   _edit_item_add(list, par, NULL, _("Sketch"),
        _go_sketch, sb);
 
    vbox = elm_box_add(box);
@@ -1864,8 +1891,8 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
 {
    Elm_Object_Item *menu_it;
 
-   menu_it = elm_menu_item_add(menu, NULL, "insert-image", _("File"), NULL, NULL);
-   elm_menu_item_add(menu, menu_it, "insert-image", _("Edit"), _editor_menu, sb);
+   menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("File"), NULL, NULL);
+   elm_menu_item_add(menu, menu_it, "edit-cut", _("Edit"), _editor_menu, sb);
    elm_menu_item_add(menu, menu_it, "edit-clear", _("Reset"), _reset_image, sb);
    elm_menu_item_add(menu, menu_it, "document-save", _("Save"), _save_image, sb);
    elm_menu_item_add(menu, menu_it, "document-save-as", _("Save As"),
@@ -2373,11 +2400,11 @@ ephoto_single_browser_show_controls(Ephoto *ephoto)
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
    ret = elm_icon_standard_set(ic, "view-list-icons");
-   if (!ret)
-     ret = elm_image_file_set(ic, PACKAGE_DATA_DIR "/images/grid.png", NULL);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
 
    but = elm_button_add(ephoto->statusbar);
+   if (!ret)
+     elm_object_text_set(but, _("View Thumbnails"));
    elm_object_part_content_set(but, "icon", ic);
    elm_object_tooltip_text_set(but, _("View Thumbnails"));
    elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
@@ -2386,9 +2413,6 @@ ephoto_single_browser_show_controls(Ephoto *ephoto)
    evas_object_show(but);
 
    ephoto->view_button = but;
-
-   elm_object_tooltip_text_set(ephoto->view_button, _("View Thumbnails"));
-   evas_object_smart_callback_add(ephoto->view_button, "clicked", _ephoto_main_back, sb);
 
    ic = elm_icon_add(ephoto->controls_left);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
@@ -2489,7 +2513,7 @@ ephoto_single_browser_show_controls(Ephoto *ephoto)
    ic = elm_icon_add(ephoto->controls_right);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
-   ret = elm_icon_standard_set(ic, "insert-image");
+   ret = elm_icon_standard_set(ic, "edit-cut");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
 
    but = elm_button_add(ephoto->controls_right);

@@ -2029,14 +2029,14 @@ ephoto_thumb_browser_show_controls(Ephoto *ephoto)
    ic = elm_icon_add(ephoto->statusbar);
    evas_object_size_hint_min_set(ic, 20*elm_config_scale_get(),
        20*elm_config_scale_get());
-   ret = elm_icon_standard_set(ic, "view-list-details");
-   if (!ret)
-     ret = elm_image_file_set(ic, PACKAGE_DATA_DIR "/images/single.png", NULL);
+   ret = elm_icon_standard_set(ic, "document-open");
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
 
    but = elm_button_add(ephoto->statusbar);
+   if (!ret)
+     elm_object_text_set(but, _("View Image"));
    elm_object_part_content_set(but, "icon", ic);
-   elm_object_tooltip_text_set(but, _("View Images"));
+   elm_object_tooltip_text_set(but, _("View Image"));
    elm_object_tooltip_orient_set(but, ELM_TOOLTIP_ORIENT_TOP);
    evas_object_smart_callback_add(but, "clicked", _view_single, tb);
    elm_box_pack_after(ephoto->statusbar, but, ephoto->folders_button);

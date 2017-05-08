@@ -240,7 +240,7 @@ _on_list_expand_req(void *data, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
-_on_list_contract_req(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
+_on_list_contract_req(void *data, Evas_Object *obj EINA_UNUSED,
     void *event_info)
 {
    Ephoto_Directory_Browser *db = data;
@@ -261,8 +261,12 @@ _on_list_expanded(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto_Directory_Browser *db = data;
    Elm_Object_Item *it = event_info;
+   Evas_Object *icon;
    Ephoto_Entry *entry;
    const char *path;
+
+   icon = elm_object_item_part_content_get(it, "elm.swallow.icon");
+   elm_icon_standard_set(icon, "folder-open");
 
    if (db->initializing)
      return;
@@ -285,8 +289,12 @@ _on_list_contracted(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto_Directory_Browser *db = data;
    Elm_Object_Item *it = event_info;
+   Evas_Object *icon;
    Ephoto_Entry *entry;
    const char *path;
+
+   icon = elm_object_item_part_content_get(it, "elm.swallow.icon");
+   elm_icon_standard_set(icon, "folder");
 
    if (db->initializing)
      return;
@@ -357,14 +365,26 @@ _dir_item_text_get(void *data, Evas_Object *obj EINA_UNUSED,
 }
 
 static Evas_Object *
-_dir_item_icon_get(void *data EINA_UNUSED, Evas_Object *obj,
+_dir_item_icon_get(void *data, Evas_Object *obj,
     const char *part)
 {
+   Ephoto_Entry *entry = data;
+
    if (!strcmp(part, "elm.swallow.end"))
       return NULL;
    Evas_Object *ic = elm_icon_add(obj);
 
-   elm_icon_standard_set(ic, "folder");
+   if (entry->item)
+     {
+        if (elm_genlist_item_expanded_get(entry->item))
+          elm_icon_standard_set(ic, "folder-open");
+        else
+          elm_icon_standard_set(ic, "folder");
+     }
+   else
+     {
+        elm_icon_standard_set(ic, "folder");
+     }
    return ic;
 }
 

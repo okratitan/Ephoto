@@ -247,6 +247,7 @@ struct _Ephoto
    Evas_Object *pager;
    Evas_Object *statusbar;
    Evas_Object *folders_button;
+   Evas_Object *folders_icon;
    Evas_Object *view_button;
    Evas_Object *controls_left;
    Evas_Object *controls_right;

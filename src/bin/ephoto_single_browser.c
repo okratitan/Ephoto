@@ -1598,9 +1598,12 @@ _ephoto_single_browser_recalc(Ephoto_Single_Browser *sb)
      }
    if (sb->entry)
      {
-	const char *bname = ecore_file_file_get(sb->entry->path);
+	const char *bname = NULL;
 
-	sb->viewer = _viewer_add(sb->main, sb->entry->path, sb);
+        if (ecore_file_exists(sb->entry->path))
+          bname = ecore_file_file_get(sb->entry->path);
+        if (bname)
+	  sb->viewer = _viewer_add(sb->main, sb->entry->path, sb);
 	if (sb->viewer)
 	  {
 	     elm_object_part_content_set(sb->mhbox, "left", sb->viewer);

@@ -43,6 +43,7 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
    ephoto->config->movess = elm_check_state_get(ephoto->config->slide_move);
    ephoto->config->smooth = elm_check_state_get(ephoto->config->smooth_scale);
    ephoto->config->folders = elm_check_state_get(ephoto->config->show_folders);
+   ephoto->config->thumbnail_aspect = elm_check_state_get(ephoto->config->thumb_aspect);
    if (elm_spinner_value_get(ephoto->config->slide_time) > 0)
       ephoto->config->slideshow_timeout =
           elm_spinner_value_get(ephoto->config->slide_time);
@@ -52,6 +53,7 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
 
    evas_object_del(popup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
+   ephoto_thumb_browser_recalc(ephoto);
 }
 
 static void
@@ -110,10 +112,18 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(check);
    ephoto->config->smooth_scale = check;
 
+   check = elm_check_add(table);
+   elm_object_text_set(check, _("Keep Aspect on Thumbnails"));
+   EPHOTO_FILL(check);
+   elm_check_state_set(check, ephoto->config->thumbnail_aspect);
+   elm_table_pack(table, check, 0, 4, 1, 1);
+   evas_object_show(check);
+   ephoto->config->thumb_aspect = check;
+
    label = elm_label_add(table);
    elm_object_text_set(label, _("Top Level Directory"));
    EPHOTO_ALIGN(label, 0.5, 0.5);
-   elm_table_pack(table, label, 0, 4, 1, 1);
+   elm_table_pack(table, label, 0, 5, 1, 1);
    evas_object_show(label);
 
    hoversel = elm_hoversel_add(table);
@@ -130,7 +140,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    evas_object_data_set(hoversel, "ephoto", ephoto);
    EPHOTO_WEIGHT(hoversel, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_FILL(hoversel);
-   elm_table_pack(table, hoversel, 0, 5, 1, 1);
+   elm_table_pack(table, hoversel, 0, 6, 1, 1);
    evas_object_show(hoversel);
    ephoto->config->open_dir = hoversel;
 
@@ -143,7 +153,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
        ELM_SCROLLER_POLICY_OFF);
    EPHOTO_EXPAND(entry);
    EPHOTO_FILL(entry);
-   elm_table_pack(table, entry, 0, 6, 1, 1);
+   elm_table_pack(table, entry, 0, 7, 1, 1);
    evas_object_show(entry);
    ephoto->config->open_dir_custom = entry;
 }
@@ -772,6 +782,7 @@ ephoto_config_init(Ephoto *ephoto)
    C_VAL(D, T, smooth, EET_T_INT);
    C_VAL(D, T, firstrun, EET_T_INT);
    C_VAL(D, T, folders, EET_T_INT);
+   C_VAL(D, T, thumbnail_aspect, EET_T_INT);
    switch (_ephoto_config_load(ephoto))
      {
        case 0:
@@ -791,6 +802,7 @@ ephoto_config_init(Ephoto *ephoto)
           ephoto->config->smooth = 1;
           ephoto->config->firstrun = 1;
           ephoto->config->folders = 1;
+          ephoto->config->thumbnail_aspect = 0;
 	  break;
 
        default:

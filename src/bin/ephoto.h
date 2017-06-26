@@ -103,6 +103,7 @@ void ephoto_thumb_browser_update_info_label(Ephoto *ephoto);
 void ephoto_thumb_browser_slideshow(Evas_Object *obj);
 void ephoto_thumb_browser_paste(Ephoto *ephoto, Elm_Object_Item *item);
 void ephoto_thumb_browser_clear(Ephoto *ephoto);
+void ephoto_thumb_browser_recalc(Ephoto *ephoto);
 void ephoto_thumb_browser_dirs_only_set(Ephoto *ephoto, Eina_Bool dirs_only);
 /* smart callbacks called: "selected" - an item in the thumb browser is
  * selected. The selected Ephoto_Entry is passed as event_info argument. */
@@ -116,7 +117,7 @@ void ephoto_directory_browser_clear(Ephoto *ephoto);
 /*thumbnailing functions taken from enlightenment*/
 int e_thumb_init(void);
 int e_thumb_shutdown(void);
-Evas_Object *e_thumb_icon_add(Evas *evas);
+Evas_Object *e_thumb_icon_add(Evas *evas, Eina_Bool aspect);
 void e_thumb_icon_file_set(Evas_Object *obj, const char *file, const char *key);
 void e_thumb_icon_size_set(Evas_Object *obj, Evas_Coord w, Evas_Coord h);
 void e_thumb_icon_begin(Evas_Object *obj);
@@ -228,6 +229,7 @@ struct _Ephoto_Config
    Eina_Bool smooth;
    Eina_Bool firstrun;
    Eina_Bool folders;
+   Eina_Bool thumbnail_aspect;
    Evas_Object *slide_time;
    Evas_Object *slide_trans;
    Evas_Object *open_dir;
@@ -237,6 +239,7 @@ struct _Ephoto_Config
    Evas_Object *smooth_scale;
    Evas_Object *slide_move;
    Evas_Object *show_folders;
+   Evas_Object *thumb_aspect;
 };
 
 struct _Ephoto

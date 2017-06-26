@@ -1128,7 +1128,7 @@ ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent, Ephoto_Entry *entry)
 	  }
         if (!o)
           {
-	     o = e_thumb_icon_add(parent);
+	     o = e_thumb_icon_add(parent, ephoto->config->thumbnail_aspect);
              evas_object_smart_callback_add(o, "e_thumb_gen", _thumb_gen_cb, entry);
 	     e_thumb_icon_file_set(o, entry->path, NULL);
              e_thumb_icon_size_set(o, ephoto->thumb_gen_size,

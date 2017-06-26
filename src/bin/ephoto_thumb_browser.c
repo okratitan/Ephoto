@@ -1218,7 +1218,12 @@ _ephoto_thumb_search_go(void *data, Evas_Object *obj EINA_UNUSED,
              const Elm_Gengrid_Item_Class *ic = NULL;
              Ephoto_Entry *entry = NULL, *e = NULL;
 
+             if (tb->ephoto->config->thumbnail_aspect)
+               _ephoto_thumb_file_class.item_style = "default";
+             else
+               _ephoto_thumb_file_class.item_style = "thumb";
              ic = &_ephoto_thumb_file_class;
+
              entry = elm_object_item_data_get(o);
              e = ephoto_entry_new(tb->ephoto, entry->path, entry->label,
                  EINA_FILE_REG);
@@ -1455,7 +1460,12 @@ _todo_items_process(void *data)
 
            entry->gengrid = tb->grid;
 
-	   ic = &_ephoto_thumb_file_class;
+           if (tb->ephoto->config->thumbnail_aspect)
+             _ephoto_thumb_file_class.item_style = "default";
+           else
+             _ephoto_thumb_file_class.item_style = "thumb";
+           ic = &_ephoto_thumb_file_class;
+
            if (tb->sort == EPHOTO_SORT_ALPHABETICAL_ASCENDING)
 	     entry->item =
 	         elm_gengrid_item_sorted_insert(tb->grid, ic, entry,
@@ -1499,6 +1509,11 @@ _ephoto_thumb_populate_start(void *data, int type EINA_UNUSED,
 
    if (tb->dirs_only)
      return ECORE_CALLBACK_PASS_ON;
+
+   if (tb->ephoto->config->thumbnail_aspect)
+     _ephoto_thumb_file_class.item_style = "default";
+   else
+     _ephoto_thumb_file_class.item_style = "thumb";
 
    tb->animator.processed = 0;
    tb->animator.count = 0;
@@ -1890,6 +1905,14 @@ ephoto_thumb_browser_clear(Ephoto *ephoto)
 }
 
 void
+ephoto_thumb_browser_recalc(Ephoto *ephoto)
+{
+   ephoto_thumb_browser_clear(ephoto);
+   ephoto_directory_set(ephoto, ephoto->config->directory,
+       NULL, 0, 1);
+}
+
+void
 ephoto_thumb_browser_paste(Ephoto *ephoto, Elm_Object_Item *item)
 {
    Ephoto_Thumb_Browser *tb =
@@ -2113,7 +2136,10 @@ ephoto_thumb_browser_add(Ephoto *ephoto, Evas_Object *parent)
    tb = calloc(1, sizeof(Ephoto_Thumb_Browser));
    EINA_SAFETY_ON_NULL_GOTO(tb, error);
 
-   _ephoto_thumb_file_class.item_style = "thumb";
+   if (ephoto->config->thumbnail_aspect)
+     _ephoto_thumb_file_class.item_style = "default";
+   else
+     _ephoto_thumb_file_class.item_style = "thumb";
    _ephoto_thumb_file_class.func.text_get = _thumb_item_text_get;
    _ephoto_thumb_file_class.func.content_get = _thumb_file_icon_get;
    _ephoto_thumb_file_class.func.state_get = NULL;

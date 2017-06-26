@@ -77,13 +77,16 @@ _thumb_preloaded(void *data, Evas_Object *obj EINA_UNUSED, void *event EINA_UNUS
 }
 
 Evas_Object *
-e_thumb_icon_add(Evas *evas)
+e_thumb_icon_add(Evas *evas, Eina_Bool aspect)
 {
    Evas_Object *obj;
    E_Thumb *eth;
 
    obj = elm_icon_add(evas);
-   elm_image_fill_outside_set(obj, EINA_TRUE);
+   if (aspect)
+     elm_image_fill_outside_set(obj, EINA_FALSE);
+   else
+     elm_image_fill_outside_set(obj, EINA_TRUE);
    evas_object_smart_callback_add(obj, "preloaded", _thumb_preloaded, obj);
    _objid++;
    eth = calloc(1, sizeof(E_Thumb));

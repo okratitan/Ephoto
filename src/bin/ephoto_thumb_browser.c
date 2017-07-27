@@ -1,5 +1,4 @@
 #include "ephoto.h"
-#include <elm_interface_scrollable.h>
 
 #define ZOOM_MAX            512
 #define ZOOM_MIN            128

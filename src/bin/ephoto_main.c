@@ -514,8 +514,11 @@ ephoto_window_add(const char *path)
    elm_object_text_set(ephoto->infolabel, _("Information"));
    EPHOTO_EXPAND(ephoto->infolabel);
    EPHOTO_FILL(ephoto->infolabel);
+   /*
+   PLEASE SEE https://phab.enlightenment.org/T5888
    evas_object_size_hint_aspect_set(ephoto->infolabel, EVAS_ASPECT_CONTROL_HORIZONTAL,
        1, 1);
+   */
    elm_box_pack_end(ephoto->statusbar, ephoto->infolabel);
    evas_object_show(ephoto->infolabel);
 

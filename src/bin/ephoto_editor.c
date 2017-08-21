@@ -29,11 +29,10 @@ ephoto_editor_add(Ephoto *ephoto, Evas_Object *parent, const char *title, const 
 
    frame = elm_frame_add(parent);
    elm_object_text_set(frame, title);
-   EPHOTO_WEIGHT(frame, 0.3, EVAS_HINT_EXPAND);
+   EPHOTO_WEIGHT(frame, ephoto->config->right_size, EVAS_HINT_EXPAND);
    EPHOTO_FILL(frame);
    evas_object_data_set(frame, data_name, data);
-   elm_object_part_content_set(parent, "right", frame);
-   elm_panes_content_right_size_set(parent, ephoto->config->right_size);
+   elm_box_pack_end(parent, frame); 
    evas_object_show(frame);
 
    box = elm_box_add(frame);
@@ -94,14 +93,12 @@ ephoto_editor_add(Ephoto *ephoto, Evas_Object *parent, const char *title, const 
 }
 
 void
-ephoto_editor_del(Evas_Object *obj, Evas_Object *parent)
+ephoto_editor_del(Evas_Object *obj, Evas_Object *parent EINA_UNUSED)
 {
    Evas_Object *frame = evas_object_data_get(obj, "frame");
 
-   elm_object_part_content_unset(parent, "right");
    if (frame)
      evas_object_del(frame);
-   elm_panes_content_right_size_set(parent, 0.0);
 
    ecore_event_add(EPHOTO_EVENT_EDITOR_BACK, NULL, NULL, NULL);
 }

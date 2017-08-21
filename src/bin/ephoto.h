@@ -240,6 +240,7 @@ struct _Ephoto_Config
    Evas_Object *slide_move;
    Evas_Object *show_folders;
    Evas_Object *thumb_aspect;
+   Evas_Object *panel_size;
 };
 
 struct _Ephoto
@@ -261,7 +262,6 @@ struct _Ephoto
    Evas_Object *single_browser;
    Evas_Object *slideshow;
    Evas_Object *dir_browser;
-   Evas_Object *right_menu;
    Evas_Object *file_popup;
 
    Eina_Bool folders_toggle;

@@ -474,6 +474,7 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
    elm_genlist_highlight_mode_set(db->fsel, EINA_TRUE);
    EPHOTO_EXPAND(db->fsel);
    EPHOTO_FILL(db->fsel);
+   evas_object_size_hint_min_set(db->fsel, 195*elm_config_scale_get(), 0);
    evas_object_smart_callback_add(db->fsel, "expand,request",
        _on_list_expand_req, db);
    evas_object_smart_callback_add(db->fsel, "contract,request",
@@ -707,6 +708,7 @@ _ephoto_directory_view_add(Ephoto_Directory_Browser *db)
    elm_genlist_highlight_mode_set(db->fsel, EINA_TRUE);
    EPHOTO_EXPAND(db->fsel);
    EPHOTO_FILL(db->fsel);
+   evas_object_size_hint_min_set(db->fsel, 195*elm_config_scale_get(), 0);
    evas_object_smart_callback_add(db->fsel, "expand,request",
        _on_list_expand_req, db);
    evas_object_smart_callback_add(db->fsel, "contract,request",
@@ -1368,6 +1370,7 @@ ephoto_directory_browser_add(Ephoto *ephoto, Evas_Object *parent)
    db->main = box;
 
    elm_box_horizontal_set(db->main, EINA_FALSE);
+   evas_object_size_hint_min_set(db->main, 195*elm_config_scale_get(), 0);
    evas_object_event_callback_add(db->main, EVAS_CALLBACK_DEL,
        _ephoto_main_del, db);
    evas_object_data_set(db->main, "directory_browser", db);

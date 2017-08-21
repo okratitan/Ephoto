@@ -111,10 +111,9 @@ _ephoto_slideshow_show(Ephoto *ephoto, Ephoto_Entry *entry)
    evas_object_hide(ephoto->single_browser);
    evas_object_hide(ephoto->thumb_browser);
    elm_object_focus_set(ephoto->slideshow, EINA_TRUE);
-   elm_panes_content_left_min_size_set(ephoto->layout, 0);
-   elm_panes_content_left_size_set(ephoto->layout, 0.0);
    elm_table_unpack(ephoto->main, ephoto->statusbar);
    evas_object_hide(ephoto->dir_browser);
+   elm_box_unpack(ephoto->layout, ephoto->dir_browser);
    evas_object_hide(ephoto->statusbar);
    evas_object_freeze_events_set(ephoto->single_browser, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->thumb_browser, EINA_TRUE);
@@ -156,9 +155,8 @@ _ephoto_slideshow_back(void *data, Evas_Object *obj EINA_UNUSED,
      }
    if (ephoto->folders_toggle)
      {
-        elm_panes_content_left_min_size_set(ephoto->layout, 0);
-        elm_panes_content_left_size_set(ephoto->layout, ephoto->config->left_size);
         evas_object_show(ephoto->dir_browser);
+        elm_box_pack_start(ephoto->layout, ephoto->dir_browser);
      }
    elm_table_pack(ephoto->main, ephoto->statusbar, 0, 2, 1, 1);
    evas_object_show(ephoto->statusbar);
@@ -271,8 +269,8 @@ _folder_icon_clicked(void *data, Evas_Object *obj,
 
    if (!ephoto->folders_toggle)
      {
-        elm_panes_content_left_min_size_set(ephoto->layout, 0);
-        elm_panes_content_left_size_set(ephoto->layout, ephoto->config->left_size);
+        evas_object_show(ephoto->dir_browser);
+        elm_box_pack_start(ephoto->layout, ephoto->dir_browser);
         ephoto->folders_toggle = EINA_TRUE;
         ret = elm_icon_standard_set(ephoto->folders_icon, "folder-open");
 	if (!ret)
@@ -281,8 +279,8 @@ _folder_icon_clicked(void *data, Evas_Object *obj,
      }
    else
      {
-        elm_panes_content_left_min_size_set(ephoto->layout, 0);
-        elm_panes_content_left_size_set(ephoto->layout, 0.0);
+        evas_object_hide(ephoto->dir_browser);
+        elm_box_unpack(ephoto->layout, ephoto->dir_browser);
         ephoto->folders_toggle = EINA_FALSE;
         ret = elm_icon_standard_set(ephoto->folders_icon, "folder");
 	if (!ret)
@@ -323,15 +321,6 @@ _exit_icon_clicked(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_del(ephoto->win);
 }
 
-static void
-_ephoto_left_pane_resized(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
-{
-   Ephoto *ephoto = data;
-
-   ephoto->config->left_size = elm_panes_content_left_size_get(ephoto->layout);
-}
-
 /*Toggle determines whether to toggle folder visibility, or just force visible*/
 void
 ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle)
@@ -340,10 +329,9 @@ ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle)
 
    if (!ephoto->folders_toggle || !toggle)
      {
-        elm_panes_content_left_min_size_set(ephoto->layout, 0);
-        elm_panes_content_left_size_set(ephoto->layout, ephoto->config->left_size);
         evas_object_show(ephoto->dir_browser);
-        ephoto->folders_toggle = EINA_TRUE;
+        elm_box_pack_end(ephoto->layout, ephoto->dir_browser);
+	ephoto->folders_toggle = EINA_TRUE;
         ret = elm_icon_standard_set(ephoto->folders_icon, "folder-open");
         if (!ret)
           elm_object_text_set(ephoto->folders_button, _("Hide Folders"));
@@ -351,9 +339,8 @@ ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle)
      }
    else if (ephoto->folders_toggle)
      {
-        elm_panes_content_left_min_size_set(ephoto->layout, 0);
-        elm_panes_content_left_size_set(ephoto->layout, 0.0);
         evas_object_hide(ephoto->dir_browser);
+        elm_box_unpack(ephoto->layout, ephoto->dir_browser);
         ephoto->folders_toggle = EINA_FALSE;
         ret = elm_icon_standard_set(ephoto->folders_icon, "folder");
         if (!ret)
@@ -416,18 +403,18 @@ ephoto_window_add(const char *path)
    elm_win_resize_object_add(ephoto->win, ephoto->main);
    evas_object_show(ephoto->main);
 
-   ephoto->layout = elm_panes_add(ephoto->main);
+   ephoto->layout = elm_box_add(ephoto->main);
+   elm_box_horizontal_set(ephoto->layout, EINA_TRUE);
+   elm_box_homogeneous_set(ephoto->layout, EINA_FALSE);
    EPHOTO_EXPAND(ephoto->layout);
    EPHOTO_FILL(ephoto->layout);
-   evas_object_smart_callback_add(ephoto->layout, "unpress",
-      _ephoto_left_pane_resized, ephoto);
    elm_table_pack(ephoto->main, ephoto->layout, 0, 0, 1, 2);
    evas_object_show(ephoto->layout);
 
    ephoto->pager = elm_table_add(ephoto->layout);
    EPHOTO_EXPAND(ephoto->pager);
    EPHOTO_FILL(ephoto->pager);
-   elm_object_part_content_set(ephoto->layout, "right", ephoto->pager);
+   elm_box_pack_end(ephoto->layout, ephoto->pager);
    evas_object_show(ephoto->pager);
 
    ephoto->thumb_browser = ephoto_thumb_browser_add(ephoto, ephoto->layout);
@@ -466,11 +453,9 @@ ephoto_window_add(const char *path)
        _ephoto_slideshow_back, ephoto);
 
    ephoto->dir_browser = ephoto_directory_browser_add(ephoto, ephoto->layout);
-   EPHOTO_WEIGHT(ephoto->dir_browser, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   EPHOTO_WEIGHT(ephoto->dir_browser, ephoto->config->left_size, EVAS_HINT_EXPAND);
    EPHOTO_FILL(ephoto->dir_browser);
-   elm_panes_content_left_min_size_set(ephoto->layout, 0);
-   elm_panes_content_left_size_set(ephoto->layout, ephoto->config->left_size);
-   elm_object_part_content_set(ephoto->layout, "left", ephoto->dir_browser);
+   elm_box_pack_start(ephoto->layout, ephoto->dir_browser);
    evas_object_show(ephoto->dir_browser);
 
    ephoto->statusbar = elm_box_add(ephoto->main);
@@ -632,8 +617,7 @@ ephoto_window_add(const char *path)
    if (!ephoto->config->folders)
      {
         evas_object_hide(ephoto->dir_browser);
-        elm_panes_content_left_min_size_set(ephoto->layout, 0);
-        elm_panes_content_left_size_set(ephoto->layout, 0.0);
+        elm_box_unpack(ephoto->layout, ephoto->dir_browser);
         ephoto->folders_toggle = EINA_FALSE;
         ret = elm_icon_standard_set(ephoto->folders_icon, "folder");
 	if (!ret)
@@ -643,9 +627,7 @@ ephoto_window_add(const char *path)
    else
      {
         ephoto->folders_toggle = EINA_TRUE;
-        elm_panes_content_left_min_size_set(ephoto->layout, 0);
-        elm_panes_content_left_size_set(ephoto->layout, ephoto->config->left_size);
-        ret = elm_icon_standard_set(ephoto->folders_icon, "folder-open");
+	ret = elm_icon_standard_set(ephoto->folders_icon, "folder-open");
         if (!ret)
           elm_object_text_set(ephoto->folders_button, _("Hide Folders"));
 	elm_object_tooltip_text_set(ephoto->folders_button, _("Hide Folders"));

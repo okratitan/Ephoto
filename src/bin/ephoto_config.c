@@ -44,6 +44,13 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
    ephoto->config->smooth = elm_check_state_get(ephoto->config->smooth_scale);
    ephoto->config->folders = elm_check_state_get(ephoto->config->show_folders);
    ephoto->config->thumbnail_aspect = elm_check_state_get(ephoto->config->thumb_aspect);
+   if (elm_spinner_value_get(ephoto->config->panel_size) > 0)
+     {
+        ephoto->config->left_size = (elm_spinner_value_get(ephoto->config->panel_size) / 0.05) * 0.05;
+        ephoto->config->right_size = (elm_spinner_value_get(ephoto->config->panel_size) / 0.05) * 0.05;
+        evas_object_size_hint_weight_set(ephoto->dir_browser, ephoto->config->left_size, EVAS_HINT_EXPAND);
+     }
+
    if (elm_spinner_value_get(ephoto->config->slide_time) > 0)
       ephoto->config->slideshow_timeout =
           elm_spinner_value_get(ephoto->config->slide_time);
@@ -72,7 +79,8 @@ _open_hv_select(void *data, Evas_Object *obj, void *event_info)
 static void
 _config_general(Ephoto *ephoto, Evas_Object *parent)
 {
-   Evas_Object *table, *check, *hoversel, *entry, *label;
+   Evas_Object *table, *check, *hoversel, *entry, *label, *spinner;
+   char buf[PATH_MAX];
 
    table = elm_table_add(parent);
    EPHOTO_EXPAND(table);
@@ -121,9 +129,28 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    ephoto->config->thumb_aspect = check;
 
    label = elm_label_add(table);
-   elm_object_text_set(label, _("Top Level Directory"));
+   elm_object_text_set(label, _("File Panel Size"));
    EPHOTO_ALIGN(label, 0.5, 0.5);
    elm_table_pack(table, label, 0, 5, 1, 1);
+   evas_object_show(label);
+
+   spinner = elm_spinner_add(table);
+   elm_spinner_editable_set(spinner, EINA_TRUE);
+   snprintf(buf, PATH_MAX, "%%1.2f %s", _("Weight (1.0 Max)"));
+   elm_spinner_label_format_set(spinner, buf);
+   elm_spinner_step_set(spinner, .05);
+   elm_spinner_value_set(spinner, ephoto->config->left_size);
+   elm_spinner_min_max_set(spinner, 0, 1);
+   EPHOTO_EXPAND(spinner);
+   EPHOTO_FILL(spinner);
+   elm_table_pack(table, spinner, 0, 6, 1, 1);
+   evas_object_show(spinner);
+   ephoto->config->panel_size = spinner;
+
+   label = elm_label_add(table);
+   elm_object_text_set(label, _("Top Level Directory"));
+   EPHOTO_ALIGN(label, 0.5, 0.5);
+   elm_table_pack(table, label, 0, 7, 1, 1);
    evas_object_show(label);
 
    hoversel = elm_hoversel_add(table);
@@ -140,7 +167,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    evas_object_data_set(hoversel, "ephoto", ephoto);
    EPHOTO_WEIGHT(hoversel, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_FILL(hoversel);
-   elm_table_pack(table, hoversel, 0, 6, 1, 1);
+   elm_table_pack(table, hoversel, 0, 8, 1, 1);
    evas_object_show(hoversel);
    ephoto->config->open_dir = hoversel;
 
@@ -153,7 +180,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
        ELM_SCROLLER_POLICY_OFF);
    EPHOTO_EXPAND(entry);
    EPHOTO_FILL(entry);
-   elm_table_pack(table, entry, 0, 7, 1, 1);
+   elm_table_pack(table, entry, 0, 9, 1, 1);
    evas_object_show(entry);
    ephoto->config->open_dir_custom = entry;
 }
@@ -422,7 +449,7 @@ _config_bindings(Evas_Object *parent)
            "<b>Home:</b> Navigate First<br/>"
            "<b>Left Arrow:</b> Navigate Previous<br/>"
            "<b>Right Arrow:</b> Navigate Next<br/>"
-           "<b>Space:</b> Navigate Next<br />"
+           "<b>Space:</b> Navigate Next<br/>"
            "<b>End:</b> Navigate Last<br/>"
            "<b>Ctrl+Delete:</b> Delete Image<br/>"
            "<b>F2</b> Rename Image<br/>"
@@ -793,8 +820,8 @@ ephoto_config_init(Ephoto *ephoto)
 	  ephoto->config->window_width = 900*elm_config_scale_get();
 	  ephoto->config->window_height = 500*elm_config_scale_get();
 	  ephoto->config->fsel_hide = 0;
-          ephoto->config->left_size = .2;
-          ephoto->config->right_size = .2;
+          ephoto->config->left_size = .25;
+          ephoto->config->right_size = .25;
 	  ephoto->config->open = eina_stringshare_add(eina_environment_home_get());
 	  ephoto->config->prompts = 1;
 	  ephoto->config->drop = 0;

@@ -91,6 +91,7 @@ po/quot.sed
 po/remove-potcdate.sed
 po/remove-potcdate.sin
 po/stamp-po
+po/ephoto.pot
 src/Makefile
 src/Makefile.in
 src/bin/.deps/

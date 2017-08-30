@@ -3,21 +3,21 @@
 typedef struct _Ephoto_Reye Ephoto_Reye;
 struct _Ephoto_Reye
 {
-   Evas_Object *main;
-   Evas_Object *parent;
-   Evas_Object *image;
-   Evas_Object *editor;
-   Evas_Object *rslider;
-   Eina_List *handlers;
-   int rad;
-   Evas_Coord w, h;
+   Evas_Object  *main;
+   Evas_Object  *parent;
+   Evas_Object  *image;
+   Evas_Object  *editor;
+   Evas_Object  *rslider;
+   Eina_List    *handlers;
+   int           rad;
+   Evas_Coord    w, h;
    unsigned int *original_im_data;
    unsigned int *edited_im_data;
 };
 
 static void
 _reye_clicked(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
-    void *event_data EINA_UNUSED)
+              void *event_data EINA_UNUSED)
 {
    Ephoto_Reye *er = data;
    unsigned int *im_data, *p1;
@@ -30,14 +30,14 @@ _reye_clicked(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    evas_pointer_canvas_xy_get(evas_object_evas_get(er->image), &xpos, &ypos);
    evas_object_geometry_get(er->image, &imx, &imy, &imw, &imh);
 
-   xadj = xpos-imx;
-   yadj = ypos-imy;
+   xadj = xpos - imx;
+   yadj = ypos - imy;
 
    if (xadj < 0) xadj = 0;
    if (yadj < 0) yadj = 0;
 
-   scalex = (double) (xadj) / (double) imw;
-   scaley = (double) (yadj) / (double) imh;
+   scalex = (double)(xadj) / (double)imw;
+   scaley = (double)(yadj) / (double)imh;
 
    nx = er->w * scalex;
    ny = er->h * scaley;
@@ -48,42 +48,42 @@ _reye_clicked(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    im_data = malloc(sizeof(unsigned int) * er->w * er->h);
    if (er->edited_im_data)
      memcpy(im_data, er->edited_im_data,
-          sizeof(unsigned int) * er->w * er->h);
+            sizeof(unsigned int) * er->w * er->h);
    else
      memcpy(im_data, er->original_im_data,
-          sizeof(unsigned int) * er->w * er->h);
+            sizeof(unsigned int) * er->w * er->h);
 
    for (yy = -er->rad; yy <= er->rad; yy++)
      {
         for (xx = -er->rad; xx <= er->rad; xx++)
-           {
-              if ((xx * xx) + (yy * yy) <= (er->rad * er->rad))
-                {
-                   nnx = nx + xx;
-                   nny = ny + yy;
+          {
+             if ((xx * xx) + (yy * yy) <= (er->rad * er->rad))
+               {
+                  nnx = nx + xx;
+                  nny = ny + yy;
 
-                   p1 = im_data + (nny * er->w) + nnx;
-                   b = (int) ((*p1) & 0xff);
-                   g = (int) ((*p1 >> 8) & 0xff);
-                   r = (int) ((*p1 >> 16) & 0xff);
-                   a = (int) ((*p1 >> 24) & 0xff);
-                   b = ephoto_mul_color_alpha(b, a);
-                   g = ephoto_mul_color_alpha(g, a);
-                   r = ephoto_mul_color_alpha(r, a);
-                   r = (int) ((g+b)/2);
-                   b = ephoto_normalize_color(b);
-                   g = ephoto_normalize_color(g);
-                   r = ephoto_normalize_color(r);
-                   b = ephoto_demul_color_alpha(b, a);
-                   g = ephoto_demul_color_alpha(g, a);
-                   r = ephoto_demul_color_alpha(r, a);
-                   *p1 = (a << 24) | (r << 16) | (g << 8) | b;
+                  p1 = im_data + (nny * er->w) + nnx;
+                  b = (int)((*p1) & 0xff);
+                  g = (int)((*p1 >> 8) & 0xff);
+                  r = (int)((*p1 >> 16) & 0xff);
+                  a = (int)((*p1 >> 24) & 0xff);
+                  b = ephoto_mul_color_alpha(b, a);
+                  g = ephoto_mul_color_alpha(g, a);
+                  r = ephoto_mul_color_alpha(r, a);
+                  r = (int)((g + b) / 2);
+                  b = ephoto_normalize_color(b);
+                  g = ephoto_normalize_color(g);
+                  r = ephoto_normalize_color(r);
+                  b = ephoto_demul_color_alpha(b, a);
+                  g = ephoto_demul_color_alpha(g, a);
+                  r = ephoto_demul_color_alpha(r, a);
+                  *p1 = (a << 24) | (r << 16) | (g << 8) | b;
                }
           }
      }
    er->edited_im_data = im_data;
    ephoto_single_browser_image_data_update(er->main, er->image,
-       im_data, er->w, er->h);
+                                           im_data, er->w, er->h);
 }
 
 static void
@@ -96,7 +96,7 @@ _radius_slider_changed(void *data, Evas_Object *obj, void *event_info EINA_UNUSE
 
 static Eina_Bool
 _reye_reset(void *data, int type EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+            void *event_info EINA_UNUSED)
 {
    Ephoto_Reye *er = data;
 
@@ -108,14 +108,14 @@ _reye_reset(void *data, int type EINA_UNUSED,
         er->edited_im_data = NULL;
      }
    ephoto_single_browser_image_data_update(er->main, er->image,
-       er->original_im_data, er->w, er->h);
+                                           er->original_im_data, er->w, er->h);
 
    return ECORE_CALLBACK_PASS_ON;
 }
 
 static Eina_Bool
 _reye_apply(void *data, int type EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+            void *event_info EINA_UNUSED)
 {
    Ephoto_Reye *er = data;
    unsigned int *image_data;
@@ -128,7 +128,7 @@ _reye_apply(void *data, int type EINA_UNUSED,
    else
      {
         image_data =
-            evas_object_image_data_get(er->image, EINA_FALSE);
+          evas_object_image_data_get(er->image, EINA_FALSE);
         evas_object_image_size_get(er->image, &w, &h);
         ephoto_single_browser_image_data_done(er->main, image_data, w, h);
      }
@@ -139,7 +139,7 @@ _reye_apply(void *data, int type EINA_UNUSED,
 
 static Eina_Bool
 _reye_cancel(void *data, int type EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+             void *event_info EINA_UNUSED)
 {
    Ephoto_Reye *er = data;
 
@@ -159,7 +159,7 @@ _reye_cancel(void *data, int type EINA_UNUSED,
 
 static void
 _editor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+            void *event_info EINA_UNUSED)
 {
    Ephoto_Reye *er = data;
    Ecore_Event_Handler *handler;
@@ -188,21 +188,21 @@ ephoto_red_eye_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_
    er->parent = parent;
    er->image = image;
    im_data =
-       evas_object_image_data_get(er->image,
-           EINA_FALSE);
+     evas_object_image_data_get(er->image,
+                                EINA_FALSE);
    evas_object_image_size_get(er->image, &er->w,
-       &er->h);
+                              &er->h);
    er->original_im_data = malloc(sizeof(unsigned int) * er->w * er->h);
    memcpy(er->original_im_data, im_data,
-       sizeof(unsigned int) * er->w * er->h);
+          sizeof(unsigned int) * er->w * er->h);
 
    evas_object_event_callback_add(er->image, EVAS_CALLBACK_MOUSE_UP,
-       _reye_clicked, er);
+                                  _reye_clicked, er);
 
    er->editor = ephoto_editor_add(ephoto, parent, _("Red Eye Removal"),
-       "ereye", er);
+                                  "ereye", er);
    evas_object_event_callback_add(er->editor, EVAS_CALLBACK_DEL, _editor_del,
-       er);
+                                  er);
 
    slider = elm_slider_add(er->editor);
    elm_object_text_set(slider, _("Radius"));
@@ -214,7 +214,7 @@ ephoto_red_eye_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_
    EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_ALIGN(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
-       _radius_slider_changed, er);
+                                  _radius_slider_changed, er);
    elm_box_pack_start(er->editor, slider);
    evas_object_show(slider);
    er->rslider = slider;
@@ -227,20 +227,21 @@ ephoto_red_eye_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_
    evas_object_show(label);
 
    er->handlers =
-       eina_list_append(er->handlers,
-       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_RESET,
-           _reye_reset, er));
+     eina_list_append(er->handlers,
+                      ecore_event_handler_add(EPHOTO_EVENT_EDITOR_RESET,
+                                              _reye_reset, er));
    er->handlers =
-       eina_list_append(er->handlers,
-       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_APPLY,
-           _reye_apply, er));
+     eina_list_append(er->handlers,
+                      ecore_event_handler_add(EPHOTO_EVENT_EDITOR_APPLY,
+                                              _reye_apply, er));
    er->handlers =
-       eina_list_append(er->handlers,
-       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_CANCEL,
-           _reye_cancel, er));
+     eina_list_append(er->handlers,
+                      ecore_event_handler_add(EPHOTO_EVENT_EDITOR_CANCEL,
+                                              _reye_cancel, er));
 
    return;
 
-  error:
+error:
    return;
 }
+

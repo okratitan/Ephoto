@@ -1,6 +1,6 @@
 #include "ephoto.h"
 #undef ERR
-#define ERR(...)        do { printf(__VA_ARGS__); putc('\n', stdout); } while(0)
+#define ERR(...) do { printf(__VA_ARGS__); putc('\n', stdout); } while (0)
 
 #ifdef USE_IPC
 /* local subsystem functions */
@@ -22,7 +22,7 @@ e_ipc_init(void)
    snprintf(port_str, sizeof(port_str), "%d", port);
    setenv("EPHOTO_IPC_PORT", port_str, 1);
    _e_ipc_server = ecore_ipc_server_add
-     (ECORE_IPC_LOCAL_SYSTEM, "ephoto", port, NULL);
+       (ECORE_IPC_LOCAL_SYSTEM, "ephoto", port, NULL);
    if (!_e_ipc_server)
      {
         ERR("Couldn't create Ephoto IPC server port=%d", port);

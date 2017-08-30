@@ -122,7 +122,7 @@ _e_ipc_init(void)
         return 0;
      }
    _e_ipc_server = ecore_ipc_server_connect
-     (ECORE_IPC_LOCAL_SYSTEM, "ephoto", port, NULL);
+       (ECORE_IPC_LOCAL_SYSTEM, "ephoto", port, NULL);
    if (!_e_ipc_server)
      {
         printf("Error: could not connect to Ephoto IPC port=%d\n", port);
@@ -138,7 +138,7 @@ _e_ipc_init(void)
 
 static Eina_Bool
 _e_ipc_cb_server_add(void *data EINA_UNUSED,
-                     int type   EINA_UNUSED,
+                     int type EINA_UNUSED,
                      void *event)
 {
    Ecore_Ipc_Event_Server_Add *e;
@@ -152,8 +152,8 @@ _e_ipc_cb_server_add(void *data EINA_UNUSED,
 }
 
 static Eina_Bool
-_e_ipc_cb_server_del(void *data  EINA_UNUSED,
-                     int type    EINA_UNUSED,
+_e_ipc_cb_server_del(void *data EINA_UNUSED,
+                     int type EINA_UNUSED,
                      void *event EINA_UNUSED)
 {
    /* quit now */
@@ -163,7 +163,7 @@ _e_ipc_cb_server_del(void *data  EINA_UNUSED,
 
 static Eina_Bool
 _e_ipc_cb_server_data(void *data EINA_UNUSED,
-                      int type   EINA_UNUSED,
+                      int type EINA_UNUSED,
                       void *event)
 {
    Ecore_Ipc_Event_Server_Data *e;
@@ -480,16 +480,16 @@ _e_thumb_generate(E_Thumb *eth)
                        int hi, si, vi;
                        float h, s, v;
                        const int pat2[4] =
-                         {
-                            0, 3, 1, 2
-                         };
+                       {
+                          0, 3, 1, 2
+                       };
                        const int pat1[16] =
-                         {
-                            5, 10, 6, 9,
-                            0, 15, 3, 12,
-                            1, 14, 7, 8,
-                            4, 11, 2, 13
-                         };
+                       {
+                          5, 10, 6, 9,
+                          0, 15, 3, 12,
+                          1, 14, 7, 8,
+                          4, 11, 2, 13
+                       };
 
                        /* ww = hh = 1 here */
                        data3 = malloc(sizeof(unsigned int));
@@ -577,7 +577,8 @@ end:
         /* will free all */
         if (edje) evas_object_del(edje);
         if (ee_im) ecore_evas_free(ee_im);
-        else if (im) evas_object_del(im);
+        else if (im)
+          evas_object_del(im);
         if (im2) evas_object_del(im2);
         if (bg) evas_object_del(bg);
         ecore_evas_free(ee);
@@ -621,7 +622,7 @@ e_sha1_sum(unsigned char *data, int size, unsigned char *dst)
              buf[63] = (size) & 0xff;
           }
         buf[idx] = *d;
-        idx++;;
+        idx++;
         if ((idx == 64) || (left == 1))
           {
              if ((left == 1) && (idx < 64)) buf[idx] = 0x80;

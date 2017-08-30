@@ -11,48 +11,48 @@ typedef struct _Ephoto_Directory_Browser Ephoto_Directory_Browser;
 
 struct _Ephoto_Directory_Browser
 {
-   Ephoto *ephoto;
-   Evas_Object *main;
-   Evas_Object *fsel;
-   Evas_Object *fsel_back;
-   Evas_Object *leftbox;
+   Ephoto          *ephoto;
+   Evas_Object     *main;
+   Evas_Object     *fsel;
+   Evas_Object     *fsel_back;
+   Evas_Object     *leftbox;
    Elm_Object_Item *dir_current;
    Elm_Object_Item *last_sel;
-   Eio_File *ls;
-   Eina_Bool dirs_only;
-   Eina_Bool thumbs_only;
-   Eio_Monitor *monitor;
-   Eina_List *monitor_handlers;
-   Eina_List *handlers;
-   Eina_List *todo_items;
-   Ecore_Job *change_dir_job;
-   Ecore_Timer *click_timer;
-   Eina_Bool processing;
-   Eina_Bool initializing;
+   Eio_File        *ls;
+   Eina_Bool        dirs_only;
+   Eina_Bool        thumbs_only;
+   Eio_Monitor     *monitor;
+   Eina_List       *monitor_handlers;
+   Eina_List       *handlers;
+   Eina_List       *todo_items;
+   Ecore_Job       *change_dir_job;
+   Ecore_Timer     *click_timer;
+   Eina_Bool        processing;
+   Eina_Bool        initializing;
    struct
    {
       Ecore_Animator *todo_items;
-      int count;
-      int processed;
+      int             count;
+      int             processed;
    } animator;
-   Eina_Bool main_deleted:1;
-   const char *back_directory;
+   Eina_Bool        main_deleted : 1;
+   const char      *back_directory;
 };
 
 static Elm_Genlist_Item_Class *_ephoto_dir_class;
 static Elm_Genlist_Item_Class *_ephoto_dir_tree_class;
 
-static char * _drag_data_extract(char **drag_data);
+static char     *_drag_data_extract(char **drag_data);
 
 static Eina_Bool _monitor_cb(void *data, int type,
-    void *event);
-static void _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
-    Evas_Object *obj EINA_UNUSED, void *event_info);
+                             void *event);
+static void      _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
+                                   Evas_Object *obj EINA_UNUSED, void *event_info);
 
 /*File Pane Callbacks*/
 static void
 _menu_dismissed_cb(void *data, Evas_Object *obj,
-    void *event_info EINA_UNUSED)
+                   void *event_info EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
 
@@ -62,7 +62,7 @@ _menu_dismissed_cb(void *data, Evas_Object *obj,
 
 static void
 _menu_empty_cb(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+               void *event_info EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
    Eina_List *paths = NULL;
@@ -83,7 +83,7 @@ _menu_empty_cb(void *data, Evas_Object *obj EINA_UNUSED,
 
 static Eina_Bool
 _drop_dropcb(void *data EINA_UNUSED, Evas_Object *obj, Elm_Object_Item *it,
-    Elm_Selection_Data *ev, int xposret EINA_UNUSED, int yposret EINA_UNUSED)
+             Elm_Selection_Data *ev, int xposret EINA_UNUSED, int yposret EINA_UNUSED)
 {
    if (!it)
      return EINA_FALSE;
@@ -93,16 +93,16 @@ _drop_dropcb(void *data EINA_UNUSED, Evas_Object *obj, Elm_Object_Item *it,
    Ephoto_Directory_Browser *db = evas_object_data_get(obj, "directory_browser");
 
    if (!ev->data)
-      return EINA_FALSE;
+     return EINA_FALSE;
    if (ev->len <= 0)
-      return EINA_FALSE;
+     return EINA_FALSE;
    if (!path)
-      return EINA_FALSE;
+     return EINA_FALSE;
 
    char *dd = strdup(ev->data);
 
    if (!dd)
-      return EINA_FALSE;
+     return EINA_FALSE;
 
    char *s = _drag_data_extract(&dd);
 
@@ -110,8 +110,8 @@ _drop_dropcb(void *data EINA_UNUSED, Evas_Object *obj, Elm_Object_Item *it,
      {
         if (evas_object_image_extension_can_load_get(s))
           files = eina_list_append(files, s);
-	files = eina_list_append(files, s);
-	s = _drag_data_extract(&dd);
+        files = eina_list_append(files, s);
+        s = _drag_data_extract(&dd);
      }
    free(dd);
 
@@ -128,7 +128,7 @@ _drop_dropcb(void *data EINA_UNUSED, Evas_Object *obj, Elm_Object_Item *it,
 
 static Elm_Object_Item *
 _drop_item_getcb(Evas_Object *obj, Evas_Coord x, Evas_Coord y,
-    int *xposret EINA_UNUSED, int *yposret)
+                 int *xposret EINA_UNUSED, int *yposret)
 {
    Elm_Object_Item *gli;
 
@@ -154,9 +154,9 @@ _drop_leave(void *data, Evas_Object *obj EINA_UNUSED)
 
 static void
 _drop_pos(void *data EINA_UNUSED, Evas_Object *cont EINA_UNUSED,
-    Elm_Object_Item *it, Evas_Coord x EINA_UNUSED,
-    Evas_Coord y EINA_UNUSED, int xposret EINA_UNUSED,
-    int yposret EINA_UNUSED, Elm_Xdnd_Action action EINA_UNUSED)
+          Elm_Object_Item *it, Evas_Coord x EINA_UNUSED,
+          Evas_Coord y EINA_UNUSED, int xposret EINA_UNUSED,
+          int yposret EINA_UNUSED, Elm_Xdnd_Action action EINA_UNUSED)
 {
    elm_genlist_item_selected_set(it, EINA_TRUE);
 }
@@ -167,42 +167,42 @@ _drag_data_extract(char **drag_data)
    char *uri = NULL;
 
    if (!drag_data)
-      return uri;
+     return uri;
 
    char *p = *drag_data;
 
    if (!p)
-      return uri;
+     return uri;
    char *s = strstr(p, FILESEP);
 
    if (s)
-      p += FILESEP_LEN;
+     p += FILESEP_LEN;
    s = strchr(p, '\n');
    uri = p;
    if (s)
      {
-	if (s - p > 0)
-	  {
-	     char *s1 = s - 1;
+        if (s - p > 0)
+          {
+             char *s1 = s - 1;
 
-	     if (s1[0] == '\r')
-		s1[0] = '\0';
-	     else
-	       {
-		  char *s2 = s + 1;
+             if (s1[0] == '\r')
+               s1[0] = '\0';
+             else
+               {
+                  char *s2 = s + 1;
 
-		  if (s2[0] == '\r')
-		    {
-		       s[0] = '\0';
-		       s++;
-		    }
+                  if (s2[0] == '\r')
+                    {
+                       s[0] = '\0';
+                       s++;
+                    }
                   else
-		     s[0] = '\0';
-	       }
-	  }
+                    s[0] = '\0';
+               }
+          }
         else
-	   s[0] = '\0';
-	s++;
+          s[0] = '\0';
+        s++;
      }
    else
      p = NULL;
@@ -224,7 +224,7 @@ _entry_cmp(const void *pa, const void *pb)
 
 static void
 _on_list_expand_req(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info)
+                    void *event_info)
 {
    Ephoto_Directory_Browser *db = data;
    Elm_Object_Item *it = event_info;
@@ -241,7 +241,7 @@ _on_list_expand_req(void *data, Evas_Object *obj EINA_UNUSED,
 
 static void
 _on_list_contract_req(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info)
+                      void *event_info)
 {
    Ephoto_Directory_Browser *db = data;
    Elm_Object_Item *it = event_info;
@@ -307,9 +307,9 @@ _on_list_contracted(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
    db->thumbs_only = 1;
    db->dirs_only = 0;
    ephoto_directory_set(db->ephoto, path, NULL,
-       db->dirs_only, db->thumbs_only);
+                        db->dirs_only, db->thumbs_only);
    ephoto_title_set(db->ephoto,
-       db->ephoto->config->directory);
+                    db->ephoto->config->directory);
 }
 
 static void
@@ -326,7 +326,7 @@ _dir_job(void *data)
    db->thumbs_only = 1;
    db->dirs_only = 0;
    ephoto_directory_set(db->ephoto, path, NULL,
-       db->dirs_only, db->thumbs_only);
+                        db->dirs_only, db->thumbs_only);
    ephoto_title_set(db->ephoto, db->ephoto->config->directory);
 }
 
@@ -342,7 +342,7 @@ _wait_job(void *data)
 
 static void
 _on_list_selected(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info)
+                  void *event_info)
 {
    Ephoto_Directory_Browser *db = data;
    Elm_Object_Item *it = event_info;
@@ -357,7 +357,7 @@ _on_list_selected(void *data, Evas_Object *obj EINA_UNUSED,
 
 static char *
 _dir_item_text_get(void *data, Evas_Object *obj EINA_UNUSED,
-    const char *part EINA_UNUSED)
+                   const char *part EINA_UNUSED)
 {
    Ephoto_Entry *e = data;
 
@@ -366,12 +366,12 @@ _dir_item_text_get(void *data, Evas_Object *obj EINA_UNUSED,
 
 static Evas_Object *
 _dir_item_icon_get(void *data, Evas_Object *obj,
-    const char *part)
+                   const char *part)
 {
    Ephoto_Entry *entry = data;
 
    if (!strcmp(part, "elm.swallow.end"))
-      return NULL;
+     return NULL;
    Evas_Object *ic = elm_icon_add(obj);
 
    if (entry->item)
@@ -428,7 +428,7 @@ _check_for_subdirs(Ephoto_Entry *entry)
 
 static void
 _trash_back(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+            void *event_info EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
 
@@ -441,13 +441,13 @@ _trash_back(void *data, Evas_Object *obj EINA_UNUSED,
    db->thumbs_only = 1;
    db->dirs_only = 0;
    ephoto_directory_set(db->ephoto, db->back_directory, NULL,
-       db->dirs_only, db->thumbs_only);
+                        db->dirs_only, db->thumbs_only);
    ephoto_title_set(db->ephoto, db->back_directory);
 }
 
 static void
 _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+              void *event_info EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
    Evas_Object *ic, *but;
@@ -474,28 +474,28 @@ _dir_go_trash(void *data, Evas_Object *obj EINA_UNUSED,
    elm_genlist_highlight_mode_set(db->fsel, EINA_TRUE);
    EPHOTO_EXPAND(db->fsel);
    EPHOTO_FILL(db->fsel);
-   evas_object_size_hint_min_set(db->fsel, 195*elm_config_scale_get(), 0);
+   evas_object_size_hint_min_set(db->fsel, 195 * elm_config_scale_get(), 0);
    evas_object_smart_callback_add(db->fsel, "expand,request",
-       _on_list_expand_req, db);
+                                  _on_list_expand_req, db);
    evas_object_smart_callback_add(db->fsel, "contract,request",
-       _on_list_contract_req, db);
+                                  _on_list_contract_req, db);
    evas_object_smart_callback_add(db->fsel, "expanded", _on_list_expanded, db);
    evas_object_smart_callback_add(db->fsel, "contracted", _on_list_contracted,
-       db);
+                                  db);
    evas_object_event_callback_add(db->fsel, EVAS_CALLBACK_MOUSE_UP,
-       _fsel_mouse_up_cb, db);
+                                  _fsel_mouse_up_cb, db);
    evas_object_data_set(db->fsel, "directory_browser", db);
    elm_box_pack_end(db->leftbox, db->fsel);
    evas_object_show(db->fsel);
 
    eina_stringshare_replace(&db->back_directory,
-       db->ephoto->config->directory);
+                            db->ephoto->config->directory);
    if (!ecore_file_exists(db->ephoto->trash_path))
-      ecore_file_mkpath(db->ephoto->trash_path);
+     ecore_file_mkpath(db->ephoto->trash_path);
    db->thumbs_only = 0;
    db->dirs_only = 0;
    ephoto_directory_set(db->ephoto, db->ephoto->trash_path, NULL,
-       db->dirs_only, db->thumbs_only);
+                        db->dirs_only, db->thumbs_only);
    ephoto_title_set(db->ephoto, _("Trash"));
    ephoto_directory_browser_top_dir_set(db->ephoto, db->ephoto->config->directory);
 }
@@ -544,7 +544,7 @@ _fsel_menu_go_home(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EI
 
 static void
 _fsel_menu_new_dir_cb(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                      void *event_info EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
    Elm_Object_Item *item = elm_genlist_selected_item_get(db->fsel);
@@ -565,7 +565,7 @@ _fsel_menu_new_dir_cb(void *data, Evas_Object *obj EINA_UNUSED,
 
 static void
 _fsel_menu_paste_cb(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                    void *event_info EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
    Elm_Object_Item *item = elm_genlist_selected_item_get(db->fsel);
@@ -575,7 +575,7 @@ _fsel_menu_paste_cb(void *data, Evas_Object *obj EINA_UNUSED,
 
 static void
 _fsel_menu_rename_cb(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                     void *event_info EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
    Elm_Object_Item *item = elm_genlist_selected_item_get(db->fsel);
@@ -593,7 +593,7 @@ _fsel_menu_rename_cb(void *data, Evas_Object *obj EINA_UNUSED,
 
 static void
 _fsel_menu_delete_cb(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                     void *event_info EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
    Elm_Object_Item *item = elm_genlist_selected_item_get(db->fsel);
@@ -613,7 +613,7 @@ _fsel_menu_delete_cb(void *data, Evas_Object *obj EINA_UNUSED,
 
 static void
 _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
-    Evas_Object *obj EINA_UNUSED, void *event_info)
+                  Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ephoto_Directory_Browser *db = data;
    Evas_Object *menu;
@@ -635,7 +635,7 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
                        ecore_timer_del(db->click_timer);
                        db->click_timer = NULL;
                        elm_genlist_item_expanded_set(item,
-                           !elm_genlist_item_expanded_get(item));
+                                                     !elm_genlist_item_expanded_get(item));
                     }
                }
           }
@@ -650,8 +650,7 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
           }
      }
    if (info->button != 3)
-      return;
-
+     return;
 
    if (item)
      elm_genlist_item_selected_set(item, EINA_TRUE);
@@ -659,36 +658,36 @@ _fsel_mouse_up_cb(void *data, Evas *e EINA_UNUSED,
    menu = elm_menu_add(db->ephoto->win);
    elm_menu_move(menu, x, y);
    elm_menu_item_add(menu, NULL, "computer", _("Root"),
-       _fsel_menu_go_root, db->ephoto);
+                     _fsel_menu_go_root, db->ephoto);
    elm_menu_item_add(menu, NULL, "user-home", _("Home"),
-       _fsel_menu_go_home, db->ephoto);
+                     _fsel_menu_go_home, db->ephoto);
    if (strcmp(db->ephoto->config->directory, db->ephoto->trash_path))
      {
         elm_menu_item_add(menu, NULL, "folder-new", _("New Folder"),
-              _fsel_menu_new_dir_cb, db);
+                          _fsel_menu_new_dir_cb, db);
      }
    if (item)
      {
         elm_menu_item_add(menu, NULL, "edit", _("Rename"),
-            _fsel_menu_rename_cb, db);
-	elm_menu_item_add(menu, NULL, "edit-paste", _("Paste"),
-	    _fsel_menu_paste_cb, db);
+                          _fsel_menu_rename_cb, db);
+        elm_menu_item_add(menu, NULL, "edit-paste", _("Paste"),
+                          _fsel_menu_paste_cb, db);
      }
    else if (!strcmp(db->ephoto->config->directory, db->ephoto->trash_path) &&
-     elm_genlist_first_item_get(db->fsel))
+            elm_genlist_first_item_get(db->fsel))
      {
         elm_menu_item_add(menu, NULL, "edit-delete", _("Empty Trash"),
-            _menu_empty_cb, db);
+                          _menu_empty_cb, db);
      }
    if (strcmp(db->ephoto->config->directory, db->ephoto->trash_path) && item)
      {
         elm_menu_item_add(menu, NULL, "edit-delete", _("Delete"),
-             _fsel_menu_delete_cb, db);
+                          _fsel_menu_delete_cb, db);
         elm_menu_item_add(menu, NULL, "user-trash", _("Trash"),
-            _dir_go_trash, db);
+                          _dir_go_trash, db);
      }
    evas_object_smart_callback_add(menu, "dismissed", _menu_dismissed_cb,
-            db);
+                                  db);
    evas_object_show(menu);
 }
 
@@ -708,23 +707,23 @@ _ephoto_directory_view_add(Ephoto_Directory_Browser *db)
    elm_genlist_highlight_mode_set(db->fsel, EINA_TRUE);
    EPHOTO_EXPAND(db->fsel);
    EPHOTO_FILL(db->fsel);
-   evas_object_size_hint_min_set(db->fsel, 195*elm_config_scale_get(), 0);
+   evas_object_size_hint_min_set(db->fsel, 195 * elm_config_scale_get(), 0);
    evas_object_smart_callback_add(db->fsel, "expand,request",
-       _on_list_expand_req, db);
+                                  _on_list_expand_req, db);
    evas_object_smart_callback_add(db->fsel, "contract,request",
-       _on_list_contract_req, db);
+                                  _on_list_contract_req, db);
    evas_object_smart_callback_add(db->fsel, "expanded", _on_list_expanded, db);
    evas_object_smart_callback_add(db->fsel, "contracted", _on_list_contracted,
-       db);
+                                  db);
    evas_object_event_callback_add(db->fsel, EVAS_CALLBACK_MOUSE_UP,
-       _fsel_mouse_up_cb, db);
+                                  _fsel_mouse_up_cb, db);
    evas_object_data_set(db->fsel, "directory_browser", db);
    elm_box_pack_end(db->leftbox, db->fsel);
    evas_object_show(db->fsel);
 
    elm_drop_item_container_add(db->fsel, ELM_SEL_FORMAT_TARGETS,
-       _drop_item_getcb, _drop_enter, db, _drop_leave, db, _drop_pos, db,
-       _drop_dropcb, NULL);
+                               _drop_item_getcb, _drop_enter, db, _drop_leave, db, _drop_pos, db,
+                               _drop_dropcb, NULL);
 }
 
 /*Ephoto Populating Functions*/
@@ -743,36 +742,36 @@ _monitor_add(Ephoto_Entry *e)
 
    e->monitor = eio_monitor_add(rp);
    e->monitor_handlers =
-       eina_list_append(e->monitor_handlers,
-           ecore_event_handler_add(EIO_MONITOR_FILE_CREATED,
-               _monitor_cb, e));
+     eina_list_append(e->monitor_handlers,
+                      ecore_event_handler_add(EIO_MONITOR_FILE_CREATED,
+                                              _monitor_cb, e));
    e->monitor_handlers =
-       eina_list_append(e->monitor_handlers,
-           ecore_event_handler_add(EIO_MONITOR_FILE_MODIFIED,
-               _monitor_cb, e));
+     eina_list_append(e->monitor_handlers,
+                      ecore_event_handler_add(EIO_MONITOR_FILE_MODIFIED,
+                                              _monitor_cb, e));
    e->monitor_handlers =
-       eina_list_append(e->monitor_handlers,
-           ecore_event_handler_add(EIO_MONITOR_FILE_DELETED,
-               _monitor_cb, e));
+     eina_list_append(e->monitor_handlers,
+                      ecore_event_handler_add(EIO_MONITOR_FILE_DELETED,
+                                              _monitor_cb, e));
    e->monitor_handlers =
-       eina_list_append(e->monitor_handlers,
-           ecore_event_handler_add(EIO_MONITOR_DIRECTORY_CREATED,
-               _monitor_cb, e));
+     eina_list_append(e->monitor_handlers,
+                      ecore_event_handler_add(EIO_MONITOR_DIRECTORY_CREATED,
+                                              _monitor_cb, e));
    e->monitor_handlers =
-       eina_list_append(e->monitor_handlers,
-           ecore_event_handler_add(EIO_MONITOR_DIRECTORY_MODIFIED,
-               _monitor_cb, e));
+     eina_list_append(e->monitor_handlers,
+                      ecore_event_handler_add(EIO_MONITOR_DIRECTORY_MODIFIED,
+                                              _monitor_cb, e));
    e->monitor_handlers =
-       eina_list_append(e->monitor_handlers,
-           ecore_event_handler_add(EIO_MONITOR_DIRECTORY_DELETED,
-               _monitor_cb, e));
+     eina_list_append(e->monitor_handlers,
+                      ecore_event_handler_add(EIO_MONITOR_DIRECTORY_DELETED,
+                                              _monitor_cb, e));
 
    free(rp);
 }
 
 static Eina_Bool
 _monitor_cb(void *data, int type,
-    void *event)
+            void *event)
 {
    Elm_Object_Item *item;
    Ephoto_Entry *entry = data;
@@ -813,17 +812,17 @@ _monitor_cb(void *data, int type,
              ic = _ephoto_dir_class;
              snprintf(buf, PATH_MAX, "%s", ev->filename);
              e = ephoto_entry_new(entry->ephoto, ev->filename, basename(buf),
-                 EINA_FILE_DIR);
+                                  EINA_FILE_DIR);
              e->genlist = entry->genlist;
              e->parent = entry->item;
              if (!_check_for_subdirs(e))
                e->item =
                  elm_genlist_item_sorted_insert(entry->genlist, ic, e,
-                 e->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp, NULL, NULL);
+                                                e->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp, NULL, NULL);
              else
                e->item =
                  elm_genlist_item_sorted_insert(entry->genlist, ic, e,
-                 e->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp, NULL, NULL);
+                                                e->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp, NULL, NULL);
              if (e->item)
                _monitor_add(e);
           }
@@ -833,8 +832,8 @@ _monitor_cb(void *data, int type,
 
              ic = _ephoto_dir_tree_class;
              parent =
-                 elm_genlist_item_insert_before(entry->genlist, ic, entry,
-                     entry->parent, entry->item, ELM_GENLIST_ITEM_TREE, NULL, NULL);
+               elm_genlist_item_insert_before(entry->genlist, ic, entry,
+                                              entry->parent, entry->item, ELM_GENLIST_ITEM_TREE, NULL, NULL);
              entry->no_delete = EINA_TRUE;
              elm_object_item_del(entry->item);
              entry->item = parent;
@@ -865,8 +864,8 @@ _monitor_cb(void *data, int type,
              Elm_Object_Item *parent;
              ic = _ephoto_dir_class;
              parent =
-                 elm_genlist_item_insert_before(entry->genlist, ic, entry,
-                 entry->parent, entry->item, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+               elm_genlist_item_insert_before(entry->genlist, ic, entry,
+                                              entry->parent, entry->item, ELM_GENLIST_ITEM_NONE, NULL, NULL);
 
              entry->no_delete = EINA_TRUE;
              elm_object_item_del(entry->item);
@@ -917,7 +916,7 @@ _monitor_cb(void *data, int type,
 
 static Eina_Bool
 _top_monitor_cb(void *data, int type,
-    void *event)
+                void *event)
 {
    Elm_Object_Item *item;
    Ephoto_Directory_Browser *db = data;
@@ -951,12 +950,12 @@ _top_monitor_cb(void *data, int type,
           }
         snprintf(buf, PATH_MAX, "%s", ev->filename);
         e = ephoto_entry_new(db->ephoto, ev->filename, basename(buf),
-            EINA_FILE_DIR);
+                             EINA_FILE_DIR);
         e->genlist = db->fsel;
         ic = _ephoto_dir_class;
         e->item =
-            elm_genlist_item_append(db->fsel, ic, e,
-            NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+          elm_genlist_item_append(db->fsel, ic, e,
+                                  NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
         if (e->item)
           _monitor_add(e);
         free(rp);
@@ -1018,53 +1017,53 @@ _todo_items_process(void *data)
           return EINA_TRUE;
         db->animator.todo_items = NULL;
         db->processing = 0;
-	return EINA_FALSE;
+        return EINA_FALSE;
      }
    if ((db->ls) && (eina_list_count(db->todo_items) < TODO_ITEM_MIN_BATCH))
-      return EINA_TRUE;
+     return EINA_TRUE;
 
    db->animator.todo_items = NULL;
    db->processing = 1;
    EINA_LIST_FREE(db->todo_items, entry)
-   {
-      i++;
-      if (i > TODO_ITEM_MIN_BATCH)
-	 return EINA_TRUE;
-      if (entry->is_dir && !entry->item)
-        {
-	   const Elm_Genlist_Item_Class *ic;
-	   if (_check_for_subdirs(entry))
-             {
-                ic = _ephoto_dir_tree_class;
-                entry->item =
+     {
+        i++;
+        if (i > TODO_ITEM_MIN_BATCH)
+          return EINA_TRUE;
+        if (entry->is_dir && !entry->item)
+          {
+             const Elm_Genlist_Item_Class *ic;
+             if (_check_for_subdirs(entry))
+               {
+                  ic = _ephoto_dir_tree_class;
+                  entry->item =
                     elm_genlist_item_sorted_insert(db->fsel, ic, entry,
-                    entry->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp, NULL, NULL);
-             }
-           else
-             {
-                ic = _ephoto_dir_class;
-                entry->item =
+                                                   entry->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp, NULL, NULL);
+               }
+             else
+               {
+                  ic = _ephoto_dir_class;
+                  entry->item =
                     elm_genlist_item_sorted_insert(db->fsel, ic, entry,
-                    entry->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp, NULL, NULL);
-             }
-	   if (!entry->item)
-	     {
-		ephoto_entry_free(db->ephoto, entry);
-	     }
-           else
-             {
-                _monitor_add(entry);
-                entry->genlist = db->fsel;
-             }
-        }
-      db->animator.processed++;
-   }
+                                                   entry->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp, NULL, NULL);
+               }
+             if (!entry->item)
+               {
+                  ephoto_entry_free(db->ephoto, entry);
+               }
+             else
+               {
+                  _monitor_add(entry);
+                  entry->genlist = db->fsel;
+               }
+          }
+        db->animator.processed++;
+     }
    return EINA_TRUE;
 }
 
 static Eina_Bool
 _ephoto_dir_populate_start(void *data, int type EINA_UNUSED,
-    void *event EINA_UNUSED)
+                           void *event EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
 
@@ -1078,15 +1077,15 @@ _ephoto_dir_populate_start(void *data, int type EINA_UNUSED,
 
 static Eina_Bool
 _ephoto_dir_populate_end(void *data, int type EINA_UNUSED,
-    void *event EINA_UNUSED)
+                         void *event EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
 
    db->ls = NULL;
    if (db->main_deleted)
      {
-	free(db);
-	return ECORE_CALLBACK_PASS_ON;
+        free(db);
+        return ECORE_CALLBACK_PASS_ON;
      }
    db->dirs_only = 0;
    ephoto_thumb_browser_dirs_only_set(db->ephoto, EINA_FALSE);
@@ -1097,7 +1096,7 @@ _ephoto_dir_populate_end(void *data, int type EINA_UNUSED,
 
 static Eina_Bool
 _ephoto_dir_populate_error(void *data, int type EINA_UNUSED,
-    void *event EINA_UNUSED)
+                           void *event EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
 
@@ -1120,8 +1119,8 @@ _ephoto_dir_entry_create(void *data, int type EINA_UNUSED, void *event)
    rp = ecore_file_realpath(e->path);
    if (e->is_dir)
      {
-	db->todo_items = eina_list_append(db->todo_items, e);
-	db->animator.count++;
+        db->todo_items = eina_list_append(db->todo_items, e);
+        db->animator.count++;
      }
    else if (ecore_file_is_dir((const char *)rp))
      {
@@ -1129,7 +1128,7 @@ _ephoto_dir_entry_create(void *data, int type EINA_UNUSED, void *event)
         db->animator.count++;
      }
    if (!db->animator.todo_items)
-      db->animator.todo_items = ecore_animator_add(_todo_items_process, db);
+     db->animator.todo_items = ecore_animator_add(_todo_items_process, db);
 
    free(rp);
    return ECORE_CALLBACK_PASS_ON;
@@ -1138,24 +1137,25 @@ _ephoto_dir_entry_create(void *data, int type EINA_UNUSED, void *event)
 /*Ephoto Directory Browser Main Callbacks*/
 static void
 _ephoto_main_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                 void *event_info EINA_UNUSED)
 {
    Ephoto_Directory_Browser *db = data;
    Ecore_Event_Handler *handler;
 
    _todo_items_free(db);
    elm_drop_item_container_del(db->fsel);
-   EINA_LIST_FREE(db->handlers, handler) ecore_event_handler_del(handler);
+   EINA_LIST_FREE(db->handlers, handler)
+     ecore_event_handler_del(handler);
    if (db->animator.todo_items)
      {
-	ecore_animator_del(db->animator.todo_items);
-	db->animator.todo_items = NULL;
+        ecore_animator_del(db->animator.todo_items);
+        db->animator.todo_items = NULL;
      }
    if (db->ls)
      {
-	db->main_deleted = EINA_TRUE;
-	eio_file_cancel(db->ls);
-	return;
+        db->main_deleted = EINA_TRUE;
+        eio_file_cancel(db->ls);
+        return;
      }
    if (db->monitor)
      {
@@ -1170,7 +1170,7 @@ void
 ephoto_directory_browser_clear(Ephoto *ephoto)
 {
    Ephoto_Directory_Browser *db =
-       evas_object_data_get(ephoto->dir_browser, "directory_browser");
+     evas_object_data_get(ephoto->dir_browser, "directory_browser");
 
    elm_genlist_clear(db->fsel);
 }
@@ -1179,7 +1179,7 @@ void
 ephoto_directory_browser_top_dir_set(Ephoto *ephoto, const char *dir)
 {
    Ephoto_Directory_Browser *db =
-       evas_object_data_get(ephoto->dir_browser, "directory_browser");
+     evas_object_data_get(ephoto->dir_browser, "directory_browser");
    Ecore_Event_Handler *handler;
    char *rp = ecore_file_realpath(dir);
 
@@ -1195,29 +1195,29 @@ ephoto_directory_browser_top_dir_set(Ephoto *ephoto, const char *dir)
      ephoto->top_directory = eina_stringshare_add(dir);
    db->monitor = eio_monitor_add(rp);
    db->monitor_handlers =
-       eina_list_append(db->monitor_handlers,
-           ecore_event_handler_add(EIO_MONITOR_FILE_CREATED,
-               _top_monitor_cb, db));
+     eina_list_append(db->monitor_handlers,
+                      ecore_event_handler_add(EIO_MONITOR_FILE_CREATED,
+                                              _top_monitor_cb, db));
    db->monitor_handlers =
-       eina_list_append(db->monitor_handlers,
-           ecore_event_handler_add(EIO_MONITOR_FILE_MODIFIED,
-               _top_monitor_cb, db));
+     eina_list_append(db->monitor_handlers,
+                      ecore_event_handler_add(EIO_MONITOR_FILE_MODIFIED,
+                                              _top_monitor_cb, db));
    db->monitor_handlers =
-       eina_list_append(db->monitor_handlers,
-           ecore_event_handler_add(EIO_MONITOR_FILE_DELETED,
-               _top_monitor_cb, db));
+     eina_list_append(db->monitor_handlers,
+                      ecore_event_handler_add(EIO_MONITOR_FILE_DELETED,
+                                              _top_monitor_cb, db));
    db->monitor_handlers =
-       eina_list_append(db->monitor_handlers,
-           ecore_event_handler_add(EIO_MONITOR_DIRECTORY_CREATED,
-               _top_monitor_cb, db));
+     eina_list_append(db->monitor_handlers,
+                      ecore_event_handler_add(EIO_MONITOR_DIRECTORY_CREATED,
+                                              _top_monitor_cb, db));
    db->monitor_handlers =
-       eina_list_append(db->monitor_handlers,
-           ecore_event_handler_add(EIO_MONITOR_DIRECTORY_MODIFIED,
-               _top_monitor_cb, db));
+     eina_list_append(db->monitor_handlers,
+                      ecore_event_handler_add(EIO_MONITOR_DIRECTORY_MODIFIED,
+                                              _top_monitor_cb, db));
    db->monitor_handlers =
-       eina_list_append(db->monitor_handlers,
-           ecore_event_handler_add(EIO_MONITOR_DIRECTORY_DELETED,
-               _top_monitor_cb, db));
+     eina_list_append(db->monitor_handlers,
+                      ecore_event_handler_add(EIO_MONITOR_DIRECTORY_DELETED,
+                                              _top_monitor_cb, db));
    free(rp);
 }
 
@@ -1225,7 +1225,7 @@ void
 ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
 {
    Ephoto_Directory_Browser *db =
-       evas_object_data_get(ephoto->dir_browser, "directory_browser");
+     evas_object_data_get(ephoto->dir_browser, "directory_browser");
    Eina_List *dirs = NULL, *l;
    Elm_Object_Item *next = NULL, *cur = NULL;
    char path[PATH_MAX], *dir, *end_dir;
@@ -1246,7 +1246,7 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
                   dir = ecore_file_dir_get(path);
                   dirs = eina_list_prepend(dirs, strdup(dir));
                   memset(path, 0x00, sizeof(path));
-                  snprintf(path, PATH_MAX, "%s", dir); 
+                  snprintf(path, PATH_MAX, "%s", dir);
                }
              free(dir);
              dir = NULL;
@@ -1276,7 +1276,7 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
              if (strncmp(finfo->path + finfo->name_start, ".", 1))
                {
                   Ephoto_Entry *entry = ephoto_entry_new(ephoto, finfo->path,
-                      finfo->path+finfo->name_start, finfo->type);
+                                                         finfo->path + finfo->name_start, finfo->type);
                   entry->parent = cur;
                   if (entry->is_dir && !entry->item)
                     {
@@ -1285,17 +1285,17 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
                          {
                             ic = _ephoto_dir_tree_class;
                             entry->item =
-                                elm_genlist_item_sorted_insert(db->fsel, ic, entry,
-                                entry->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp,
-                                NULL, NULL);
+                              elm_genlist_item_sorted_insert(db->fsel, ic, entry,
+                                                             entry->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp,
+                                                             NULL, NULL);
                          }
                        else
                          {
                             ic = _ephoto_dir_class;
                             entry->item =
-                                elm_genlist_item_sorted_insert(db->fsel, ic, entry,
-                                entry->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp,
-                                NULL, NULL);
+                              elm_genlist_item_sorted_insert(db->fsel, ic, entry,
+                                                             entry->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp,
+                                                             NULL, NULL);
                          }
                        if (!entry->item)
                          {
@@ -1370,36 +1370,37 @@ ephoto_directory_browser_add(Ephoto *ephoto, Evas_Object *parent)
    db->main = box;
 
    elm_box_horizontal_set(db->main, EINA_FALSE);
-   evas_object_size_hint_min_set(db->main, 195*elm_config_scale_get(), 0);
+   evas_object_size_hint_min_set(db->main, 195 * elm_config_scale_get(), 0);
    evas_object_event_callback_add(db->main, EVAS_CALLBACK_DEL,
-       _ephoto_main_del, db);
+                                  _ephoto_main_del, db);
    evas_object_data_set(db->main, "directory_browser", db);
 
    _ephoto_directory_view_add(db);
 
    db->handlers =
-       eina_list_append(db->handlers,
-       ecore_event_handler_add(EPHOTO_EVENT_POPULATE_START,
-	   _ephoto_dir_populate_start, db));
+     eina_list_append(db->handlers,
+                      ecore_event_handler_add(EPHOTO_EVENT_POPULATE_START,
+                                              _ephoto_dir_populate_start, db));
 
    db->handlers =
-       eina_list_append(db->handlers,
-       ecore_event_handler_add(EPHOTO_EVENT_POPULATE_END,
-	   _ephoto_dir_populate_end, db));
+     eina_list_append(db->handlers,
+                      ecore_event_handler_add(EPHOTO_EVENT_POPULATE_END,
+                                              _ephoto_dir_populate_end, db));
 
    db->handlers =
-       eina_list_append(db->handlers,
-       ecore_event_handler_add(EPHOTO_EVENT_POPULATE_ERROR,
-	   _ephoto_dir_populate_error, db));
+     eina_list_append(db->handlers,
+                      ecore_event_handler_add(EPHOTO_EVENT_POPULATE_ERROR,
+                                              _ephoto_dir_populate_error, db));
 
    db->handlers =
-       eina_list_append(db->handlers,
-       ecore_event_handler_add(EPHOTO_EVENT_ENTRY_CREATE,
-	   _ephoto_dir_entry_create, db));
+     eina_list_append(db->handlers,
+                      ecore_event_handler_add(EPHOTO_EVENT_ENTRY_CREATE,
+                                              _ephoto_dir_entry_create, db));
 
    return db->main;
- 
-  error:
+
+error:
    evas_object_del(db->main);
    return NULL;
 }
+

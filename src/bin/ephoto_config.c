@@ -2,14 +2,14 @@
 
 #define CONFIG_VERSION 21
 
-static int _ephoto_config_load(Ephoto *ephoto);
+static int       _ephoto_config_load(Ephoto *ephoto);
 static Eina_Bool _ephoto_on_config_save(void *data);
 
 static Eet_Data_Descriptor *edd = NULL;
 
 static void
 _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
@@ -17,18 +17,18 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
    const char *text = elm_object_text_get(ephoto->config->open_dir);
 
    if (!strcmp(text, _("Root Directory")))
-      path = "/";
+     path = "/";
    else if (!strcmp(text, _("Home Directory")))
-      path = eina_environment_home_get();
+     path = eina_environment_home_get();
    else if (!strcmp(text, _("Last Open Directory")))
-      path = "Last";
+     path = "Last";
    else
-      path = elm_object_text_get(ephoto->config->open_dir_custom);
+     path = elm_object_text_get(ephoto->config->open_dir_custom);
 
    if (ecore_file_is_dir(path) || !strcmp(path, "Last"))
-      eina_stringshare_replace(&ephoto->config->open, path);
+     eina_stringshare_replace(&ephoto->config->open, path);
    if (strcmp(path, ephoto->config->directory) && strcmp(path, "Last") &&
-          ecore_file_exists(path))
+       ecore_file_exists(path))
      {
         char *rp = ecore_file_realpath(path);
         ephoto_directory_browser_clear(ephoto);
@@ -52,11 +52,11 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
      }
 
    if (elm_spinner_value_get(ephoto->config->slide_time) > 0)
-      ephoto->config->slideshow_timeout =
-          elm_spinner_value_get(ephoto->config->slide_time);
+     ephoto->config->slideshow_timeout =
+       elm_spinner_value_get(ephoto->config->slide_time);
    if (elm_object_text_get(ephoto->config->slide_trans))
-      eina_stringshare_replace(&ephoto->config->slideshow_transition,
-          elm_object_text_get(ephoto->config->slide_trans));
+     eina_stringshare_replace(&ephoto->config->slideshow_transition,
+                              elm_object_text_get(ephoto->config->slide_trans));
 
    evas_object_del(popup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
@@ -71,9 +71,9 @@ _open_hv_select(void *data, Evas_Object *obj, void *event_info)
    elm_object_text_set(obj, elm_object_item_text_get(event_info));
 
    if (!strcmp(elm_object_item_text_get(event_info), _("Custom Directory")))
-      elm_object_disabled_set(ephoto->config->open_dir_custom, EINA_FALSE);
+     elm_object_disabled_set(ephoto->config->open_dir_custom, EINA_FALSE);
    else
-      elm_object_disabled_set(ephoto->config->open_dir_custom, EINA_TRUE);
+     elm_object_disabled_set(ephoto->config->open_dir_custom, EINA_TRUE);
 }
 
 static void
@@ -90,7 +90,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
 
    check = elm_check_add(table);
    elm_object_text_set(check, _("Show Folders On Start"));
-   EPHOTO_ALIGN(check, EVAS_HINT_FILL, 0.5); 
+   EPHOTO_ALIGN(check, EVAS_HINT_FILL, 0.5);
    elm_check_state_set(check, ephoto->config->folders);
    elm_table_pack(table, check, 0, 0, 1, 1);
    evas_object_show(check);
@@ -156,13 +156,13 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    hoversel = elm_hoversel_add(table);
    elm_hoversel_hover_parent_set(hoversel, ephoto->win);
    elm_hoversel_item_add(hoversel, _("Root Directory"), NULL, 0,
-       _open_hv_select, ephoto);
+                         _open_hv_select, ephoto);
    elm_hoversel_item_add(hoversel, _("Home Directory"), NULL, 0,
-       _open_hv_select, ephoto);
+                         _open_hv_select, ephoto);
    elm_hoversel_item_add(hoversel, _("Last Open Directory"), NULL, 0,
-       _open_hv_select, ephoto);
+                         _open_hv_select, ephoto);
    elm_hoversel_item_add(hoversel, _("Custom Directory"), NULL, 0,
-       _open_hv_select, ephoto);
+                         _open_hv_select, ephoto);
    elm_object_text_set(hoversel, ephoto->config->open);
    evas_object_data_set(hoversel, "ephoto", ephoto);
    EPHOTO_WEIGHT(hoversel, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
@@ -177,7 +177,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    elm_object_text_set(entry, _("Custom Directory"));
    elm_object_disabled_set(entry, EINA_TRUE);
    elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF,
-       ELM_SCROLLER_POLICY_OFF);
+                           ELM_SCROLLER_POLICY_OFF);
    EPHOTO_EXPAND(entry);
    EPHOTO_FILL(entry);
    elm_table_pack(table, entry, 0, 9, 1, 1);
@@ -193,7 +193,7 @@ _hv_select(void *data EINA_UNUSED, Evas_Object *obj, void *event_info)
 
 static void
 _spinner_changed(void *data EINA_UNUSED, Evas_Object *obj,
-    void *event_info EINA_UNUSED)
+                 void *event_info EINA_UNUSED)
 {
    double val;
    char buf[PATH_MAX];
@@ -281,13 +281,14 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(label);
 
    transitions = _ephoto_transitions_list_get(edje_object_data_get(elm_layout_edje_get
-       (ephoto->slideshow), "transitions"));
+                                                                     (ephoto->slideshow), "transitions"));
 
    hoversel = elm_hoversel_add(table);
    elm_hoversel_hover_parent_set(hoversel, ephoto->win);
    EINA_LIST_FOREACH(transitions, l,
-       transition) elm_hoversel_item_add(hoversel, transition, NULL, 0,
-       _hv_select, transition);
+                      transition)
+     elm_hoversel_item_add(hoversel, transition, NULL, 0,
+                           _hv_select, transition);
    elm_hoversel_item_add(hoversel, "none", NULL, 0, _hv_select, NULL);
    elm_object_text_set(hoversel, ephoto->config->slideshow_transition);
    EPHOTO_EXPAND(hoversel);
@@ -296,8 +297,6 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(hoversel);
    ephoto->config->slide_trans = hoversel;
 }
-
-
 
 static Evas_Object *
 _config_settings(Ephoto *ephoto, Evas_Object *parent, Eina_Bool slideshow)
@@ -330,7 +329,7 @@ _config_settings(Ephoto *ephoto, Evas_Object *parent, Eina_Bool slideshow)
 
 static void
 _link_anchor_bt(void *data, Evas_Object *obj,
-    void *event_info EINA_UNUSED)
+                void *event_info EINA_UNUSED)
 {
    char buf[PATH_MAX];
    Evas_Object *av = data;
@@ -347,7 +346,7 @@ _link_anchor_bt(void *data, Evas_Object *obj,
 
 static void
 _copy_anchor_bt(void *data, Evas_Object *obj,
-    void *event_info EINA_UNUSED)
+                void *event_info EINA_UNUSED)
 {
    char buf[PATH_MAX];
    Evas_Object *av = data;
@@ -356,7 +355,7 @@ _copy_anchor_bt(void *data, Evas_Object *obj,
    elm_entry_anchor_hover_end(av);
    snprintf(buf, PATH_MAX, "%s", link);
    elm_cnp_selection_set(av, ELM_SEL_TYPE_CLIPBOARD, ELM_SEL_FORMAT_MARKUP,
-       buf, strlen(buf));
+                         buf, strlen(buf));
 }
 
 static void
@@ -370,7 +369,7 @@ _link_anchor(void *data, Evas_Object *obj, void *event_info)
    elm_object_text_set(button, _("Open Link In Browser"));
    elm_object_part_content_set(ei->hover, "middle", button);
    evas_object_smart_callback_add(button, "clicked", _link_anchor_bt,
-       av);
+                                  av);
    evas_object_data_set(button, "link", strdup(ei->anchor_info->name));
    evas_object_show(button);
 
@@ -378,7 +377,7 @@ _link_anchor(void *data, Evas_Object *obj, void *event_info)
    elm_object_text_set(button, _("Copy Link"));
    elm_object_part_content_set(ei->hover, "bottom", button);
    evas_object_smart_callback_add(button, "clicked", _copy_anchor_bt,
-       av);
+                                  av);
    evas_object_data_set(button, "link", strdup(ei->anchor_info->name));
    evas_object_show(button);
 }
@@ -414,53 +413,53 @@ _config_bindings(Evas_Object *parent)
    EPHOTO_WEIGHT(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
    EPHOTO_FILL(entry);
    eina_strbuf_append_printf(sbuf,
-       _("<b><hilight>General Bindings</hilight></b><br/>"
-           "<b>F1:</b> Settings Panel<br/>"
-           "<b>F5:</b> Start Slideshow<br/>"
-           "<b>F11:</b> Toggle Fullscreen<br/>"
-           "<b>Ctrl+Shift+f:</b> Toggle File Selector<br/><br/>"
-           "<b><hilight>Thumbnail Browser Bindings</hilight></b><br/>"
-           "<b>Ctrl++:</b> Zoom In<br/>"
-           "<b>Ctrl+-:</b> Zoom Out<br/>"
-           "<b>Ctrl+Tab:</b> View Image<br/>"
-           "<b>Ctrl+c:</b> Copy Image<br/>"
-           "<b>Ctrl+x:</b> Cut Image<br/>"
-           "<b>Ctrl+v:</b> Paste Image<br/>"
-           "<b>Ctrl+a:</b> Select All<br/>"
-           "<b>Ctrl+f:</b> Toggle Search<br/>"
-           "<b>Ctrl+Delete:</b> Delete Image<br/>"
-           "<b>F2:</b> Rename Image<br/>"
-           "<b>Escape:</b> Clear Selection<br/><br/>"
-           "<b><hilight>Single Browser Bindings</hilight></b><br/>"
-           "<b>Ctrl+Shift+0:</b> Zoom 1:1<br/>"
-           "<b>Ctrl++:</b> Zoom In<br/>"
-           "<b>Ctrl+-:</b> Zoom Out<br/>"
-           "<b>Ctrl+0:</b> Zoom Fit<br/>"
-           "<b>Ctrl+Shift+l:</b> Rotate Counter Clockwise<br/>"
-           "<b>Ctrl+l:</b> Flip Horizontal<br/>"
-           "<b>Ctrl+Shift+r:</b> Rotate Clockwise<br/>"
-           "<b>Ctrl+r:</b> Flip Vertical<br/>"
-           "<b>Ctrl+Shift+s:</b> Save Image As<br/>"
-           "<b>Ctrl+s:</b> Save Image<br/>"
-           "<b>Ctrl+u:</b> Reset Image<br/>"
-           "<b>Ctrl+y:</b> Redo<br/>"
-           "<b>Ctrl+Shift+z:</b> Redo<br/>"
-           "<b>Ctrl+z:</b> Undo<br/>"
-           "<b>Home:</b> Navigate First<br/>"
-           "<b>Left Arrow:</b> Navigate Previous<br/>"
-           "<b>Right Arrow:</b> Navigate Next<br/>"
-           "<b>Space:</b> Navigate Next<br/>"
-           "<b>End:</b> Navigate Last<br/>"
-           "<b>Ctrl+Delete:</b> Delete Image<br/>"
-           "<b>F2</b> Rename Image<br/>"
-           "<b>Escape:</b> Return to Thumbnail Browser<br/><br/>"
-           "<b><hilight>Slideshow Bindings</hilight></b><br/>"
-           "<b>Space:</b> Play/Pause Slideshow<br/>"
-           "<b>Home:</b> Navigate First<br/>"
-           "<b>Left Arrow:</b> Navigate Previous<br/>"
-           "<b>Right Arrow:</b> Navigate Next<br/>"
-           "<b>End:</b> Navigate Last<br/>"
-           "<b>Escape:</b> Quit Slideshow<br/>"));
+                             _("<b><hilight>General Bindings</hilight></b><br/>"
+                               "<b>F1:</b> Settings Panel<br/>"
+                               "<b>F5:</b> Start Slideshow<br/>"
+                               "<b>F11:</b> Toggle Fullscreen<br/>"
+                               "<b>Ctrl+Shift+f:</b> Toggle File Selector<br/><br/>"
+                               "<b><hilight>Thumbnail Browser Bindings</hilight></b><br/>"
+                               "<b>Ctrl++:</b> Zoom In<br/>"
+                               "<b>Ctrl+-:</b> Zoom Out<br/>"
+                               "<b>Ctrl+Tab:</b> View Image<br/>"
+                               "<b>Ctrl+c:</b> Copy Image<br/>"
+                               "<b>Ctrl+x:</b> Cut Image<br/>"
+                               "<b>Ctrl+v:</b> Paste Image<br/>"
+                               "<b>Ctrl+a:</b> Select All<br/>"
+                               "<b>Ctrl+f:</b> Toggle Search<br/>"
+                               "<b>Ctrl+Delete:</b> Delete Image<br/>"
+                               "<b>F2:</b> Rename Image<br/>"
+                               "<b>Escape:</b> Clear Selection<br/><br/>"
+                               "<b><hilight>Single Browser Bindings</hilight></b><br/>"
+                               "<b>Ctrl+Shift+0:</b> Zoom 1:1<br/>"
+                               "<b>Ctrl++:</b> Zoom In<br/>"
+                               "<b>Ctrl+-:</b> Zoom Out<br/>"
+                               "<b>Ctrl+0:</b> Zoom Fit<br/>"
+                               "<b>Ctrl+Shift+l:</b> Rotate Counter Clockwise<br/>"
+                               "<b>Ctrl+l:</b> Flip Horizontal<br/>"
+                               "<b>Ctrl+Shift+r:</b> Rotate Clockwise<br/>"
+                               "<b>Ctrl+r:</b> Flip Vertical<br/>"
+                               "<b>Ctrl+Shift+s:</b> Save Image As<br/>"
+                               "<b>Ctrl+s:</b> Save Image<br/>"
+                               "<b>Ctrl+u:</b> Reset Image<br/>"
+                               "<b>Ctrl+y:</b> Redo<br/>"
+                               "<b>Ctrl+Shift+z:</b> Redo<br/>"
+                               "<b>Ctrl+z:</b> Undo<br/>"
+                               "<b>Home:</b> Navigate First<br/>"
+                               "<b>Left Arrow:</b> Navigate Previous<br/>"
+                               "<b>Right Arrow:</b> Navigate Next<br/>"
+                               "<b>Space:</b> Navigate Next<br/>"
+                               "<b>End:</b> Navigate Last<br/>"
+                               "<b>Ctrl+Delete:</b> Delete Image<br/>"
+                               "<b>F2</b> Rename Image<br/>"
+                               "<b>Escape:</b> Return to Thumbnail Browser<br/><br/>"
+                               "<b><hilight>Slideshow Bindings</hilight></b><br/>"
+                               "<b>Space:</b> Play/Pause Slideshow<br/>"
+                               "<b>Home:</b> Navigate First<br/>"
+                               "<b>Left Arrow:</b> Navigate Previous<br/>"
+                               "<b>Right Arrow:</b> Navigate Next<br/>"
+                               "<b>End:</b> Navigate Last<br/>"
+                               "<b>Escape:</b> Quit Slideshow<br/>"));
    elm_object_text_set(entry, eina_strbuf_string_get(sbuf));
    elm_object_content_set(scroller, entry);
    evas_object_show(entry);
@@ -523,63 +522,63 @@ _config_about(Evas_Object *parent)
    EPHOTO_WEIGHT(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
    EPHOTO_FILL(entry);
    eina_strbuf_append_printf(sbuf,
-       _("Ephoto is a comprehensive image viewer based on the EFL. For more"
-	   "information, please visit the Ephoto project page:<br/>"
-           "<a href=http://www.smhouston.us/ephoto/>"
-           "http://www.smhouston.us/ephoto/</a><br/><br/>"
-           "Ephoto also has a page on the Enlightenment wiki:<br/>"
-	   "<a href=https://phab.enlightenment.org/w/projects/ephoto>"
-           "https://phab.enlightenment.org/w/projects/ephoto</a><br/><br/>"
-	   "Ephoto's source can be found through Enlightenment's git:<br/>"
-	   "<a href=http://git.enlightenment.org/apps/ephoto.git>"
-           "http://git.enlightenment.org/apps/ephoto.git</a><br/><br/>"
-	   "<b>Authors:</b><br/>"));
+                             _("Ephoto is a comprehensive image viewer based on the EFL. For more"
+                               "information, please visit the Ephoto project page:<br/>"
+                               "<a href=http://www.smhouston.us/ephoto/>"
+                               "http://www.smhouston.us/ephoto/</a><br/><br/>"
+                               "Ephoto also has a page on the Enlightenment wiki:<br/>"
+                               "<a href=https://phab.enlightenment.org/w/projects/ephoto>"
+                               "https://phab.enlightenment.org/w/projects/ephoto</a><br/><br/>"
+                               "Ephoto's source can be found through Enlightenment's git:<br/>"
+                               "<a href=http://git.enlightenment.org/apps/ephoto.git>"
+                               "http://git.enlightenment.org/apps/ephoto.git</a><br/><br/>"
+                               "<b>Authors:</b><br/>"));
    f = fopen(PACKAGE_DATA_DIR "/AUTHORS", "r");
    if (f)
      {
-	char buf[PATH_MAX];
+        char buf[PATH_MAX];
 
-	while (fgets(buf, sizeof(buf), f))
-	  {
-	     int len;
+        while (fgets(buf, sizeof(buf), f))
+          {
+             int len;
 
-	     len = strlen(buf);
-	     if (len > 0)
-	       {
-		  if (buf[len - 1] == '\n')
-		    {
-		       buf[len - 1] = 0;
-		       len--;
-		    }
-		  if (len > 0)
-		    {
-		       char *p;
+             len = strlen(buf);
+             if (len > 0)
+               {
+                  if (buf[len - 1] == '\n')
+                    {
+                       buf[len - 1] = 0;
+                       len--;
+                    }
+                  if (len > 0)
+                    {
+                       char *p;
 
-		       do
-			 {
-			    p = strchr(buf, '<');
-			    if (p)
-			       *p = 0;
-			 }
-		       while (p);
-		       do
-			 {
-			    p = strchr(buf, '>');
-			    if (p)
-			       *p = 0;
-			 }
-		       while (p);
-		       eina_strbuf_append_printf(sbuf, "%s<br/>", buf);
-		    }
-		  if (len == 0)
-		     eina_strbuf_append_printf(sbuf, "<br/>");
-	       }
-	  }
-	fclose(f);
+                       do
+                         {
+                            p = strchr(buf, '<');
+                            if (p)
+                              *p = 0;
+                         }
+                       while (p);
+                       do
+                         {
+                            p = strchr(buf, '>');
+                            if (p)
+                              *p = 0;
+                         }
+                       while (p);
+                       eina_strbuf_append_printf(sbuf, "%s<br/>", buf);
+                    }
+                  if (len == 0)
+                    eina_strbuf_append_printf(sbuf, "<br/>");
+               }
+          }
+        fclose(f);
      }
    elm_object_text_set(entry, eina_strbuf_string_get(sbuf));
    evas_object_smart_callback_add(entry, "anchor,hover,opened",
-       _link_anchor, entry);
+                                  _link_anchor, entry);
    elm_box_pack_end(box, entry);
    evas_object_show(entry);
 
@@ -616,9 +615,9 @@ _ephoto_config_load(Ephoto *ephoto)
    ef = eet_open(buf, EET_FILE_MODE_READ);
    if (!ef)
      {
-	ephoto_config_free(ephoto);
-	ephoto->config = calloc(1, sizeof(Ephoto_Config));
-	return 0;
+        ephoto_config_free(ephoto);
+        ephoto->config = calloc(1, sizeof(Ephoto_Config));
+        return 0;
      }
 
    ephoto->config = eet_data_read(ef, edd, "config");
@@ -626,17 +625,17 @@ _ephoto_config_load(Ephoto *ephoto)
 
    if (!ephoto->config || ephoto->config->config_version > CONFIG_VERSION)
      {
-	ephoto_config_free(ephoto);
-	ephoto->config = calloc(1, sizeof(Ephoto_Config));
-	return 0;
+        ephoto_config_free(ephoto);
+        ephoto->config = calloc(1, sizeof(Ephoto_Config));
+        return 0;
      }
 
    if (ephoto->config->config_version < CONFIG_VERSION)
      {
-	ecore_file_unlink(buf);
-	ephoto_config_free(ephoto);
-	ephoto->config = calloc(1, sizeof(Ephoto_Config));
-	return 0;
+        ecore_file_unlink(buf);
+        ephoto_config_free(ephoto);
+        ephoto->config = calloc(1, sizeof(Ephoto_Config));
+        return 0;
      }
    return 1;
 }
@@ -653,16 +652,16 @@ _ephoto_on_config_save(void *data)
 
    ef = eet_open(buf2, EET_FILE_MODE_WRITE);
    if (!ef)
-      goto save_end;
+     goto save_end;
 
    eet_data_write(ef, edd, "config", ephoto->config, 1);
    if (eet_close(ef))
-      goto save_end;
+     goto save_end;
 
    if (!ecore_file_mv(buf2, buf))
-      goto save_end;
+     goto save_end;
 
-  save_end:
+save_end:
    ecore_file_unlink(buf2);
 
    return ECORE_CALLBACK_CANCEL;
@@ -713,28 +712,28 @@ ephoto_config_main(Ephoto *ephoto)
    elm_icon_standard_set(ic, "preferences-system");
    evas_object_show(ic);
    settingsi = elm_list_item_append(list, _("General"), ic, NULL,
-       _list_clicked, settings);
+                                    _list_clicked, settings);
 
    ic = elm_icon_add(list);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "media-playback-start");
    evas_object_show(ic);
    slideshowi = elm_list_item_append(list, _("Slideshow"), ic, NULL,
-       _list_clicked, slideshow);
+                                     _list_clicked, slideshow);
 
    ic = elm_icon_add(list);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "input-keyboard");
    evas_object_show(ic);
    kbi = elm_list_item_append(list, _("Bindings"), ic, NULL,
-       _list_clicked, kb);
+                              _list_clicked, kb);
 
    ic = elm_icon_add(list);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
    elm_icon_standard_set(ic, "help-about");
    evas_object_show(ic);
    abouti = elm_list_item_append(list, _("About"), ic, NULL,
-       _list_clicked, about);
+                                 _list_clicked, about);
 
    elm_list_go(list);
 
@@ -776,13 +775,13 @@ ephoto_config_init(Ephoto *ephoto)
    Eet_Data_Descriptor_Class eddc;
 
    if (!eet_eina_stream_data_descriptor_class_set(&eddc, sizeof(eddc),
-	   "Ephoto_Config", sizeof(Ephoto_Config)))
+                                                  "Ephoto_Config", sizeof(Ephoto_Config)))
      {
-	return EINA_FALSE;
+        return EINA_FALSE;
      }
 
    if (!edd)
-      edd = eet_data_descriptor_stream_new(&eddc);
+     edd = eet_data_descriptor_stream_new(&eddc);
 
 #undef T
 #undef D
@@ -812,28 +811,28 @@ ephoto_config_init(Ephoto *ephoto)
    C_VAL(D, T, thumbnail_aspect, EET_T_INT);
    switch (_ephoto_config_load(ephoto))
      {
-       case 0:
-	  /* Start a new config */
-	  ephoto->config->config_version = CONFIG_VERSION;
-	  ephoto->config->slideshow_timeout = 4.0;
-	  ephoto->config->slideshow_transition = eina_stringshare_add("fade");
-	  ephoto->config->window_width = 900*elm_config_scale_get();
-	  ephoto->config->window_height = 500*elm_config_scale_get();
-	  ephoto->config->fsel_hide = 0;
-          ephoto->config->left_size = .25;
-          ephoto->config->right_size = .25;
-	  ephoto->config->open = eina_stringshare_add(eina_environment_home_get());
-	  ephoto->config->prompts = 1;
-	  ephoto->config->drop = 0;
-          ephoto->config->movess = 1;
-          ephoto->config->smooth = 1;
-          ephoto->config->firstrun = 1;
-          ephoto->config->folders = 1;
-          ephoto->config->thumbnail_aspect = 0;
-	  break;
+      case 0:
+        /* Start a new config */
+        ephoto->config->config_version = CONFIG_VERSION;
+        ephoto->config->slideshow_timeout = 4.0;
+        ephoto->config->slideshow_transition = eina_stringshare_add("fade");
+        ephoto->config->window_width = 900 * elm_config_scale_get();
+        ephoto->config->window_height = 500 * elm_config_scale_get();
+        ephoto->config->fsel_hide = 0;
+        ephoto->config->left_size = .25;
+        ephoto->config->right_size = .25;
+        ephoto->config->open = eina_stringshare_add(eina_environment_home_get());
+        ephoto->config->prompts = 1;
+        ephoto->config->drop = 0;
+        ephoto->config->movess = 1;
+        ephoto->config->smooth = 1;
+        ephoto->config->firstrun = 1;
+        ephoto->config->folders = 1;
+        ephoto->config->thumbnail_aspect = 0;
+        break;
 
-       default:
-	  return EINA_TRUE;
+      default:
+        return EINA_TRUE;
      }
 
    ephoto_config_save(ephoto);

@@ -3,18 +3,18 @@
 typedef struct _Ephoto_Color Ephoto_Color;
 struct _Ephoto_Color
 {
-   Evas_Object *main;
-   Evas_Object *parent;
-   Evas_Object *image;
-   Evas_Object *editor;
-   Evas_Object *bslider;
-   Evas_Object *gslider;
-   Evas_Object *rslider;
-   Eina_List *handlers;
-   int blue;
-   int green;
-   int red;
-   Evas_Coord w, h;
+   Evas_Object  *main;
+   Evas_Object  *parent;
+   Evas_Object  *image;
+   Evas_Object  *editor;
+   Evas_Object  *bslider;
+   Evas_Object  *gslider;
+   Evas_Object  *rslider;
+   Eina_List    *handlers;
+   int           blue;
+   int           green;
+   int           red;
+   Evas_Coord    w, h;
    unsigned int *original_im_data;
 };
 
@@ -35,10 +35,10 @@ _ephoto_apply_color_adjustment(Ephoto_Color *eco, unsigned int *image_data, int 
 
    im_data = malloc(sizeof(unsigned int) * eco->w * eco->h);
    if (image_data)
-      memcpy(im_data, image_data, sizeof(unsigned int) * eco->w * eco->h);
+     memcpy(im_data, image_data, sizeof(unsigned int) * eco->w * eco->h);
    else
-      memcpy(im_data, eco->original_im_data,
-          sizeof(unsigned int) * eco->w * eco->h);
+     memcpy(im_data, eco->original_im_data,
+            sizeof(unsigned int) * eco->w * eco->h);
 
    im_data_new = malloc(sizeof(unsigned int) * eco->w * eco->h);
 
@@ -48,32 +48,35 @@ _ephoto_apply_color_adjustment(Ephoto_Color *eco, unsigned int *image_data, int 
         p2 = im_data_new + (y * eco->w);
         for (x = 0; x < eco->w; x++)
           {
-             b = (int) ((*p1) & 0xff);
-             g = (int) ((*p1 >> 8) & 0xff);
-             r = (int) ((*p1 >> 16) & 0xff);
-             a = (int) ((*p1 >> 24) & 0xff);
+             b = (int)((*p1) & 0xff);
+             g = (int)((*p1 >> 8) & 0xff);
+             r = (int)((*p1 >> 16) & 0xff);
+             a = (int)((*p1 >> 24) & 0xff);
              b = ephoto_mul_color_alpha(b, a);
              g = ephoto_mul_color_alpha(g, a);
              r = ephoto_mul_color_alpha(r, a);
              switch (color)
                {
-                  case EPHOTO_COLOR_ADJUST_RED:
-                     eco->red = adjust;
-                     cc = (int) r + eco->red;
-                     r = cc;
-                     break;
-                  case EPHOTO_COLOR_ADJUST_BLUE:
-                     eco->blue = adjust;
-                     cc = (int) b + eco->blue;
-                     b = cc;
-                     break;
-                  case EPHOTO_COLOR_ADJUST_GREEN:
-                     eco->green = adjust;
-                     cc = (int) g + eco->green;
-                     g = cc;
-                     break;
-                  default:
-                     break;
+                case EPHOTO_COLOR_ADJUST_RED:
+                  eco->red = adjust;
+                  cc = (int)r + eco->red;
+                  r = cc;
+                  break;
+
+                case EPHOTO_COLOR_ADJUST_BLUE:
+                  eco->blue = adjust;
+                  cc = (int)b + eco->blue;
+                  b = cc;
+                  break;
+
+                case EPHOTO_COLOR_ADJUST_GREEN:
+                  eco->green = adjust;
+                  cc = (int)g + eco->green;
+                  g = cc;
+                  break;
+
+                default:
+                  break;
                }
              b = ephoto_normalize_color(b);
              g = ephoto_normalize_color(g);
@@ -87,7 +90,7 @@ _ephoto_apply_color_adjustment(Ephoto_Color *eco, unsigned int *image_data, int 
           }
      }
    ephoto_single_browser_image_data_update(eco->main, eco->image,
-       im_data_new, eco->w, eco->h);
+                                           im_data_new, eco->w, eco->h);
    free(im_data);
    return im_data_new;
 }
@@ -107,7 +110,7 @@ _red_slider_changed(void *data, Evas_Object *obj, void *event_info EINA_UNUSED)
 
 static void
 _green_slider_changed(void *data, Evas_Object *obj,
-    void *event_info EINA_UNUSED)
+                      void *event_info EINA_UNUSED)
 {
    Ephoto_Color *eco = data;
    int green;
@@ -121,7 +124,7 @@ _green_slider_changed(void *data, Evas_Object *obj,
 
 static void
 _blue_slider_changed(void *data, Evas_Object *obj,
-    void *event_info EINA_UNUSED)
+                     void *event_info EINA_UNUSED)
 {
    Ephoto_Color *eco = data;
    int blue;
@@ -135,7 +138,7 @@ _blue_slider_changed(void *data, Evas_Object *obj,
 
 static Eina_Bool
 _color_reset(void *data, int type EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+             void *event_info EINA_UNUSED)
 {
    Ephoto_Color *eco = data;
 
@@ -152,7 +155,7 @@ _color_reset(void *data, int type EINA_UNUSED,
 
 static Eina_Bool
 _color_apply(void *data, int type EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+             void *event_info EINA_UNUSED)
 {
    Ephoto_Color *eco = data;
    unsigned int *image_data;
@@ -167,7 +170,7 @@ _color_apply(void *data, int type EINA_UNUSED,
    else
      {
         image_data =
-            evas_object_image_data_get(eco->image, EINA_FALSE);
+          evas_object_image_data_get(eco->image, EINA_FALSE);
         evas_object_image_size_get(eco->image, &w, &h);
         ephoto_single_browser_image_data_done(eco->main, image_data, w, h);
      }
@@ -178,7 +181,7 @@ _color_apply(void *data, int type EINA_UNUSED,
 
 static Eina_Bool
 _color_cancel(void *data, int type EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+              void *event_info EINA_UNUSED)
 {
    Ephoto_Color *eco = data;
 
@@ -197,7 +200,7 @@ _color_cancel(void *data, int type EINA_UNUSED,
 
 static void
 _editor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+            void *event_info EINA_UNUSED)
 {
    Ephoto_Color *eco = data;
    Ecore_Event_Handler *handler;
@@ -227,18 +230,18 @@ ephoto_color_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Ob
    eco->parent = parent;
    eco->image = image;
    im_data =
-       evas_object_image_data_get(eco->image,
-           EINA_FALSE);
+     evas_object_image_data_get(eco->image,
+                                EINA_FALSE);
    evas_object_image_size_get(eco->image, &eco->w,
-       &eco->h);
+                              &eco->h);
    eco->original_im_data = malloc(sizeof(unsigned int) * eco->w * eco->h);
    memcpy(eco->original_im_data, im_data,
-       sizeof(unsigned int) * eco->w * eco->h);
+          sizeof(unsigned int) * eco->w * eco->h);
 
    eco->editor = ephoto_editor_add(ephoto, parent, _("Adjust Color Levels"),
-       "eco", eco);
+                                   "eco", eco);
    evas_object_event_callback_add(eco->editor, EVAS_CALLBACK_DEL, _editor_del,
-       eco);
+                                  eco);
 
    slider = elm_slider_add(eco->editor);
    elm_object_text_set(slider, _("Blue"));
@@ -250,7 +253,7 @@ ephoto_color_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Ob
    EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_ALIGN(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
-       _blue_slider_changed, eco);
+                                  _blue_slider_changed, eco);
    elm_box_pack_start(eco->editor, slider);
    evas_object_show(slider);
    eco->bslider = slider;
@@ -265,7 +268,7 @@ ephoto_color_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Ob
    EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_ALIGN(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
-       _green_slider_changed, eco);
+                                  _green_slider_changed, eco);
    elm_box_pack_start(eco->editor, slider);
    evas_object_show(slider);
    eco->gslider = slider;
@@ -280,26 +283,27 @@ ephoto_color_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent, Evas_Ob
    EPHOTO_WEIGHT(slider, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_ALIGN(slider, EVAS_HINT_FILL, 0.5);
    evas_object_smart_callback_add(slider, "delay,changed",
-       _red_slider_changed, eco);
+                                  _red_slider_changed, eco);
    elm_box_pack_start(eco->editor, slider);
    evas_object_show(slider);
    eco->rslider = slider;
 
    eco->handlers =
-       eina_list_append(eco->handlers,
-       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_RESET,
-           _color_reset, eco));
+     eina_list_append(eco->handlers,
+                      ecore_event_handler_add(EPHOTO_EVENT_EDITOR_RESET,
+                                              _color_reset, eco));
    eco->handlers =
-       eina_list_append(eco->handlers,
-       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_APPLY,
-           _color_apply, eco));
+     eina_list_append(eco->handlers,
+                      ecore_event_handler_add(EPHOTO_EVENT_EDITOR_APPLY,
+                                              _color_apply, eco));
    eco->handlers =
-       eina_list_append(eco->handlers,
-       ecore_event_handler_add(EPHOTO_EVENT_EDITOR_CANCEL,
-           _color_cancel, eco));
+     eina_list_append(eco->handlers,
+                      ecore_event_handler_add(EPHOTO_EVENT_EDITOR_CANCEL,
+                                              _color_cancel, eco));
 
    return;
 
-  error:
+error:
    return;
 }
+

@@ -30,50 +30,50 @@ elm_main(int argc, char **argv)
 
    if (argc > 2)
      {
-	printf("Too Many Arguments!\n");
-	_ephoto_display_usage();
-	r = 1;
-	goto end;
+        printf("Too Many Arguments!\n");
+        _ephoto_display_usage();
+        r = 1;
+        goto end;
      }
    else if (argc < 2)
      {
-	Evas_Object *win = ephoto_window_add(NULL);
+        Evas_Object *win = ephoto_window_add(NULL);
 
-	if (!win)
-	  {
-	     r = 1;
-	     goto end;
-	  }
+        if (!win)
+          {
+             r = 1;
+             goto end;
+          }
      }
    else if (!strncmp(argv[1], "--help", 6))
      {
-	_ephoto_display_usage();
-	r = 0;
-	goto end;
+        _ephoto_display_usage();
+        r = 0;
+        goto end;
      }
    else
      {
-	char *real = ecore_file_realpath(argv[1]);
+        char *real = ecore_file_realpath(argv[1]);
 
-	if (!real)
-	  {
-	     printf("invalid file or directory: '%s'\n", argv[1]);
-	     r = 1;
-	     goto end;
-	  }
-	Evas_Object *win = ephoto_window_add(real);
+        if (!real)
+          {
+             printf("invalid file or directory: '%s'\n", argv[1]);
+             r = 1;
+             goto end;
+          }
+        Evas_Object *win = ephoto_window_add(real);
 
-	free(real);
-	if (!win)
-	  {
-	     r = 1;
-	     goto end;
-	  }
+        free(real);
+        if (!win)
+          {
+             r = 1;
+             goto end;
+          }
      }
 
    elm_run();
 
-  end:
+end:
    e_thumb_shutdown();
    efreet_mime_shutdown();
    eio_shutdown();
@@ -86,8 +86,8 @@ static void
 _ephoto_display_usage(void)
 {
    printf("Ephoto Usage: \n" "ephoto --help   : This page\n"
-       "ephoto filename : Specifies a file to open\n"
-       "ephoto dirname  : Specifies a directory to open\n");
+                             "ephoto filename : Specifies a file to open\n"
+                             "ephoto dirname  : Specifies a directory to open\n");
 }
 
 ELM_MAIN()

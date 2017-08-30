@@ -1,7 +1,7 @@
 #include "ephoto.h"
 
 typedef enum _Ephoto_Image_Filter Ephoto_Image_Filter;
-typedef struct _Ephoto_Filter Ephoto_Filter;
+typedef struct _Ephoto_Filter     Ephoto_Filter;
 
 enum _Ephoto_Image_Filter
 {
@@ -22,24 +22,24 @@ enum _Ephoto_Image_Filter
 struct _Ephoto_Filter
 {
    Ephoto_Image_Filter filter;
-   Ephoto *ephoto;
-   Evas_Object *image;
-   Evas_Object *popup;
-   Ecore_Thread *thread;;
-   Eina_List *queue;
-   Evas_Coord w;
-   Evas_Coord h;
-   int rad;
-   int qpos;
-   int qcount;
-   double drad;
-   unsigned int *hist;
-   unsigned int *cdf;
-   unsigned int *im_data;
-   unsigned int *im_data_new;
-   unsigned int *im_data_orig;
-   unsigned int *im_data_two;
-   Eina_Bool save_data;
+   Ephoto             *ephoto;
+   Evas_Object        *image;
+   Evas_Object        *popup;
+   Ecore_Thread       *thread;
+   Eina_List          *queue;
+   Evas_Coord          w;
+   Evas_Coord          h;
+   int                 rad;
+   int                 qpos;
+   int                 qcount;
+   double              drad;
+   unsigned int       *hist;
+   unsigned int       *cdf;
+   unsigned int       *im_data;
+   unsigned int       *im_data_new;
+   unsigned int       *im_data_orig;
+   unsigned int       *im_data_two;
+   Eina_Bool           save_data;
 };
 
 static void _blur(void *data, Ecore_Thread *th EINA_UNUSED);
@@ -56,14 +56,14 @@ static void _histogram_eq(void *data, Ecore_Thread *th EINA_UNUSED);
 
 static Ephoto_Filter *
 _initialize_filter(Ephoto_Image_Filter filter,
-    Ephoto *ephoto, Evas_Object *image)
+                   Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = calloc(1, sizeof(Ephoto_Filter));
    Evas_Coord w, h;
    unsigned int *im_data;
 
    im_data =
-       evas_object_image_data_get(image, EINA_FALSE);
+     evas_object_image_data_get(image, EINA_FALSE);
    evas_object_image_size_get(image, &w, &h);
 
    ef->filter = filter;
@@ -93,7 +93,7 @@ _create_hist(Ephoto_Filter *ef)
 {
    int i;
    for (i = 0; i < 256; i++)
-      ef->hist[i] = 0;
+     ef->hist[i] = 0;
 }
 
 static Evas_Object *
@@ -113,7 +113,7 @@ _processing(Evas_Object *main)
 
    label = elm_label_add(box);
    elm_object_text_set(label,
-       _("Please wait while this filter is applied to your image."));
+                       _("Please wait while this filter is applied to your image."));
    EPHOTO_EXPAND(label);
    EPHOTO_FILL(label);
    elm_box_pack_end(box, label);
@@ -141,7 +141,7 @@ _thread_finished_cb(void *data, Ecore_Thread *th EINA_UNUSED)
    if (ef->qcount == 0)
      {
         ephoto_single_browser_image_data_done(ef->ephoto->single_browser,
-            ef->im_data_new, ef->w, ef->h);
+                                              ef->im_data_new, ef->w, ef->h);
         if (ef->popup)
           {
              evas_object_del(ef->popup);
@@ -165,14 +165,14 @@ _thread_finished_cb(void *data, Ecore_Thread *th EINA_UNUSED)
                }
              ef->im_data_two = malloc(sizeof(unsigned int) * ef->w * ef->h);
              memcpy(ef->im_data_two, ef->im_data,
-                 sizeof(unsigned int) * ef->w * ef->h);
+                    sizeof(unsigned int) * ef->w * ef->h);
              ef->save_data = EINA_FALSE;
           }
         free(ef->im_data);
         ef->im_data = NULL;
         ef->im_data = malloc(sizeof(unsigned int) * ef->w * ef->h);
         memcpy(ef->im_data, ef->im_data_new,
-            sizeof(unsigned int) * ef->w * ef->h);
+               sizeof(unsigned int) * ef->w * ef->h);
         if (ef->hist)
           free(ef->hist);
         ef->hist = NULL;
@@ -180,18 +180,18 @@ _thread_finished_cb(void *data, Ecore_Thread *th EINA_UNUSED)
           free(ef->cdf);
         ef->cdf = NULL;
         ef->qpos++;
-        if (ef->qpos-1 < ef->qcount)
+        if (ef->qpos - 1 < ef->qcount)
           {
              free(ef->im_data_new);
              ef->im_data_new = NULL;
              ef->im_data_new = malloc(sizeof(unsigned int) * ef->w * ef->h);
-             ef->thread = ecore_thread_run(eina_list_nth(ef->queue, ef->qpos-1),
-                 _thread_finished_cb, NULL, ef);
+             ef->thread = ecore_thread_run(eina_list_nth(ef->queue, ef->qpos - 1),
+                                           _thread_finished_cb, NULL, ef);
           }
         else
           {
              ephoto_single_browser_image_data_done(ef->ephoto->single_browser,
-                 ef->im_data_new, ef->w, ef->h);
+                                                   ef->im_data_new, ef->w, ef->h);
              if (ef->popup)
                {
                   evas_object_del(ef->popup);
@@ -231,7 +231,7 @@ _blur_vertical(Ephoto_Filter *ef, double rad)
         as[i] = (ef->im_data[i] >> 24) & 0xff;
      }
 
-   iarr = (double) 1 / (rad + rad + 1);
+   iarr = (double)1 / (rad + rad + 1);
    for (y = 0; y < h; y++)
      {
         int t, l, rr;
@@ -274,17 +274,17 @@ _blur_vertical(Ephoto_Filter *ef, double rad)
              valr += rs[r] - fr;
              vala += as[r] - fa;
 
-             bt = (int) round(valb * iarr);
-             gt = (int) round(valg * iarr);
-             rt = (int) round(valr * iarr);
-             at = (int) round(vala * iarr);
+             bt = (int)round(valb * iarr);
+             gt = (int)round(valg * iarr);
+             rt = (int)round(valr * iarr);
+             at = (int)round(vala * iarr);
 
              bt = ephoto_normalize_color(bt);
              gt = ephoto_normalize_color(gt);
              rt = ephoto_normalize_color(rt);
              at = ephoto_normalize_color(at);
              ef->im_data_new[t++] = (at << 24) | (rt << 16)
-                 | (gt << 8) | bt;
+               | (gt << 8) | bt;
           }
         for (i = rad + 1; i < w - rad; i++)
           {
@@ -296,16 +296,16 @@ _blur_vertical(Ephoto_Filter *ef, double rad)
              valr += rs[r] - rs[ll];
              vala += as[r] - as[ll];
 
-             bt = (int) round(valb * iarr);
-             gt = (int) round(valg * iarr);
-             rt = (int) round(valr * iarr);
-             at = (int) round(vala * iarr);
+             bt = (int)round(valb * iarr);
+             gt = (int)round(valg * iarr);
+             rt = (int)round(valr * iarr);
+             at = (int)round(vala * iarr);
              bt = ephoto_normalize_color(bt);
              gt = ephoto_normalize_color(gt);
              rt = ephoto_normalize_color(rt);
              at = ephoto_normalize_color(at);
              ef->im_data_new[t++] = (at << 24) | (rt << 16)
-                 | (gt << 8) | bt;
+               | (gt << 8) | bt;
           }
         for (i = w - rad; i < w; i++)
           {
@@ -316,16 +316,16 @@ _blur_vertical(Ephoto_Filter *ef, double rad)
              valr += lvr - rs[ll];
              vala += lva - as[ll];
 
-             bt = (int) round(valb * iarr);
-             gt = (int) round(valg * iarr);
-             rt = (int) round(valr * iarr);
-             at = (int) round(vala * iarr);
+             bt = (int)round(valb * iarr);
+             gt = (int)round(valg * iarr);
+             rt = (int)round(valr * iarr);
+             at = (int)round(vala * iarr);
              bt = ephoto_normalize_color(bt);
              gt = ephoto_normalize_color(gt);
              rt = ephoto_normalize_color(rt);
              at = ephoto_normalize_color(at);
              ef->im_data_new[t++] = (at << 24) | (rt << 16)
-                 | (gt << 8) | bt;
+               | (gt << 8) | bt;
           }
      }
    free(bs);
@@ -399,16 +399,16 @@ _blur_horizontal(Ephoto_Filter *ef, double rad)
              valr += rs[rr] - fr;
              vala += as[rr] - fa;
 
-             bt = (int) round(valb * iarr);
-             gt = (int) round(valg * iarr);
-             rt = (int) round(valr * iarr);
-             at = (int) round(vala * iarr);
+             bt = (int)round(valb * iarr);
+             gt = (int)round(valg * iarr);
+             rt = (int)round(valr * iarr);
+             at = (int)round(vala * iarr);
              bt = ephoto_normalize_color(bt);
              gt = ephoto_normalize_color(gt);
              rt = ephoto_normalize_color(rt);
              at = ephoto_normalize_color(at);
              ef->im_data[t] = (at << 24) | (rt << 16)
-                 | (gt << 8) | bt;
+               | (gt << 8) | bt;
 
              rr += w;
              t += w;
@@ -418,18 +418,18 @@ _blur_horizontal(Ephoto_Filter *ef, double rad)
              valb += bs[rr] - bs[l];
              valg += gs[rr] - gs[l];
              valr += rs[rr] - rs[l];
-             vala += as[rr] - as[l];;
+             vala += as[rr] - as[l];
 
-             bt = (int) round(valb * iarr);
-             gt = (int) round(valg * iarr);
-             rt = (int) round(valr * iarr);
-             at = (int) round(vala * iarr);
+             bt = (int)round(valb * iarr);
+             gt = (int)round(valg * iarr);
+             rt = (int)round(valr * iarr);
+             at = (int)round(vala * iarr);
              bt = ephoto_normalize_color(bt);
              gt = ephoto_normalize_color(gt);
              rt = ephoto_normalize_color(rt);
              at = ephoto_normalize_color(at);
              ef->im_data[t] = (at << 24) | (rt << 16)
-                 | (gt << 8) | bt;
+               | (gt << 8) | bt;
 
              l += w;
              rr += w;
@@ -442,16 +442,16 @@ _blur_horizontal(Ephoto_Filter *ef, double rad)
              valr += lvr - rs[l];
              vala += lva - as[l];
 
-             bt = (int) round(valb * iarr);
-             gt = (int) round(valg * iarr);
-             rt = (int) round(valr * iarr);
-             at = (int) round(vala * iarr);
+             bt = (int)round(valb * iarr);
+             gt = (int)round(valg * iarr);
+             rt = (int)round(valr * iarr);
+             at = (int)round(vala * iarr);
              bt = ephoto_normalize_color(bt);
              gt = ephoto_normalize_color(gt);
              rt = ephoto_normalize_color(rt);
              at = ephoto_normalize_color(at);
              ef->im_data[t] = (at << 24) | (rt << 16)
-                 | (gt << 8) | bt;
+               | (gt << 8) | bt;
 
              l += w;
              t += w;
@@ -482,7 +482,7 @@ _blur(void *data, Ecore_Thread *th EINA_UNUSED)
      wl--;
    wu = wl + 2;
    ideal = (12 * rad * rad - 3 * wl * wl -
-       4 * 3 * wl - 3 * 3) / (-4 * wl - 4);
+            4 * 3 * wl - 3 * 3) / (-4 * wl - 4);
    m = round(ideal);
 
    for (i = 0; i < 3; i++)
@@ -495,7 +495,7 @@ _blur(void *data, Ecore_Thread *th EINA_UNUSED)
         rad = (sizes[i] - 1) / 2;
 
         memcpy(ef->im_data_new, ef->im_data,
-            sizeof(unsigned int) * w * h);
+               sizeof(unsigned int) * w * h);
         _blur_vertical(ef, rad);
         _blur_horizontal(ef, rad);
      }
@@ -521,19 +521,19 @@ _sharpen(void *data, Ecore_Thread *th EINA_UNUSED)
         p3 = ef->im_data_new + (y * w);
         for (x = 1; x < (w - 1); x++)
           {
-             b = (int) (*p1 & 0xff);
-             g = (int) ((*p1 >> 8) & 0xff);
-             r = (int) ((*p1 >> 16) & 0xff);
-             a = (int) ((*p1 >> 24) & 0xff);
-             bb = (int) (*p2 & 0xff);
-             gg = (int) ((*p2 >> 8) & 0xff);
-             rr = (int) ((*p2 >> 16) & 0xff);
-             aa = (int) ((*p2 >> 24) & 0xff);
+             b = (int)(*p1 & 0xff);
+             g = (int)((*p1 >> 8) & 0xff);
+             r = (int)((*p1 >> 16) & 0xff);
+             a = (int)((*p1 >> 24) & 0xff);
+             bb = (int)(*p2 & 0xff);
+             gg = (int)((*p2 >> 8) & 0xff);
+             rr = (int)((*p2 >> 16) & 0xff);
+             aa = (int)((*p2 >> 24) & 0xff);
 
-             bbb = (int) ((2 * bb) - b);
-             ggg = (int) ((2 * gg) - g);
-             rrr = (int) ((2 * rr) - r);
-             aaa = (int) ((2 * aa) - a);
+             bbb = (int)((2 * bb) - b);
+             ggg = (int)((2 * gg) - g);
+             rrr = (int)((2 * rr) - r);
+             aaa = (int)((2 * aa) - a);
 
              bbb = ephoto_normalize_color(bbb);
              ggg = ephoto_normalize_color(ggg);
@@ -583,12 +583,12 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
              gg = ephoto_demul_color_alpha(gg, a);
              rr = ephoto_demul_color_alpha(rr, a);
              ef->im_data_new[index] = (a << 24) | (rr << 16) |
-                 (gg << 8) | bb;
+               (gg << 8) | bb;
              errb = b - bb;
              errg = g - gg;
              errr = r - rr;
 
-             if ((x+1) < w)
+             if ((x + 1) < w)
                {
                   index = y * w + x + 1;
                   b = (ef->im_data_new[index] & 0xff);
@@ -608,9 +608,9 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
                   gg = ephoto_demul_color_alpha(gg, a);
                   rr = ephoto_demul_color_alpha(rr, a);
                   ef->im_data_new[index] = (a << 24) | (rr << 16) |
-                      (gg << 8) | bb;
+                    (gg << 8) | bb;
                }
-             if (x > 0 && (y+1) < h)
+             if (x > 0 && (y + 1) < h)
                {
                   index = (y + 1) * w + (x - 1);
                   b = (ef->im_data_new[index] & 0xff);
@@ -630,9 +630,9 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
                   gg = ephoto_demul_color_alpha(gg, a);
                   rr = ephoto_demul_color_alpha(rr, a);
                   ef->im_data_new[index] = (a << 24) | (rr << 16) |
-                      (gg << 8) | bb;
+                    (gg << 8) | bb;
                }
-             if ((y+1) < h)
+             if ((y + 1) < h)
                {
                   index = (y + 1) * w + x;
                   b = (ef->im_data_new[index] & 0xff);
@@ -652,9 +652,9 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
                   gg = ephoto_demul_color_alpha(gg, a);
                   rr = ephoto_demul_color_alpha(rr, a);
                   ef->im_data_new[index] = (a << 24) | (rr << 16) |
-                      (gg << 8) | bb;
+                    (gg << 8) | bb;
                }
-             if ((y+1) < h && (x+1) < w)
+             if ((y + 1) < h && (x + 1) < w)
                {
                   index = (y + 1) * w + (x + 1);
                   b = (ef->im_data_new[index] & 0xff);
@@ -674,7 +674,7 @@ _dither(void *data, Ecore_Thread *th EINA_UNUSED)
                   gg = ephoto_demul_color_alpha(gg, a);
                   rr = ephoto_demul_color_alpha(rr, a);
                   ef->im_data_new[index] = (a << 24) | (rr << 16) |
-                      (gg << 8) | bb;
+                    (gg << 8) | bb;
                }
           }
      }
@@ -694,14 +694,14 @@ _grayscale(void *data, Ecore_Thread *th EINA_UNUSED)
         for (x = 0; x < w; x++)
           {
              i = y * w + x;
-             b = (int) ((ef->im_data[i]) & 0xff);
-             g = (int) ((ef->im_data[i] >> 8) & 0xff);
-             r = (int) ((ef->im_data[i] >> 16) & 0xff);
-             a = (int) ((ef->im_data[i] >> 24) & 0xff);
+             b = (int)((ef->im_data[i]) & 0xff);
+             g = (int)((ef->im_data[i] >> 8) & 0xff);
+             r = (int)((ef->im_data[i] >> 16) & 0xff);
+             a = (int)((ef->im_data[i] >> 24) & 0xff);
              b = ephoto_mul_color_alpha(b, a);
              g = ephoto_mul_color_alpha(g, a);
              r = ephoto_mul_color_alpha(r, a);
-             gray = (int) ((0.3 * r) + (0.59 * g) + (0.11 * b));
+             gray = (int)((0.3 * r) + (0.59 * g) + (0.11 * b));
              if (a >= 0 && a < 255)
                gray = (gray * a) / 255;
              ef->im_data_new[i] = (a << 24) | (gray << 16) | (gray << 8) | gray;
@@ -731,11 +731,11 @@ _sepia(void *data, Ecore_Thread *th EINA_UNUSED)
              b = ephoto_mul_color_alpha(b, a);
              g = ephoto_mul_color_alpha(g, a);
              r = ephoto_mul_color_alpha(r, a);
-             rr = (int) ((r * .393) + (g * .769) + (b * .189));
+             rr = (int)((r * .393) + (g * .769) + (b * .189));
              rr = ephoto_normalize_color(rr);
              gg = ((r * .349) + (g * .686) + (b * .168));
              gg = ephoto_normalize_color(gg);
-             bb = (int) ((r * .272) + (g * .534) + (b * .131));
+             bb = (int)((r * .272) + (g * .534) + (b * .131));
              bb = ephoto_normalize_color(bb);
              bb = ephoto_demul_color_alpha(bb, a);
              gg = ephoto_demul_color_alpha(gg, a);
@@ -900,8 +900,8 @@ _sobel(void *data, Ecore_Thread *th EINA_UNUSED)
 
                             index = (y + i) * w + x + j;
                             pix = ef->im_data[index];
-                            hpval += pix * sobx[i+1][j+1];
-                            vpval += pix * soby[i+1][j+1];
+                            hpval += pix * sobx[i + 1][j + 1];
+                            vpval += pix * soby[i + 1][j + 1];
                          }
                     }
                }
@@ -938,7 +938,7 @@ _emboss(void *data, Ecore_Thread *th EINA_UNUSED)
      {
         p = ef->im_data_new + (y * w);
         for (x = 0; x < w; x++)
-           {
+          {
              int aa = 0, rr = 0, gg = 0, bb = 0;
              if (y > 0 && x > 0 && y < (h - 2) && x < (w - 2))
                {
@@ -949,14 +949,14 @@ _emboss(void *data, Ecore_Thread *th EINA_UNUSED)
                             int index, pix;
                             index = (y + i) * w + x + j;
                             pix = ef->im_data[index];
-                            bb += (int) ((pix) & 0xff) *
-                                emboss[i+1][j+1];
-                            gg += (int) ((pix >> 8) & 0xff) *
-                                emboss[i+1][j+1];
-                            rr += (int) ((pix >> 16) & 0xff) *
-                                emboss[i+1][j+1];
-                            aa += (int) ((pix >> 24) & 0xff) *
-                                emboss[i+1][j+1];
+                            bb += (int)((pix) & 0xff) *
+                              emboss[i + 1][j + 1];
+                            gg += (int)((pix >> 8) & 0xff) *
+                              emboss[i + 1][j + 1];
+                            rr += (int)((pix >> 16) & 0xff) *
+                              emboss[i + 1][j + 1];
+                            aa += (int)((pix >> 24) & 0xff) *
+                              emboss[i + 1][j + 1];
                          }
                     }
                }
@@ -997,7 +997,7 @@ _histogram_eq(void *data, Ecore_Thread *th EINA_UNUSED)
              g = ephoto_mul_color_alpha(g, a);
              r = ephoto_mul_color_alpha(r, a);
              evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
-             norm = (int) round((double) v * (double) 255);
+             norm = (int)round((double)v * (double)255);
              ef->hist[norm] += 1;
              p1++;
           }
@@ -1005,9 +1005,9 @@ _histogram_eq(void *data, Ecore_Thread *th EINA_UNUSED)
    sum = 0;
    for (i = 0; i < 256; i++)
      {
-        sum += ((double) ef->hist[i] /
-            (double) total);
-             ef->cdf[i] = (int) round(sum * 255);
+        sum += ((double)ef->hist[i] /
+                (double)total);
+        ef->cdf[i] = (int)round(sum * 255);
      }
    for (y = 0; y < h; y++)
      {
@@ -1023,8 +1023,8 @@ _histogram_eq(void *data, Ecore_Thread *th EINA_UNUSED)
              g = ephoto_mul_color_alpha(g, a);
              r = ephoto_mul_color_alpha(r, a);
              evas_color_rgb_to_hsv(r, g, b, &hh, &s, &v);
-             norm = (int) round((double) v * (double) 255);
-             nv = (float) ef->cdf[norm] / (float) 255;
+             norm = (int)round((double)v * (double)255);
+             nv = (float)ef->cdf[norm] / (float)255;
              evas_color_hsv_to_rgb(hh, s, nv, &rr, &gg, &bb);
              bb = ephoto_normalize_color(bb);
              gg = ephoto_normalize_color(gg);
@@ -1043,22 +1043,22 @@ void
 ephoto_filter_blur(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_BLUR,
-       ephoto, image);
+                                          ephoto, image);
 
    ef->rad = 9;
    ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_blur, _thread_finished_cb,
-       NULL, ef);
+                                 NULL, ef);
 }
 
 void
 ephoto_filter_sharpen(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SHARPEN,
-       ephoto, image);
+                                          ephoto, image);
    ef->im_data_orig = malloc(sizeof(unsigned int) * ef->w * ef->h);
    memcpy(ef->im_data_orig, ef->im_data,
-       sizeof(unsigned int) * ef->w * ef->h);
+          sizeof(unsigned int) * ef->w * ef->h);
 
    ef->rad = 9;
    ef->qcount = 1;
@@ -1066,61 +1066,61 @@ ephoto_filter_sharpen(Ephoto *ephoto, Evas_Object *image)
    ef->queue = eina_list_append(ef->queue, _sharpen);
    ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_blur, _thread_finished_cb,
-       NULL, ef);
+                                 NULL, ef);
 }
 
 void
 ephoto_filter_dither(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_DITHER,
-       ephoto, image);
+                                          ephoto, image);
    memcpy(ef->im_data_new, ef->im_data,
-       sizeof(unsigned int) * ef->w * ef->h);
+          sizeof(unsigned int) * ef->w * ef->h);
 
    ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_dither, _thread_finished_cb,
-       NULL, ef);
+                                 NULL, ef);
 }
 
 void
 ephoto_filter_black_and_white(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_GRAYSCALE,
-       ephoto, image);
+                                          ephoto, image);
 
    ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_grayscale, _thread_finished_cb,
-       NULL, ef);
+                                 NULL, ef);
 }
 
 void
 ephoto_filter_old_photo(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SEPIA,
-       ephoto, image);
+                                          ephoto, image);
 
    ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_sepia, _thread_finished_cb,
-       NULL, ef);
+                                 NULL, ef);
 }
 
 void
 ephoto_filter_posterize(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_POSTERIZE,
-       ephoto, image);
+                                          ephoto, image);
 
    ef->drad = 2.0;
    ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_posterize, _thread_finished_cb,
-       NULL, ef);
+                                 NULL, ef);
 }
 
 void
 ephoto_filter_painting(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_PAINTING,
-       ephoto, image);
+                                          ephoto, image);
 
    ef->rad = 5;
    ef->drad = 5.0;
@@ -1129,23 +1129,25 @@ ephoto_filter_painting(Ephoto *ephoto, Evas_Object *image)
    ef->queue = eina_list_append(ef->queue, _posterize);
    ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_blur, _thread_finished_cb,
-       NULL, ef);
+                                 NULL, ef);
 }
 
-void ephoto_filter_invert(Ephoto *ephoto, Evas_Object *image)
+void
+ephoto_filter_invert(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_INVERT,
-       ephoto, image);
+                                          ephoto, image);
 
    ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_negative, _thread_finished_cb,
-       NULL, ef);
+                                 NULL, ef);
 }
 
-void ephoto_filter_sketch(Ephoto *ephoto, Evas_Object *image)
+void
+ephoto_filter_sketch(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SKETCH,
-       ephoto, image);
+                                          ephoto, image);
 
    ef->rad = 4;
    ef->qpos = 0;
@@ -1155,13 +1157,14 @@ void ephoto_filter_sketch(Ephoto *ephoto, Evas_Object *image)
    ef->queue = eina_list_append(ef->queue, _dodge);
    ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_grayscale, _thread_finished_cb,
-       NULL, ef);
+                                 NULL, ef);
 }
 
-void ephoto_filter_edge(Ephoto *ephoto, Evas_Object *image)
+void
+ephoto_filter_edge(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_SOBEL,
-       ephoto, image);
+                                          ephoto, image);
 
    ef->rad = 3;
    ef->qpos = 0;
@@ -1170,29 +1173,31 @@ void ephoto_filter_edge(Ephoto *ephoto, Evas_Object *image)
    ef->queue = eina_list_append(ef->queue, _sobel);
    ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_blur, _thread_finished_cb,
-       NULL, ef);
+                                 NULL, ef);
 }
 
-void ephoto_filter_emboss(Ephoto *ephoto, Evas_Object *image)
+void
+ephoto_filter_emboss(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_EMBOSS,
-       ephoto, image);
+                                          ephoto, image);
 
    ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_emboss, _thread_finished_cb,
-       NULL, ef);
+                                 NULL, ef);
 }
 
 void
 ephoto_filter_histogram_eq(Ephoto *ephoto, Evas_Object *image)
 {
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_EQUALIZE,
-       ephoto, image);
+                                          ephoto, image);
 
    ef->hist = malloc(sizeof(unsigned int) * 256);
    ef->cdf = malloc(sizeof(unsigned int) * 256);
    _create_hist(ef);
    ef->popup = _processing(ephoto->win);
    ef->thread = ecore_thread_run(_histogram_eq, _thread_finished_cb,
-       NULL, ef);
+                                 NULL, ef);
 }
+

@@ -61,7 +61,7 @@ e_thumb_shutdown(void)
    _exe_del_handler = NULL;
    _thumbnailers = eina_list_free(_thumbnailers);
    EINA_LIST_FREE(_thumbnailers_exe, exe_free)
-      ecore_exe_free(exe_free);
+     ecore_exe_free(exe_free);
    _thumb_queue = eina_list_free(_thumb_queue);
    _objid = 0;
    eina_hash_free(_thumbs);
@@ -439,3 +439,4 @@ _e_thumb_cb_exe_event_del(void *data EINA_UNUSED, int type EINA_UNUSED, void *ev
      }
    return ECORE_CALLBACK_PASS_ON;
 }
+

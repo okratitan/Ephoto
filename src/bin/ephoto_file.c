@@ -2,7 +2,7 @@
 
 static void
 _complete_ok(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+             void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
@@ -15,7 +15,6 @@ static void
 _complete(Ephoto *ephoto, const char *title, const char *text)
 {
    Evas_Object *popup, *box, *label, *ic, *button;
-
 
    popup = elm_popup_add(ephoto->win);
    elm_object_part_text_set(popup, "title,text", title);
@@ -52,7 +51,7 @@ _complete(Ephoto *ephoto, const char *title, const char *text)
 
 static void
 _prompt_cancel(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+               void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
@@ -91,7 +90,7 @@ _prompt(Ephoto *ephoto, const char *title, const char *text)
 
 static void
 _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                         void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
    const char *file = evas_object_data_get(popup, "file");
@@ -102,25 +101,25 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
 
    if (ecore_file_exists(file))
      {
-	success = ecore_file_unlink(file);
-	if (!success)
-	  {
-	     _complete(ephoto, _("Save Failed"),
-                 _("Error: Image could not be saved here!"));
-	     ephoto_single_browser_entry_set(ephoto->single_browser, entry);
-	     evas_object_del(popup);
+        success = ecore_file_unlink(file);
+        if (!success)
+          {
+             _complete(ephoto, _("Save Failed"),
+                       _("Error: Image could not be saved here!"));
+             ephoto_single_browser_entry_set(ephoto->single_browser, entry);
+             evas_object_del(popup);
              elm_object_focus_set(ephoto->pager, EINA_TRUE);
-	     return;
-	  }
+             return;
+          }
      }
    ephoto_single_browser_path_pending_set(ephoto->single_browser, file);
    success =
-       evas_object_image_save(image, file,
-           NULL, NULL);
+     evas_object_image_save(image, file,
+                            NULL, NULL);
    if (!success)
      {
         _complete(ephoto, _("Save Failed"),
-            _("Error: Image could not be saved here!"));
+                  _("Error: Image could not be saved here!"));
         ephoto_single_browser_path_pending_unset(ephoto->single_browser);
      }
    evas_object_del(popup);
@@ -129,7 +128,7 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
 
 static void
 _upload_entry_anchor_bt(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                        void *event_info EINA_UNUSED)
 {
    char buf[PATH_MAX];
    Evas_Object *av = data;
@@ -155,13 +154,13 @@ _upload_entry_anchor(void *data, Evas_Object *obj, void *event_info)
    elm_object_text_set(button, _("Open Link In Browser"));
    elm_object_part_content_set(ei->hover, "middle", button);
    evas_object_smart_callback_add(button, "clicked", _upload_entry_anchor_bt,
-       av);
+                                  av);
    evas_object_show(button);
 }
 
 static void
 _upload_image_url_copy(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                       void *event_info EINA_UNUSED)
 {
    Evas_Object *entry = data;
 
@@ -181,7 +180,7 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
    int ret;
 
    if (ev->url_con != ephoto->url_up)
-      return ECORE_CALLBACK_RENEW;
+     return ECORE_CALLBACK_RENEW;
 
    evas_object_del(ppopup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
@@ -216,11 +215,11 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
    elm_entry_scrollable_set(entry, EINA_TRUE);
    elm_entry_context_menu_disabled_set(entry, EINA_TRUE);
    elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF,
-       ELM_SCROLLER_POLICY_OFF);
+                           ELM_SCROLLER_POLICY_OFF);
    EPHOTO_EXPAND(entry);
    EPHOTO_FILL(entry);
    evas_object_smart_callback_add(entry, "anchor,hover,opened",
-       _upload_entry_anchor, entry);
+                                  _upload_entry_anchor, entry);
    elm_box_pack_end(hbox, entry);
    evas_object_show(entry);
 
@@ -233,7 +232,7 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
    if (!ret)
      elm_object_text_set(button, _("Copy"));
    evas_object_smart_callback_add(button, "clicked", _upload_image_url_copy,
-       entry);
+                                  entry);
    elm_box_pack_end(hbox, button);
    evas_object_show(button);
 
@@ -245,7 +244,7 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
    elm_object_text_set(button, _("Ok"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-       popup);
+                                  popup);
    elm_object_part_content_set(popup, "button1", button);
    evas_object_show(button);
 
@@ -254,58 +253,59 @@ _upload_image_complete_cb(void *data, int ev_type EINA_UNUSED, void *event)
    evas_object_show(popup);
 
    EINA_LIST_FREE(ephoto->upload_handlers,
-       handler) ecore_event_handler_del(handler);
+                   handler)
+     ecore_event_handler_del(handler);
 
    if (!ephoto->url_ret || ev->status != 200)
      {
-	elm_object_text_set(label,
-	    _("There was an error uploading your image!"));
-	elm_entry_single_line_set(entry, EINA_TRUE);
-	elm_object_text_set(entry, ephoto->upload_error);
-	evas_object_show(popup);
-	ecore_con_url_free(ephoto->url_up);
-	ephoto->url_up = NULL;
-	free(ephoto->upload_error);
-	ephoto->upload_error = NULL;
-	return EINA_FALSE;
+        elm_object_text_set(label,
+                            _("There was an error uploading your image!"));
+        elm_entry_single_line_set(entry, EINA_TRUE);
+        elm_object_text_set(entry, ephoto->upload_error);
+        evas_object_show(popup);
+        ecore_con_url_free(ephoto->url_up);
+        ephoto->url_up = NULL;
+        free(ephoto->upload_error);
+        ephoto->upload_error = NULL;
+        return EINA_FALSE;
      }
    else
      {
-	char buf[PATH_MAX], link[PATH_MAX];
+        char buf[PATH_MAX], link[PATH_MAX];
 
-	snprintf(buf, PATH_MAX, "<a href=\"%s\"><link>%s</link</a>",
-	    ephoto->url_ret, ephoto->url_ret);
-	snprintf(link, PATH_MAX, "%s", ephoto->url_ret);
-	evas_object_data_set(entry, "link", strdup(link));
-	elm_object_text_set(label,
-	    _("Your image was uploaded to the following link:"));
-	elm_entry_single_line_set(entry, EINA_TRUE);
-	elm_object_text_set(entry, buf);
-	evas_object_show(popup);
-	ecore_con_url_free(ephoto->url_up);
-	ephoto->url_up = NULL;
-	free(ephoto->url_ret);
-	ephoto->url_ret = NULL;
-	return ECORE_CALLBACK_RENEW;
+        snprintf(buf, PATH_MAX, "<a href=\"%s\"><link>%s</link</a>",
+                 ephoto->url_ret, ephoto->url_ret);
+        snprintf(link, PATH_MAX, "%s", ephoto->url_ret);
+        evas_object_data_set(entry, "link", strdup(link));
+        elm_object_text_set(label,
+                            _("Your image was uploaded to the following link:"));
+        elm_entry_single_line_set(entry, EINA_TRUE);
+        elm_object_text_set(entry, buf);
+        evas_object_show(popup);
+        ecore_con_url_free(ephoto->url_up);
+        ephoto->url_up = NULL;
+        free(ephoto->url_ret);
+        ephoto->url_ret = NULL;
+        return ECORE_CALLBACK_RENEW;
      }
 }
 
 static Eina_Bool
 _upload_image_xml_parse(void *data, Eina_Simple_XML_Type type,
-    const char *content, unsigned offset EINA_UNUSED,
-    unsigned length EINA_UNUSED)
+                        const char *content, unsigned offset EINA_UNUSED,
+                        unsigned length EINA_UNUSED)
 {
    Ephoto *ephoto = data;
    char *linkf, *linkl;
 
    if (type == EINA_SIMPLE_XML_OPEN)
      {
-	if (!strncmp("link>", content, strlen("link>")))
-	  {
-	     linkf = strchr(content, '>') + 1;
-	     linkl = strtok(linkf, "<");
-	     ephoto->url_ret = strdup(linkl);
-	  }
+        if (!strncmp("link>", content, strlen("link>")))
+          {
+             linkf = strchr(content, '>') + 1;
+             linkl = strtok(linkf, "<");
+             ephoto->url_ret = strdup(linkl);
+          }
      }
    return EINA_TRUE;
 }
@@ -315,21 +315,21 @@ _upload_image_cb(void *data, int ev_type EINA_UNUSED, void *event)
 {
    Ephoto *ephoto = data;
    Ecore_Con_Event_Url_Data *ev = event;
-   const char *string = (const char *) ev->data;
+   const char *string = (const char *)ev->data;
 
    if (ev->url_con != ephoto->url_up)
-      return EINA_TRUE;
+     return EINA_TRUE;
    eina_simple_xml_parse(string, strlen(string) + 1, EINA_TRUE,
-       _upload_image_xml_parse, ephoto);
+                         _upload_image_xml_parse, ephoto);
    if (!ephoto->url_ret)
-      ephoto->upload_error = strdup(string);
+     ephoto->upload_error = strdup(string);
 
    return EINA_FALSE;
 }
 
 static void
 _new_dir_confirm(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_data EINA_UNUSED)
+                 void *event_data EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Evas_Object *entry = evas_object_data_get(popup, "entry");
@@ -344,7 +344,7 @@ _new_dir_confirm(void *data, Evas_Object *obj EINA_UNUSED,
    if (!ret)
      {
         _complete(ephoto, _("Error"),
-            _("There was an error creating this directory."));
+                  _("There was an error creating this directory."));
      }
    evas_object_del(popup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
@@ -352,7 +352,7 @@ _new_dir_confirm(void *data, Evas_Object *obj EINA_UNUSED,
 
 static void
 _new_dir_cancel(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_data EINA_UNUSED)
+                void *event_data EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
@@ -385,7 +385,7 @@ _new_dir(Ephoto *ephoto, const char *file)
    elm_object_text_set(entry, _("New Directory"));
    elm_entry_select_all(entry);
    elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF,
-       ELM_SCROLLER_POLICY_OFF);
+                           ELM_SCROLLER_POLICY_OFF);
    EPHOTO_EXPAND(entry);
    EPHOTO_FILL(entry);
    elm_box_pack_end(box, entry);
@@ -420,7 +420,7 @@ _new_dir(Ephoto *ephoto, const char *file)
 
 static void
 _rename_confirm(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_data EINA_UNUSED)
+                void *event_data EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Evas_Object *entry = evas_object_data_get(popup, "entry");
@@ -433,31 +433,31 @@ _rename_confirm(void *data, Evas_Object *obj EINA_UNUSED,
 
    if (!escaped)
      {
-	evas_object_del(popup);
+        evas_object_del(popup);
         elm_object_focus_set(ephoto->pager, EINA_TRUE);
-	return;
+        return;
      }
    snprintf(dir, PATH_MAX, "%s", file);
    if (ecore_file_is_dir(file))
      snprintf(new_file_name, PATH_MAX, "%s/%s", ecore_file_dir_get(dir), text);
    else
      snprintf(new_file_name, PATH_MAX, "%s/%s.%s", ecore_file_dir_get(dir), escaped,
-         strrchr(dir, '.')+1);
+              strrchr(dir, '.') + 1);
    ret = ecore_file_mv(file, new_file_name);
    if (!ret)
      {
         if (ecore_file_is_dir(new_file_name))
           _complete(ephoto, _("Error"),
-              _("There was an error renaming this directory."));
+                    _("There was an error renaming this directory."));
         else
           _complete(ephoto, _("Error"),
-              _("There was an error renaming this file."));
+                    _("There was an error renaming this file."));
      }
    else
      {
         if (ephoto->state == EPHOTO_STATE_SINGLE)
           ephoto_single_browser_path_pending_set(ephoto->single_browser,
-              new_file_name);
+                                                 new_file_name);
      }
    evas_object_del(popup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
@@ -466,7 +466,7 @@ _rename_confirm(void *data, Evas_Object *obj EINA_UNUSED,
 
 static void
 _rename_cancel(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_data EINA_UNUSED)
+               void *event_data EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
@@ -480,7 +480,6 @@ _rename_file(Ephoto *ephoto, const char *file)
 {
    Evas_Object *popup, *box, *entry, *button, *ic;
    char buf[PATH_MAX], *bn, *string;
-
 
    popup = elm_popup_add(ephoto->win);
    if (ecore_file_is_dir(file))
@@ -508,7 +507,7 @@ _rename_file(Ephoto *ephoto, const char *file)
    elm_object_text_set(entry, string);
    elm_entry_select_all(entry);
    elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF,
-       ELM_SCROLLER_POLICY_OFF);
+                           ELM_SCROLLER_POLICY_OFF);
    EPHOTO_EXPAND(entry);
    EPHOTO_FILL(entry);
    elm_box_pack_end(box, entry);
@@ -588,8 +587,8 @@ _thread_end_cb(void *data, Ecore_Thread *et EINA_UNUSED)
    if (ephoto->file_errors > 0)
      {
         snprintf(msg, PATH_MAX, "%s %d %s.",
-            _("There was an error completing your action on"), ephoto->file_errors,
-            ngettext("file", "files", ephoto->file_errors));
+                 _("There was an error completing your action on"), ephoto->file_errors,
+                 ngettext("file", "files", ephoto->file_errors));
         _complete(ephoto, _("Error"), msg);
      }
    ephoto->file_pos = NULL;
@@ -608,50 +607,50 @@ _move_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
    const char *file;
 
    if (!ephoto->file_pos)
-      ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);
+     ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);
    EINA_LIST_FREE(ephoto->file_pos, file)
      {
-	if (!file)
-	   break;
-	if (ecore_file_exists(file) && ecore_file_is_dir(destination) &&
-	    evas_object_image_extension_can_load_get(file))
-	  {
-	     char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
-	     int ret;
+        if (!file)
+          break;
+        if (ecore_file_exists(file) && ecore_file_is_dir(destination) &&
+            evas_object_image_extension_can_load_get(file))
+          {
+             char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
+             int ret;
 
-	     snprintf(fp, PATH_MAX, "%s", file);
-	     snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
-	     if (ecore_file_exists(dest))
-	       {
-		  snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
-		      basename(fp));
-		  if (ecore_file_exists(extra))
-		    {
-		       int count;
+             snprintf(fp, PATH_MAX, "%s", file);
+             snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
+             if (ecore_file_exists(dest))
+               {
+                  snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
+                           basename(fp));
+                  if (ecore_file_exists(extra))
+                    {
+                       int count;
 
-		       for (count = 2; ecore_file_exists(extra); count++)
-			 {
-			    memset(extra, 0, sizeof(extra));
-			    snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
-				destination, count, basename(fp));
-			 }
-		    }
-		  ret = ecore_file_mv(file, extra);
-	       }
+                       for (count = 2; ecore_file_exists(extra); count++)
+                         {
+                            memset(extra, 0, sizeof(extra));
+                            snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
+                                     destination, count, basename(fp));
+                         }
+                    }
+                  ret = ecore_file_mv(file, extra);
+               }
              else
                ret = ecore_file_mv(file, dest);
-	     if (!ret)
+             if (!ret)
                ephoto->file_errors++;
-	  }
+          }
      }
 }
 
 static void
 _move_files(Ephoto *ephoto, Eina_List *files,
-    const char *destination)
+            const char *destination)
 {
    Evas_Object *popup = _processing(ephoto, _("Moving Files"),
-       _("Please wait while your files are moved."));
+                                    _("Please wait while your files are moved."));
 
    ephoto->file_popup = popup;
    ephoto->destination = destination;
@@ -661,7 +660,7 @@ _move_files(Ephoto *ephoto, Eina_List *files,
    if (eina_list_count(files))
      eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_move_thread_cb,
-       _thread_end_cb, _thread_end_cb, ephoto);
+                                          _thread_end_cb, _thread_end_cb, ephoto);
 }
 
 static void
@@ -672,48 +671,48 @@ _copy_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
    const char *file;
 
    if (!ephoto->file_pos)
-      ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);
+     ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);
    EINA_LIST_FREE(ephoto->file_pos, file)
      {
         if (ecore_file_exists(file) && ecore_file_is_dir(destination) &&
-	    evas_object_image_extension_can_load_get(file))
-	  {
-	     char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
-	     int ret;
+            evas_object_image_extension_can_load_get(file))
+          {
+             char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
+             int ret;
 
-	     snprintf(fp, PATH_MAX, "%s", file);
-	     snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
-	     if (ecore_file_exists(dest))
-	       {
-		  snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
-		      basename(fp));
-		  if (ecore_file_exists(extra))
-		    {
-		       int count;
+             snprintf(fp, PATH_MAX, "%s", file);
+             snprintf(dest, PATH_MAX, "%s/%s", destination, basename(fp));
+             if (ecore_file_exists(dest))
+               {
+                  snprintf(extra, PATH_MAX, "%s/CopyOf%s", destination,
+                           basename(fp));
+                  if (ecore_file_exists(extra))
+                    {
+                       int count;
 
-		       for (count = 2; ecore_file_exists(extra); count++)
-			 {
-			    memset(extra, 0, PATH_MAX);
-			    snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
-				destination, count, basename(fp));
-			 }
-		    }
-		  ret = ecore_file_cp(file, extra);
-	       }
+                       for (count = 2; ecore_file_exists(extra); count++)
+                         {
+                            memset(extra, 0, PATH_MAX);
+                            snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
+                                     destination, count, basename(fp));
+                         }
+                    }
+                  ret = ecore_file_cp(file, extra);
+               }
              else
                ret = ecore_file_cp(file, dest);
-	     if (!ret)
-		ephoto->file_errors++;
-	  }
+             if (!ret)
+               ephoto->file_errors++;
+          }
      }
 }
 
 static void
 _copy_files(Ephoto *ephoto, Eina_List *files,
-    const char *destination)
+            const char *destination)
 {
    Evas_Object *popup = _processing(ephoto, _("Copying Files"),
-       _("Please wait while your files are copied."));
+                                    _("Please wait while your files are copied."));
    ephoto->file_popup = popup;
    ephoto->destination = destination;
    evas_object_show(popup);
@@ -722,7 +721,7 @@ _copy_files(Ephoto *ephoto, Eina_List *files,
    if (eina_list_count(files))
      eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_copy_thread_cb,
-       _thread_end_cb, NULL, ephoto);
+                                          _thread_end_cb, NULL, ephoto);
 }
 
 static void
@@ -732,18 +731,18 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
    const char *file;
 
    if (!ecore_file_exists(ephoto->trash_path))
-      ecore_file_mkpath(ephoto->trash_path);
+     ecore_file_mkpath(ephoto->trash_path);
 
    if (!ephoto->file_pos)
-      ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);
+     ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);
    EINA_LIST_FREE(ephoto->file_pos, file)
      {
-	if (!file)
-	   break;
-	if (ecore_file_exists(file) && ecore_file_is_dir(ephoto->trash_path))
-	  {
-	     char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
-	     int ret;
+        if (!file)
+          break;
+        if (ecore_file_exists(file) && ecore_file_is_dir(ephoto->trash_path))
+          {
+             char dest[PATH_MAX], fp[PATH_MAX], extra[PATH_MAX];
+             int ret;
              struct stat s;
 #ifdef _WIN32
              if (stat(file, &s) == 0)
@@ -757,31 +756,31 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
                     }
                   else
                     {
-	               snprintf(fp, PATH_MAX, "%s", file);
-	               snprintf(dest, PATH_MAX, "%s/%s", ephoto->trash_path, basename(fp));
-	               if (ecore_file_exists(dest))
-	                 {
-		            snprintf(extra, PATH_MAX, "%s/CopyOf%s", ephoto->trash_path,
-		                basename(fp));
-		            if (ecore_file_exists(extra))
-		              {
-		                 int count;
+                       snprintf(fp, PATH_MAX, "%s", file);
+                       snprintf(dest, PATH_MAX, "%s/%s", ephoto->trash_path, basename(fp));
+                       if (ecore_file_exists(dest))
+                         {
+                            snprintf(extra, PATH_MAX, "%s/CopyOf%s", ephoto->trash_path,
+                                     basename(fp));
+                            if (ecore_file_exists(extra))
+                              {
+                                 int count;
 
-		                 for (count = 2; ecore_file_exists(extra); count++)
-			           {
-			              memset(extra, 0, sizeof(extra));
-			              snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
-				          ephoto->trash_path, count, basename(fp));
-			           }
-		              }
+                                 for (count = 2; ecore_file_exists(extra); count++)
+                                   {
+                                      memset(extra, 0, sizeof(extra));
+                                      snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
+                                               ephoto->trash_path, count, basename(fp));
+                                   }
+                              }
                             ret = ecore_file_mv(file, extra);
-	                 }
+                         }
                        else
-	                 ret = ecore_file_mv(file, dest);
+                         ret = ecore_file_mv(file, dest);
                     }
-	          if (!ret)
-	            ephoto->file_errors++;
-	       }
+                  if (!ret)
+                    ephoto->file_errors++;
+               }
           }
      }
 }
@@ -790,7 +789,7 @@ static void
 _delete_files(Ephoto *ephoto, Eina_List *files)
 {
    Evas_Object *popup = _processing(ephoto, _("Deleting Files"),
-       _("Please wait while your files are deleted."));
+                                    _("Please wait while your files are deleted."));
 
    ephoto->file_popup = popup;
    evas_object_show(popup);
@@ -799,7 +798,7 @@ _delete_files(Ephoto *ephoto, Eina_List *files)
    if (eina_list_count(files))
      eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_delete_thread_cb,
-       _thread_end_cb, NULL, ephoto);
+                                          _thread_end_cb, NULL, ephoto);
 }
 
 static void
@@ -809,7 +808,7 @@ _delete_dir_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
    const char *dir = eina_list_data_get(ephoto->file_pos);
 
    if (!ecore_file_exists(ephoto->trash_path))
-      ecore_file_mkpath(ephoto->trash_path);
+     ecore_file_mkpath(ephoto->trash_path);
 
    if (dir)
      {
@@ -823,7 +822,7 @@ _delete_dir_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
              if (ecore_file_exists(dest))
                {
                   snprintf(extra, PATH_MAX, "%s/CopyOf%s", ephoto->trash_path,
-                      basename(fp));
+                           basename(fp));
                   if (ecore_file_exists(extra))
                     {
                        int count;
@@ -831,9 +830,9 @@ _delete_dir_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
                          {
                             memset(extra, 0, sizeof(extra));
                             snprintf(extra, PATH_MAX, "%s/Copy%dOf%s",
-                                ephoto->trash_path, count, basename(fp));
+                                     ephoto->trash_path, count, basename(fp));
                          }
-                     }
+                    }
                   ret = ecore_file_mv(dir, extra);
                }
              else
@@ -850,13 +849,13 @@ static void
 _delete_dir(Ephoto *ephoto, Eina_List *files)
 {
    Evas_Object *popup = _processing(ephoto, _("Deleting Directory"),
-       _("Please wait while your directory is deleted."));
+                                    _("Please wait while your directory is deleted."));
    ephoto->file_popup = popup;
    evas_object_show(popup);
 
    ephoto->file_pos = eina_list_clone(files);
    ephoto->file_thread = ecore_thread_run(_delete_dir_thread_cb,
-       _thread_end_cb, NULL, ephoto);
+                                          _thread_end_cb, NULL, ephoto);
 }
 
 static void
@@ -866,22 +865,22 @@ _empty_trash_thread_cb(void *data, Ecore_Thread *th EINA_UNUSED)
    const char *file;
 
    if (!ephoto->file_pos)
-      ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);
+     ephoto->file_pos = eina_list_nth(ephoto->file_pos, 0);
    EINA_LIST_FREE(ephoto->file_pos, file)
      {
-	if (!file)
-	   break;
-	if (ecore_file_exists(file))
-	  {
-	     int ret;
+        if (!file)
+          break;
+        if (ecore_file_exists(file))
+          {
+             int ret;
 
              if (ecore_file_is_dir(file))
                ret = ecore_file_recursive_rm(file);
              else
-	       ret = ecore_file_unlink(file);
-	     if (!ret)
-		ephoto->file_errors++;
-	  }
+               ret = ecore_file_unlink(file);
+             if (!ret)
+               ephoto->file_errors++;
+          }
      }
 }
 
@@ -889,7 +888,7 @@ static void
 _empty_trash(Ephoto *ephoto, Eina_List *files)
 {
    Evas_Object *popup = _processing(ephoto, _("Emptying Trash"),
-       _("Please wait while your files are deleted."));
+                                    _("Please wait while your files are deleted."));
    ephoto->file_popup = popup;
    evas_object_show(popup);
 
@@ -897,12 +896,12 @@ _empty_trash(Ephoto *ephoto, Eina_List *files)
    if (eina_list_count(files))
      eina_list_free(files);
    ephoto->file_thread = ecore_thread_run(_empty_trash_thread_cb,
-       _thread_end_cb, NULL, ephoto);
+                                          _thread_end_cb, NULL, ephoto);
 }
 
 static void
 _prompt_upload_apply(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                     void *event_info EINA_UNUSED)
 {
    Evas_Object *ppopup = data;
    Evas_Object *popup;
@@ -916,7 +915,7 @@ _prompt_upload_apply(void *data, Evas_Object *obj EINA_UNUSED,
 
    evas_object_del(ppopup);
    popup = _processing(ephoto, _("Upload Image"),
-       ("Please wait while your image is uploaded."));
+                       ("Please wait while your image is uploaded."));
    evas_object_show(popup);
 
    f = fopen(entry->path, "rb");
@@ -937,9 +936,9 @@ _prompt_upload_apply(void *data, Evas_Object *obj EINA_UNUSED,
         return;
      }
    rewind(f);
-   fdata = malloc(fsize+1);
+   fdata = malloc(fsize + 1);
    res = fread(fdata, fsize, 1, f);
-   if (res < 1) CRIT("fread() failed on file '%s': %s", entry->path, strerror(errno)); 
+   if (res < 1) CRIT("fread() failed on file '%s': %s", entry->path, strerror(errno));
    fdata[fsize] = '\0';
    res = fclose(f);
    if (!res) CRIT("fclose() failed on file '%s': %s", entry->path, strerror(errno));
@@ -947,24 +946,24 @@ _prompt_upload_apply(void *data, Evas_Object *obj EINA_UNUSED,
    snprintf(buf, PATH_MAX, "image=%s", fdata);
 
    ephoto->upload_handlers =
-       eina_list_append(ephoto->upload_handlers,
-       ecore_event_handler_add(ECORE_CON_EVENT_URL_DATA,
-           _upload_image_cb, ephoto));
+     eina_list_append(ephoto->upload_handlers,
+                      ecore_event_handler_add(ECORE_CON_EVENT_URL_DATA,
+                                              _upload_image_cb, ephoto));
    ephoto->upload_handlers =
-       eina_list_append(ephoto->upload_handlers,
-       ecore_event_handler_add(ECORE_CON_EVENT_URL_COMPLETE,
-	   _upload_image_complete_cb, popup));
+     eina_list_append(ephoto->upload_handlers,
+                      ecore_event_handler_add(ECORE_CON_EVENT_URL_COMPLETE,
+                                              _upload_image_complete_cb, popup));
 
    ephoto->url_up = ecore_con_url_new("https://api.imgur.com/3/image.xml");
    ecore_con_url_additional_header_add(ephoto->url_up, "Authorization",
-       "Client-ID 67aecc7e6662370");
+                                       "Client-ID 67aecc7e6662370");
    ecore_con_url_http_version_set(ephoto->url_up, ECORE_CON_URL_HTTP_VERSION_1_0);
    ecore_con_url_post(ephoto->url_up, fdata, fsize, NULL);
 }
 
 static void
 _prompt_save_image_apply(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                         void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
@@ -974,23 +973,23 @@ _prompt_save_image_apply(void *data, Evas_Object *obj EINA_UNUSED,
 
    if (ecore_file_exists(entry->path))
      {
-	success = ecore_file_unlink(entry->path);
-	if (!success)
-	  {
-	     _complete(ephoto, _("Save Failed"),
-                 _("Error: Image could not be saved here!"));
-	     ephoto_single_browser_entry_set(ephoto->single_browser, entry);
-	     evas_object_del(popup);
+        success = ecore_file_unlink(entry->path);
+        if (!success)
+          {
+             _complete(ephoto, _("Save Failed"),
+                       _("Error: Image could not be saved here!"));
+             ephoto_single_browser_entry_set(ephoto->single_browser, entry);
+             evas_object_del(popup);
              elm_object_focus_set(ephoto->pager, EINA_TRUE);
              return;
-	  }
+          }
      }
    success =
-       evas_object_image_save(image, entry->path,
-       NULL, NULL);
+     evas_object_image_save(image, entry->path,
+                            NULL, NULL);
    if (!success)
-      _complete(ephoto, _("Save Failed"),
-          _("Error: Image could not be saved here!"));
+     _complete(ephoto, _("Save Failed"),
+               _("Error: Image could not be saved here!"));
    ephoto_single_browser_entry_set(ephoto->single_browser, entry);
    evas_object_del(popup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
@@ -1006,10 +1005,10 @@ _prompt_save_image_as_apply(void *data, Evas_Object *obj, void *event_info)
 
    if (selected)
      {
-	Evas_Object *image = evas_object_data_get(opopup, "image");
-	Eina_Bool success;
+        Evas_Object *image = evas_object_data_get(opopup, "image");
+        Eina_Bool success;
 
-	char buf[PATH_MAX];
+        char buf[PATH_MAX];
         const char *ex, *ext;
 
         ex = strrchr(selected, '.');
@@ -1019,7 +1018,7 @@ _prompt_save_image_as_apply(void *data, Evas_Object *obj, void *event_info)
           }
         else
           {
-             ext = eina_stringshare_add((strrchr(selected, '.')+1));
+             ext = eina_stringshare_add((strrchr(selected, '.') + 1));
              if (ext)
                {
                   if (!_ephoto_file_image_can_save(ext))
@@ -1039,61 +1038,60 @@ _prompt_save_image_as_apply(void *data, Evas_Object *obj, void *event_info)
                   snprintf(buf, PATH_MAX, "%s", selected);
                }
           }
-	if (ecore_file_exists(buf))
-	  {
-	     Evas_Object *popup, *ic, *button;
+        if (ecore_file_exists(buf))
+          {
+             Evas_Object *popup, *ic, *button;
 
+             popup = _prompt(ephoto, _("Overwrite Image"),
+                             _("Are you sure you want to overwrite this image?"));
 
-	     popup = _prompt(ephoto, _("Overwrite Image"),
-                 _("Are you sure you want to overwrite this image?"));
+             ic = elm_icon_add(popup);
+             evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
+                                              1, 1);
+             elm_icon_standard_set(ic, "document-save");
 
-	     ic = elm_icon_add(popup);
-	     evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-		 1, 1);
-	     elm_icon_standard_set(ic, "document-save");
+             button = elm_button_add(popup);
+             elm_object_text_set(button, _("Yes"));
+             elm_object_part_content_set(button, "icon", ic);
+             evas_object_smart_callback_add(button, "clicked",
+                                            _save_image_as_overwrite, popup);
+             elm_object_part_content_set(popup, "button1", button);
+             evas_object_show(button);
 
-	     button = elm_button_add(popup);
-	     elm_object_text_set(button, _("Yes"));
-	     elm_object_part_content_set(button, "icon", ic);
-	     evas_object_smart_callback_add(button, "clicked",
-		 _save_image_as_overwrite, popup);
-	     elm_object_part_content_set(popup, "button1", button);
-	     evas_object_show(button);
+             ic = elm_icon_add(popup);
+             evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
+                                              1, 1);
+             elm_icon_standard_set(ic, "window-close");
 
-	     ic = elm_icon_add(popup);
-	     evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-		 1, 1);
-	     elm_icon_standard_set(ic, "window-close");
+             button = elm_button_add(popup);
+             elm_object_text_set(button, _("No"));
+             elm_object_part_content_set(button, "icon", ic);
+             evas_object_smart_callback_add(button, "clicked",
+                                            _prompt_cancel, popup);
+             elm_object_part_content_set(popup, "button2", button);
+             evas_object_show(button);
 
-	     button = elm_button_add(popup);
-	     elm_object_text_set(button, _("No"));
-	     elm_object_part_content_set(button, "icon", ic);
-	     evas_object_smart_callback_add(button, "clicked",
-	         _prompt_cancel, popup);
-	     elm_object_part_content_set(popup, "button2", button);
-	     evas_object_show(button);
-
-	     evas_object_data_set(popup, "ephoto", ephoto);
-	     evas_object_data_set(popup, "file", strdup(buf));
+             evas_object_data_set(popup, "ephoto", ephoto);
+             evas_object_data_set(popup, "file", strdup(buf));
              evas_object_data_set(popup, "image", image);
              evas_object_data_set(popup, "entry", entry);
-	     evas_object_show(popup);
-	  }
+             evas_object_show(popup);
+          }
         else
-	  {
+          {
              ephoto_single_browser_path_pending_set
-                 (ephoto->single_browser, buf);
-	     success =
-		 evas_object_image_save(image, buf,
-		 NULL, NULL);
-	     if (!success)
+               (ephoto->single_browser, buf);
+             success =
+               evas_object_image_save(image, buf,
+                                      NULL, NULL);
+             if (!success)
                {
-	          _complete(ephoto, _("Save Failed"),
-                     _("Error: Image could not be saved here!"));
+                  _complete(ephoto, _("Save Failed"),
+                            _("Error: Image could not be saved here!"));
                   ephoto_single_browser_path_pending_unset
-                      (ephoto->single_browser);
+                    (ephoto->single_browser);
                }
-	  }
+          }
      }
    elm_object_content_unset(opopup);
    evas_object_del(obj);
@@ -1103,7 +1101,7 @@ _prompt_save_image_as_apply(void *data, Evas_Object *obj, void *event_info)
 
 static void
 _prompt_empty_apply(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                    void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
@@ -1116,7 +1114,7 @@ _prompt_empty_apply(void *data, Evas_Object *obj EINA_UNUSED,
 
 static void
 _prompt_delete_apply(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                     void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
@@ -1133,7 +1131,7 @@ _prompt_delete_apply(void *data, Evas_Object *obj EINA_UNUSED,
 
 static void
 _prompt_move_apply(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                   void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
@@ -1147,7 +1145,7 @@ _prompt_move_apply(void *data, Evas_Object *obj EINA_UNUSED,
 
 static void
 _prompt_copy_apply(void *data, Evas_Object *obj EINA_UNUSED,
-    void *event_info EINA_UNUSED)
+                   void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
@@ -1164,15 +1162,15 @@ ephoto_file_save_image(Ephoto *ephoto, Ephoto_Entry *entry, Evas_Object *image)
 {
    Evas_Object *popup, *ic, *button;
 
-   if (!_ephoto_file_image_can_save(strrchr(entry->label, '.')+1))
+   if (!_ephoto_file_image_can_save(strrchr(entry->label, '.') + 1))
      {
         _complete(ephoto, _("Save Failed"),
-            _("Error: Image could not be saved here!"));
+                  _("Error: Image could not be saved here!"));
         return;
      }
 
    popup = _prompt(ephoto, _("Save Image"),
-       _("Are you sure you want to overwrite this image?"));
+                   _("Are you sure you want to overwrite this image?"));
 
    ic = elm_icon_add(popup);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
@@ -1232,7 +1230,7 @@ ephoto_file_save_image_as(Ephoto *ephoto, Ephoto_Entry *entry, Evas_Object *imag
    elm_fileselector_path_set(fsel, ephoto->config->directory);
    elm_fileselector_current_name_set(fsel, entry->basename);
    elm_fileselector_mime_types_filter_append(fsel, "image/*",
-       _("Image Files"));
+                                             _("Image Files"));
    EPHOTO_EXPAND(fsel);
    EPHOTO_FILL(fsel);
    evas_object_smart_callback_add(fsel, "done", _prompt_save_image_as_apply, popup);
@@ -1253,8 +1251,8 @@ ephoto_file_upload_image(Ephoto *ephoto, Ephoto_Entry *entry)
    Evas_Object *popup, *ic, *button;
 
    popup =
-       _prompt(ephoto, _("Upload Image"),
-       _("Are you sure you want to upload this image publically to imgur.com?"));
+     _prompt(ephoto, _("Upload Image"),
+             _("Are you sure you want to upload this image publically to imgur.com?"));
 
    ic = elm_icon_add(popup);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
@@ -1264,7 +1262,7 @@ ephoto_file_upload_image(Ephoto *ephoto, Ephoto_Entry *entry)
    elm_object_text_set(button, _("Yes"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _prompt_upload_apply,
-       popup);
+                                  popup);
    elm_object_part_content_set(popup, "button1", button);
    evas_object_show(button);
 
@@ -1276,7 +1274,7 @@ ephoto_file_upload_image(Ephoto *ephoto, Ephoto_Entry *entry)
    elm_object_text_set(button, _("No"));
    elm_object_part_content_set(button, "icon", ic);
    evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-       popup);
+                                  popup);
    elm_object_part_content_set(popup, "button2", button);
    evas_object_show(button);
 
@@ -1308,33 +1306,33 @@ ephoto_file_move(Ephoto *ephoto, Eina_List *files, const char *path)
         char move_dir[PATH_MAX];
 
         snprintf(move_dir, PATH_MAX, "%s:<br> %s?",
-            _("Are you sure you want to move these files to"), path);
+                 _("Are you sure you want to move these files to"), path);
 
         popup = _prompt(ephoto, _("Move Files"), move_dir);
 
         ic = elm_icon_add(popup);
         evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-            1);
+                                         1);
         elm_icon_standard_set(ic, "document-save");
 
         button = elm_button_add(popup);
         elm_object_text_set(button, _("Yes"));
         elm_object_part_content_set(button, "icon", ic);
         evas_object_smart_callback_add(button, "clicked",
-            _prompt_move_apply, popup);
+                                       _prompt_move_apply, popup);
         elm_object_part_content_set(popup, "button1", button);
         evas_object_show(button);
 
         ic = elm_icon_add(popup);
         evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-            1);
+                                         1);
         elm_icon_standard_set(ic, "window-close");
 
         button = elm_button_add(popup);
         elm_object_text_set(button, _("No"));
         elm_object_part_content_set(button, "icon", ic);
         evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-            popup);
+                                       popup);
         elm_object_part_content_set(popup, "button2", button);
         evas_object_show(button);
 
@@ -1354,45 +1352,45 @@ ephoto_file_copy(Ephoto *ephoto, Eina_List *files, const char *path)
      return;
    if (ephoto->config->prompts)
      {
-	Evas_Object *ic, *button;
-	Evas_Object *popup;
-	char copy_dir[PATH_MAX];
+        Evas_Object *ic, *button;
+        Evas_Object *popup;
+        char copy_dir[PATH_MAX];
 
-	snprintf(copy_dir, PATH_MAX, "%s:<br> %s?",
-	    _("Are you sure you want to copy these files to"), path);
+        snprintf(copy_dir, PATH_MAX, "%s:<br> %s?",
+                 _("Are you sure you want to copy these files to"), path);
 
-	popup = _prompt(ephoto, _("Copy Files"), copy_dir);
+        popup = _prompt(ephoto, _("Copy Files"), copy_dir);
 
-	ic = elm_icon_add(popup);
-	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-	    1);
-	elm_icon_standard_set(ic, "document-save");
+        ic = elm_icon_add(popup);
+        evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
+                                         1);
+        elm_icon_standard_set(ic, "document-save");
 
-	button = elm_button_add(popup);
-	elm_object_text_set(button, _("Yes"));
-	elm_object_part_content_set(button, "icon", ic);
+        button = elm_button_add(popup);
+        elm_object_text_set(button, _("Yes"));
+        elm_object_part_content_set(button, "icon", ic);
         evas_object_smart_callback_add(button, "clicked",
-	    _prompt_copy_apply, popup);
-	elm_object_part_content_set(popup, "button1", button);
-	evas_object_show(button);
+                                       _prompt_copy_apply, popup);
+        elm_object_part_content_set(popup, "button1", button);
+        evas_object_show(button);
 
-	ic = elm_icon_add(popup);
-	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-	    1);
-	elm_icon_standard_set(ic, "window-close");
+        ic = elm_icon_add(popup);
+        evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
+                                         1);
+        elm_icon_standard_set(ic, "window-close");
 
-	button = elm_button_add(popup);
-	elm_object_text_set(button, _("No"));
-	elm_object_part_content_set(button, "icon", ic);
-	evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-	    popup);
-	elm_object_part_content_set(popup, "button2", button);
-	evas_object_show(button);
+        button = elm_button_add(popup);
+        elm_object_text_set(button, _("No"));
+        elm_object_part_content_set(button, "icon", ic);
+        evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
+                                       popup);
+        elm_object_part_content_set(popup, "button2", button);
+        evas_object_show(button);
 
-	evas_object_data_set(popup, "files", files);
-	evas_object_data_set(popup, "path", path);
+        evas_object_data_set(popup, "files", files);
+        evas_object_data_set(popup, "path", path);
 
-	evas_object_show(popup);
+        evas_object_show(popup);
      }
    else
      _copy_files(ephoto, files, path);
@@ -1411,32 +1409,32 @@ ephoto_file_paste(Ephoto *ephoto, Eina_List *files, Eina_Bool copy, const char *
              Evas_Object *popup;
 
              popup =
-                 _prompt(ephoto, _("Paste Files"),
-                 _("Are you sure you want to paste these files here?"));
+               _prompt(ephoto, _("Paste Files"),
+                       _("Are you sure you want to paste these files here?"));
 
              ic = elm_icon_add(popup);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-                 1, 1);
+                                              1, 1);
              elm_icon_standard_set(ic, "document-save");
 
              button = elm_button_add(popup);
              elm_object_text_set(button, _("Yes"));
              elm_object_part_content_set(button, "icon", ic);
              evas_object_smart_callback_add(button, "clicked",
-                 _prompt_move_apply, popup);
+                                            _prompt_move_apply, popup);
              elm_object_part_content_set(popup, "button1", button);
              evas_object_show(button);
 
              ic = elm_icon_add(popup);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-                 1, 1);
+                                              1, 1);
              elm_icon_standard_set(ic, "window-close");
 
              button = elm_button_add(popup);
              elm_object_text_set(button, _("No"));
              elm_object_part_content_set(button, "icon", ic);
              evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-                 popup);
+                                            popup);
              elm_object_part_content_set(popup, "button2", button);
              evas_object_show(button);
 
@@ -1458,32 +1456,32 @@ ephoto_file_paste(Ephoto *ephoto, Eina_List *files, Eina_Bool copy, const char *
              Evas_Object *popup;
 
              popup =
-                 _prompt(ephoto, _("Copy Files"),
-                 _("Are you sure you want to copy these files here?"));
+               _prompt(ephoto, _("Copy Files"),
+                       _("Are you sure you want to copy these files here?"));
 
              ic = elm_icon_add(popup);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-                 1, 1);
+                                              1, 1);
              elm_icon_standard_set(ic, "document-save");
 
              button = elm_button_add(popup);
              elm_object_text_set(button, _("Yes"));
              elm_object_part_content_set(button, "icon", ic);
              evas_object_smart_callback_add(button, "clicked",
-                 _prompt_copy_apply, popup);
+                                            _prompt_copy_apply, popup);
              elm_object_part_content_set(popup, "button1", button);
              evas_object_show(button);
 
              ic = elm_icon_add(popup);
              evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL,
-                 1, 1);
+                                              1, 1);
              elm_icon_standard_set(ic, "window-close");
 
              button = elm_button_add(popup);
              elm_object_text_set(button, _("No"));
              elm_object_part_content_set(button, "icon", ic);
              evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-                 popup);
+                                            popup);
              elm_object_part_content_set(popup, "button2", button);
              evas_object_show(button);
 
@@ -1512,36 +1510,36 @@ ephoto_file_delete(Ephoto *ephoto, Eina_List *files, Eina_File_Type type)
 
         if (type == EINA_FILE_DIR)
           popup =
-              _prompt(ephoto, _("Delete Directory"),
-              _("Are you sure you want to delete this directory?"));
+            _prompt(ephoto, _("Delete Directory"),
+                    _("Are you sure you want to delete this directory?"));
         else
           popup =
-              _prompt(ephoto, _("Delete Files"),
-              _("Are you sure you want to delete these files?"));
+            _prompt(ephoto, _("Delete Files"),
+                    _("Are you sure you want to delete these files?"));
 
         ic = elm_icon_add(popup);
         evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-            1);
+                                         1);
         elm_icon_standard_set(ic, "document-save");
 
         button = elm_button_add(popup);
         elm_object_text_set(button, _("Yes"));
         elm_object_part_content_set(button, "icon", ic);
         evas_object_smart_callback_add(button, "clicked", _prompt_delete_apply,
-            popup);
+                                       popup);
         elm_object_part_content_set(popup, "button1", button);
         evas_object_show(button);
 
         ic = elm_icon_add(popup);
         evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-            1);
+                                         1);
         elm_icon_standard_set(ic, "window-close");
 
         button = elm_button_add(popup);
         elm_object_text_set(button, _("No"));
         elm_object_part_content_set(button, "icon", ic);
         evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-            popup);
+                                       popup);
         evas_object_show(button);
         elm_object_part_content_set(popup, "button2", button);
 
@@ -1566,45 +1564,45 @@ ephoto_file_empty_trash(Ephoto *ephoto, Eina_List *files)
      return;
    if (ephoto->config->prompts)
      {
-	Evas_Object *ic, *button;
-	Evas_Object *popup;
+        Evas_Object *ic, *button;
+        Evas_Object *popup;
 
-	popup =
-	    _prompt(ephoto, _("Empty Trash"),
-	    _("Are you sure you want to empty the trash?"));
+        popup =
+          _prompt(ephoto, _("Empty Trash"),
+                  _("Are you sure you want to empty the trash?"));
 
-	ic = elm_icon_add(popup);
-	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-	    1);
-	elm_icon_standard_set(ic, "document-save");
+        ic = elm_icon_add(popup);
+        evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
+                                         1);
+        elm_icon_standard_set(ic, "document-save");
 
-	button = elm_button_add(popup);
-	elm_object_text_set(button, _("Yes"));
-	elm_object_part_content_set(button, "icon", ic);
-	evas_object_smart_callback_add(button, "clicked", _prompt_empty_apply,
-	    popup);
-	elm_object_part_content_set(popup, "button1", button);
-	evas_object_show(button);
+        button = elm_button_add(popup);
+        elm_object_text_set(button, _("Yes"));
+        elm_object_part_content_set(button, "icon", ic);
+        evas_object_smart_callback_add(button, "clicked", _prompt_empty_apply,
+                                       popup);
+        elm_object_part_content_set(popup, "button1", button);
+        evas_object_show(button);
 
-	ic = elm_icon_add(popup);
-	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
-	    1);
-	elm_icon_standard_set(ic, "window-close");
+        ic = elm_icon_add(popup);
+        evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1,
+                                         1);
+        elm_icon_standard_set(ic, "window-close");
 
-	button = elm_button_add(popup);
-	elm_object_text_set(button, _("No"));
-	elm_object_part_content_set(button, "icon", ic);
-	evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
-	    popup);
-	elm_object_part_content_set(popup, "button2", button);
-	evas_object_show(button);
-	evas_object_data_set(popup, "files", files);
+        button = elm_button_add(popup);
+        elm_object_text_set(button, _("No"));
+        elm_object_part_content_set(button, "icon", ic);
+        evas_object_smart_callback_add(button, "clicked", _prompt_cancel,
+                                       popup);
+        elm_object_part_content_set(popup, "button2", button);
+        evas_object_show(button);
+        evas_object_data_set(popup, "files", files);
 
-	evas_object_show(popup);
+        evas_object_show(popup);
      }
    else
      {
-	_empty_trash(ephoto, files);
+        _empty_trash(ephoto, files);
      }
 }
 

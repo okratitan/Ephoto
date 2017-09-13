@@ -66,7 +66,6 @@ main(int argc,
           }
         else if (!strncmp(argv[i], "--nice=", 7))
           {
-#ifdef HAVE_NICE
              const char *val;
 
              val = argv[i] + 7;
@@ -74,7 +73,6 @@ main(int argc,
                {
                   if (nice(atoi(val)) < 0) perror("nice");
                }
-#endif
           }
      }
 

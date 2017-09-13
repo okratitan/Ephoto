@@ -1,10 +1,7 @@
 #ifndef _EPHOTO_H_
 # define _EPHOTO_H_
 
-# ifdef HAVE_CONFIG_H
-#  include "config.h"
-# endif
-
+# include "config.h"
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
@@ -25,11 +22,8 @@
 # include <Evas.h>
 # include <Eio.h>
 
-# ifdef HAVE_PO
-#  include <locale.h>
-# endif
-
-#if HAVE_GETTEXT && ENABLE_NLS
+#if HAVE_GETTEXT
+# include <locale.h>
 # include <libintl.h>
 # define _(string)                       gettext(string)
 #else

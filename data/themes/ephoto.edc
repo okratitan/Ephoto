@@ -3,11 +3,11 @@
 
 collections {
    images {
-      image: "images/sel_border.png" COMP;
-      image: "images/sel_corner1.png" COMP;
-      image: "images/sel_corner3.png" COMP;
-      image: "images/sel_corner5.png" COMP;
-      image: "images/sel_corner7.png" COMP;
+      image: "sel_border.png" COMP;
+      image: "sel_corner1.png" COMP;
+      image: "sel_corner3.png" COMP;
+      image: "sel_corner5.png" COMP;
+      image: "sel_corner7.png" COMP;
    }
    group { "elm/label/base/info";
       mouse_events: 0;
@@ -1211,7 +1211,7 @@ collections {
             description { state: "default" 0.0;
                color: 255 255 255 200;
                image {
-                  normal: "images/sel_border.png";
+                  normal: "sel_border.png";
                   border: 3 3 3 3;
                   middle: NONE;
                }
@@ -1238,7 +1238,7 @@ collections {
                rel1.offset: 1 1;
                align: 0.0 0.0;
                color: 255 255 255 0;
-               image.normal: "images/sel_corner1.png";
+               image.normal: "sel_corner1.png";
             }
             description { state: "visible" 0.0;
                inherit: "default" 0.0;
@@ -1273,7 +1273,7 @@ collections {
                rel2.offset: -2 -1;
                align: 1.0 0.0;
                color: 255 255 255 0;
-               image.normal: "images/sel_corner3.png";
+               image.normal: "sel_corner3.png";
             }
             description { state: "visible" 0.0;
                inherit: "default" 0.0;
@@ -1307,7 +1307,7 @@ collections {
                rel2.offset: -2 -2;
                align: 1.0 1.0;
                color: 255 255 255 0;
-               image.normal: "images/sel_corner5.png";
+               image.normal: "sel_corner5.png";
             }
             description { state: "visible" 0.0;
                inherit: "default" 0.0;
@@ -1342,7 +1342,7 @@ collections {
                rel2.offset: -1 -2;
                align: 0.0 1.0;
                color: 255 255 255 0;
-               image.normal: "images/sel_corner7.png";
+               image.normal: "sel_corner7.png";
             }
             description { state: "visible" 0.0;
                inherit: "default" 0.0;

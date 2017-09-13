@@ -504,7 +504,7 @@ _config_about(Evas_Object *parent)
    elm_box_pack_end(box, img);
    evas_object_show(img);
 
-   snprintf(ver, PATH_MAX, "<hilight><b>Ephoto<br/>Version: %s</b></hilight>", VERSION);
+   snprintf(ver, PATH_MAX, "<hilight><b>Ephoto<br/>Version: %s</b></hilight>", PACKAGE_VERSION);
 
    lbl = elm_label_add(box);
    elm_object_text_set(lbl, ver);

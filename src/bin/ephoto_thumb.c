@@ -142,8 +142,8 @@ e_thumb_icon_begin(Evas_Object *obj)
           {
              Ecore_Exe *exe;
 
-             snprintf(buf, sizeof(buf), "%s/ephoto_thumbnail --nice=1", PACKAGE_LIB_DIR);
-             exe = ecore_exe_run(buf, NULL);
+             snprintf(buf, sizeof(buf), "%s/ephoto/ephoto_thumbnail --nice=1", PACKAGE_LIB_DIR);
+	     exe = ecore_exe_run(buf, NULL);
              _thumbnailers_exe = eina_list_append(_thumbnailers_exe, exe);
           }
         _thumb_queue = eina_list_append(_thumb_queue, eth);
@@ -432,7 +432,7 @@ _e_thumb_cb_exe_event_del(void *data EINA_UNUSED, int type EINA_UNUSED, void *ev
              Ecore_Exe *exe_thumb;
              char buf[4096];
 
-             snprintf(buf, sizeof(buf), "%s/ephoto_thumbnail --nice=1", PACKAGE_LIB_DIR);
+             snprintf(buf, sizeof(buf), "%s/ephoto/ephoto_thumbnail --nice=1", PACKAGE_LIB_DIR);
              exe_thumb = ecore_exe_run(buf, NULL);
              _thumbnailers_exe = eina_list_append(_thumbnailers_exe, exe_thumb);
           }

@@ -650,6 +650,9 @@ _ephoto_on_config_save(void *data)
    snprintf(buf, sizeof(buf), "%s/ephoto/ephoto.cfg", efreet_config_home_get());
    snprintf(buf2, sizeof(buf2), "%s.tmp", buf);
 
+   if (ephoto->config->window_width < 15) ephoto->config->window_width = 15;
+   if (ephoto->config->window_height < 15) ephoto->config->window_height = 15;
+
    ef = eet_open(buf2, EET_FILE_MODE_WRITE);
    if (!ef)
      goto save_end;

@@ -4,8 +4,10 @@
 
 #ifdef USE_IPC
 /* local subsystem functions */
-static Eina_Bool _e_ipc_cb_client_del(void *data EINA_UNUSED, int type EINA_UNUSED, void *event);
-static Eina_Bool _e_ipc_cb_client_data(void *data EINA_UNUSED, int type EINA_UNUSED, void *event);
+static Eina_Bool _e_ipc_cb_client_del(void *data EINA_UNUSED,
+                                      int type EINA_UNUSED, void *event);
+static Eina_Bool _e_ipc_cb_client_data(void *data EINA_UNUSED,
+                                       int type EINA_UNUSED, void *event);
 
 /* local subsystem globals */
 static Ecore_Ipc_Server *_e_ipc_server = NULL;

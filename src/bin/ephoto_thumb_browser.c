@@ -64,9 +64,11 @@ static Elm_Gengrid_Item_Class _ephoto_thumb_file_class;
 static void  _ephoto_show_settings(void *data, Evas_Object *obj EINA_UNUSED,
                                    void *event_info EINA_UNUSED);
 static void  _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED,
-                                   Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED);
+                                   Evas_Object *obj EINA_UNUSED,
+                                   void *event_info EINA_UNUSED);
 static void  _ephoto_main_del(void *data, Evas *e EINA_UNUSED,
-                              Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED);
+                              Evas_Object *obj EINA_UNUSED,
+                              void *event_info EINA_UNUSED);
 
 /*Thumb Pane Functions*/
 static void  _ephoto_thumb_activated(void *data, Evas_Object *obj EINA_UNUSED,
@@ -169,7 +171,8 @@ _drop_dropcb(void *data EINA_UNUSED, Evas_Object *obj, Elm_Object_Item *it EINA_
 
 static Elm_Object_Item *
 _drop_item_getcb(Evas_Object *obj EINA_UNUSED, Evas_Coord x EINA_UNUSED,
-                 Evas_Coord y EINA_UNUSED, int *xposret EINA_UNUSED, int *yposret EINA_UNUSED)
+                 Evas_Coord y EINA_UNUSED, int *xposret EINA_UNUSED,
+                 int *yposret EINA_UNUSED)
 {
    return NULL;
 }
@@ -1230,23 +1233,28 @@ _ephoto_thumb_search_go(void *data, Evas_Object *obj EINA_UNUSED,
              if (tb->sort == EPHOTO_SORT_ALPHABETICAL_ASCENDING)
                e->item =
                  elm_gengrid_item_sorted_insert(tb->grid, ic, e,
-                                                _entry_cmp_grid_alpha_asc, NULL, NULL);
+                                                _entry_cmp_grid_alpha_asc,
+                                                NULL, NULL);
              else if (tb->sort == EPHOTO_SORT_ALPHABETICAL_DESCENDING)
                e->item =
                  elm_gengrid_item_sorted_insert(tb->grid, ic, e,
-                                                _entry_cmp_grid_alpha_desc, NULL, NULL);
+                                                _entry_cmp_grid_alpha_desc,
+                                                NULL, NULL);
              else if (tb->sort == EPHOTO_SORT_MODTIME_ASCENDING)
                e->item =
                  elm_gengrid_item_sorted_insert(tb->grid, ic, e,
-                                                _entry_cmp_grid_mod_asc, NULL, NULL);
+                                                _entry_cmp_grid_mod_asc,
+                                                NULL, NULL);
              else if (tb->sort == EPHOTO_SORT_MODTIME_DESCENDING)
                e->item =
                  elm_gengrid_item_sorted_insert(tb->grid, ic, e,
-                                                _entry_cmp_grid_mod_desc, NULL, NULL);
+                                                _entry_cmp_grid_mod_desc,
+                                                NULL, NULL);
              else if (tb->sort == EPHOTO_SORT_SIMILARITY)
                e->item =
                  elm_gengrid_item_sorted_insert(tb->grid, ic, e,
-                                                _entry_cmp_grid_similarity, NULL, NULL);
+                                                _entry_cmp_grid_similarity,
+                                                NULL, NULL);
              if (e->item)
                {
                   Eina_File *f;
@@ -1929,13 +1937,15 @@ ephoto_thumb_browser_paste(Ephoto *ephoto, Elm_Object_Item *item)
 
    if (eina_list_count(tb->cut_items))
      {
-        ephoto_file_paste(tb->ephoto, eina_list_clone(tb->cut_items), EINA_FALSE, path);
+        ephoto_file_paste(tb->ephoto, eina_list_clone(tb->cut_items),
+            EINA_FALSE, path);
         eina_list_free(tb->cut_items);
         tb->cut_items = NULL;
      }
    else if (eina_list_count(tb->copy_items))
      {
-        ephoto_file_paste(tb->ephoto, eina_list_clone(tb->copy_items), EINA_TRUE, path);
+        ephoto_file_paste(tb->ephoto, eina_list_clone(tb->copy_items),
+            EINA_TRUE, path);
         eina_list_free(tb->copy_items);
         tb->copy_items = NULL;
      }
@@ -2101,15 +2111,20 @@ ephoto_thumb_browser_show_controls(Ephoto *ephoto)
    hover = elm_hoversel_add(ephoto->controls_right);
    elm_hoversel_hover_parent_set(hover, ephoto->win);
    elm_hoversel_item_add(hover, _("Alphabetical Ascending"),
-                         "view-sort-ascending", ELM_ICON_STANDARD, _sort_alpha_asc, tb);
+                         "view-sort-ascending", ELM_ICON_STANDARD,
+                         _sort_alpha_asc, tb);
    elm_hoversel_item_add(hover, _("Alphabetical Descending"),
-                         "view-sort-descending", ELM_ICON_STANDARD, _sort_alpha_desc, tb);
+                         "view-sort-descending", ELM_ICON_STANDARD,
+                         _sort_alpha_desc, tb);
    elm_hoversel_item_add(hover, _("Modification Time Ascending"),
-                         "view-sort-ascending", ELM_ICON_STANDARD, _sort_mod_asc, tb);
+                         "view-sort-ascending", ELM_ICON_STANDARD,
+                         _sort_mod_asc, tb);
    elm_hoversel_item_add(hover, _("Modification Time Descending"),
-                         "view-sort-descending", ELM_ICON_STANDARD, _sort_mod_desc, tb);
+                         "view-sort-descending", ELM_ICON_STANDARD,
+                         _sort_mod_desc, tb);
    tb->similarity = elm_hoversel_item_add(hover, _("Image Simalarity"),
-                                          "view-sort-ascending", ELM_ICON_STANDARD, _sort_similarity, tb);
+                                          "view-sort-ascending", ELM_ICON_STANDARD,
+                                          _sort_similarity, tb);
    elm_object_text_set(hover, _("Sort"));
    ic = elm_icon_add(hover);
    evas_object_size_hint_min_set(ic, 20 * elm_config_scale_get(),

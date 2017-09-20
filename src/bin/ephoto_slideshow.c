@@ -970,9 +970,11 @@ ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent)
    evas_object_event_callback_add(ss->slideshow, EVAS_CALLBACK_MOUSE_MOVE,
                                   _mouse_move, ss);
    edje_object_signal_callback_add(elm_layout_edje_get(ss->slideshow),
-                                   "ephoto,transition,raise", "ephoto", _on_transition_raise, ss);
+                                   "ephoto,transition,raise", "ephoto",
+                                   _on_transition_raise, ss);
    edje_object_signal_callback_add(elm_layout_edje_get(ss->slideshow),
-                                   "ephoto,transition,end", "ephoto", _on_transition_end, ss);
+                                   "ephoto,transition,end", "ephoto",
+                                   _on_transition_end, ss);
    return ss->slideshow;
 
 error:

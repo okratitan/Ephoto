@@ -51,7 +51,8 @@ void         ephoto_thumb_size_set(Ephoto *ephoto, int size);
 Evas_Object *ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent,
                               Ephoto_Entry *entry);
 void         ephoto_directory_set(Ephoto *ephoto, const char *path,
-                                  Elm_Object_Item *expanded, Eina_Bool dirs_only, Eina_Bool thumbs_only);
+                                  Elm_Object_Item *expanded, Eina_Bool dirs_only,
+                                  Eina_Bool thumbs_only);
 void         ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle);
 
 /*config panel functions*/
@@ -71,9 +72,14 @@ void         ephoto_single_browser_path_pending_set(Evas_Object *obj,
 void         ephoto_single_browser_path_pending_unset(Evas_Object *obj);
 void         ephoto_single_browser_path_created(Evas_Object *obj, Ephoto_Entry *entry);
 void         ephoto_single_browser_image_data_update(Evas_Object *main,
-                                                     Evas_Object *image, unsigned int *image_data, Evas_Coord w, Evas_Coord h);
+                                                     Evas_Object *image,
+                                                     unsigned int *image_data,
+                                                     Evas_Coord w,
+                                                     Evas_Coord h);
 void         ephoto_single_browser_image_data_done(Evas_Object *main,
-                                                   unsigned int *image_data, Evas_Coord w, Evas_Coord h);
+                                                   unsigned int *image_data,
+                                                   Evas_Coord w,
+                                                   Evas_Coord h);
 void         ephoto_single_browser_cancel_editing(Evas_Object *main);
 void         ephoto_single_browser_slideshow(Evas_Object *obj);
 /* smart callbacks called: "back" - the user wants to go back to the previous
@@ -331,9 +337,13 @@ Ephoto_Entry *ephoto_entry_new(Ephoto *ephoto, const char *path,
 Eina_Bool     ephoto_entry_exists(Ephoto *ephoto, const char *path);
 void          ephoto_entry_free(Ephoto *ephoto, Ephoto_Entry *entry);
 void          ephoto_entry_free_listener_add(Ephoto_Entry *entry,
-                                             void (*cb)(void *data, const Ephoto_Entry *entry), const void *data);
+                                             void (*cb)(void *data,
+                                             const Ephoto_Entry *entry),
+                                             const void *data);
 void          ephoto_entry_free_listener_del(Ephoto_Entry *entry,
-                                             void (*cb)(void *data, const Ephoto_Entry *entry), const void *data);
+                                             void (*cb)(void *data,
+                                             const Ephoto_Entry *entry),
+                                             const void *data);
 void          ephoto_entries_free(Ephoto *ephoto);
 int           ephoto_entries_cmp(const void *pa, const void *pb);
 

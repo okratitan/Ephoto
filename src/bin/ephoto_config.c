@@ -46,9 +46,12 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
    ephoto->config->thumbnail_aspect = elm_check_state_get(ephoto->config->thumb_aspect);
    if (elm_spinner_value_get(ephoto->config->panel_size) > 0)
      {
-        ephoto->config->left_size = (elm_spinner_value_get(ephoto->config->panel_size) / 0.05) * 0.05;
-        ephoto->config->right_size = (elm_spinner_value_get(ephoto->config->panel_size) / 0.05) * 0.05;
-        evas_object_size_hint_weight_set(ephoto->dir_browser, ephoto->config->left_size, EVAS_HINT_EXPAND);
+        ephoto->config->left_size =
+            (elm_spinner_value_get(ephoto->config->panel_size) / 0.05) * 0.05;
+        ephoto->config->right_size =
+            (elm_spinner_value_get(ephoto->config->panel_size) / 0.05) * 0.05;
+        evas_object_size_hint_weight_set(ephoto->dir_browser,
+                                         ephoto->config->left_size, EVAS_HINT_EXPAND);
      }
 
    if (elm_spinner_value_get(ephoto->config->slide_time) > 0)
@@ -281,7 +284,8 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
    evas_object_show(label);
 
    transitions = _ephoto_transitions_list_get(edje_object_data_get(elm_layout_edje_get
-                                                                     (ephoto->slideshow), "transitions"));
+                                                                     (ephoto->slideshow),
+                                                                     "transitions"));
 
    hoversel = elm_hoversel_add(table);
    elm_hoversel_hover_parent_set(hoversel, ephoto->win);

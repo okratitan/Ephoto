@@ -22,8 +22,8 @@ _editor_cancel(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
 }
 
 Evas_Object *
-ephoto_editor_add(Ephoto *ephoto, Evas_Object *parent, const char *title, const char *data_name,
-                  void *data)
+ephoto_editor_add(Ephoto *ephoto, Evas_Object *parent, const char *title,
+                  const char *data_name, void *data)
 {
    Evas_Object *frame, *box, *ic, *button;
 

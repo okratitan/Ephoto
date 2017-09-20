@@ -1037,14 +1037,18 @@ _todo_items_process(void *data)
                   ic = _ephoto_dir_tree_class;
                   entry->item =
                     elm_genlist_item_sorted_insert(db->fsel, ic, entry,
-                                                   entry->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp, NULL, NULL);
+                                                   entry->parent,
+                                                   ELM_GENLIST_ITEM_TREE,
+                                                   _entry_cmp, NULL, NULL);
                }
              else
                {
                   ic = _ephoto_dir_class;
                   entry->item =
                     elm_genlist_item_sorted_insert(db->fsel, ic, entry,
-                                                   entry->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp, NULL, NULL);
+                                                   entry->parent,
+                                                   ELM_GENLIST_ITEM_NONE,
+                                                   _entry_cmp, NULL, NULL);
                }
              if (!entry->item)
                {
@@ -1234,7 +1238,8 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
    end_dir = strdup(ephoto->config->directory);
    if (strcmp(ephoto->config->open, ephoto->config->directory))
      {
-        if (!strncmp(ephoto->config->open, ephoto->config->directory, strlen(ephoto->config->open)))
+        if (!strncmp(ephoto->config->open, ephoto->config->directory,
+                 strlen(ephoto->config->open)))
           {
              snprintf(path, PATH_MAX, "%s", ephoto->config->directory);
              dirs = eina_list_prepend(dirs, strdup(path));
@@ -1276,7 +1281,8 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
              if (strncmp(finfo->path + finfo->name_start, ".", 1))
                {
                   Ephoto_Entry *entry = ephoto_entry_new(ephoto, finfo->path,
-                                                         finfo->path + finfo->name_start, finfo->type);
+                                                         finfo->path + finfo->name_start,
+                                                         finfo->type);
                   entry->parent = cur;
                   if (entry->is_dir && !entry->item)
                     {
@@ -1286,7 +1292,9 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
                             ic = _ephoto_dir_tree_class;
                             entry->item =
                               elm_genlist_item_sorted_insert(db->fsel, ic, entry,
-                                                             entry->parent, ELM_GENLIST_ITEM_TREE, _entry_cmp,
+                                                             entry->parent,
+                                                             ELM_GENLIST_ITEM_TREE,
+                                                             _entry_cmp,
                                                              NULL, NULL);
                          }
                        else
@@ -1294,7 +1302,9 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
                             ic = _ephoto_dir_class;
                             entry->item =
                               elm_genlist_item_sorted_insert(db->fsel, ic, entry,
-                                                             entry->parent, ELM_GENLIST_ITEM_NONE, _entry_cmp,
+                                                             entry->parent,
+                                                             ELM_GENLIST_ITEM_NONE,
+                                                             _entry_cmp,
                                                              NULL, NULL);
                          }
                        if (!entry->item)
@@ -1330,7 +1340,8 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
      }
    else
      {
-        ephoto_directory_set(ephoto, ephoto->config->directory, NULL, EINA_FALSE, EINA_FALSE);
+        ephoto_directory_set(ephoto, ephoto->config->directory, NULL,
+                             EINA_FALSE, EINA_FALSE);
         ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
      }
    ephoto_title_set(ephoto, ephoto->config->directory);

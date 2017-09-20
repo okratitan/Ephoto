@@ -174,7 +174,8 @@ _ephoto_thumb_browser_view(void *data, Evas_Object *obj EINA_UNUSED,
 
 static void
 _ephoto_thumb_browser_changed_directory(void *data,
-                                        Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
+                                        Evas_Object *obj EINA_UNUSED,
+                                        void *event_info EINA_UNUSED)
 {
    Ephoto *ephoto = data;
 
@@ -1212,7 +1213,8 @@ ephoto_entry_free(Ephoto *ephoto, Ephoto_Entry *entry)
 
 void
 ephoto_entry_free_listener_add(Ephoto_Entry *entry, void (*cb)(void *data,
-                                                               const Ephoto_Entry *entry), const void *data)
+                                                               const Ephoto_Entry *entry),
+                                                               const void *data)
 {
    Ephoto_Entry_Free_Listener *fl;
 
@@ -1224,7 +1226,8 @@ ephoto_entry_free_listener_add(Ephoto_Entry *entry, void (*cb)(void *data,
 
 void
 ephoto_entry_free_listener_del(Ephoto_Entry *entry, void (*cb)(void *data,
-                                                               const Ephoto_Entry *entry), const void *data)
+                                                               const Ephoto_Entry *entry),
+                                                               const void *data)
 {
    Eina_List *l;
    Ephoto_Entry_Free_Listener *fl;

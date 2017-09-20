@@ -23,7 +23,8 @@ struct _Ephoto_Cropper
 
 static void
 _calculate_cropper_size(void *data, Evas_Object *obj EINA_UNUSED,
-                        const char *emission EINA_UNUSED, const char *source EINA_UNUSED)
+                        const char *emission EINA_UNUSED,
+                        const char *source EINA_UNUSED)
 {
    Ephoto_Cropper *ec = data;
    Edje_Message_Int_Set *msg;
@@ -670,7 +671,8 @@ ephoto_cropper_add(Ephoto *ephoto, Evas_Object *main, Evas_Object *parent,
    edje_object_file_set(ec->cropper, PACKAGE_DATA_DIR "/themes/ephoto.edj",
                         "ephoto,image,cropper");
    edje_object_signal_callback_add(elm_layout_edje_get(ec->layout),
-                                   "cropper,changed", "ephoto.swallow.cropper", _calculate_cropper_size,
+                                   "cropper,changed", "ephoto.swallow.cropper",
+                                   _calculate_cropper_size,
                                    ec);
    elm_layout_content_set(ec->layout, "ephoto.swallow.cropper", ec->cropper);
    evas_object_show(ec->cropper);

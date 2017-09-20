@@ -27,7 +27,8 @@ enum _Ephoto_Color_Adjust
 };
 
 unsigned int *
-_ephoto_apply_color_adjustment(Ephoto_Color *eco, unsigned int *image_data, int adjust, Ephoto_Color_Adjust color)
+_ephoto_apply_color_adjustment(Ephoto_Color *eco, unsigned int *image_data,
+    int adjust, Ephoto_Color_Adjust color)
 {
    unsigned int *im_data, *im_data_new, *p1, *p2;
    Evas_Coord x, y;
@@ -103,9 +104,12 @@ _red_slider_changed(void *data, Evas_Object *obj, void *event_info EINA_UNUSED)
    unsigned int *image_data, *image_data_two;
 
    red = elm_slider_value_get(obj);
-   image_data = _ephoto_apply_color_adjustment(eco, NULL, red, EPHOTO_COLOR_ADJUST_RED);
-   image_data_two = _ephoto_apply_color_adjustment(eco, image_data, eco->green, EPHOTO_COLOR_ADJUST_GREEN);
-   _ephoto_apply_color_adjustment(eco, image_data_two, eco->blue, EPHOTO_COLOR_ADJUST_BLUE);
+   image_data = _ephoto_apply_color_adjustment(eco, NULL, red,
+       EPHOTO_COLOR_ADJUST_RED);
+   image_data_two = _ephoto_apply_color_adjustment(eco, image_data, eco->green,
+       EPHOTO_COLOR_ADJUST_GREEN);
+   _ephoto_apply_color_adjustment(eco, image_data_two, eco->blue,
+       EPHOTO_COLOR_ADJUST_BLUE);
 }
 
 static void
@@ -117,9 +121,12 @@ _green_slider_changed(void *data, Evas_Object *obj,
    unsigned int *image_data, *image_data_two;
 
    green = elm_slider_value_get(obj);
-   image_data = _ephoto_apply_color_adjustment(eco, NULL, green, EPHOTO_COLOR_ADJUST_GREEN);
-   image_data_two = _ephoto_apply_color_adjustment(eco, image_data, eco->red, EPHOTO_COLOR_ADJUST_RED);
-   _ephoto_apply_color_adjustment(eco, image_data_two, eco->blue, EPHOTO_COLOR_ADJUST_BLUE);
+   image_data = _ephoto_apply_color_adjustment(eco, NULL, green,
+       EPHOTO_COLOR_ADJUST_GREEN);
+   image_data_two = _ephoto_apply_color_adjustment(eco, image_data, eco->red,
+       EPHOTO_COLOR_ADJUST_RED);
+   _ephoto_apply_color_adjustment(eco, image_data_two, eco->blue,
+       EPHOTO_COLOR_ADJUST_BLUE);
 }
 
 static void
@@ -131,9 +138,12 @@ _blue_slider_changed(void *data, Evas_Object *obj,
    unsigned int *image_data, *image_data_two;
 
    blue = elm_slider_value_get(obj);
-   image_data = _ephoto_apply_color_adjustment(eco, NULL, blue, EPHOTO_COLOR_ADJUST_BLUE);
-   image_data_two = _ephoto_apply_color_adjustment(eco, image_data, eco->red, EPHOTO_COLOR_ADJUST_RED);
-   _ephoto_apply_color_adjustment(eco, image_data_two, eco->green, EPHOTO_COLOR_ADJUST_GREEN);
+   image_data = _ephoto_apply_color_adjustment(eco, NULL, blue,
+       EPHOTO_COLOR_ADJUST_BLUE);
+   image_data_two = _ephoto_apply_color_adjustment(eco, image_data, eco->red,
+       EPHOTO_COLOR_ADJUST_RED);
+   _ephoto_apply_color_adjustment(eco, image_data_two, eco->green,
+       EPHOTO_COLOR_ADJUST_GREEN);
 }
 
 static Eina_Bool

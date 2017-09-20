@@ -584,7 +584,8 @@ end:
         break;
      }
    /* send back path to thumb */
-   ecore_ipc_server_send(_e_ipc_server, EPHOTO_IPC_DOMAIN_THUMB, 2, eth->objid, 0, 0, buf, strlen(buf) + 1);
+   ecore_ipc_server_send(_e_ipc_server, EPHOTO_IPC_DOMAIN_THUMB, 2, eth->objid,
+       0, 0, buf, strlen(buf) + 1);
 }
 
 static int

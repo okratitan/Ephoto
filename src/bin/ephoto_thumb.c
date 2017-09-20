@@ -17,9 +17,11 @@ struct _E_Thumb
 };
 
 /* local subsystem functions */
-static void         _e_thumb_gen_begin(int objid, const char *file, const char *key, int w, int h);
+static void         _e_thumb_gen_begin(int objid, const char *file,
+                                       const char *key, int w, int h);
 static void         _e_thumb_gen_end(int objid);
-static void         _e_thumb_del_hook(void *data, Evas *e, Evas_Object *obj, void *event_info);
+static void         _e_thumb_del_hook(void *data, Evas *e, Evas_Object *obj,
+                                      void *event_info);
 static void         _e_thumb_hash_add(int objid, Evas_Object *obj);
 static void         _e_thumb_hash_del(int objid);
 static Evas_Object *_e_thumb_hash_find(int objid);
@@ -142,8 +144,9 @@ e_thumb_icon_begin(Evas_Object *obj)
           {
              Ecore_Exe *exe;
 
-             snprintf(buf, sizeof(buf), "%s/ephoto/ephoto_thumbnail --nice=1", PACKAGE_LIB_DIR);
-	     exe = ecore_exe_run(buf, NULL);
+             snprintf(buf, sizeof(buf),
+                 "%s/ephoto/ephoto_thumbnail --nice=1", PACKAGE_LIB_DIR);
+             exe = ecore_exe_run(buf, NULL);
              _thumbnailers_exe = eina_list_append(_thumbnailers_exe, exe);
           }
         _thumb_queue = eina_list_append(_thumb_queue, eth);
@@ -315,7 +318,8 @@ _e_thumb_gen_begin(int objid, const char *file, const char *key, int w, int h)
    if (!cli) return;
    _thumbnailers = eina_list_remove_list(_thumbnailers, _thumbnailers);
    _thumbnailers = eina_list_append(_thumbnailers, cli);
-   ecore_ipc_client_send(cli, EPHOTO_IPC_DOMAIN_THUMB, 1, objid, w, h, buf, l1 + 1 + l2 + 1);
+   ecore_ipc_client_send(cli, EPHOTO_IPC_DOMAIN_THUMB, 1, objid, w, h,
+                         buf, l1 + 1 + l2 + 1);
 }
 
 static void
@@ -332,7 +336,8 @@ _e_thumb_gen_end(int objid)
 }
 
 static void
-_e_thumb_del_hook(void *data EINA_UNUSED, Evas *e EINA_UNUSED, Evas_Object *obj, void *event_info EINA_UNUSED)
+_e_thumb_del_hook(void *data EINA_UNUSED, Evas *e EINA_UNUSED, Evas_Object *obj,
+                  void *event_info EINA_UNUSED)
 {
    E_Thumb *eth;
 
@@ -432,7 +437,8 @@ _e_thumb_cb_exe_event_del(void *data EINA_UNUSED, int type EINA_UNUSED, void *ev
              Ecore_Exe *exe_thumb;
              char buf[4096];
 
-             snprintf(buf, sizeof(buf), "%s/ephoto/ephoto_thumbnail --nice=1", PACKAGE_LIB_DIR);
+             snprintf(buf, sizeof(buf),
+                      "%s/ephoto/ephoto_thumbnail --nice=1", PACKAGE_LIB_DIR);
              exe_thumb = ecore_exe_run(buf, NULL);
              _thumbnailers_exe = eina_list_append(_thumbnailers_exe, exe_thumb);
           }

@@ -64,13 +64,15 @@ static void        _ephoto_update_bottom_bar(Ephoto_Single_Browser *sb);
 /*Main Callbacks*/
 static void        _ephoto_main_edit_menu(Ephoto_Single_Browser *sb);
 static void        _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED,
-                                         Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED);
+                                         Evas_Object *obj EINA_UNUSED,
+                                         void *event_info EINA_UNUSED);
 static void        _ephoto_show_settings(void *data, Evas_Object *obj EINA_UNUSED,
                                          void *event_info EINA_UNUSED);
 static void        _ephoto_main_back(void *data, Evas_Object *obj EINA_UNUSED,
                                      void *event_info EINA_UNUSED);
 static void        _ephoto_main_del(void *data, Evas *e EINA_UNUSED,
-                                    Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED);
+                                    Evas_Object *obj EINA_UNUSED,
+                                    void *event_info EINA_UNUSED);
 static void        _next_entry(Ephoto_Single_Browser *sb);
 static void        _orient_apply(Ephoto_Single_Browser *sb);
 
@@ -1812,8 +1814,8 @@ _editor_menu(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNU
                   _go_flip_horiz, sb);
    _edit_item_add(list, par, "object-flip-vertical", _("Flip Vertical"),
                   _go_flip_vert, sb);
-   par = elm_genlist_item_append(list, itc, _("Adjustable Filters"), NULL, ELM_GENLIST_ITEM_GROUP,
-                                 NULL, NULL);
+   par = elm_genlist_item_append(list, itc, _("Adjustable Filters"), NULL,
+                                 ELM_GENLIST_ITEM_GROUP, NULL, NULL);
    elm_genlist_item_select_mode_set(par, ELM_OBJECT_SELECT_MODE_DISPLAY_ONLY);
    _edit_item_add(list, par, NULL, _("Brightness/Contrast/Gamma"),
                   _go_bcg, sb);
@@ -1823,8 +1825,8 @@ _editor_menu(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EINA_UNU
                   _go_color, sb);
    _edit_item_add(list, par, NULL, _("Red Eye Removal"),
                   _go_reye, sb);
-   par = elm_genlist_item_append(list, itc, _("Quick Filters"), NULL, ELM_GENLIST_ITEM_GROUP,
-                                 NULL, NULL);
+   par = elm_genlist_item_append(list, itc, _("Quick Filters"), NULL,
+                                 ELM_GENLIST_ITEM_GROUP, NULL, NULL);
    elm_genlist_item_select_mode_set(par, ELM_OBJECT_SELECT_MODE_DISPLAY_ONLY);
    _edit_item_add(list, par, NULL, _("Auto Equalize"),
                   _go_auto_eq, sb);
@@ -1890,7 +1892,8 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
 {
    Elm_Object_Item *menu_it;
 
-   menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("File"), NULL, NULL);
+   menu_it = elm_menu_item_add(menu, NULL, "document-properties", _("File"),
+                               NULL, NULL);
    elm_menu_item_add(menu, menu_it, "edit-cut", _("Edit"), _editor_menu, sb);
    elm_menu_item_add(menu, menu_it, "edit-clear", _("Reset"), _reset_image, sb);
    elm_menu_item_add(menu, menu_it, "document-save", _("Save"), _save_image, sb);
@@ -1907,10 +1910,10 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
                      sb);
    elm_menu_item_add(menu, NULL, "zoom-original", _("Zoom 1:1"), _zoom_1_cb,
                      sb);
-   elm_menu_item_add(menu, NULL, "object-flip-horizontal", _("Flip Horizontal"), _go_flip_horiz,
-                     sb);
-   elm_menu_item_add(menu, NULL, "object-flip-vertical", _("Flip Vertical"), _go_flip_vert,
-                     sb);
+   elm_menu_item_add(menu, NULL, "object-flip-horizontal", _("Flip Horizontal"),
+                     _go_flip_horiz, sb);
+   elm_menu_item_add(menu, NULL, "object-flip-vertical", _("Flip Vertical"),
+                     _go_flip_vert, sb);
 }
 
 static void
@@ -2230,8 +2233,8 @@ ephoto_single_browser_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
    evas_object_color_set(sb->event, 0, 0, 0, 0);
    evas_object_repeat_events_set(sb->event, EINA_TRUE);
    evas_object_show(sb->event);
-   evas_object_event_callback_add(sb->event, EVAS_CALLBACK_KEY_DOWN, _ephoto_main_key_down,
-                                  sb);
+   evas_object_event_callback_add(sb->event, EVAS_CALLBACK_KEY_DOWN,
+                                  _ephoto_main_key_down, sb);
    evas_object_raise(sb->event);
    elm_object_focus_set(sb->event, EINA_TRUE);
 }

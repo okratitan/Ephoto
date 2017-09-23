@@ -2,7 +2,8 @@ inc = include_directories('.', '../..')
 deps = [
     elm,
     edje,
-    eipc
+    eipc,
+    exif
 ]
 executable('ephoto', [
     'ephoto.c',

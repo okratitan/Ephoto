@@ -1,4 +1,129 @@
 #include "ephoto.h"
+#ifdef HAVE_LIBEXIF
+#include <libexif/exif-data.h>
+
+Eina_Bool
+ephoto_file_has_exif(const char *file)
+{
+   ExifData *ed = exif_data_new_from_file(file);
+
+   ed = exif_data_new_from_file(file);
+   if (!ed) return EINA_FALSE;
+   
+   exif_data_unref(ed);
+   return EINA_TRUE;
+}
+
+Eina_Hash *
+ephoto_file_get_exif_data(Ephoto *ephoto EINA_UNUSED, const char *file)
+{
+   ExifData *ed = exif_data_new_from_file(file);
+   ExifEntry *ee = NULL;
+   Eina_Hash *hash = eina_hash_string_superfast_new(NULL);
+   unsigned int tag, val;
+   const char *title = NULL;
+   char value[1024];
+
+   if (!ed) return NULL;
+   for (tag = 0; tag < 0xffff; tag++)
+     {
+        title = exif_tag_get_title(tag);
+        for (val = 0; val < EXIF_IFD_COUNT; val++)
+          {
+             ee = exif_content_get_entry(ed->ifd[val], tag);
+             if (ee)
+               {
+                  exif_entry_ref(ee);
+                  exif_entry_get_value(ee, value, 1024);
+                  eina_hash_add(hash, eina_stringshare_add(title),
+                                eina_stringshare_add(value));
+                  exif_entry_unref(ee);
+               }
+          }
+     }
+   exif_data_unref(ed);
+   return hash;
+}
+
+static void
+_exif_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
+                void *event_info EINA_UNUSED)
+{
+   Evas_Object *popup = data;
+
+   evas_object_del(popup);
+}
+
+void
+ephoto_file_exif_data(Ephoto *ephoto, const char *file)
+{
+   Eina_Hash *hash = NULL;
+   Eina_Iterator *it = NULL;
+   Eina_Hash_Tuple *t = NULL;
+   Evas_Object *popup, *box, *scroller, *list, *label, *entry;
+   const char *key = NULL, *value = NULL;
+   int i = 0;
+
+   hash = ephoto_file_get_exif_data(ephoto, file);
+
+   popup = elm_popup_add(ephoto->win);
+   elm_popup_scrollable_set(popup, EINA_TRUE);
+   elm_object_part_text_set(popup, "title,text", _("Image Properties"));
+   elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
+   evas_object_smart_callback_add(popup, "block,clicked", _exif_save_cb, popup);
+
+   box = elm_box_add(popup);
+   EPHOTO_EXPAND(box);
+   EPHOTO_FILL(box);
+   evas_object_size_hint_min_set(box, ephoto->config->window_width / 2,
+                                 ephoto->config->window_height / 2);
+   evas_object_show(box);
+
+   scroller = elm_scroller_add(box);
+   EPHOTO_EXPAND(scroller);
+   EPHOTO_FILL(scroller);
+   elm_box_pack_end(box, scroller);
+   evas_object_show(scroller);
+
+   list = elm_table_add(scroller);
+   elm_table_homogeneous_set(list, EINA_FALSE);
+   EPHOTO_EXPAND(list);
+   EPHOTO_FILL(list);
+   elm_object_content_set(scroller, list);
+   evas_object_show(list);
+
+   it = eina_hash_iterator_tuple_new(hash);
+   EINA_ITERATOR_FOREACH(it, t)
+     {
+        key = t->key;
+        value = t->data;
+
+        label = elm_label_add(list);
+        elm_object_text_set(label, key);
+        EPHOTO_ALIGN(label, 0.0, 0.5);
+        elm_table_pack(list, label, 0, i, 1, 1);
+        evas_object_show(label);
+
+        entry = elm_entry_add(list);
+        elm_entry_single_line_set(entry, EINA_TRUE);
+        elm_entry_scrollable_set(entry, EINA_TRUE);
+        elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF,
+                                ELM_SCROLLER_POLICY_OFF);
+        elm_object_text_set(entry, value);
+        EPHOTO_EXPAND(entry);
+        EPHOTO_FILL(entry);
+        elm_table_pack(list, entry, 1, i, 1, 1);
+        evas_object_show(entry);
+
+        i++;
+     }
+   eina_iterator_free(it);
+
+   evas_object_data_set(popup, "ephoto", ephoto);
+   elm_object_part_content_set(popup, "default", box);
+   evas_object_show(popup);
+}
+#endif
 
 static void
 _complete_ok(void *data, Evas_Object *obj EINA_UNUSED,

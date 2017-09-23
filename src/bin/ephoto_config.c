@@ -144,7 +144,7 @@ _config_general(Ephoto *ephoto, Evas_Object *parent)
    elm_spinner_step_set(spinner, .05);
    elm_spinner_value_set(spinner, ephoto->config->left_size);
    elm_spinner_min_max_set(spinner, 0, 1);
-   EPHOTO_EXPAND(spinner);
+   EPHOTO_WEIGHT(spinner, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_FILL(spinner);
    elm_table_pack(table, spinner, 0, 6, 1, 1);
    evas_object_show(spinner);
@@ -248,7 +248,7 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
 
    check = elm_check_add(table);
    elm_object_text_set(check, _("Moving Slideshow"));
-   EPHOTO_ALIGN(check, 0.5, 0.5);
+   EPHOTO_ALIGN(check, 0.5, 0.0);
    elm_check_state_set(check, ephoto->config->movess);
    elm_table_pack(table, check, 0, 0, 2, 1);
    evas_object_show(check);
@@ -305,30 +305,20 @@ _config_slideshow(Ephoto *ephoto, Evas_Object *parent)
 static Evas_Object *
 _config_settings(Ephoto *ephoto, Evas_Object *parent, Eina_Bool slideshow)
 {
-   Evas_Object *frame, *vbox;
+   Evas_Object *box;
 
-   frame = elm_frame_add(parent);
-   if (!slideshow)
-     elm_object_text_set(frame, _("General"));
-   else
-     elm_object_text_set(frame, _("Slideshow"));
-   EPHOTO_EXPAND(frame);
-   EPHOTO_FILL(frame);
-   evas_object_show(frame);
-
-   vbox = elm_box_add(frame);
-   elm_box_horizontal_set(vbox, EINA_FALSE);
-   EPHOTO_EXPAND(vbox);
-   EPHOTO_FILL(vbox);
-   elm_object_content_set(frame, vbox);
-   evas_object_show(vbox);
+   box = elm_box_add(parent);
+   elm_box_horizontal_set(box, EINA_FALSE);
+   EPHOTO_EXPAND(box);
+   EPHOTO_FILL(box);
+   evas_object_show(box);
 
    if (!slideshow)
-     _config_general(ephoto, vbox);
+     _config_general(ephoto, box);
    else
-     _config_slideshow(ephoto, vbox);
+     _config_slideshow(ephoto, box);
 
-   return frame;
+   return box;
 }
 
 static void
@@ -389,29 +379,16 @@ _link_anchor(void *data, Evas_Object *obj, void *event_info)
 static Evas_Object *
 _config_bindings(Evas_Object *parent)
 {
-   Evas_Object *frame, *box, *scroller, *entry;
+   Evas_Object *box, *entry;
    Eina_Strbuf *sbuf = eina_strbuf_new();
-
-   frame = elm_frame_add(parent);
-   elm_object_text_set(frame, _("Bindings"));
-   EPHOTO_EXPAND(frame);
-   EPHOTO_FILL(frame);
-   evas_object_show(frame);
 
    box = elm_box_add(parent);
    elm_box_horizontal_set(box, EINA_FALSE);
    EPHOTO_EXPAND(box);
    EPHOTO_FILL(box);
-   elm_object_content_set(frame, box);
    evas_object_show(box);
 
-   scroller = elm_scroller_add(box);
-   EPHOTO_EXPAND(scroller);
-   EPHOTO_FILL(scroller);
-   elm_box_pack_end(box, scroller);
-   evas_object_show(scroller);
-
-   entry = elm_entry_add(scroller);
+   entry = elm_entry_add(box);
    elm_entry_editable_set(entry, EINA_FALSE);
    elm_entry_line_wrap_set(entry, ELM_WRAP_NONE);
    EPHOTO_WEIGHT(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -465,38 +442,24 @@ _config_bindings(Evas_Object *parent)
                                "<b>End:</b> Navigate Last<br/>"
                                "<b>Escape:</b> Quit Slideshow<br/>"));
    elm_object_text_set(entry, eina_strbuf_string_get(sbuf));
-   elm_object_content_set(scroller, entry);
+   elm_box_pack_end(box, entry);
    evas_object_show(entry);
 
-   return frame;
+   return box;
 }
 
 static Evas_Object *
 _config_about(Evas_Object *parent)
 {
-   Evas_Object *frame, *box, *entry, *img, *lbl;
-   Evas_Object *scroller;
+   Evas_Object *box, *entry, *img, *lbl;
    Eina_Strbuf *sbuf = eina_strbuf_new();
    char ver[PATH_MAX];
    FILE *f;
 
-   frame = elm_frame_add(parent);
-   elm_object_text_set(frame, _("About"));
-   EPHOTO_EXPAND(frame);
-   EPHOTO_FILL(frame);
-   evas_object_show(frame);
-
-   scroller = elm_scroller_add(frame);
-   EPHOTO_EXPAND(scroller);
-   EPHOTO_FILL(scroller);
-   elm_object_content_set(frame, scroller);
-   evas_object_show(scroller);
-
-   box = elm_box_add(frame);
+   box = elm_box_add(parent);
    elm_box_horizontal_set(box, EINA_FALSE);
    EPHOTO_EXPAND(box);
    EPHOTO_FILL(box);
-   elm_object_content_set(scroller, box);
    evas_object_show(box);
 
    img = elm_image_add(box);
@@ -512,7 +475,7 @@ _config_about(Evas_Object *parent)
 
    lbl = elm_label_add(box);
    elm_object_text_set(lbl, ver);
-   EPHOTO_EXPAND(lbl);
+   EPHOTO_WEIGHT(lbl, EVAS_HINT_EXPAND, EVAS_HINT_FILL);
    EPHOTO_FILL(lbl);
    elm_box_pack_end(box, lbl);
    evas_object_show(lbl);
@@ -586,7 +549,7 @@ _config_about(Evas_Object *parent)
    elm_box_pack_end(box, entry);
    evas_object_show(entry);
 
-   return frame;
+   return box;
 }
 
 static void
@@ -598,11 +561,17 @@ _list_clicked(void *data, Evas_Object *o, void *event EINA_UNUSED)
    Evas_Object *slideshow = evas_object_data_get(o, "slideshow");
    Evas_Object *kb = evas_object_data_get(o, "bindings");
    Evas_Object *about = evas_object_data_get(o, "about");
+   Evas_Object *pager = evas_object_data_get(o, "pager");
 
    evas_object_hide(settings);
    evas_object_hide(slideshow);
    evas_object_hide(kb);
    evas_object_hide(about);
+   elm_box_unpack(pager, settings);
+   elm_box_unpack(pager, slideshow);
+   elm_box_unpack(pager, kb);
+   elm_box_unpack(pager, about);
+   elm_box_pack_end(pager, page);
    evas_object_show(page);
 }
 
@@ -677,8 +646,8 @@ save_end:
 void
 ephoto_config_main(Ephoto *ephoto)
 {
-   Evas_Object *popup, *table, *list, *ic;
-   Evas_Object *slideshow, *settings, *kb, *about;
+   Evas_Object *popup, *box, *scroller, *table, *list, *ic;
+   Evas_Object *slideshow, *settings, *kb, *about, *pager;
    Elm_Object_Item *slideshowi, *settingsi, *kbi, *abouti;
 
    popup = elm_popup_add(ephoto->win);
@@ -687,32 +656,49 @@ ephoto_config_main(Ephoto *ephoto)
    elm_popup_orient_set(popup, ELM_POPUP_ORIENT_CENTER);
    evas_object_smart_callback_add(popup, "block,clicked", _config_save_cb, popup);
 
-   table = elm_table_add(popup);
+   box = elm_box_add(popup);
+   EPHOTO_EXPAND(box);
+   EPHOTO_FILL(box);
+   evas_object_size_hint_min_set(box, ephoto->config->window_width / 2,
+                                 ephoto->config->window_height / 2);
+   evas_object_show(box);
+
+   scroller = elm_scroller_add(box);
+   EPHOTO_EXPAND(scroller);
+   EPHOTO_FILL(scroller);
+   elm_box_pack_end(box, scroller);
+   evas_object_show(scroller);
+
+   table = elm_table_add(scroller);
    elm_table_homogeneous_set(table, EINA_FALSE);
    EPHOTO_EXPAND(table);
    EPHOTO_FILL(table);
-
-   settings = _config_settings(ephoto, table, EINA_FALSE);
-   elm_table_pack(table, settings, 1, 0, 1, 1);
-   kb = _config_bindings(table);
-   elm_table_pack(table, kb, 1, 0, 1, 1);
-   about = _config_about(table);
-   elm_table_pack(table, about, 1, 0, 1, 1);
-   slideshow = _config_settings(ephoto, table, EINA_TRUE);
-   elm_table_pack(table, slideshow, 1, 0, 1, 1);
+   evas_object_show(table);
 
    list = elm_list_add(table);
    elm_list_select_mode_set(list, ELM_OBJECT_SELECT_MODE_ALWAYS);
    elm_scroller_content_min_limit(list, 1, 1);
-   EPHOTO_EXPAND(list);
+   EPHOTO_WEIGHT(list, EVAS_HINT_FILL, EVAS_HINT_EXPAND);
    EPHOTO_FILL(list);
    elm_table_pack(table, list, 0, 0, 1, 1);
    evas_object_show(list);
+
+   pager = elm_box_add(table);
+   EPHOTO_EXPAND(pager);
+   EPHOTO_FILL(pager);
+   elm_table_pack(table, pager, 1, 0, 2, 1);
+   evas_object_show(pager);
+
+   settings = _config_settings(ephoto, pager, EINA_FALSE);
+   kb = _config_bindings(pager);
+   about = _config_about(pager);
+   slideshow = _config_settings(ephoto, pager, EINA_TRUE);
 
    evas_object_data_set(list, "settings", settings);
    evas_object_data_set(list, "slideshow", slideshow);
    evas_object_data_set(list, "bindings", kb);
    evas_object_data_set(list, "about", about);
+   evas_object_data_set(list, "pager", pager);
 
    ic = elm_icon_add(list);
    evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
@@ -748,14 +734,13 @@ ephoto_config_main(Ephoto *ephoto)
    elm_object_item_data_set(slideshowi, slideshow);
    elm_object_item_data_set(kbi, kb);
    elm_object_item_data_set(abouti, about);
-   evas_object_hide(slideshow);
-   evas_object_hide(kb);
-   evas_object_hide(about);
 
+   _list_clicked(settings, NULL, NULL);   
    elm_list_item_selected_set(settingsi, EINA_TRUE);
 
-   evas_object_show(table);
-   elm_object_content_set(popup, table);
+   elm_object_content_set(scroller, table);
+
+   elm_object_content_set(popup, box);
    evas_object_data_set(popup, "ephoto", ephoto);
    evas_object_show(popup);
 

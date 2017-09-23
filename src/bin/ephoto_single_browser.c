@@ -1092,6 +1092,17 @@ _upload_image(void *data, Evas_Object *obj EINA_UNUSED,
 }
 
 static void
+_view_exif(void *data, Evas_Object *obj EINA_UNUSED,
+              void *event_info EINA_UNUSED)
+{
+   Ephoto_Single_Browser *sb = data;
+
+#ifdef HAVE_LIBEXIF
+   ephoto_file_exif_data(sb->ephoto, sb->entry->path);
+#endif
+}
+
+static void
 _delete_image(void *data, Evas_Object *obj EINA_UNUSED,
               void *event_info EINA_UNUSED)
 {
@@ -1905,6 +1916,11 @@ _add_edit_menu_items(Ephoto_Single_Browser *sb, Evas_Object *menu)
                      _delete_image, sb);
    elm_menu_item_add(menu, menu_it, "document-send", _("Upload"), _upload_image,
                      sb);
+#ifdef HAVE_LIBEXIF
+   if (ephoto_file_has_exif(sb->entry->path))
+     elm_menu_item_add(menu, menu_it, "document-properties", _("Properties"),
+                       _view_exif, sb);
+#endif
    elm_menu_item_separator_add(menu, NULL);
    elm_menu_item_add(menu, NULL, "zoom-fit", _("Zoom Fit"), _zoom_fit_cb,
                      sb);

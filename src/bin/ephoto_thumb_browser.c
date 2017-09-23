@@ -1765,7 +1765,7 @@ _ephoto_main_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNU
         if (it)
           {
              evas_object_data_del(tb->main, "rename_item");
-             evas_object_data_set(tb->main, "rename_item", tb);
+             evas_object_data_set(tb->main, "rename_item", it);
              _grid_menu_rename_cb(tb, NULL, NULL);
           }
      }

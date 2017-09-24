@@ -2,6 +2,16 @@
 #ifdef HAVE_LIBEXIF
 #include <libexif/exif-data.h>
 
+typedef struct _Ephoto_Exif_Animator Ephoto_Exif_Animator;
+struct _Ephoto_Exif_Animator
+{
+   Ecore_Idler *todo;
+   Eina_List *todo_items;
+   Evas_Object *parent;
+   int count;
+   int processed;
+};
+
 Eina_Bool
 ephoto_file_has_exif(const char *file)
 {
@@ -45,6 +55,53 @@ ephoto_file_get_exif_data(Ephoto *ephoto EINA_UNUSED, const char *file)
    return hash;
 }
 
+static Eina_Bool
+_exif_items_process(void *data)
+{
+   Ephoto_Exif_Animator *animator = data;
+   Eina_Hash_Tuple *t;
+   Evas_Object *label, *entry;
+   int i = 0;
+   const char *key, *value;
+
+   if (animator->processed == animator->count)
+     {
+        ecore_idler_del(animator->todo);
+        free(animator);
+        return EINA_FALSE;
+     }
+   EINA_LIST_FREE(animator->todo_items, t)
+     {
+        if (i > 3)
+          return EINA_TRUE;
+
+        key = t->key;
+        value = t->data;
+
+        label = elm_label_add(animator->parent);
+        elm_object_text_set(label, key);
+        EPHOTO_ALIGN(label, 0.0, 0.5);
+        elm_table_pack(animator->parent, label, 0,
+                       animator->processed, 1, 1);
+        evas_object_show(label);
+
+        entry = elm_entry_add(animator->parent);
+        elm_entry_single_line_set(entry, EINA_TRUE);
+        elm_entry_scrollable_set(entry, EINA_TRUE);
+        elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF,
+                                ELM_SCROLLER_POLICY_OFF);
+        elm_object_text_set(entry, value);
+        EPHOTO_EXPAND(entry);
+        EPHOTO_FILL(entry);
+        elm_table_pack(animator->parent, entry, 1,
+                       animator->processed, 1, 1);
+        evas_object_show(entry);
+        animator->processed++;
+        i++;
+     }
+   return EINA_TRUE;
+}
+
 static void
 _exif_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
                 void *event_info EINA_UNUSED)
@@ -60,11 +117,17 @@ ephoto_file_exif_data(Ephoto *ephoto, const char *file)
    Eina_Hash *hash = NULL;
    Eina_Iterator *it = NULL;
    Eina_Hash_Tuple *t = NULL;
-   Evas_Object *popup, *box, *scroller, *list, *label, *entry;
-   const char *key = NULL, *value = NULL;
-   int i = 0;
+   Evas_Object *popup, *box, *scroller, *list;
+   Ephoto_Exif_Animator *animator;
 
    hash = ephoto_file_get_exif_data(ephoto, file);
+   if (!hash)
+     return;
+
+   animator = calloc(1, sizeof(Ephoto_Exif_Animator));
+   animator->todo_items = NULL;
+   animator->count = 0;
+   animator->processed = 0;
 
    popup = elm_popup_add(ephoto->win);
    elm_popup_scrollable_set(popup, EINA_TRUE);
@@ -92,31 +155,15 @@ ephoto_file_exif_data(Ephoto *ephoto, const char *file)
    elm_object_content_set(scroller, list);
    evas_object_show(list);
 
+   animator->parent = list;
+
    it = eina_hash_iterator_tuple_new(hash);
    EINA_ITERATOR_FOREACH(it, t)
      {
-        key = t->key;
-        value = t->data;
-
-        label = elm_label_add(list);
-        elm_object_text_set(label, key);
-        EPHOTO_ALIGN(label, 0.0, 0.5);
-        elm_table_pack(list, label, 0, i, 1, 1);
-        evas_object_show(label);
-
-        entry = elm_entry_add(list);
-        elm_entry_single_line_set(entry, EINA_TRUE);
-        elm_entry_scrollable_set(entry, EINA_TRUE);
-        elm_scroller_policy_set(entry, ELM_SCROLLER_POLICY_OFF,
-                                ELM_SCROLLER_POLICY_OFF);
-        elm_object_text_set(entry, value);
-        EPHOTO_EXPAND(entry);
-        EPHOTO_FILL(entry);
-        elm_table_pack(list, entry, 1, i, 1, 1);
-        evas_object_show(entry);
-
-        i++;
+        animator->todo_items = eina_list_append(animator->todo_items, t);
+        animator->count++;
      }
+   animator->todo = ecore_idler_add(_exif_items_process, animator);
    eina_iterator_free(it);
 
    evas_object_data_set(popup, "ephoto", ephoto);

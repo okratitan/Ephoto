@@ -59,18 +59,20 @@ endif
 ##### Check for arpa/inet and netinet/in.h
 if cc.has_header('arpa/inet.h') == true
     cfg.set       ('HAVE_ARPA_INET_H'    , 1)
-else
-    cfg.set       ('HAVE_ARPA_INET_H'    , 0)
 endif
 if cc.has_header('netinet/in.h') == true
     cfg.set       ('HAVE_NETINET_IN_H'   , 1)
-else
-    cfg.set       ('HAVE_NETINET_IN_H'   , 0)
 endif
 if exif.found() == true
     cfg.set       ('HAVE_LIBEXIF'        , 1)
-else
-    cfg.set       ('HAVE_LIBEXIF'        , 0)
+endif
+if get_option('nls') == true
+    if cc.has_header('locale.h') == true
+        if cc.has_header('libintl.h') == true
+           cfg.set ('HAVE_GETTEXT'        , 1)
+        endif
+    endif
+    cfg.set       ('ENABLE_NLS'          , 1)
 endif
 configure_file(output: 'config.h', configuration: cfg)
 

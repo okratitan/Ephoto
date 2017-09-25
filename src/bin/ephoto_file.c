@@ -12,24 +12,31 @@ struct _Ephoto_Exif_Animator
    int processed;
 };
 
+typedef struct _Ephoto_Exif_Item Ephoto_Exif_Item;
+struct _Ephoto_Exif_Item
+{
+   unsigned int tag;
+   unsigned int ifd;
+   const char *title;
+   const char *value;
+};
+
 Eina_Bool
 ephoto_file_has_exif(const char *file)
 {
    ExifData *ed = exif_data_new_from_file(file);
-
-   ed = exif_data_new_from_file(file);
    if (!ed) return EINA_FALSE;
    
    exif_data_unref(ed);
    return EINA_TRUE;
 }
 
-Eina_Hash *
-ephoto_file_get_exif_data(Ephoto *ephoto EINA_UNUSED, const char *file)
+Eina_List *
+ephoto_file_get_exif_data(const char *file)
 {
    ExifData *ed = exif_data_new_from_file(file);
    ExifEntry *ee = NULL;
-   Eina_Hash *hash = eina_hash_string_superfast_new(NULL);
+   Eina_List *list = NULL;
    unsigned int tag, val;
    const char *title = NULL;
    char value[1024];
@@ -43,26 +50,32 @@ ephoto_file_get_exif_data(Ephoto *ephoto EINA_UNUSED, const char *file)
              ee = exif_content_get_entry(ed->ifd[val], tag);
              if (ee)
                {
+                  Ephoto_Exif_Item *eei;
+
+                  eei = calloc(1, sizeof(Ephoto_Exif_Item));
+                  eei->tag = tag;
+                  eei->ifd = val;
+                  eei->title = title;
                   exif_entry_ref(ee);
                   exif_entry_get_value(ee, value, 1024);
-                  eina_hash_add(hash, eina_stringshare_add(title),
-                                eina_stringshare_add(value));
-                  exif_entry_unref(ee);
+                  eei->value = eina_stringshare_add(value);
+                  list = eina_list_append(list, eei);
+		  exif_entry_unref(ee);
                }
           }
      }
    exif_data_unref(ed);
-   return hash;
+   return list;
 }
 
 static Eina_Bool
 _exif_items_process(void *data)
 {
    Ephoto_Exif_Animator *animator = data;
-   Eina_Hash_Tuple *t;
    Evas_Object *label, *entry;
    int i = 0;
-   const char *key, *value;
+   const char *value, *key;
+   Ephoto_Exif_Item *eei;
 
    if (animator->processed == animator->count)
      {
@@ -70,13 +83,13 @@ _exif_items_process(void *data)
         free(animator);
         return EINA_FALSE;
      }
-   EINA_LIST_FREE(animator->todo_items, t)
+   EINA_LIST_FREE(animator->todo_items, eei)
      {
         if (i > 3)
           return EINA_TRUE;
 
-        key = t->key;
-        value = t->data;
+        key = eei->title;
+        value = eei->value;
 
         label = elm_label_add(animator->parent);
         elm_object_text_set(label, key);
@@ -103,25 +116,38 @@ _exif_items_process(void *data)
 }
 
 static void
+_exif_list_free(Eina_List *list)
+{
+   Ephoto_Exif_Item *eei;
+
+   EINA_LIST_FREE(list, eei)
+     {
+        eina_stringshare_del(eei->value);
+	free(eei);
+     }
+}
+
+static void
 _exif_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
                 void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
+   Eina_List *list = evas_object_data_get(popup, "list");
 
+   _exif_list_free(list);
    evas_object_del(popup);
 }
 
 void
 ephoto_file_exif_data(Ephoto *ephoto, const char *file)
 {
-   Eina_Hash *hash = NULL;
-   Eina_Iterator *it = NULL;
-   Eina_Hash_Tuple *t = NULL;
-   Evas_Object *popup, *box, *scroller, *list;
+   Eina_List *list = NULL, *l = NULL;
+   Evas_Object *popup, *box, *scroller, *table;
    Ephoto_Exif_Animator *animator;
+   Ephoto_Exif_Item *eei;
 
-   hash = ephoto_file_get_exif_data(ephoto, file);
-   if (!hash)
+   list = ephoto_file_get_exif_data(file);
+   if (!list)
      return;
 
    animator = calloc(1, sizeof(Ephoto_Exif_Animator));
@@ -148,24 +174,23 @@ ephoto_file_exif_data(Ephoto *ephoto, const char *file)
    elm_box_pack_end(box, scroller);
    evas_object_show(scroller);
 
-   list = elm_table_add(scroller);
-   elm_table_homogeneous_set(list, EINA_FALSE);
-   EPHOTO_EXPAND(list);
-   EPHOTO_FILL(list);
-   elm_object_content_set(scroller, list);
-   evas_object_show(list);
+   table = elm_table_add(scroller);
+   elm_table_homogeneous_set(table, EINA_FALSE);
+   EPHOTO_EXPAND(table);
+   EPHOTO_FILL(table);
+   elm_object_content_set(scroller, table);
+   evas_object_show(table);
 
-   animator->parent = list;
+   animator->parent = table;
 
-   it = eina_hash_iterator_tuple_new(hash);
-   EINA_ITERATOR_FOREACH(it, t)
+   EINA_LIST_FOREACH(list, l, eei)
      {
-        animator->todo_items = eina_list_append(animator->todo_items, t);
+        animator->todo_items = eina_list_append(animator->todo_items, eei);
         animator->count++;
      }
    animator->todo = ecore_idler_add(_exif_items_process, animator);
-   eina_iterator_free(it);
 
+   evas_object_data_set(popup, "list", list);
    evas_object_data_set(popup, "ephoto", ephoto);
    elm_object_part_content_set(popup, "default", box);
    evas_object_show(popup);

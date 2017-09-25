@@ -161,7 +161,7 @@ void         ephoto_filter_histogram_eq(Ephoto *ephoto, Evas_Object *image);
 /*file functions*/
 #ifdef HAVE_LIBEXIF
 Eina_Bool    ephoto_file_has_exif(const char *file);
-Eina_Hash   *ephoto_file_get_exif_data(Ephoto *ephoto, const char *file);
+Eina_List   *ephoto_file_get_exif_data(const char *file);
 void         ephoto_file_exif_data(Ephoto *ephoto, const char *file);
 #endif
 void         ephoto_file_save_image(Ephoto *ephoto, Ephoto_Entry *entry,

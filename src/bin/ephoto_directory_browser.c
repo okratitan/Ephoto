@@ -1232,8 +1232,10 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
      evas_object_data_get(ephoto->dir_browser, "directory_browser");
    Eina_List *dirs = NULL, *l;
    Elm_Object_Item *next = NULL, *cur = NULL;
-   char path[PATH_MAX], *dir, *end_dir;
+   Ephoto_Entry *tentry = NULL;
+   char top[PATH_MAX], path[PATH_MAX], *dir, *end_dir;
    int count = 0;
+   const Elm_Genlist_Item_Class *tic;
 
    end_dir = strdup(ephoto->config->directory);
    if (strcmp(ephoto->config->open, ephoto->config->directory))
@@ -1257,6 +1259,15 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
              dir = NULL;
           }
      }
+   snprintf(top, PATH_MAX, "%s", ephoto->config->open);
+   tentry = ephoto_entry_new(ephoto, ephoto->config->open, basename(top),
+                             EINA_FILE_DIR);
+   tentry->parent = NULL;
+   tic = _ephoto_dir_tree_class;
+   tentry->item = elm_genlist_item_sorted_insert(db->fsel, tic, tentry,
+                                           NULL, ELM_GENLIST_ITEM_TREE,
+                                           _entry_cmp, NULL, NULL);
+   elm_genlist_item_expanded_set(tentry->item, EINA_TRUE);
    EINA_LIST_FOREACH(dirs, l, dir)
      {
         Eina_Iterator *it;
@@ -1265,7 +1276,9 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
 
         it = eina_file_stat_ls(dir);
         cur = next;
-        EINA_ITERATOR_FOREACH(it, finfo)
+        if (!cur)
+          cur = tentry->item;
+	EINA_ITERATOR_FOREACH(it, finfo)
           {
              char *rp = ecore_file_realpath(finfo->path);
              if (finfo->type != EINA_FILE_DIR && finfo->type != EINA_FILE_LNK)
@@ -1340,7 +1353,7 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
      }
    else
      {
-        ephoto_directory_set(ephoto, ephoto->config->directory, NULL,
+        ephoto_directory_set(ephoto, ephoto->config->directory, tentry->item,
                              EINA_FALSE, EINA_FALSE);
         ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
      }

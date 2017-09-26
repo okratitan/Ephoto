@@ -523,7 +523,7 @@ _fsel_menu_go_root(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EI
    ephoto_thumb_browser_clear(ephoto);
    eina_stringshare_replace(&ephoto->config->directory, rp);
    ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
-   ephoto_directory_browser_initialize_structure(ephoto);
+   ephoto_directory_browser_initialize_structure(ephoto, rp);
    free(rp);
 }
 
@@ -538,7 +538,7 @@ _fsel_menu_go_home(void *data, Evas_Object *obj EINA_UNUSED, void *event_data EI
    ephoto_thumb_browser_clear(ephoto);
    eina_stringshare_replace(&ephoto->config->directory, rp);
    ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
-   ephoto_directory_browser_initialize_structure(ephoto);
+   ephoto_directory_browser_initialize_structure(ephoto, rp);
    free(rp);
 }
 
@@ -1226,7 +1226,7 @@ ephoto_directory_browser_top_dir_set(Ephoto *ephoto, const char *dir)
 }
 
 void
-ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
+ephoto_directory_browser_initialize_structure(Ephoto *ephoto, char *rp)
 {
    Ephoto_Directory_Browser *db =
      evas_object_data_get(ephoto->dir_browser, "directory_browser");
@@ -1259,8 +1259,8 @@ ephoto_directory_browser_initialize_structure(Ephoto *ephoto)
              dir = NULL;
           }
      }
-   snprintf(top, PATH_MAX, "%s", ephoto->config->open);
-   tentry = ephoto_entry_new(ephoto, ephoto->config->open, basename(top),
+   snprintf(top, PATH_MAX, "%s", rp);
+   tentry = ephoto_entry_new(ephoto, rp, basename(top),
                              EINA_FILE_DIR);
    tentry->parent = NULL;
    tic = _ephoto_dir_tree_class;

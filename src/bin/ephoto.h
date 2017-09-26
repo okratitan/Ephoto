@@ -110,7 +110,7 @@ void         ephoto_thumb_browser_dirs_only_set(Ephoto *ephoto, Eina_Bool dirs_o
 
 /*directory browser functions*/
 Evas_Object *ephoto_directory_browser_add(Ephoto *ephoto, Evas_Object *parent);
-void         ephoto_directory_browser_initialize_structure(Ephoto *ephoto);
+void         ephoto_directory_browser_initialize_structure(Ephoto *ephoto, char *rp);
 void         ephoto_directory_browser_top_dir_set(Ephoto *ephoto, const char *dir);
 void         ephoto_directory_browser_clear(Ephoto *ephoto);
 

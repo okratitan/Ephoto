@@ -35,7 +35,7 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
         ephoto_thumb_browser_clear(ephoto);
         eina_stringshare_replace(&ephoto->config->directory, rp);
         ephoto_directory_browser_top_dir_set(ephoto, ephoto->config->directory);
-        ephoto_directory_browser_initialize_structure(ephoto);
+        ephoto_directory_browser_initialize_structure(ephoto, rp);
         free(rp);
      }
    ephoto->config->prompts = elm_check_state_get(ephoto->config->show_prompts);

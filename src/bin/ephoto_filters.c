@@ -1122,7 +1122,7 @@ ephoto_filter_painting(Ephoto *ephoto, Evas_Object *image)
    Ephoto_Filter *ef = _initialize_filter(EPHOTO_IMAGE_FILTER_PAINTING,
                                           ephoto, image);
 
-   ef->rad = 5;
+   ef->rad = 3;
    ef->drad = 5.0;
    ef->qpos = 0;
    ef->qcount = 1;

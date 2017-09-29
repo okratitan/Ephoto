@@ -1,11 +1,12 @@
 TODO:
 ==Single Browser==
 -Add more effects, filters as necessary
--Clean up Cropper
+-Implement an Instagram like quick filter panel.
+-Clean up cropper
 ==Slideshow==
--Smoother Movement
+-Smoother movement
 ==Thumb Browser==
--Add ability to view more info on image(Exif perhaps?)
+Make multi selection smoother
 ==Other Possibilities==
 -Exporting to flickr, facebook, gplus, etc..
 -Read straight from a camera

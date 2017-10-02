@@ -49,7 +49,7 @@ _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
    evas_object_freeze_events_set(ephoto->single_browser, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->slideshow, EINA_TRUE);
    evas_object_freeze_events_set(ephoto->thumb_browser, EINA_FALSE);
-   if ((entry) && (entry->item))
+   if ((entry) && (entry->item) && (!ephoto->thumb_browser_dirty))
      {
         Eina_List *l;
         Elm_Object_Item *it;
@@ -63,6 +63,8 @@ _ephoto_thumb_browser_show(Ephoto *ephoto, Ephoto_Entry *entry)
              elm_gengrid_item_selected_set(entry->item, EINA_TRUE);
           }
      }
+   else
+     ephoto_thumb_browser_recalc(ephoto);
    ephoto_single_browser_entry_set(ephoto->single_browser, NULL);
    ephoto_slideshow_entry_set(ephoto->slideshow, NULL);
 }
@@ -370,6 +372,7 @@ ephoto_window_add(const char *path)
 
    ephoto->selentries = NULL;
    ephoto->folders_toggle = EINA_FALSE;
+   ephoto->thumb_browser_dirty = EINA_FALSE;
    ephoto->entries = NULL;
    ephoto->sort = EPHOTO_SORT_ALPHABETICAL_ASCENDING;
    ephoto->win = elm_win_util_standard_add("ephoto", "Ephoto");

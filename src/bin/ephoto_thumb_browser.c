@@ -1917,6 +1917,7 @@ ephoto_thumb_browser_recalc(Ephoto *ephoto)
    ephoto_thumb_browser_clear(ephoto);
    ephoto_directory_set(ephoto, ephoto->config->directory,
                         NULL, 0, 1);
+   ephoto->thumb_browser_dirty = EINA_FALSE;
 }
 
 void

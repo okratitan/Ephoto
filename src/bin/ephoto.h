@@ -270,6 +270,7 @@ struct _Ephoto
    Evas_Object   *file_popup;
 
    Eina_Bool      folders_toggle;
+   Eina_Bool      thumb_browser_dirty;
    Eina_List     *entries;
    Eina_List     *selentries;
    Eina_List     *searchentries;

@@ -65,6 +65,8 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
    if (ephoto->state == EPHOTO_STATE_THUMB)
      ephoto_thumb_browser_recalc(ephoto);
+   else
+     ephoto->thumb_browser_dirty = EINA_TRUE;
 }
 
 static void

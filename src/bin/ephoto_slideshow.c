@@ -382,6 +382,7 @@ _on_transition_end(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_show(ss->current_item);
    elm_layout_signal_emit(ss->slideshow, "ephoto,transition,done", "ephoto");
 
+   ss->timeout = ss->ephoto->config->slideshow_timeout;
    if (ss->timer)
      ecore_timer_del(ss->timer);
    ss->timer = NULL;

@@ -332,7 +332,7 @@ ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle)
    if (!ephoto->folders_toggle || !toggle)
      {
         evas_object_show(ephoto->dir_browser);
-        elm_box_pack_end(ephoto->layout, ephoto->dir_browser);
+        elm_box_pack_start(ephoto->layout, ephoto->dir_browser);
         ephoto->folders_toggle = EINA_TRUE;
         ret = elm_icon_standard_set(ephoto->folders_icon, "folder-open");
         if (!ret)

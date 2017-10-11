@@ -272,8 +272,11 @@ _folder_icon_clicked(void *data, Evas_Object *obj,
 
    if (!ephoto->folders_toggle)
      {
-        evas_object_show(ephoto->dir_browser);
-        elm_box_pack_start(ephoto->layout, ephoto->dir_browser);
+        if (!evas_object_visible_get(ephoto->dir_browser))
+          {
+             evas_object_show(ephoto->dir_browser);
+             elm_box_pack_start(ephoto->layout, ephoto->dir_browser);
+          }
         ephoto->folders_toggle = EINA_TRUE;
         ret = elm_icon_standard_set(ephoto->folders_icon, "folder-open");
         if (!ret)
@@ -331,8 +334,11 @@ ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle)
 
    if (!ephoto->folders_toggle || !toggle)
      {
-        evas_object_show(ephoto->dir_browser);
-        elm_box_pack_start(ephoto->layout, ephoto->dir_browser);
+        if (!evas_object_visible_get(ephoto->dir_browser))
+          {
+             evas_object_show(ephoto->dir_browser);
+             elm_box_pack_start(ephoto->layout, ephoto->dir_browser);
+          }
         ephoto->folders_toggle = EINA_TRUE;
         ret = elm_icon_standard_set(ephoto->folders_icon, "folder-open");
         if (!ret)

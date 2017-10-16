@@ -1,4 +1,4 @@
 option('nls',
         type: 'boolean',
-        default: true,
+        value: true,
         description: 'enable localization: (default=true)')

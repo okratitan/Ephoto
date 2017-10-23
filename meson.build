@@ -81,5 +81,8 @@ if get_option('nls') == true
   subdir('po')
 endif
 
+install_data('AUTHORS',
+             install_dir: join_paths(dir_data, 'ephoto'))
+
 subdir('src')
 subdir('data')

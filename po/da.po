@@ -1,0 +1,638 @@
+# Danish translation for ephoto.
+# Copyright (C) YEAR Stephen "okra" Houston
+# This file is distributed under the same license as the ephoto package.
+# scootergrisen, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ephoto 1.5\n"
+"Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2017-08-21 16:02-0500\n"
+"PO-Revision-Date: 2017-11-04 00:00+0000\n"
+"Last-Translator: scootergrisen\n"
+"Language-Team: Danish\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/bin/ephoto_bcg.c:325 src/bin/ephoto_single_browser.c:1818
+msgid "Brightness/Contrast/Gamma"
+msgstr "Lysstyrke/kontrast/gamma"
+
+#: src/bin/ephoto_bcg.c:331
+msgid "Gamma"
+msgstr "Gamma"
+
+#: src/bin/ephoto_bcg.c:346
+msgid "Contrast"
+msgstr "Kontrast"
+
+#: src/bin/ephoto_bcg.c:361
+msgid "Brightness"
+msgstr "Lysstyrke"
+
+#: src/bin/ephoto_config.c:19 src/bin/ephoto_config.c:158
+msgid "Root Directory"
+msgstr "Rodmappe"
+
+#: src/bin/ephoto_config.c:21 src/bin/ephoto_config.c:160
+msgid "Home Directory"
+msgstr "Hjemmemappe"
+
+#: src/bin/ephoto_config.c:23 src/bin/ephoto_config.c:162
+msgid "Last Open Directory"
+msgstr "Sidst åbne mappe"
+
+#: src/bin/ephoto_config.c:73 src/bin/ephoto_config.c:164
+#: src/bin/ephoto_config.c:177
+msgid "Custom Directory"
+msgstr "Tilpasset mappe"
+
+#: src/bin/ephoto_config.c:92
+msgid "Show Folders On Start"
+msgstr "Vis mapper ved opstart"
+
+#: src/bin/ephoto_config.c:100
+msgid "Prompt Before Changing The Filesystem"
+msgstr "Spørg inden filsystemet ændres"
+
+#: src/bin/ephoto_config.c:108
+msgid "Move Files When Dropped"
+msgstr "Flyt filer når de slippes"
+
+#: src/bin/ephoto_config.c:116
+msgid "Smooth Scale Images"
+msgstr "Udjævnet skalering af billeder"
+
+#: src/bin/ephoto_config.c:124
+msgid "Keep Aspect on Thumbnails"
+msgstr "Bevar højde-bredde-forhold på miniaturer"
+
+#: src/bin/ephoto_config.c:132
+msgid "File Panel Size"
+msgstr "Filpanelets størrelse"
+
+#: src/bin/ephoto_config.c:139
+msgid "Weight (1.0 Max)"
+msgstr "Vægtning (1.0 maks.)"
+
+#: src/bin/ephoto_config.c:151
+msgid "Top Level Directory"
+msgstr "Øverste mappe"
+
+#: src/bin/ephoto_config.c:202
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "sekund"
+msgstr[1] "sekunder"
+
+#: src/bin/ephoto_config.c:247
+msgid "Moving Slideshow"
+msgstr "Flytter diasshow"
+
+#: src/bin/ephoto_config.c:256
+msgid "Show Each Slide For"
+msgstr "Vis hvert billede i"
+
+#: src/bin/ephoto_config.c:265
+msgid "seconds"
+msgstr "sekunder"
+
+#: src/bin/ephoto_config.c:277
+msgid "Slide Transition"
+msgstr "Billedovergang"
+
+#: src/bin/ephoto_config.c:309 src/bin/ephoto_config.c:715
+msgid "General"
+msgstr "Generelt"
+
+#: src/bin/ephoto_config.c:311 src/bin/ephoto_config.c:722
+#: src/bin/ephoto_main.c:522 src/bin/ephoto_main.c:525
+msgid "Slideshow"
+msgstr "Diasshow"
+
+#: src/bin/ephoto_config.c:370
+msgid "Open Link In Browser"
+msgstr "Åbn link i browser"
+
+#: src/bin/ephoto_config.c:378
+msgid "Copy Link"
+msgstr "Kopiér link"
+
+#: src/bin/ephoto_config.c:393 src/bin/ephoto_config.c:729
+msgid "Bindings"
+msgstr "Bindinger"
+
+#: src/bin/ephoto_config.c:417
+msgid ""
+"<b><hilight>General Bindings</hilight></b><br/><b>F1:</b> Settings Panel<br/"
+"><b>F5:</b> Start Slideshow<br/><b>F11:</b> Toggle Fullscreen<br/><b>Ctrl"
+"+Shift+f:</b> Toggle File Selector<br/><br/><b><hilight>Thumbnail Browser "
+"Bindings</hilight></b><br/><b>Ctrl++:</b> Zoom In<br/><b>Ctrl+-:</b> Zoom "
+"Out<br/><b>Ctrl+Tab:</b> View Image<br/><b>Ctrl+c:</b> Copy Image<br/><b>Ctrl"
+"+x:</b> Cut Image<br/><b>Ctrl+v:</b> Paste Image<br/><b>Ctrl+a:</b> Select "
+"All<br/><b>Ctrl+f:</b> Toggle Search<br/><b>Ctrl+Delete:</b> Delete Image<br/"
+"><b>F2:</b> Rename Image<br/><b>Escape:</b> Clear Selection<br/><br/"
+"><b><hilight>Single Browser Bindings</hilight></b><br/><b>Ctrl+Shift+0:</b> "
+"Zoom 1:1<br/><b>Ctrl++:</b> Zoom In<br/><b>Ctrl+-:</b> Zoom Out<br/><b>Ctrl"
+"+0:</b> Zoom Fit<br/><b>Ctrl+Shift+l:</b> Rotate Counter Clockwise<br/"
+"><b>Ctrl+l:</b> Flip Horizontal<br/><b>Ctrl+Shift+r:</b> Rotate Clockwise<br/"
+"><b>Ctrl+r:</b> Flip Vertical<br/><b>Ctrl+Shift+s:</b> Save Image As<br/"
+"><b>Ctrl+s:</b> Save Image<br/><b>Ctrl+u:</b> Reset Image<br/><b>Ctrl+y:</b> "
+"Redo<br/><b>Ctrl+Shift+z:</b> Redo<br/><b>Ctrl+z:</b> Undo<br/><b>Home:</b> "
+"Navigate First<br/><b>Left Arrow:</b> Navigate Previous<br/><b>Right Arrow:</"
+"b> Navigate Next<br/><b>Space:</b> Navigate Next<br/><b>End:</b> Navigate "
+"Last<br/><b>Ctrl+Delete:</b> Delete Image<br/><b>F2</b> Rename Image<br/"
+"><b>Escape:</b> Return to Thumbnail Browser<br/><br/><b><hilight>Slideshow "
+"Bindings</hilight></b><br/><b>Space:</b> Play/Pause Slideshow<br/><b>Home:</"
+"b> Navigate First<br/><b>Left Arrow:</b> Navigate Previous<br/><b>Right "
+"Arrow:</b> Navigate Next<br/><b>End:</b> Navigate Last<br/><b>Escape:</b> "
+"Quit Slideshow<br/>"
+msgstr ""
+"<b><hilight>Generelle bindinger</hilight></b><br/><b>F1:</b> "
+"Indstillingspanel<br/><b>F5:</b> Start diasshow<br/><b>F11:</b> Fuldskærm "
+"til/fra<br/><b>Ctrl+Skift+f:</b> Filvælger "
+"til/fra<br/><br/><b><hilight>Bindinger for "
+"miniaturebrowser</hilight></b><br/><b>Ctrl++:</b> Zoom ind<br/><b>Ctrl+-:</b> "
+"Zoom ud<br/><b>Ctrl+Tab:</b> Vis billede<br/><b>Ctrl+c:</b> Kopiér "
+"billede<br/><b>Ctrl+x:</b> Klip billede<br/><b>Ctrl+v:</b> Indsæt "
+"billede<br/><b>Ctrl+a:</b> Vælg alle<br/><b>Ctrl+f:</b> Søgning "
+"til/fra<br/><b>Ctrl+Delete:</b> Slet billede<br/><b>F2:</b> Omdøb "
+"billede<br/><b>Escape:</b> Ryd markering<br/><br/><b><hilight>Bindinger for "
+"enkelbrowser</hilight></b><br/><b>Ctrl+Shift+0:</b> Zoom "
+"1:1<br/><b>Ctrl++:</b> Zoom ind<br/><b>Ctrl+-:</b> Zoom "
+"ud<br/><b>Ctrl+0:</b> Zoom tilpas<br/><b>Ctrl+Shift+l:</b> Roter mod urets "
+"retning<br/><b>Ctrl+l:</b> Flip Horizontal<br/><b>Ctrl+Shift+r:</b> Roter i "
+"urets retning<br/><b>Ctrl+r:</b> Vend lodret<br/><b>Ctrl+Skift+s:</b> Gem "
+"billede som<br/><b>Ctrl+s:</b> Gem billede<br/><b>Ctrl+u:</b> Nulstil "
+"billede<br/><b>Ctrl+y:</b> Omgør<br/><b>Ctrl+Skift+z:</b> "
+"Omgør<br/><b>Ctrl+z:</b> Fortryd<br/><b>Hjem:</b> Naviger "
+"første<br/><b>Venstre pil:</b> Naviger forrige<br/><b>Højre pil:</b> Naviger "
+"næste<br/><b>Mellemrum:</b> Naviger næste<br/><b>End:</b> Naviger "
+"sidste<br/><b>Ctrl+Delete:</b> Slet billede<br/><b>F2</b> Omdøb "
+"billede<br/><b>Escape:</b> Vend tilbage til "
+"miniaturebrowser<br/><br/><b><hilight>Bindinger for "
+"diasshow</hilight></b><br/><b>Mellemrum:</b> Afspil/pause "
+"diasshow<br/><b>Hjem:</b> Naviger første<br/><b>Venstre pil:</b> Naviger "
+"forrige<br/><b>Højre pil:</b> Naviger næste<br/><b>End:</b> Naviger "
+"sidste<br/><b>Escape:</b> Afslut diasshow<br/>"
+
+#: src/bin/ephoto_config.c:481 src/bin/ephoto_config.c:736
+msgid "About"
+msgstr "Om"
+
+#: src/bin/ephoto_config.c:526
+msgid ""
+"Ephoto is a comprehensive image viewer based on the EFL. For "
+"moreinformation, please visit the Ephoto project page:<br/><a href=http://"
+"www.smhouston.us/ephoto/>http://www.smhouston.us/ephoto/</a><br/><br/>Ephoto "
+"also has a page on the Enlightenment wiki:<br/><a href=https://phab."
+"enlightenment.org/w/projects/ephoto>https://phab.enlightenment.org/w/"
+"projects/ephoto</a><br/><br/>Ephoto's source can be found through "
+"Enlightenment's git:<br/><a href=http://git.enlightenment.org/apps/ephoto."
+"git>http://git.enlightenment.org/apps/ephoto.git</a><br/><br/><b>Authors:</"
+"b><br/>"
+msgstr ""
+"Ephoto er en omfattende billedfremviser baseret på EFL. Besøg venligst "
+"Ephoto-projektets side, for mere information:<br/><a href=http://www.smhoust"
+"on.us/ephoto/>http://www.smhouston.us/ephoto/</a><br/><br/>Ephoto har også "
+"en side på Enlightenment-wikien:<br/><a href=https://phab.enlightenment.org/"
+"w/projects/ephoto>https://phab.enlightenment.org/w/projects/ephoto</a><br/><"
+"br/>Ephoto's kildekode kan findes gennem Enlightenment's git:<br/><a href=ht"
+"tp://git.enlightenment.org/apps/ephoto.git>http://git.enlightenment.org/apps"
+"/ephoto.git</a><br/><br/><b>Forfattere:</b><br/>"
+
+#: src/bin/ephoto_config.c:680
+msgid "Settings Panel"
+msgstr "Indstillingspanel"
+
+#: src/bin/ephoto_color.c:238
+msgid "Adjust Color Levels"
+msgstr "Juster farveniveauer"
+
+#: src/bin/ephoto_color.c:244
+msgid "Blue"
+msgstr "Blå"
+
+#: src/bin/ephoto_color.c:259
+msgid "Green"
+msgstr "Grøn"
+
+#: src/bin/ephoto_color.c:274
+msgid "Red"
+msgstr "Rød"
+
+#: src/bin/ephoto_cropper.c:700
+msgid "Crop Image"
+msgstr "Beskær billede"
+
+#: src/bin/ephoto_cropper.c:710
+msgid "Height"
+msgstr "Højde"
+
+#: src/bin/ephoto_cropper.c:723
+msgid "Width"
+msgstr "Bredde"
+
+#: src/bin/ephoto_filters.c:105
+msgid "Applying Filter"
+msgstr "Anvender filter"
+
+#: src/bin/ephoto_filters.c:116
+msgid "Please wait while this filter is applied to your image."
+msgstr "Vent venligst mens filteret anvendes på dit billede."
+
+#: src/bin/ephoto_hsv.c:332 src/bin/ephoto_single_browser.c:1820
+msgid "Hue/Saturation/Value"
+msgstr "Farvetone/farvemætning/værdi"
+
+#: src/bin/ephoto_hsv.c:338
+msgid "Value"
+msgstr "Værdi"
+
+#: src/bin/ephoto_hsv.c:353
+msgid "Saturation"
+msgstr "Farvemætning"
+
+#: src/bin/ephoto_hsv.c:368
+msgid "Hue"
+msgstr "Farvetone"
+
+#: src/bin/ephoto_main.c:277 src/bin/ephoto_main.c:278
+#: src/bin/ephoto_main.c:337 src/bin/ephoto_main.c:338
+#: src/bin/ephoto_main.c:632 src/bin/ephoto_main.c:633
+msgid "Hide Folders"
+msgstr "Skjul mapper"
+
+#: src/bin/ephoto_main.c:287 src/bin/ephoto_main.c:288
+#: src/bin/ephoto_main.c:347 src/bin/ephoto_main.c:348
+#: src/bin/ephoto_main.c:480 src/bin/ephoto_main.c:482
+#: src/bin/ephoto_main.c:624 src/bin/ephoto_main.c:625
+msgid "Show Folders"
+msgstr "Vis mapper"
+
+#: src/bin/ephoto_main.c:499
+msgid "Information"
+msgstr "Information"
+
+#: src/bin/ephoto_main.c:539 src/bin/ephoto_main.c:542
+#: src/bin/ephoto_slideshow.c:854
+msgid "Settings"
+msgstr "Indstillinger"
+
+#: src/bin/ephoto_main.c:556 src/bin/ephoto_main.c:559
+#: src/bin/ephoto_slideshow.c:857
+msgid "Exit"
+msgstr "Afslut"
+
+#: src/bin/ephoto_thumb_browser.c:959 src/bin/ephoto_thumb_browser.c:1351
+msgid "Search"
+msgstr "Søgning"
+
+#: src/bin/ephoto_thumb_browser.c:961
+msgid "Select All"
+msgstr "Vælg alle"
+
+#: src/bin/ephoto_thumb_browser.c:964
+msgid "Select None"
+msgstr "Vælg ingen"
+
+#: src/bin/ephoto_thumb_browser.c:968 src/bin/ephoto_single_browser.c:1899
+msgid "Rename"
+msgstr "Omdøb"
+
+#: src/bin/ephoto_thumb_browser.c:975
+msgid "Cut"
+msgstr "Klip"
+
+#: src/bin/ephoto_thumb_browser.c:977
+msgid "Copy"
+msgstr "Kopiér"
+
+#: src/bin/ephoto_thumb_browser.c:983
+msgid "Paste"
+msgstr "Indsæt"
+
+#: src/bin/ephoto_thumb_browser.c:990
+msgid "Empty Trash"
+msgstr "Tøm papirkurv"
+
+#: src/bin/ephoto_thumb_browser.c:995 src/bin/ephoto_single_browser.c:1901
+msgid "Delete"
+msgstr "Slet"
+
+#: src/bin/ephoto_thumb_browser.c:1078
+msgid "No images matched your search"
+msgstr "Ingen billeder matchede din søgning"
+
+#: src/bin/ephoto_thumb_browser.c:1081 src/bin/ephoto_thumb_browser.c:1382
+msgid "There are no images in this directory"
+msgstr "Der er ingen billeder i mappen"
+
+#: src/bin/ephoto_thumb_browser.c:1083 src/bin/ephoto_thumb_browser.c:1123
+msgid "Total"
+msgstr "Samlet"
+
+#: src/bin/ephoto_thumb_browser.c:1083 src/bin/ephoto_thumb_browser.c:1123
+msgid "image"
+msgid_plural "images"
+msgstr[0] "billede"
+msgstr[1] "billeder"
+
+#: src/bin/ephoto_thumb_browser.c:1083 src/bin/ephoto_thumb_browser.c:1124
+msgid "Size"
+msgstr "Størrelse"
+
+#: src/bin/ephoto_thumb_browser.c:1084 src/bin/ephoto_thumb_browser.c:1093
+#: src/bin/ephoto_single_browser.c:141
+msgid "B"
+msgid_plural "B"
+msgstr[0] "B"
+msgstr[1] "B"
+
+#: src/bin/ephoto_thumb_browser.c:1100 src/bin/ephoto_single_browser.c:148
+msgid "KB"
+msgid_plural "KB"
+msgstr[0] "KB"
+msgstr[1] "KB"
+
+#: src/bin/ephoto_thumb_browser.c:1106 src/bin/ephoto_single_browser.c:154
+msgid "MB"
+msgid_plural "MB"
+msgstr[0] "MB"
+msgstr[1] "MB"
+
+#: src/bin/ephoto_thumb_browser.c:1112 src/bin/ephoto_single_browser.c:160
+msgid "GB"
+msgid_plural "GB"
+msgstr[0] "GB"
+msgstr[1] "GB"
+
+#: src/bin/ephoto_thumb_browser.c:1117 src/bin/ephoto_single_browser.c:165
+msgid "TB"
+msgid_plural "TB"
+msgstr[0] "TB"
+msgstr[1] "TB"
+
+#: src/bin/ephoto_thumb_browser.c:2059 src/bin/ephoto_thumb_browser.c:2061
+msgid "View Image"
+msgstr "Vis billede"
+
+#: src/bin/ephoto_thumb_browser.c:2077 src/bin/ephoto_thumb_browser.c:2079
+#: src/bin/ephoto_single_browser.c:2416 src/bin/ephoto_single_browser.c:2418
+msgid "Zoom In"
+msgstr "Zoom ind"
+
+#: src/bin/ephoto_thumb_browser.c:2093 src/bin/ephoto_thumb_browser.c:2095
+#: src/bin/ephoto_single_browser.c:2432 src/bin/ephoto_single_browser.c:2434
+msgid "Zoom Out"
+msgstr "Zoom ud"
+
+#: src/bin/ephoto_thumb_browser.c:2103
+msgid "Alphabetical Ascending"
+msgstr "Alfabetisk stigende"
+
+#: src/bin/ephoto_thumb_browser.c:2105
+msgid "Alphabetical Descending"
+msgstr "Alfabetisk faldende"
+
+#: src/bin/ephoto_thumb_browser.c:2107
+msgid "Modification Time Ascending"
+msgstr "Ændringstidspunkt stigende"
+
+#: src/bin/ephoto_thumb_browser.c:2109
+msgid "Modification Time Descending"
+msgstr "Ændringstidspunkt faldende"
+
+#: src/bin/ephoto_thumb_browser.c:2111
+msgid "Image Simalarity"
+msgstr "Billedligheder"
+
+#: src/bin/ephoto_thumb_browser.c:2113 src/bin/ephoto_thumb_browser.c:2120
+msgid "Sort"
+msgstr "Sortér"
+
+#: src/bin/ephoto_single_browser.c:123
+msgid "Type"
+msgstr "Type"
+
+#: src/bin/ephoto_single_browser.c:124
+msgid "Resolution"
+msgstr "Opløsning"
+
+#: src/bin/ephoto_single_browser.c:124
+msgid "File Size"
+msgstr "Filstørrelse"
+
+#: src/bin/ephoto_single_browser.c:539 src/bin/ephoto_single_browser.c:2346
+msgid "MODIFIED"
+msgstr "ÆNDRET"
+
+#: src/bin/ephoto_single_browser.c:1002
+msgid "Reset Image"
+msgstr "Nulstil billede"
+
+#: src/bin/ephoto_single_browser.c:1013
+msgid "Are you sure you want to reset your changes?"
+msgstr "Er du sikker på, at du vil nulstille dine ændringer?"
+
+#: src/bin/ephoto_single_browser.c:1024
+msgid "Yes"
+msgstr "Ja"
+
+#: src/bin/ephoto_single_browser.c:1035
+msgid "No"
+msgstr "Nej"
+
+#: src/bin/ephoto_single_browser.c:1622
+msgid "This image does not exist or is corrupted!"
+msgstr "Billedet findes ikke eller er ødelagt!"
+
+#: src/bin/ephoto_single_browser.c:1627
+msgid "Bad Image"
+msgstr "Dårligt billede"
+
+#: src/bin/ephoto_single_browser.c:1767 src/bin/ephoto_single_browser.c:1894
+#: src/bin/ephoto_single_browser.c:2512 src/bin/ephoto_single_browser.c:2514
+msgid "Edit"
+msgstr "Rediger"
+
+#: src/bin/ephoto_single_browser.c:1802
+msgid "Transform"
+msgstr "Transformer"
+
+#: src/bin/ephoto_single_browser.c:1805
+msgid "Crop"
+msgstr "Beskær"
+
+#: src/bin/ephoto_single_browser.c:1806
+msgid "Scale"
+msgstr "Skaler"
+
+#: src/bin/ephoto_single_browser.c:1807 src/bin/ephoto_single_browser.c:2480
+#: src/bin/ephoto_single_browser.c:2482
+msgid "Rotate Left"
+msgstr "Roter til venstre"
+
+#: src/bin/ephoto_single_browser.c:1809 src/bin/ephoto_single_browser.c:2496
+#: src/bin/ephoto_single_browser.c:2498
+msgid "Rotate Right"
+msgstr "Roter til højre"
+
+#: src/bin/ephoto_single_browser.c:1811 src/bin/ephoto_single_browser.c:1910
+msgid "Flip Horizontal"
+msgstr "Vend vandret"
+
+#: src/bin/ephoto_single_browser.c:1813 src/bin/ephoto_single_browser.c:1912
+msgid "Flip Vertical"
+msgstr "Vend lodret"
+
+#: src/bin/ephoto_single_browser.c:1815
+msgid "Adjustable Filters"
+msgstr "Justerbare filtre"
+
+#: src/bin/ephoto_single_browser.c:1822
+msgid "Color Levels"
+msgstr "Farveniveauer"
+
+#: src/bin/ephoto_single_browser.c:1824
+msgid "Red Eye Removal"
+msgstr "Fjern røde øjne"
+
+#: src/bin/ephoto_single_browser.c:1826
+msgid "Quick Filters"
+msgstr "Hurtige filtre"
+
+#: src/bin/ephoto_single_browser.c:1829
+msgid "Auto Equalize"
+msgstr "Automatisk udligning"
+
+#: src/bin/ephoto_single_browser.c:1831
+msgid "Black and White"
+msgstr "Sort og hvid"
+
+#: src/bin/ephoto_single_browser.c:1833
+msgid "Blur"
+msgstr "Sløring"
+
+#: src/bin/ephoto_single_browser.c:1835
+msgid "Dither"
+msgstr "Raster"
+
+#: src/bin/ephoto_single_browser.c:1837
+msgid "Edge Detect"
+msgstr "Find kanter"
+
+#: src/bin/ephoto_single_browser.c:1839
+msgid "Emboss"
+msgstr "Emboss"
+
+#: src/bin/ephoto_single_browser.c:1841
+msgid "Invert Colors"
+msgstr "Omvendte farver"
+
+#: src/bin/ephoto_single_browser.c:1843
+msgid "Old Photo"
+msgstr "Gammelt fotografi"
+
+#: src/bin/ephoto_single_browser.c:1845
+msgid "Painting"
+msgstr "Maleri"
+
+#: src/bin/ephoto_single_browser.c:1847
+msgid "Posterize"
+msgstr "Farvereduktion"
+
+#: src/bin/ephoto_single_browser.c:1849
+msgid "Sharpen"
+msgstr "Skarp"
+
+#: src/bin/ephoto_single_browser.c:1851
+msgid "Sketch"
+msgstr "Skitse"
+
+#: src/bin/ephoto_single_browser.c:1863 src/bin/ephoto_single_browser.c:1896
+msgid "Save"
+msgstr "Gem"
+
+#: src/bin/ephoto_single_browser.c:1864 src/bin/ephoto_single_browser.c:1897
+#: src/bin/ephoto_single_browser.c:2528 src/bin/ephoto_single_browser.c:2530
+msgid "Save As"
+msgstr "Gem som"
+
+#: src/bin/ephoto_single_browser.c:1866 src/bin/ephoto_single_browser.c:1903
+msgid "Upload"
+msgstr "Upload"
+
+#: src/bin/ephoto_single_browser.c:1868
+msgid "Undo"
+msgstr "Fortryd"
+
+#: src/bin/ephoto_single_browser.c:1869
+msgid "Redo"
+msgstr "Omgør"
+
+#: src/bin/ephoto_single_browser.c:1870 src/bin/ephoto_single_browser.c:1895
+msgid "Reset"
+msgstr "Nulstil"
+
+#: src/bin/ephoto_single_browser.c:1871
+msgid "Close"
+msgstr "Luk"
+
+#: src/bin/ephoto_single_browser.c:1893
+msgid "File"
+msgstr "Fil"
+
+#: src/bin/ephoto_single_browser.c:1906
+msgid "Zoom Fit"
+msgstr "Zoom tilpas"
+
+#: src/bin/ephoto_single_browser.c:1908
+msgid "Zoom 1:1"
+msgstr "Zoom 1:1"
+
+#: src/bin/ephoto_single_browser.c:2398 src/bin/ephoto_single_browser.c:2400
+msgid "View Thumbnails"
+msgstr "Vis miniaturer"
+
+#: src/bin/ephoto_single_browser.c:2448 src/bin/ephoto_single_browser.c:2450
+#: src/bin/ephoto_slideshow.c:839
+msgid "Previous"
+msgstr "Forrige"
+
+#: src/bin/ephoto_single_browser.c:2464 src/bin/ephoto_single_browser.c:2466
+#: src/bin/ephoto_slideshow.c:845
+msgid "Next"
+msgstr "Næste"
+
+#: src/bin/ephoto_slideshow.c:619 src/bin/ephoto_slideshow.c:842
+msgid "Play"
+msgstr "Afspil"
+
+#: src/bin/ephoto_slideshow.c:628 src/bin/ephoto_slideshow.c:944
+msgid "Pause"
+msgstr "Pause"
+
+#: src/bin/ephoto_slideshow.c:677 src/bin/ephoto_slideshow.c:851
+#: src/bin/ephoto_slideshow.c:955
+msgid "Fullscreen"
+msgstr "Fuldskærm"
+
+#: src/bin/ephoto_slideshow.c:688 src/bin/ephoto_slideshow.c:965
+msgid "Normal"
+msgstr "Normal"
+
+#: src/bin/ephoto_slideshow.c:835
+msgid "Back"
+msgstr "Tilbage"
+
+#: src/bin/ephoto_slideshow.c:837
+msgid "First"
+msgstr "Første"
+
+#: src/bin/ephoto_slideshow.c:848
+msgid "Last"
+msgstr "Sidste"

@@ -17,6 +17,7 @@ elm  = dependency('elementary', required: true,  version: efl_version)
 edje = dependency('edje',       required: true,  version: efl_version)
 eipc = dependency('ecore-ipc',  required: true,  version: efl_version)
 exif = dependency('libexif',    required: false, version: '>= 0.6.0')
+depe = dependency('enlightenment', required: false)
 ##### check for windows dependency
 if build_machine.system() == 'windows'
    win = dependency('evil', version: efl_version)
@@ -65,6 +66,9 @@ if cc.has_header('netinet/in.h') == true
 endif
 if exif.found() == true
     cfg.set       ('HAVE_LIBEXIF'        , 1)
+endif
+if depe.found() == true
+    cfg.set       ('HAVE_E'              , 1)
 endif
 if get_option('nls') == true
     if cc.has_header('locale.h') == true

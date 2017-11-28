@@ -2,16 +2,17 @@
 
 static void _ephoto_display_usage(void);
 
-EAPI_MAIN int
-elm_main(int argc, char **argv)
+int
+main(int argc, char *argv[])
 {
-   int r = 0;
+   int gadget = 0, r = 0;
 
+   elm_init(argc, (char **)argv);
    eio_init();
    elm_need_efreet();
    elm_language_set("");
    elm_app_compile_data_dir_set(PACKAGE_DATA_DIR);
-   elm_app_info_set(elm_main, "ephoto", "themes/ephoto.edj");
+   elm_app_info_set(main, "ephoto", "themes/ephoto.edj");
 #if HAVE_GETTEXT && ENABLE_NLS
    elm_app_compile_locale_set(LOCALEDIR);
    bindtextdomain(PACKAGE, elm_app_locale_dir_get());
@@ -28,6 +29,9 @@ elm_main(int argc, char **argv)
 
    elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
+   if (getenv("E_GADGET_ID"))
+     gadget = 1;
+
    if (argc > 2)
      {
         printf("Too Many Arguments!\n");
@@ -37,7 +41,7 @@ elm_main(int argc, char **argv)
      }
    else if (argc < 2)
      {
-        Evas_Object *win = ephoto_window_add(NULL);
+        Evas_Object *win = ephoto_window_add(NULL, gadget);
 
         if (!win)
           {
@@ -61,7 +65,7 @@ elm_main(int argc, char **argv)
              r = 1;
              goto end;
           }
-        Evas_Object *win = ephoto_window_add(real);
+        Evas_Object *win = ephoto_window_add(real, gadget);
 
         free(real);
         if (!win)
@@ -71,12 +75,12 @@ elm_main(int argc, char **argv)
           }
      }
 
-   elm_run();
-
+   ecore_main_loop_begin();
 end:
    e_thumb_shutdown();
    efreet_mime_shutdown();
    eio_shutdown();
+   elm_shutdown();
 
    return r;
 }
@@ -89,5 +93,3 @@ _ephoto_display_usage(void)
                              "ephoto filename : Specifies a file to open\n"
                              "ephoto dirname  : Specifies a directory to open\n");
 }
-
-ELM_MAIN()

@@ -21,6 +21,9 @@
 # include <Edje.h>
 # include <Evas.h>
 # include <Eio.h>
+#if HAVE_ENLIGHTENMENT
+# include <e_gadget_types.h>
+#endif
 
 #if HAVE_GETTEXT
 # include <locale.h>
@@ -45,7 +48,7 @@ typedef enum _Ephoto_Sort                 Ephoto_Sort;
 typedef enum _Ephoto_Ipc_Domain           Ephoto_Ipc_Domain;
 
 /*main window functions*/
-Evas_Object *ephoto_window_add(const char *path);
+Evas_Object *ephoto_window_add(const char *path, int gadget);
 void         ephoto_title_set(Ephoto *ephoto, const char *title);
 void         ephoto_thumb_size_set(Ephoto *ephoto, int size);
 Evas_Object *ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent,
@@ -292,6 +295,7 @@ struct _Ephoto
    const char    *destination;
 
    int            thumb_gen_size;
+   int            gadget;
 
    struct
    {

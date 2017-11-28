@@ -16,5 +16,5 @@ dep_e = dependency('enlightenment')
 release = dep_e.get_pkgconfig_variable('release')
 module_arch = '@0@-@1@-@2@'.format(host_os, host_machine.cpu_family(), release)
 dir_gadgets = join_paths([dir_lib, 'enlightenment/gadgets', module_arch])
-install_data('ephoto.desktop',
-        install_dir: join_paths([dir_gadgets, 'ephoto']))
+install_data('slideshow.desktop',
+        install_dir: join_paths([dir_gadgets, 'slideshow']))

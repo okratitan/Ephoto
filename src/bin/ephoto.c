@@ -5,7 +5,8 @@ static void _ephoto_display_usage(void);
 int
 main(int argc, char *argv[])
 {
-   int gadget = 0, r = 0;
+   int gadget = 0, id_num = 0, r = 0;
+   char buf[4096];
 
    elm_init(argc, (char **)argv);
    eio_init();
@@ -30,9 +31,29 @@ main(int argc, char *argv[])
    elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
    if (getenv("E_GADGET_ID"))
-     gadget = 1;
+     {
+        gadget = 1;
+        snprintf(buf, sizeof(buf), "%s", getenv("E_GADGET_ID"));
+        id_num = atoi(buf);
+     }
+   if (id_num < 0)
+     {
+        Evas_Object *win, *icon;
 
-   if (argc > 2)
+        win = elm_win_add(NULL, "ephoto", ELM_WIN_BASIC);
+        elm_win_title_set(win, "Ephoto");
+        elm_win_alpha_set(win, 1);
+        elm_win_autodel_set(win, 1);
+        evas_object_size_hint_aspect_set(win, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+
+        icon = elm_image_add(win);
+        elm_image_file_set(icon, PACKAGE_DATA_DIR "/images/ephoto.png", NULL);
+        elm_win_resize_object_add(win, icon);
+        evas_object_show(icon);
+
+        evas_object_show(win);
+     }
+   else if (argc > 2)
      {
         printf("Too Many Arguments!\n");
         _ephoto_display_usage();

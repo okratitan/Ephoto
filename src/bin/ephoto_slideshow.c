@@ -799,7 +799,7 @@ _gadget_settings_save(void *data, Evas_Object *obj EINA_UNUSED,
    spinner = evas_object_data_get(popup, "timeout");
 
    ss->ephoto->config->slideshow_timeout = elm_spinner_value_get(spinner);
-   path = elm_object_text_get(fentry);
+   path = elm_fileselector_path_get(fentry);
    if (ecore_file_is_dir(path))
      ephoto_directory_set(ss->ephoto, path, NULL, EINA_FALSE, EINA_TRUE);
 
@@ -811,7 +811,7 @@ _gadget_settings(void *data, Evas_Object *obj EINA_UNUSED,
           void *event_info EINA_UNUSED)
 {
    Ephoto_Slideshow *ss = data;
-   Evas_Object *popup, *but, *table, *fentry, *label, *spinner;
+   Evas_Object *popup, *but, *table, *fentry, *label, *spinner, *rect;
    char buf[PATH_MAX];
 
    popup = elm_win_add(ss->ephoto->win, "win", ELM_WIN_BASIC);
@@ -819,26 +819,20 @@ _gadget_settings(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_data_set(popup, "slideshow", ss);
 
    table = elm_table_add(popup);
+   elm_table_homogeneous_set(table, EINA_FALSE);
    EPHOTO_EXPAND(table);
    EPHOTO_FILL(table);
    elm_win_resize_object_add(popup, table);
    evas_object_show(table);
 
-   label = elm_label_add(table);
-   elm_object_text_set(label, _("Directory:"));
-   EPHOTO_FILL(label);
-   elm_table_pack(table, label, 0, 0, 1, 1);
-   evas_object_show(label);
-
-   fentry = elm_entry_add(table);
-   elm_entry_single_line_set(fentry, EINA_TRUE);
-   elm_entry_editable_set(fentry, EINA_TRUE);
-   elm_entry_scrollable_set(fentry, EINA_TRUE);
-   elm_object_text_set(fentry, ss->ephoto->config->directory);
-   evas_object_size_hint_weight_set(fentry, EVAS_HINT_EXPAND, 0.0);
+   fentry = elm_fileselector_add(table);
+   elm_fileselector_is_save_set(fentry, EINA_FALSE);
+   elm_fileselector_expandable_set(fentry, EINA_FALSE);
+   elm_fileselector_path_set(fentry, ss->ephoto->config->directory);
+   elm_fileselector_buttons_ok_cancel_set(fentry, EINA_FALSE);
+   evas_object_size_hint_weight_set(fentry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(fentry, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_size_hint_min_set(fentry, 300, 75);
-   elm_table_pack(table, fentry, 1, 0, 1, 1);
+   elm_table_pack(table, fentry, 0, 0, 2, 5);
    evas_object_show(fentry);
    evas_object_data_set(popup, "fentry", fentry);
 
@@ -847,7 +841,7 @@ _gadget_settings(void *data, Evas_Object *obj EINA_UNUSED,
    snprintf(buf, PATH_MAX, "%s:", _("Show Each Slide For"));
    elm_object_text_set(label, buf);
    EPHOTO_FILL(label);
-   elm_table_pack(table, label, 0, 1, 1, 1);
+   elm_table_pack(table, label, 0, 5, 1, 1);
    evas_object_show(label);
 
    spinner = elm_spinner_add(table);
@@ -858,15 +852,22 @@ _gadget_settings(void *data, Evas_Object *obj EINA_UNUSED,
    elm_spinner_step_set(spinner, 1);
    elm_spinner_value_set(spinner, ss->ephoto->config->slideshow_timeout);
    elm_spinner_min_max_set(spinner, 1, 60);
-   elm_table_pack(table, spinner, 1, 1, 1, 1);
+   elm_table_pack(table, spinner, 1, 5, 1, 1);
    evas_object_show(spinner);
    evas_object_data_set(popup, "timeout", spinner);
 
    but = elm_button_add(table);
    elm_object_text_set(but, _("Okay"));
-   elm_table_pack(table, but, 0, 2, 2, 1);
+   elm_table_pack(table, but, 0, 6, 2, 1);
    evas_object_smart_callback_add(but, "clicked", _gadget_settings_save, popup);
    evas_object_show(but);
+
+   rect = evas_object_rectangle_add(evas_object_evas_get(table));
+   evas_object_repeat_events_set(rect, EINA_TRUE);
+   evas_object_color_set(rect, 0, 0, 0, 0);
+   evas_object_size_hint_min_set(rect, 300, 300);
+   elm_table_pack(table, rect, 0, 0, 2, 7);
+   evas_object_show(rect);
 
    evas_object_show(popup);
 }

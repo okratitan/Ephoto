@@ -423,10 +423,19 @@ _slideshow_item_get(Ephoto_Slideshow *ss, Ephoto_Entry *entry, Evas_Object *pare
    evas_object_data_set(layout, "entry", entry);
 
    image = elm_image_add(parent);
-   elm_image_preload_disabled_set(image, EINA_FALSE);
-   elm_image_smooth_set(image, EINA_FALSE);
+   if (ss->ephoto->config->movess && !ss->ephoto->gadget)
+     {
+        elm_image_preload_disabled_set(image, EINA_FALSE);
+        elm_image_smooth_set(image, EINA_FALSE);
+        elm_image_fill_outside_set(image, EINA_TRUE);
+     }
+   else if (!ss->ephoto->config->movess || ss->ephoto->gadget)
+     {
+        evas_object_image_load_orientation_set(image, EINA_TRUE);
+        evas_object_image_filled_set(image, EINA_TRUE);   
+        evas_object_image_preload(image, EINA_FALSE);
+     }
    elm_image_file_set(image, entry->path, group);
-   elm_image_fill_outside_set(image, EINA_TRUE);
    EPHOTO_EXPAND(image);
    EPHOTO_FILL(image);
    evas_object_event_callback_add(image, EVAS_CALLBACK_SHOW, _image_shown,
@@ -830,6 +839,7 @@ _gadget_settings(void *data, Evas_Object *obj EINA_UNUSED,
    elm_fileselector_expandable_set(fentry, EINA_FALSE);
    elm_fileselector_path_set(fentry, ss->ephoto->config->directory);
    elm_fileselector_buttons_ok_cancel_set(fentry, EINA_FALSE);
+   elm_fileselector_folder_only_set(fentry, EINA_TRUE);
    evas_object_size_hint_weight_set(fentry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(fentry, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_table_pack(table, fentry, 0, 0, 2, 5);

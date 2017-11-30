@@ -400,7 +400,7 @@ ephoto_window_add(const char *path, int gadget)
         ephoto->win = elm_win_add(NULL, "ephoto", ELM_WIN_BASIC);
         elm_win_title_set(ephoto->win, "Ephoto");
         elm_win_alpha_set(ephoto->win, 1);
-        evas_object_size_hint_aspect_set(ephoto->win, EVAS_ASPECT_CONTROL_BOTH, 1, 1);
+        evas_object_size_hint_aspect_set(ephoto->win, EVAS_ASPECT_CONTROL_BOTH, 1,1);
      }
    if (!ephoto->win)
      {

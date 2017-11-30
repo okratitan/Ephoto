@@ -418,6 +418,8 @@ _slideshow_item_get(Ephoto_Slideshow *ss, Ephoto_Entry *entry, Evas_Object *pare
    layout = elm_layout_add(parent);
    elm_layout_file_set(layout, PACKAGE_DATA_DIR "/themes/ephoto.edj",
                        "ephoto,slideshow,item");
+   if (ss->ephoto->gadget)
+     elm_layout_signal_emit(layout, "gadget", "ephoto");
    EPHOTO_EXPAND(layout);
    EPHOTO_FILL(layout);
    evas_object_data_set(layout, "entry", entry);
@@ -1076,6 +1078,8 @@ ephoto_slideshow_add(Ephoto *ephoto, Evas_Object *parent)
 
    elm_layout_file_set(slideshow, PACKAGE_DATA_DIR "/themes/ephoto.edj",
                        "ephoto,slideshow,base");
+   if (ephoto->gadget)
+     elm_layout_signal_emit(slideshow, "gadget", "ephoto");
    evas_object_event_callback_add(slideshow, EVAS_CALLBACK_DEL, _slideshow_del,
                                   ss);
    if (!ephoto->gadget)

@@ -40,6 +40,10 @@ collections {
                state: "default" 0.0;
                color: 0 0 0 255;
             }
+            description {
+               state: "gadget" 0.0;
+               color: 115 115 115 45;
+            }
          }
          rect { "slide_clip";
             scale: 1;
@@ -119,6 +123,18 @@ collections {
          }
       }
       programs {
+         program {
+            signal: "gadget";
+            source: "ephoto";
+            action: STATE_SET "gadget" 0.0;
+            target: "background";
+         }
+         program {
+            signal: "default";
+            source: "ephoto";
+            action: STATE_SET "default" 0.0;
+            target: "background";
+         }
          program {
             signal: "ephoto,fade";
             source: "ephoto";
@@ -329,6 +345,10 @@ collections {
             description {
                state: "default" 0.0;
                color: 0 0 0 255;
+            }
+            description {
+               state: "gadget" 0.0;
+               color: 0 0 0 0;
             }
          }
          rect { "slide_clip";
@@ -668,6 +688,18 @@ collections {
          }
       }
       programs {
+         program {
+            signal: "gadget";
+            source: "ephoto";
+            action: STATE_SET "gadget" 0.0;
+            target: "background";
+         }
+         program {
+            signal: "default";
+            source: "ephoto";
+            action: STATE_SET "default" 0.0;
+            target: "background";
+         }
          program {
             signal: "ephoto,slideshow,move,left,to,right";
             source: "ephoto";

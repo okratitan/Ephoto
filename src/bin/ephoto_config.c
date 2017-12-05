@@ -4,8 +4,12 @@
 
 static int       _ephoto_config_load(Ephoto *ephoto);
 static Eina_Bool _ephoto_on_config_save(void *data);
+static int       _ephoto_gadget_config_load(Ephoto *ephoto);
+static Eina_Bool _ephoto_gadget_on_config_save(void *data);
 
 static Eet_Data_Descriptor *edd = NULL;
+static Eet_Data_Descriptor *gedd = NULL;
+static Eet_Data_Descriptor *gedds = NULL;
 
 static void
 _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
@@ -760,6 +764,8 @@ ephoto_config_save(Ephoto *ephoto)
 void
 ephoto_config_free(Ephoto *ephoto)
 {
+   eina_stringshare_del(ephoto->config->directory);
+   eina_stringshare_del(ephoto->config->slideshow_transition);
    free(ephoto->config);
    ephoto->config = NULL;
 }
@@ -831,6 +837,175 @@ ephoto_config_init(Ephoto *ephoto)
      }
 
    ephoto_config_save(ephoto);
+   return EINA_TRUE;
+}
+
+static int
+_ephoto_gadget_config_load(Ephoto *ephoto)
+{
+   Eet_File *ef;
+   char buf[4096], buf2[4096];
+
+   snprintf(buf2, sizeof(buf2), "%s/ephoto", efreet_config_home_get());
+   ecore_file_mkpath(buf2);
+   snprintf(buf, sizeof(buf), "%s/ephoto_gadget.cfg", buf2);
+
+   ef = eet_open(buf, EET_FILE_MODE_READ);
+   if (!ef)
+     {
+        ephoto_gadget_config_free(ephoto);
+        ephoto->gadget_config = calloc(1, sizeof(Ephoto_Gadget_Config));
+        return 0;
+     }
+
+   ephoto->gadget_config = eet_data_read(ef, gedd, "gadget_config");
+   eet_close(ef);
+
+   if (!ephoto->gadget_config || ephoto->gadget_config->config_version > CONFIG_VERSION)
+     {
+        ephoto_gadget_config_free(ephoto);
+        ephoto->gadget_config = calloc(1, sizeof(Ephoto_Gadget_Config));
+        return 0;
+     }
+
+   if (ephoto->gadget_config->config_version < CONFIG_VERSION)
+     {
+        ecore_file_unlink(buf);
+        ephoto_gadget_config_free(ephoto);
+        ephoto->gadget_config = calloc(1, sizeof(Ephoto_Gadget_Config));
+        return 0;
+     }
+   return 1;
+}
+
+static Eina_Bool
+_ephoto_gadget_on_config_save(void *data)
+{
+   Ephoto *ephoto = data;
+   Eet_File *ef;
+   char buf[4096], buf2[4096];
+
+   snprintf(buf, sizeof(buf), "%s/ephoto/ephoto_gadget.cfg", efreet_config_home_get());
+   snprintf(buf2, sizeof(buf2), "%s.tmp", buf);
+
+   ef = eet_open(buf2, EET_FILE_MODE_WRITE);
+   if (!ef)
+     goto save_end;
+
+   eet_data_write(ef, gedd, "gadget_config", ephoto->gadget_config, 1);
+   if (eet_close(ef))
+     goto save_end;
+
+   if (!ecore_file_mv(buf2, buf))
+     goto save_end;
+
+save_end:
+   ecore_file_unlink(buf2);
+
+   return ECORE_CALLBACK_CANCEL;
+}
+
+void
+ephoto_gadget_config_save(Ephoto *ephoto)
+{
+   _ephoto_gadget_on_config_save(ephoto);
+}
+
+void
+ephoto_gadget_config_free(Ephoto *ephoto)
+{
+   Ephoto_Gadget_Config_Item *gci;
+
+   if (ephoto->gadget_config)
+     {
+        if (eina_list_count(ephoto->gadget_config->config_items))
+          {
+             EINA_LIST_FREE(ephoto->gadget_config->config_items, gci)
+               {
+                  eina_stringshare_del(gci->profile);
+                  eina_stringshare_del(gci->directory);
+                  free(gci);
+               }
+          }
+        free(ephoto->gadget_config);
+     }
+   ephoto->gadget_config = NULL;
+}
+
+Ephoto_Gadget_Config_Item *
+ephoto_gadget_config_item_get(Ephoto *ephoto, int id, const char *profile)
+{
+   Eina_List *l;
+   Ephoto_Gadget_Config_Item *gci;
+
+   EINA_LIST_FOREACH(ephoto->gadget_config->config_items, l, gci)
+     {
+        if (gci->id == id && eina_streq(profile, gci->profile))
+          return gci;
+     }
+   gci = calloc(1, sizeof(Ephoto_Gadget_Config_Item));
+   gci->id = id;
+   gci->profile = eina_stringshare_add(profile);
+   gci->directory = eina_stringshare_add(eina_environment_home_get());;
+   gci->slideshow_timeout = 3;
+   ephoto->gadget_config->config_items = 
+       eina_list_append(ephoto->gadget_config->config_items, gci);
+
+   return gci;
+}
+
+Eina_Bool
+ephoto_gadget_config_init(Ephoto *ephoto)
+{
+   Eet_Data_Descriptor_Class geddc;
+
+   if (!eet_eina_stream_data_descriptor_class_set(&geddc, sizeof(geddc),
+                                                  "Ephoto_Gadget_Config", sizeof(Ephoto_Gadget_Config)))
+     {
+        return EINA_FALSE;
+     }
+   if (!gedd)
+     gedd = eet_data_descriptor_stream_new(&geddc);
+   if (!eet_eina_stream_data_descriptor_class_set(&geddc, sizeof(geddc),
+                                                  "Ephoto_Gadget_Config_Item", sizeof(Ephoto_Gadget_Config_Item)))
+     {
+        return EINA_FALSE;
+     }
+   if (!gedds)
+     gedds = eet_data_descriptor_stream_new(&geddc);
+
+#undef GT
+#undef GD
+#define GT Ephoto_Gadget_Config
+#define GD gedd
+#define GST Ephoto_Gadget_Config_Item
+#define GS gedds
+#define GC_VAL(gedd, type, member, dtype) \
+  EET_DATA_DESCRIPTOR_ADD_BASIC(gedd, type, #member, member, dtype)
+#define GCS_VAL(edds, type, member, dtype) \
+  EET_DATA_DESCRIPTOR_ADD_BASIC(gedds, type, #member, member, dtype)
+
+   GCS_VAL(GS, GST, id, EET_T_INT);
+   GCS_VAL(GS, GST, profile, EET_T_STRING);
+   GCS_VAL(GS, GST, directory, EET_T_STRING);
+   GCS_VAL(GS, GST, slideshow_timeout, EET_T_DOUBLE);
+
+   GC_VAL(GD, GT, config_version, EET_T_INT);
+
+   EET_DATA_DESCRIPTOR_ADD_LIST(gedd, Ephoto_Gadget_Config, "config_items", config_items, gedds);
+
+   switch (_ephoto_gadget_config_load(ephoto))
+     {
+      case 0:
+        /* Start a new config */
+        ephoto->gadget_config->config_version = CONFIG_VERSION;
+        break;
+
+      default:
+        return EINA_TRUE;
+     }
+
+   ephoto_gadget_config_save(ephoto);
    return EINA_TRUE;
 }
 

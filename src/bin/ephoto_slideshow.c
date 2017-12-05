@@ -382,7 +382,10 @@ _on_transition_end(void *data, Evas_Object *obj EINA_UNUSED,
    evas_object_show(ss->current_item);
    elm_layout_signal_emit(ss->slideshow, "ephoto,transition,done", "ephoto");
 
-   ss->timeout = ss->ephoto->config->slideshow_timeout;
+   if (!ss->ephoto->gadget)
+     ss->timeout = ss->ephoto->config->slideshow_timeout;
+   else
+     ss->timeout = ss->ephoto->gci->slideshow_timeout;
    if (ss->timer)
      ecore_timer_del(ss->timer);
    ss->timer = NULL;
@@ -809,11 +812,13 @@ _gadget_settings_save(void *data, Evas_Object *obj EINA_UNUSED,
    fentry = evas_object_data_get(popup, "fentry");
    spinner = evas_object_data_get(popup, "timeout");
 
-   ss->ephoto->config->slideshow_timeout = elm_spinner_value_get(spinner);
+   ss->ephoto->gci->slideshow_timeout = elm_spinner_value_get(spinner);
    path = elm_fileselector_path_get(fentry);
+   eina_stringshare_replace(&ss->ephoto->gci->directory, path);
    if (ecore_file_is_dir(path))
      ephoto_directory_set(ss->ephoto, path, NULL, EINA_FALSE, EINA_TRUE);
 
+   ephoto_gadget_config_save(ss->ephoto);
    evas_object_del(popup);
 }
 
@@ -839,7 +844,7 @@ _gadget_settings(void *data, Evas_Object *obj EINA_UNUSED,
    fentry = elm_fileselector_add(table);
    elm_fileselector_is_save_set(fentry, EINA_FALSE);
    elm_fileselector_expandable_set(fentry, EINA_FALSE);
-   elm_fileselector_path_set(fentry, ss->ephoto->config->directory);
+   elm_fileselector_path_set(fentry, ss->ephoto->gci->directory);
    elm_fileselector_buttons_ok_cancel_set(fentry, EINA_FALSE);
    elm_fileselector_folder_only_set(fentry, EINA_TRUE);
    evas_object_size_hint_weight_set(fentry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -862,7 +867,7 @@ _gadget_settings(void *data, Evas_Object *obj EINA_UNUSED,
    snprintf(buf, PATH_MAX, "%%1.0f %s", _("seconds"));
    elm_spinner_label_format_set(spinner, buf);
    elm_spinner_step_set(spinner, 1);
-   elm_spinner_value_set(spinner, ss->ephoto->config->slideshow_timeout);
+   elm_spinner_value_set(spinner, ss->ephoto->gci->slideshow_timeout);
    elm_spinner_min_max_set(spinner, 1, 60);
    elm_table_pack(table, spinner, 1, 5, 1, 1);
    evas_object_show(spinner);
@@ -1131,7 +1136,10 @@ ephoto_slideshow_entry_set(Evas_Object *obj, Ephoto_Entry *entry)
    if (entry)
      ephoto_entry_free_listener_add(entry, _entry_free, ss);
 
-   ss->timeout = ss->ephoto->config->slideshow_timeout;
+   if (!ss->ephoto->gadget)
+     ss->timeout = ss->ephoto->config->slideshow_timeout;
+   else
+     ss->timeout = ss->ephoto->gci->slideshow_timeout;
    _slideshow_play(ss);
    ss->playing = 1;
 

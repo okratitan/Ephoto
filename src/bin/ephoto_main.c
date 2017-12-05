@@ -251,6 +251,10 @@ _win_free(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
    ephoto_entries_free(ephoto);
    if (!ephoto->gadget)
      ephoto_config_save(ephoto);
+   else
+     ephoto_gadget_config_save(ephoto);
+   if (ephoto->gadget_config)
+     ephoto_config_free(ephoto);
    free(ephoto->config);
    free(ephoto);
 }
@@ -369,7 +373,7 @@ ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle)
 }
 
 Evas_Object *
-ephoto_window_add(const char *path, int gadget)
+ephoto_window_add(const char *path, int gadget, int id)
 {
    Ephoto *ephoto = calloc(1, sizeof(Ephoto));
    Evas_Object *ic, *but;
@@ -418,6 +422,18 @@ ephoto_window_add(const char *path, int gadget)
      {
         evas_object_del(ephoto->win);
         return NULL;
+     }
+   if (ephoto->gadget)
+     {
+        const char *profile;
+
+        if (!ephoto_gadget_config_init(ephoto))
+          {
+             evas_object_del(ephoto->win);
+             return NULL;
+          }
+        profile = elm_config_profile_get();
+        ephoto->gci = ephoto_gadget_config_item_get(ephoto, id, profile);
      }
 
    if ((ephoto->config->thumb_gen_size != 128) &&
@@ -684,6 +700,10 @@ ephoto_window_add(const char *path, int gadget)
              _settings_icon_clicked(ephoto, NULL, NULL);
              ephoto->config->firstrun = 0;
           }
+     }
+   else
+     {
+        ephoto_directory_set(ephoto, ephoto->gci->directory, NULL, EINA_FALSE, EINA_TRUE);
      }
    return ephoto->win;
 }

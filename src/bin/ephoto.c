@@ -62,7 +62,7 @@ main(int argc, char *argv[])
      }
    else if (argc < 2)
      {
-        Evas_Object *win = ephoto_window_add(NULL, gadget);
+        Evas_Object *win = ephoto_window_add(NULL, gadget, id_num);
 
         if (!win)
           {
@@ -86,7 +86,7 @@ main(int argc, char *argv[])
              r = 1;
              goto end;
           }
-        Evas_Object *win = ephoto_window_add(real, gadget);
+        Evas_Object *win = ephoto_window_add(real, gadget, id_num);
 
         free(real);
         if (!win)

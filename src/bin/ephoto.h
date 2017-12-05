@@ -38,6 +38,8 @@
 
 /*local types*/
 typedef struct _Ephoto_Config             Ephoto_Config;
+typedef struct _Ephoto_Gadget_Config      Ephoto_Gadget_Config;
+typedef struct _Ephoto_Gadget_Config_Item Ephoto_Gadget_Config_Item;
 typedef struct _Ephoto                    Ephoto;
 typedef struct _Ephoto_Entry              Ephoto_Entry;
 typedef struct _Ephoto_Event_Entry_Create Ephoto_Event_Entry_Create;
@@ -48,7 +50,7 @@ typedef enum _Ephoto_Sort                 Ephoto_Sort;
 typedef enum _Ephoto_Ipc_Domain           Ephoto_Ipc_Domain;
 
 /*main window functions*/
-Evas_Object *ephoto_window_add(const char *path, int gadget);
+Evas_Object *ephoto_window_add(const char *path, int gadget, int id);
 void         ephoto_title_set(Ephoto *ephoto, const char *title);
 void         ephoto_thumb_size_set(Ephoto *ephoto, int size);
 Evas_Object *ephoto_thumb_add(Ephoto *ephoto, Evas_Object *parent,
@@ -59,10 +61,14 @@ void         ephoto_directory_set(Ephoto *ephoto, const char *path,
 void         ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle);
 
 /*config panel functions*/
-Eina_Bool    ephoto_config_init(Ephoto *em);
-void         ephoto_config_save(Ephoto *em);
-void         ephoto_config_free(Ephoto *em);
-void         ephoto_config_main(Ephoto *em);
+Eina_Bool                  ephoto_config_init(Ephoto *em);
+void                       ephoto_config_save(Ephoto *em);
+void                       ephoto_config_free(Ephoto *em);
+Eina_Bool                  ephoto_gadget_config_init(Ephoto *em);
+Ephoto_Gadget_Config_Item *ephoto_gadget_config_item_get(Ephoto *em, int id, const char *profile);
+void                       ephoto_gadget_config_save(Ephoto *em);
+void                       ephoto_gadget_config_free(Ephoto *em);
+void                       ephoto_config_main(Ephoto *em);
 
 /*single image functions*/
 Evas_Object *ephoto_single_browser_add(Ephoto *ephoto, Evas_Object *parent);
@@ -251,68 +257,84 @@ struct _Ephoto_Config
    Evas_Object *panel_size;
 };
 
+struct _Ephoto_Gadget_Config
+{
+   int        config_version;
+   Eina_List *config_items;
+};
+
+struct _Ephoto_Gadget_Config_Item
+{
+   int         id;
+   const char *profile;
+   const char *directory;
+   double      slideshow_timeout;
+};
+ 
 struct _Ephoto
 {
-   Evas_Object   *win;
-   Evas_Object   *main;
-   Evas_Object   *layout;
-   Evas_Object   *pager;
-   Evas_Object   *statusbar;
-   Evas_Object   *folders_button;
-   Evas_Object   *folders_icon;
-   Evas_Object   *view_button;
-   Evas_Object   *controls_left;
-   Evas_Object   *controls_right;
-   Evas_Object   *infolabel;
-   Evas_Object   *exit;
+   Evas_Object               *win;
+   Evas_Object               *main;
+   Evas_Object               *layout;
+   Evas_Object               *pager;
+   Evas_Object               *statusbar;
+   Evas_Object               *folders_button;
+   Evas_Object               *folders_icon;
+   Evas_Object               *view_button;
+   Evas_Object               *controls_left;
+   Evas_Object               *controls_right;
+   Evas_Object               *infolabel;
+   Evas_Object               *exit;
 
-   Evas_Object   *thumb_browser;
-   Evas_Object   *single_browser;
-   Evas_Object   *slideshow;
-   Evas_Object   *dir_browser;
-   Evas_Object   *file_popup;
+   Evas_Object               *thumb_browser;
+   Evas_Object               *single_browser;
+   Evas_Object               *slideshow;
+   Evas_Object               *dir_browser;
+   Evas_Object               *file_popup;
 
-   Eina_Bool      folders_toggle;
-   Eina_Bool      thumb_browser_dirty;
-   Eina_List     *entries;
-   Eina_List     *selentries;
-   Eina_List     *searchentries;
-   Eina_List     *thumbs;
+   Eina_Bool                  folders_toggle;
+   Eina_Bool                  thumb_browser_dirty;
+   Eina_List                 *entries;
+   Eina_List                 *selentries;
+   Eina_List                 *searchentries;
+   Eina_List                 *thumbs;
 
-   Eio_Monitor   *monitor;
-   Eina_List     *monitor_handlers;
-   Eina_List     *file_pos;
-   Eina_List     *upload_handlers;
-   Ecore_Thread  *file_thread;
-   Ecore_Con_Url *url_up;
-   char          *url_ret;
-   char          *upload_error;
-   int            file_errors;
+   Eio_Monitor               *monitor;
+   Eina_List                 *monitor_handlers;
+   Eina_List                 *file_pos;
+   Eina_List                 *upload_handlers;
+   Ecore_Thread              *file_thread;
+   Ecore_Con_Url             *url_up;
+   char                      *url_ret;
+   char                      *upload_error;
+   int                        file_errors;
 
-   const char    *top_directory;
-   const char    *config_path;
-   const char    *trash_path;
-   const char    *destination;
+   const char                *top_directory;
+   const char                *config_path;
+   const char                *trash_path;
+   const char                *destination;
 
-   int            thumb_gen_size;
-   int            gadget;
+   int                        thumb_gen_size;
+   int                        gadget;
 
    struct
    {
-      Ecore_Timer *thumb_regen;
+      Ecore_Timer            *thumb_regen;
    } timer;
    struct
    {
-      Ecore_Job *change_dir;
+      Ecore_Job              *change_dir;
    } job;
 
-   Eio_File      *ls;
+   Eio_File                  *ls;
 
-   Evas_Object   *prefs_win;
-   Ephoto_State   state, prev_state;
+   Evas_Object               *prefs_win;
+   Ephoto_State               state, prev_state;
 
-   Ephoto_Config *config;
-   Ephoto_Sort    sort;
+   Ephoto_Config             *config;
+   Ephoto_Gadget_Config      *gadget_config;
+   Ephoto_Gadget_Config_Item *gci;
+   Ephoto_Sort                sort;
 };
 
 struct _Ephoto_Entry

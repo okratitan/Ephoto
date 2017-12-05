@@ -1,4 +1,0 @@
-option('nls',
-        type: 'boolean',
-        value: true,
-        description: 'enable localization: (default=true)')

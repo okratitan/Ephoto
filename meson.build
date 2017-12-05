@@ -36,7 +36,6 @@ cc = meson.get_compiler('c')
 ##### get edje command
 edje_cmd = join_paths(edje.get_pkgconfig_variable('prefix'),
                       'bin', 'edje_cc')
-
 ##### config.h
 cfg.set_quoted('PACKAGE'                 , proj)
 cfg.set_quoted('PACKAGE_NAME'            , proj)
@@ -70,23 +69,36 @@ endif
 if depe.found() == true
     cfg.set       ('HAVE_E'              , 1)
 endif
-if get_option('nls') == true
-    if cc.has_header('locale.h') == true
-        if cc.has_header('libintl.h') == true
-           cfg.set ('HAVE_GETTEXT'        , 1)
-        endif
-    endif
-    cfg.set       ('ENABLE_NLS'          , 1)
+##### translations
+use_translations = false
+depnls = []
+intl_lib = cc.find_library('intl', required: false)
+if intl_lib.found()
+  cfg.set('HAVE_GETTEXT', 1)
+  cfg.set('ENABLE_NLS', 1)
+  depnls = [intl_lib]
+  use_translations = true
+else
+  gettext_code = '''
+  #include <libintl.h>
+  int main(int argc, char *argv[]) {
+      (void)ngettext("", "", 0);
+      return 0;
+  }
+  '''
+  if cc.links(gettext_code)
+    cfg.set('HAVE_GETTEXT', 1)
+    cfg.set('ENABLE_NLS', 1)
+    use_translations = true
+  endif
 endif
 configure_file(output: 'config.h', configuration: cfg)
-
-##### translations
-if get_option('nls') == true
-  subdir('po')
-endif
 
 install_data('AUTHORS',
              install_dir: join_paths(dir_data, 'ephoto'))
 
+if use_translations
+  subdir('po')
+endif
 subdir('src')
 subdir('data')

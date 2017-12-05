@@ -4,7 +4,8 @@ deps = [
     edje,
     eipc,
     exif,
-    depe
+    depe,
+    depnls
 ]
 executable('ephoto', [
     'ephoto.c',

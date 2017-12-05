@@ -1,0 +1,881 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ephoto 1.5\n"
+"Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2017-12-05 16:33-0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: ../src/bin/ephoto_config.c:404
+msgid ""
+"<b><hilight>General Bindings</hilight></b><br/><b>F1:</b> Settings Panel<br/"
+"><b>F5:</b> Start Slideshow<br/><b>F11:</b> Toggle Fullscreen<br/><b>Ctrl"
+"+Shift+f:</b> Toggle File Selector<br/><br/><b><hilight>Thumbnail Browser "
+"Bindings</hilight></b><br/><b>Ctrl++:</b> Zoom In<br/><b>Ctrl+-:</b> Zoom "
+"Out<br/><b>Ctrl+Tab:</b> View Image<br/><b>Ctrl+c:</b> Copy Image<br/><b>Ctrl"
+"+x:</b> Cut Image<br/><b>Ctrl+v:</b> Paste Image<br/><b>Ctrl+a:</b> Select "
+"All<br/><b>Ctrl+f:</b> Toggle Search<br/><b>Ctrl+Delete:</b> Delete Image<br/"
+"><b>F2:</b> Rename Image<br/><b>Escape:</b> Clear Selection<br/><br/"
+"><b><hilight>Single Browser Bindings</hilight></b><br/><b>Ctrl+Shift+0:</b> "
+"Zoom 1:1<br/><b>Ctrl++:</b> Zoom In<br/><b>Ctrl+-:</b> Zoom Out<br/><b>Ctrl"
+"+0:</b> Zoom Fit<br/><b>Ctrl+Shift+l:</b> Rotate Counter Clockwise<br/"
+"><b>Ctrl+l:</b> Flip Horizontal<br/><b>Ctrl+Shift+r:</b> Rotate Clockwise<br/"
+"><b>Ctrl+r:</b> Flip Vertical<br/><b>Ctrl+Shift+s:</b> Save Image As<br/"
+"><b>Ctrl+s:</b> Save Image<br/><b>Ctrl+u:</b> Reset Image<br/><b>Ctrl+y:</b> "
+"Redo<br/><b>Ctrl+Shift+z:</b> Redo<br/><b>Ctrl+z:</b> Undo<br/><b>Home:</b> "
+"Navigate First<br/><b>Left Arrow:</b> Navigate Previous<br/><b>Right Arrow:</"
+"b> Navigate Next<br/><b>Space:</b> Navigate Next<br/><b>End:</b> Navigate "
+"Last<br/><b>Ctrl+Delete:</b> Delete Image<br/><b>F2</b> Rename Image<br/"
+"><b>Escape:</b> Return to Thumbnail Browser<br/><br/><b><hilight>Slideshow "
+"Bindings</hilight></b><br/><b>Space:</b> Play/Pause Slideshow<br/><b>Home:</"
+"b> Navigate First<br/><b>Left Arrow:</b> Navigate Previous<br/><b>Right "
+"Arrow:</b> Navigate Next<br/><b>End:</b> Navigate Last<br/><b>Escape:</b> "
+"Quit Slideshow<br/>"
+msgstr ""
+
+#: ../src/bin/ephoto_red_eye.c:223
+msgid "<b>Click on an eye</b>"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:735
+msgid "About"
+msgstr ""
+
+#: ../src/bin/ephoto_color.c:251
+msgid "Adjust Color Levels"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1828
+msgid "Adjustable Filters"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:2114
+msgid "Alphabetical Ascending"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:2117
+msgid "Alphabetical Descending"
+msgstr ""
+
+#: ../src/bin/ephoto_editor.c:69
+msgid "Apply"
+msgstr ""
+
+#: ../src/bin/ephoto_filters.c:105
+msgid "Applying Filter"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1701
+msgid "Are you sure you want to copy these files here?"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1601
+msgid "Are you sure you want to copy these files to"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1759
+msgid "Are you sure you want to delete these files?"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1755
+msgid "Are you sure you want to delete this directory?"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1813
+msgid "Are you sure you want to empty the trash?"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1550
+msgid "Are you sure you want to move these files to"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1287 ../src/bin/ephoto_file.c:1414
+msgid "Are you sure you want to overwrite this image?"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1654
+msgid "Are you sure you want to paste these files here?"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1015
+msgid "Are you sure you want to reset your changes?"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1496
+msgid "Are you sure you want to upload this image publically to imgur.com?"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1842
+msgid "Auto Equalize"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:143
+#: ../src/bin/ephoto_thumb_browser.c:1088
+#: ../src/bin/ephoto_thumb_browser.c:1097
+msgid "B"
+msgid_plural "B"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/bin/ephoto_directory_browser.c:464 ../src/bin/ephoto_slideshow.c:1030
+msgid "Back"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1640
+msgid "Bad Image"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:728
+msgid "Bindings"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1844
+msgid "Black and White"
+msgstr ""
+
+#: ../src/bin/ephoto_color.c:257
+msgid "Blue"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1846
+msgid "Blur"
+msgstr ""
+
+#: ../src/bin/ephoto_bcg.c:361
+msgid "Brightness"
+msgstr ""
+
+#: ../src/bin/ephoto_bcg.c:325 ../src/bin/ephoto_single_browser.c:1831
+msgid "Brightness/Contrast/Gamma"
+msgstr ""
+
+#: ../src/bin/ephoto_editor.c:84 ../src/bin/ephoto_file.c:629
+#: ../src/bin/ephoto_file.c:753
+msgid "Cancel"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1884
+msgid "Close"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1835
+msgid "Color Levels"
+msgstr ""
+
+#: ../src/bin/ephoto_bcg.c:346
+msgid "Contrast"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:451 ../src/bin/ephoto_thumb_browser.c:980
+msgid "Copy"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1603 ../src/bin/ephoto_file.c:1700
+msgid "Copy Files"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:378
+msgid "Copy Link"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:932
+msgid "Copying Files"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1818
+msgid "Crop"
+msgstr ""
+
+#: ../src/bin/ephoto_cropper.c:702
+msgid "Crop Image"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:83 ../src/bin/ephoto_config.c:174
+#: ../src/bin/ephoto_config.c:187
+msgid "Custom Directory"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:978
+msgid "Cut"
+msgstr ""
+
+#: ../src/bin/ephoto_directory_browser.c:684
+#: ../src/bin/ephoto_single_browser.c:1915
+#: ../src/bin/ephoto_thumb_browser.c:998
+msgid "Delete"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1754
+msgid "Delete Directory"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1758
+msgid "Delete Files"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1069
+msgid "Deleting Directory"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1009
+msgid "Deleting Files"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1848
+msgid "Dither"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1850
+msgid "Edge Detect"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1780
+#: ../src/bin/ephoto_single_browser.c:1908
+#: ../src/bin/ephoto_single_browser.c:2531
+#: ../src/bin/ephoto_single_browser.c:2533
+msgid "Edit"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1852
+msgid "Emboss"
+msgstr ""
+
+#: ../src/bin/ephoto_directory_browser.c:679 ../src/bin/ephoto_file.c:1812
+#: ../src/bin/ephoto_thumb_browser.c:993
+msgid "Empty Trash"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1108
+msgid "Emptying Trash"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:499
+msgid ""
+"Ephoto is a comprehensive image viewer based on the EFL. For "
+"moreinformation, please visit the Ephoto project page:<br/><a href=http://"
+"www.smhouston.us/ephoto/>http://www.smhouston.us/ephoto/</a><br/><br/>Ephoto "
+"also has a page on the Enlightenment wiki:<br/><a href=https://phab."
+"enlightenment.org/w/projects/ephoto>https://phab.enlightenment.org/w/"
+"projects/ephoto</a><br/><br/>Ephoto's source can be found through "
+"Enlightenment's git:<br/><a href=http://git.enlightenment.org/apps/ephoto."
+"git>http://git.enlightenment.org/apps/ephoto.git</a><br/><br/><b>Authors:</"
+"b><br/>"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:564 ../src/bin/ephoto_file.c:668
+#: ../src/bin/ephoto_file.c:671 ../src/bin/ephoto_file.c:810
+msgid "Error"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:309 ../src/bin/ephoto_file.c:321
+#: ../src/bin/ephoto_file.c:338 ../src/bin/ephoto_file.c:1202
+#: ../src/bin/ephoto_file.c:1214 ../src/bin/ephoto_file.c:1230
+#: ../src/bin/ephoto_file.c:1331 ../src/bin/ephoto_file.c:1409
+msgid "Error: Image could not be saved here!"
+msgstr ""
+
+#: ../src/bin/ephoto_main.c:606 ../src/bin/ephoto_main.c:609
+#: ../src/bin/ephoto_slideshow.c:1052
+msgid "Exit"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1906
+msgid "File"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:142
+msgid "File Panel Size"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:126
+msgid "File Size"
+msgstr ""
+
+#: ../src/bin/ephoto_slideshow.c:1032
+msgid "First"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1824
+#: ../src/bin/ephoto_single_browser.c:1929
+msgid "Flip Horizontal"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1826
+#: ../src/bin/ephoto_single_browser.c:1931
+msgid "Flip Vertical"
+msgstr ""
+
+#: ../src/bin/ephoto_slideshow.c:774 ../src/bin/ephoto_slideshow.c:1046
+#: ../src/bin/ephoto_slideshow.c:1161
+msgid "Fullscreen"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:162
+#: ../src/bin/ephoto_thumb_browser.c:1116
+msgid "GB"
+msgid_plural "GB"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/bin/ephoto_bcg.c:331
+msgid "Gamma"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:714
+msgid "General"
+msgstr ""
+
+#: ../src/bin/ephoto_color.c:272
+msgid "Green"
+msgstr ""
+
+#: ../src/bin/ephoto_cropper.c:712
+msgid "Height"
+msgstr ""
+
+#: ../src/bin/ephoto_main.c:298 ../src/bin/ephoto_main.c:299
+#: ../src/bin/ephoto_main.c:360 ../src/bin/ephoto_main.c:361
+#: ../src/bin/ephoto_main.c:695 ../src/bin/ephoto_main.c:696
+msgid "Hide Folders"
+msgstr ""
+
+#: ../src/bin/ephoto_directory_browser.c:662
+msgid "Home"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:25 ../src/bin/ephoto_config.c:170
+msgid "Home Directory"
+msgstr ""
+
+#: ../src/bin/ephoto_hsv.c:368
+msgid "Hue"
+msgstr ""
+
+#: ../src/bin/ephoto_hsv.c:332 ../src/bin/ephoto_single_browser.c:1833
+msgid "Hue/Saturation/Value"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1474
+msgid "Image Files"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:160
+msgid "Image Properties"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:2126
+msgid "Image Simalarity"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:407
+msgid "Image Uploaded"
+msgstr ""
+
+#: ../src/bin/ephoto_main.c:549
+msgid "Information"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1854
+msgid "Invert Colors"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:150
+#: ../src/bin/ephoto_thumb_browser.c:1104
+msgid "KB"
+msgid_plural "KB"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/bin/ephoto_scale.c:223
+msgid "Keep Aspect"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:134
+msgid "Keep Aspect on Thumbnails"
+msgstr ""
+
+#: ../src/bin/ephoto_slideshow.c:1043
+msgid "Last"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:27 ../src/bin/ephoto_config.c:172
+msgid "Last Open Directory"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:156
+#: ../src/bin/ephoto_thumb_browser.c:1110
+msgid "MB"
+msgid_plural "MB"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/bin/ephoto_single_browser.c:541
+#: ../src/bin/ephoto_single_browser.c:2365
+msgid "MODIFIED"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:2120
+msgid "Modification Time Ascending"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:2123
+msgid "Modification Time Descending"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1552
+msgid "Move Files"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:118
+msgid "Move Files When Dropped"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:870
+msgid "Moving Files"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:257
+msgid "Moving Slideshow"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:588 ../src/bin/ephoto_file.c:603
+msgid "New Directory"
+msgstr ""
+
+#: ../src/bin/ephoto_directory_browser.c:666
+msgid "New Folder"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:2483
+#: ../src/bin/ephoto_single_browser.c:2485 ../src/bin/ephoto_slideshow.c:1040
+msgid "Next"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1308 ../src/bin/ephoto_file.c:1432
+#: ../src/bin/ephoto_file.c:1515 ../src/bin/ephoto_file.c:1573
+#: ../src/bin/ephoto_file.c:1624 ../src/bin/ephoto_file.c:1675
+#: ../src/bin/ephoto_file.c:1722 ../src/bin/ephoto_file.c:1780
+#: ../src/bin/ephoto_file.c:1834 ../src/bin/ephoto_single_browser.c:1037
+msgid "No"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:1082
+msgid "No images matched your search"
+msgstr ""
+
+#: ../src/bin/ephoto_slideshow.c:785 ../src/bin/ephoto_slideshow.c:1171
+msgid "Normal"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:238 ../src/bin/ephoto_file.c:462
+msgid "Ok"
+msgstr ""
+
+#: ../src/bin/ephoto_slideshow.c:877
+msgid "Okay"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1856
+msgid "Old Photo"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:370 ../src/bin/ephoto_file.c:372
+msgid "Open Link In Browser"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1286
+msgid "Overwrite Image"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1858
+msgid "Painting"
+msgstr ""
+
+#: ../src/bin/ephoto_directory_browser.c:673
+#: ../src/bin/ephoto_thumb_browser.c:986
+msgid "Paste"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1653
+msgid "Paste Files"
+msgstr ""
+
+#: ../src/bin/ephoto_slideshow.c:725 ../src/bin/ephoto_slideshow.c:1150
+msgid "Pause"
+msgstr ""
+
+#: ../src/bin/ephoto_slideshow.c:716 ../src/bin/ephoto_slideshow.c:1037
+msgid "Play"
+msgstr ""
+
+#: ../src/bin/ephoto_filters.c:116
+msgid "Please wait while this filter is applied to your image."
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1070
+msgid "Please wait while your directory is deleted."
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:933
+msgid "Please wait while your files are copied."
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1010 ../src/bin/ephoto_file.c:1109
+msgid "Please wait while your files are deleted."
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:871
+msgid "Please wait while your files are moved."
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1860
+msgid "Posterize"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:2467
+#: ../src/bin/ephoto_single_browser.c:2469 ../src/bin/ephoto_slideshow.c:1034
+msgid "Previous"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:110
+msgid "Prompt Before Changing The Filesystem"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1921
+msgid "Properties"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1839
+msgid "Quick Filters"
+msgstr ""
+
+#: ../src/bin/ephoto_red_eye.c:208
+msgid "Radius"
+msgstr ""
+
+#: ../src/bin/ephoto_color.c:287
+msgid "Red"
+msgstr ""
+
+#: ../src/bin/ephoto_red_eye.c:202 ../src/bin/ephoto_single_browser.c:1837
+msgid "Red Eye Removal"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1882
+msgid "Redo"
+msgstr ""
+
+#: ../src/bin/ephoto_directory_browser.c:671 ../src/bin/ephoto_file.c:742
+#: ../src/bin/ephoto_single_browser.c:1913
+#: ../src/bin/ephoto_thumb_browser.c:971
+msgid "Rename"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:704
+msgid "Rename Directory"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:706
+msgid "Rename File"
+msgstr ""
+
+#: ../src/bin/ephoto_editor.c:54 ../src/bin/ephoto_single_browser.c:1883
+#: ../src/bin/ephoto_single_browser.c:1909
+msgid "Reset"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1004
+msgid "Reset Image"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:126
+msgid "Resolution"
+msgstr ""
+
+#: ../src/bin/ephoto_directory_browser.c:660
+msgid "Root"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:23 ../src/bin/ephoto_config.c:168
+msgid "Root Directory"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1820
+#: ../src/bin/ephoto_single_browser.c:2499
+#: ../src/bin/ephoto_single_browser.c:2501
+msgid "Rotate Left"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1822
+#: ../src/bin/ephoto_single_browser.c:2515
+#: ../src/bin/ephoto_single_browser.c:2517
+msgid "Rotate Right"
+msgstr ""
+
+#: ../src/bin/ephoto_hsv.c:353
+msgid "Saturation"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:618 ../src/bin/ephoto_single_browser.c:1876
+#: ../src/bin/ephoto_single_browser.c:1910
+msgid "Save"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1877
+#: ../src/bin/ephoto_single_browser.c:1911
+#: ../src/bin/ephoto_single_browser.c:2547
+#: ../src/bin/ephoto_single_browser.c:2549
+msgid "Save As"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:308 ../src/bin/ephoto_file.c:320
+#: ../src/bin/ephoto_file.c:337 ../src/bin/ephoto_file.c:1201
+#: ../src/bin/ephoto_file.c:1213 ../src/bin/ephoto_file.c:1229
+#: ../src/bin/ephoto_file.c:1330 ../src/bin/ephoto_file.c:1408
+msgid "Save Failed"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1413
+msgid "Save Image"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1454
+msgid "Save Image As"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1819
+msgid "Scale"
+msgstr ""
+
+#: ../src/bin/ephoto_scale.c:217
+msgid "Scale Image"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:962 ../src/bin/ephoto_thumb_browser.c:1360
+msgid "Search"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:964
+msgid "Select All"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:967
+msgid "Select None"
+msgstr ""
+
+#: ../src/bin/ephoto_main.c:589 ../src/bin/ephoto_main.c:592
+#: ../src/bin/ephoto_slideshow.c:1023 ../src/bin/ephoto_slideshow.c:1049
+msgid "Settings"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:662
+msgid "Settings Panel"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1862
+msgid "Sharpen"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:266 ../src/bin/ephoto_slideshow.c:858
+msgid "Show Each Slide For"
+msgstr ""
+
+#: ../src/bin/ephoto_main.c:308 ../src/bin/ephoto_main.c:309
+#: ../src/bin/ephoto_main.c:370 ../src/bin/ephoto_main.c:371
+#: ../src/bin/ephoto_main.c:530 ../src/bin/ephoto_main.c:532
+#: ../src/bin/ephoto_main.c:687 ../src/bin/ephoto_main.c:688
+msgid "Show Folders"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:102
+msgid "Show Folders On Start"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:1087
+#: ../src/bin/ephoto_thumb_browser.c:1128
+msgid "Size"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1864
+msgid "Sketch"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:287
+msgid "Slide Transition"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:721 ../src/bin/ephoto_main.c:572
+#: ../src/bin/ephoto_main.c:575
+msgid "Slideshow"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:126
+msgid "Smooth Scale Images"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:2129
+#: ../src/bin/ephoto_thumb_browser.c:2136
+msgid "Sort"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:167
+#: ../src/bin/ephoto_thumb_browser.c:1121
+msgid "TB"
+msgid_plural "TB"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/bin/ephoto_thumb_browser.c:1085
+#: ../src/bin/ephoto_thumb_browser.c:1391
+msgid "There are no images in this directory"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:808
+msgid "There was an error completing your action on"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:565
+msgid "There was an error creating this directory."
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:669
+msgid "There was an error renaming this directory."
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:672
+msgid "There was an error renaming this file."
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:480
+msgid "There was an error uploading your image!"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1635
+msgid "This image does not exist or is corrupted!"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:161
+msgid "Top Level Directory"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:1087
+#: ../src/bin/ephoto_thumb_browser.c:1127
+msgid "Total"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1815
+msgid "Transform"
+msgstr ""
+
+#: ../src/bin/ephoto_directory_browser.c:499
+#: ../src/bin/ephoto_directory_browser.c:686
+msgid "Trash"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:125
+msgid "Type"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1881
+msgid "Undo"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1879
+#: ../src/bin/ephoto_single_browser.c:1917
+msgid "Upload"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1135 ../src/bin/ephoto_file.c:1495
+msgid "Upload Image"
+msgstr ""
+
+#: ../src/bin/ephoto_hsv.c:338
+msgid "Value"
+msgstr ""
+
+#: ../src/bin/ephoto_thumb_browser.c:2070
+#: ../src/bin/ephoto_thumb_browser.c:2072
+msgid "View Image"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:2417
+#: ../src/bin/ephoto_single_browser.c:2419
+msgid "View Thumbnails"
+msgstr ""
+
+#: ../src/bin/ephoto_config.c:149
+msgid "Weight (1.0 Max)"
+msgstr ""
+
+#: ../src/bin/ephoto_cropper.c:725
+msgid "Width"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:1295 ../src/bin/ephoto_file.c:1421
+#: ../src/bin/ephoto_file.c:1503 ../src/bin/ephoto_file.c:1560
+#: ../src/bin/ephoto_file.c:1611 ../src/bin/ephoto_file.c:1662
+#: ../src/bin/ephoto_file.c:1709 ../src/bin/ephoto_file.c:1767
+#: ../src/bin/ephoto_file.c:1821 ../src/bin/ephoto_single_browser.c:1026
+msgid "Yes"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:499
+msgid "Your image was uploaded to the following link:"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1927
+msgid "Zoom 1:1"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:1925
+msgid "Zoom Fit"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:2435
+#: ../src/bin/ephoto_single_browser.c:2437
+#: ../src/bin/ephoto_thumb_browser.c:2088
+#: ../src/bin/ephoto_thumb_browser.c:2090
+msgid "Zoom In"
+msgstr ""
+
+#: ../src/bin/ephoto_single_browser.c:2451
+#: ../src/bin/ephoto_single_browser.c:2453
+#: ../src/bin/ephoto_thumb_browser.c:2104
+#: ../src/bin/ephoto_thumb_browser.c:2106
+msgid "Zoom Out"
+msgstr ""
+
+#: ../src/bin/ephoto_file.c:809
+msgid "file"
+msgid_plural "files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/bin/ephoto_thumb_browser.c:1087
+#: ../src/bin/ephoto_thumb_browser.c:1127
+msgid "image"
+msgid_plural "images"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/bin/ephoto_config.c:212
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/bin/ephoto_config.c:275 ../src/bin/ephoto_slideshow.c:867
+msgid "seconds"
+msgstr ""

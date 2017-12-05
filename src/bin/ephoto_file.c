@@ -290,6 +290,8 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
                          void *event_info EINA_UNUSED)
 {
    Evas_Object *popup = data;
+   char tmp_path[PATH_MAX];
+   const char *base;
    const char *file = evas_object_data_get(popup, "file");
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
    Ephoto_Entry *entry = evas_object_data_get(popup, "entry");
@@ -298,7 +300,9 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
 
    if (ecore_file_exists(file))
      {
-        success = ecore_file_unlink(file);
+        base = ecore_file_file_get(file);
+        snprintf(tmp_path, PATH_MAX, "%s/ephoto/%s", efreet_config_home_get(), base);
+        success = ecore_file_cp(file, tmp_path);
         if (!success)
           {
              _complete(ephoto, _("Save Failed"),
@@ -306,6 +310,19 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
              ephoto_single_browser_entry_set(ephoto->single_browser, entry);
              evas_object_del(popup);
              elm_object_focus_set(ephoto->pager, EINA_TRUE);
+             ecore_file_unlink(tmp_path);
+             return;
+          }
+        success = ecore_file_unlink(file);
+        if (!success)
+          {
+             ecore_file_cp(tmp_path, file);
+             _complete(ephoto, _("Save Failed"),
+                       _("Error: Image could not be saved here!"));
+             ephoto_single_browser_entry_set(ephoto->single_browser, entry);
+             evas_object_del(popup);
+             elm_object_focus_set(ephoto->pager, EINA_TRUE);
+             ecore_file_unlink(tmp_path);
              return;
           }
      }
@@ -315,10 +332,14 @@ _save_image_as_overwrite(void *data, Evas_Object *obj EINA_UNUSED,
                             NULL, NULL);
    if (!success)
      {
+        if (!ecore_file_exists(file) && strlen(tmp_path))
+          ecore_file_cp(tmp_path, file);
         _complete(ephoto, _("Save Failed"),
                   _("Error: Image could not be saved here!"));
         ephoto_single_browser_path_pending_unset(ephoto->single_browser);
      }
+   if (strlen(tmp_path))
+     ecore_file_unlink(tmp_path);
    evas_object_del(popup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);
 }
@@ -1166,11 +1187,15 @@ _prompt_save_image_apply(void *data, Evas_Object *obj EINA_UNUSED,
    Ephoto *ephoto = evas_object_data_get(popup, "ephoto");
    Ephoto_Entry *entry = evas_object_data_get(popup, "entry");
    Evas_Object *image = evas_object_data_get(popup, "image");
+   char tmp_path[PATH_MAX];
+   const char *base;
    Eina_Bool success;
 
    if (ecore_file_exists(entry->path))
      {
-        success = ecore_file_unlink(entry->path);
+        base = ecore_file_file_get(entry->path);
+        snprintf(tmp_path, PATH_MAX, "%s/ephoto/%s", efreet_config_home_get(), base);
+        success = ecore_file_cp(entry->path, tmp_path);
         if (!success)
           {
              _complete(ephoto, _("Save Failed"),
@@ -1178,6 +1203,19 @@ _prompt_save_image_apply(void *data, Evas_Object *obj EINA_UNUSED,
              ephoto_single_browser_entry_set(ephoto->single_browser, entry);
              evas_object_del(popup);
              elm_object_focus_set(ephoto->pager, EINA_TRUE);
+             ecore_file_unlink(tmp_path);
+             return;
+          }
+        success = ecore_file_unlink(entry->path);
+        if (!success)
+          {
+             ecore_file_cp(tmp_path, entry->path);
+             _complete(ephoto, _("Save Failed"),
+                       _("Error: Image could not be saved here!"));
+             ephoto_single_browser_entry_set(ephoto->single_browser, entry);
+             evas_object_del(popup);
+             elm_object_focus_set(ephoto->pager, EINA_TRUE);
+             ecore_file_unlink(tmp_path);
              return;
           }
      }
@@ -1185,8 +1223,14 @@ _prompt_save_image_apply(void *data, Evas_Object *obj EINA_UNUSED,
      evas_object_image_save(image, entry->path,
                             NULL, NULL);
    if (!success)
-     _complete(ephoto, _("Save Failed"),
-               _("Error: Image could not be saved here!"));
+     {
+        if (!ecore_file_exists(entry->path) && strlen(tmp_path))
+          ecore_file_cp(tmp_path, entry->path);
+        _complete(ephoto, _("Save Failed"),
+                  _("Error: Image could not be saved here!"));
+     }
+   if (strlen(tmp_path))
+     ecore_file_unlink(tmp_path);
    ephoto_single_browser_entry_set(ephoto->single_browser, entry);
    evas_object_del(popup);
    elm_object_focus_set(ephoto->pager, EINA_TRUE);

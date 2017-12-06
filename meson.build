@@ -11,6 +11,8 @@ proj     = meson.project_name()
 ver      = meson.project_version()
 cfg      = configuration_data()
 
+build_gadget = false
+
 ##### dependencies
 efl_version = '>= 1.19.0'
 elm  = dependency('elementary', required: true,  version: efl_version)
@@ -67,6 +69,7 @@ if exif.found() == true
     cfg.set       ('HAVE_LIBEXIF'        , 1)
 endif
 if depe.found() == true
+    build_gadget = true
     cfg.set       ('HAVE_E'              , 1)
 endif
 ##### translations

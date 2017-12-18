@@ -764,10 +764,13 @@ ephoto_config_save(Ephoto *ephoto)
 void
 ephoto_config_free(Ephoto *ephoto)
 {
-   eina_stringshare_del(ephoto->config->directory);
-   eina_stringshare_del(ephoto->config->slideshow_transition);
-   free(ephoto->config);
-   ephoto->config = NULL;
+   if (ephoto->config)
+     {
+        eina_stringshare_del(ephoto->config->directory);
+        eina_stringshare_del(ephoto->config->slideshow_transition);
+        free(ephoto->config);
+        ephoto->config = NULL;
+     }
 }
 
 Eina_Bool

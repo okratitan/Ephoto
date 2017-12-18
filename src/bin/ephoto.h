@@ -1,7 +1,6 @@
 #ifndef _EPHOTO_H_
 # define _EPHOTO_H_
 
-# include "config.h"
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
@@ -24,6 +23,8 @@
 #if HAVE_ENLIGHTENMENT
 # include <e_gadget_types.h>
 #endif
+
+# include "config.h"
 
 #if HAVE_GETTEXT
 # include <locale.h>

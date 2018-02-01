@@ -29,6 +29,11 @@ _config_save_cb(void *data, Evas_Object *obj EINA_UNUSED,
    else
      path = elm_object_text_get(ephoto->config->open_dir_custom);
 
+   if (!path)
+     path = eina_environment_home_get();
+   if (!path)
+     path = "/";
+
    if (ecore_file_is_dir(path) || !strcmp(path, "Last"))
      eina_stringshare_replace(&ephoto->config->open, path);
    if (strcmp(path, ephoto->config->directory) && strcmp(path, "Last") &&

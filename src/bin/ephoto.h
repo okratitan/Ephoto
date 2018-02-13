@@ -40,7 +40,6 @@
 /*local types*/
 typedef struct _Ephoto_Config             Ephoto_Config;
 typedef struct _Ephoto_Gadget_Config      Ephoto_Gadget_Config;
-typedef struct _Ephoto_Gadget_Config_Item Ephoto_Gadget_Config_Item;
 typedef struct _Ephoto                    Ephoto;
 typedef struct _Ephoto_Entry              Ephoto_Entry;
 typedef struct _Ephoto_Event_Entry_Create Ephoto_Event_Entry_Create;
@@ -65,9 +64,9 @@ void         ephoto_show_folders(Ephoto *ephoto, Eina_Bool toggle);
 Eina_Bool                  ephoto_config_init(Ephoto *em);
 void                       ephoto_config_save(Ephoto *em);
 void                       ephoto_config_free(Ephoto *em);
-Eina_Bool                  ephoto_gadget_config_init(Ephoto *em);
-Ephoto_Gadget_Config_Item *ephoto_gadget_config_item_get(Ephoto *em, int id, const char *profile);
+Eina_Bool                  ephoto_gadget_config_init(Ephoto *em, int id, const char *profile);
 void                       ephoto_gadget_config_save(Ephoto *em);
+void                       ephoto_gadget_config_remove(Ephoto *em);
 void                       ephoto_gadget_config_free(Ephoto *em);
 void                       ephoto_config_main(Ephoto *em);
 
@@ -261,17 +260,12 @@ struct _Ephoto_Config
 struct _Ephoto_Gadget_Config
 {
    int        config_version;
-   Eina_List *config_items;
-};
-
-struct _Ephoto_Gadget_Config_Item
-{
    int         id;
    const char *profile;
    const char *directory;
    double      slideshow_timeout;
 };
- 
+
 struct _Ephoto
 {
    Evas_Object               *win;
@@ -334,7 +328,6 @@ struct _Ephoto
 
    Ephoto_Config             *config;
    Ephoto_Gadget_Config      *gadget_config;
-   Ephoto_Gadget_Config_Item *gci;
    Ephoto_Sort                sort;
 };
 

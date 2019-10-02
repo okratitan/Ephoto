@@ -968,11 +968,13 @@ _delete_thread_cb(void *data, Ecore_Thread *et EINA_UNUSED)
              if (lstat(file, &s) == 0)
 #endif
                {
+#ifdef S_ISLNK
                   if (S_ISLNK(s.st_mode))
                     {
                        ret = ecore_file_unlink(file);
                     }
                   else
+#endif
                     {
                        snprintf(fp, PATH_MAX, "%s", file);
                        snprintf(dest, PATH_MAX, "%s/%s", ephoto->trash_path, basename(fp));

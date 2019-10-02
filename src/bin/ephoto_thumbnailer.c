@@ -670,11 +670,11 @@ e_sha1_sum(unsigned char *data, int size, unsigned char *dst)
           }
      }
 
-   t = htonl(digest[0]); digest[0] = t;
-   t = htonl(digest[1]); digest[1] = t;
-   t = htonl(digest[2]); digest[2] = t;
-   t = htonl(digest[3]); digest[3] = t;
-   t = htonl(digest[4]); digest[4] = t;
+   t = eina_htonl(digest[0]); digest[0] = t;
+   t = eina_htonl(digest[1]); digest[1] = t;
+   t = eina_htonl(digest[2]); digest[2] = t;
+   t = eina_htonl(digest[3]); digest[3] = t;
+   t = eina_htonl(digest[4]); digest[4] = t;
 
    memcpy(dst, digest, 5 * 4);
    return 1;

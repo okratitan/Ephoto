@@ -1,5 +1,4 @@
 [Desktop Entry]
-Encoding=UTF-8
 Type=Application
 Name=Ephoto
 Name[ca]=Ephoto
@@ -34,3 +33,4 @@ Exec=ephoto %f
 Terminal=false
 MimeType=inode/directory;image/png;image/jpeg;image/pjpeg;image/x-xpixmap;image/tiff;image/svg+xml;image/svg+xml-compressed;image/gif;image/x-portable-anymap;image/x-portable-bitmap;image/x-portable-graymap;image/x-portable-pixmap;image/bmp;image/x-bmp;image/x-tga;image/vnd.wap.wbmp;image/webp;image/vnd.microsoft.icon;image/ico;image/x-ico;image/x-win-bitmap;image/vnd.adobe.photoshop;image/x-psd;application/pdf;application/x-pdf;image/pdf;application/postscript;image/x-xcf;image/x-compressed-xcf;
 Categories=Graphics;Viewer;
+Keywords=Picture;Slideshow;Graphics;

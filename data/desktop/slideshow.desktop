@@ -1,5 +1,4 @@
 [Desktop Entry]
-Encoding=UTF-8
 Type=Application
 Name=Slideshow
 Icon=ephoto
@@ -7,3 +6,4 @@ Exec=ephoto
 X-Gadget-Version=1.5
 X-Gadget-Bugreport=https://www.enlightenment.org/contrib/report-bug
 X-Gadget-Orientations=None
+Keywords=Picture;Slideshow;Graphics;

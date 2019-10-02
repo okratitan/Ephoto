@@ -20,10 +20,6 @@ edje = dependency('edje',       required: true,  version: efl_version)
 eipc = dependency('ecore-ipc',  required: true,  version: efl_version)
 exif = dependency('libexif',    required: false, version: '>= 0.6.0')
 depe = dependency('enlightenment', required: false)
-##### check for windows dependency
-if build_machine.system() == 'windows'
-   win = dependency('evil', version: efl_version)
-endif
 
 ##### dir locations
 dir_prefix = get_option('prefix')
@@ -54,10 +50,6 @@ cfg.set       ('_POSIX_PTHREAD_SEMANTICS', 1)
 cfg.set       ('_ALL_SOURCE'             , 1)
 cfg.set       ('_POSIX_SOURCE'           , 1)
 cfg.set       ('_POSIX_1_SOURCE'         , 1)
-##### Check for windows
-if build_machine.system() == 'windows'
-    cfg.set       ('_WIN32'              , 1)
-endif
 ##### Check for arpa/inet and netinet/in.h
 if cc.has_header('arpa/inet.h') == true
     cfg.set       ('HAVE_ARPA_INET_H'    , 1)
